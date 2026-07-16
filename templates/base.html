@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NutriTrack{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav-bar">
+      <a class="nav-brand" href="/">NutriTrack</a>
+      <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link">Dashboard</a></li>
+        <li><a href="/history" class="nav-link">History</a></li>
+        <li><a href="/foods" class="nav-link">My Foods</a></li>
+        <li><a href="/meals" class="nav-link">Meals</a></li>
+        <li><a href="/settings" class="nav-link">Settings</a></li>
+        {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
+        <li><a href="/logout" class="nav-link">Logout ({{ session.username }})</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </header>
+
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,752 @@
+usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_serving,serving_unit
+170001,"Chicken breast, boneless skinless, cooked",generic,Protein Sources,31,3.6,0,165,,0,100,g
+170002,"Chicken breast, boneless skinless, raw",generic,Protein Sources,22,1.3,0,110,,0,100,g
+170003,"Chicken thigh, boneless skinless, cooked",generic,Protein Sources,26,9.3,0,177,,0,100,g
+170004,"Chicken thigh, boneless skinless, raw",generic,Protein Sources,17,8.2,0,125,,0,100,g
+170005,"Chicken drumstick, skin on, cooked",generic,Protein Sources,28,11.2,0,209,,0,100,g
+170006,"Chicken drumstick, skin on, raw",generic,Protein Sources,19,6.3,0,122,,0,100,g
+170007,"Chicken wing, skin on, cooked",generic,Protein Sources,26,11.4,0,203,,0,100,g
+170008,"Turkey breast, boneless skinless, cooked",generic,Protein Sources,29,1.3,0,135,,0,100,g
+170009,"Turkey breast, boneless skinless, raw",generic,Protein Sources,20,0.7,0,98,,0,100,g
+170010,"Turkey thigh, cooked",generic,Protein Sources,24,10.8,0,189,,0,100,g
+170011,"Ground turkey, 85% lean, cooked",generic,Protein Sources,20,11,0,200,,0,100,g
+170012,"Ground turkey, 93% lean, cooked",generic,Protein Sources,21,7,0,170,,0,100,g
+170013,"Egg, whole, raw",generic,Protein Sources,13,11,1.1,143,,0.6,50,g
+170014,"Egg, whole, boiled",generic,Protein Sources,13,11,1.1,143,,0.6,50,g
+170015,"Egg, whole, fried",generic,Protein Sources,13,11,1.1,143,,0.6,50,g
+170016,"Egg, scrambled",generic,Protein Sources,11,9,0.6,120,,0,50,g
+170017,"Egg white, raw",generic,Protein Sources,10.9,0.2,0.7,52,,0,33,g
+170018,"Egg yolk, raw",generic,Protein Sources,16.1,26.5,0.3,322,,0,17,g
+170019,"Salmon, Atlantic, cooked",generic,Protein Sources,25,13,0,217,,0,100,g
+170020,"Salmon, Atlantic, raw",generic,Protein Sources,19.8,8.1,0,140,,0,100,g
+170021,"Tuna, canned in water, drained",generic,Protein Sources,29.9,0.9,0,132,,0,100,g
+170022,"Tuna, fresh, cooked",generic,Protein Sources,29.9,1.3,0,132,,0,100,g
+170023,"Cod, cooked",generic,Protein Sources,20.5,0.9,0,95,,0,100,g
+170024,"Tilapia, cooked",generic,Protein Sources,26,1.7,0,128,,0,100,g
+170025,"Shrimp, cooked",generic,Protein Sources,24,0.3,0,99,,0,100,g
+170026,"Mahi-mahi, cooked",generic,Protein Sources,20.2,0.8,0,93,,0,100,g
+170027,"Halibut, cooked",generic,Protein Sources,23.4,1.3,0,110,,0,100,g
+170028,"Sardines, canned in oil, drained",generic,Protein Sources,24.6,13.6,0,208,,0,100,g
+170029,"Ground beef, 85% lean, cooked",generic,Protein Sources,22,15,0,235,,0,100,g
+170030,"Ground beef, 90% lean, cooked",generic,Protein Sources,24,11,0,200,,0,100,g
+170031,"Ground beef, 93% lean, cooked",generic,Protein Sources,25,8,0,180,,0,100,g
+170032,"Ground beef, 95% lean, cooked",generic,Protein Sources,26,5,0,155,,0,100,g
+170033,"Beef ribeye steak, cooked",generic,Protein Sources,25,21,0,291,,0,100,g
+170034,"Beef sirloin steak, cooked",generic,Protein Sources,26,8,0,180,,0,100,g
+170035,"Beef filet mignon, cooked",generic,Protein Sources,26,8.7,0,185,,0,100,g
+170036,"Beef chuck roast, cooked",generic,Protein Sources,26,15,0,235,,0,100,g
+170037,"Beef ground round, 80% lean, cooked",generic,Protein Sources,22,17,0,260,,0,100,g
+170038,"Pork loin, cooked",generic,Protein Sources,27,12,0,229,,0,100,g
+170039,"Pork chop, center loin, cooked",generic,Protein Sources,26,9,0,196,,0,100,g
+170040,"Pork tenderloin, cooked",generic,Protein Sources,27,3.5,0,143,,0,100,g
+170041,"Bacon, pan fried",generic,Protein Sources,37,25,1.3,541,,0,100,g
+170042,"Pork sausage, cooked",generic,Protein Sources,11,9,1,125,,0,100,g
+170043,"Tofu, firm, raw",generic,Protein Sources,15.7,8.7,2.3,144,,1.2,100,g
+170044,"Tofu, silken, raw",generic,Protein Sources,8.1,4.8,1.6,82,,0.9,100,g
+170045,"Tempeh, cooked",generic,Protein Sources,18.5,10.8,7.6,195,,2,100,g
+170046,"Seitan, cooked",generic,Protein Sources,25,1.9,4.3,149,,0.8,100,g
+170047,"Chicken patty, cooked",generic,Protein Sources,27,15,2,260,,0,100,g
+170048,"Fish fillet, battered and fried",generic,Protein Sources,12,10,15,215,,0,100,g
+170049,"Beef hot dog, Hebrew National",Hebrew National,Protein Sources,11,16,2,180,,0,55,g
+170050,Turkey hot dog,generic,Protein Sources,12,8,3,125,,0,45,g
+170051,"Deli ham, sliced",generic,Protein Sources,15,7,0,120,,0,30,g
+170052,"Deli roast beef, sliced",generic,Protein Sources,16,5,0,120,,0,30,g
+170053,"Deli turkey, sliced",generic,Protein Sources,11,1,0,60,,0,28,g
+170054,"Pepperoni, sliced",generic,Protein Sources,23,35,0,380,,0,30,g
+170055,"Salami, sliced",generic,Protein Sources,20,30,1,350,,0,30,g
+170056,"Bologna, sliced",generic,Protein Sources,11,16,1,180,,0,28,g
+170057,"Beef jerky, original",generic,Protein Sources,33,4,3,160,,0,28,g
+170058,Chicken jerky,generic,Protein Sources,29,2,5,140,,0,28,g
+170059,"Whey protein powder, vanilla",generic,Protein Sources,24,1.5,3,120,,0.5,30,g
+170060,"Whey protein powder, chocolate",generic,Protein Sources,24,1.5,3,120,,1.2,30,g
+170061,"Casein protein powder, vanilla",generic,Protein Sources,24,2,4,130,,0,30,g
+170062,"Plant-based protein powder, vanilla",generic,Protein Sources,20,2,4,110,,2,30,g
+170063,"Ground chicken, 93% lean, cooked",generic,Protein Sources,22,8,0,170,,0,100,g
+170064,"Chicken breast, with skin, cooked",generic,Protein Sources,29,5,0,165,,0,100,g
+170065,"Duck breast, cooked",generic,Protein Sources,19.3,11.2,0,170,,0,100,g
+170066,"Lamb chop, cooked",generic,Protein Sources,25,15,0,235,,0,100,g
+170067,"Lamb ground, cooked",generic,Protein Sources,22,17,0,250,,0,100,g
+170068,"Venison, cooked",generic,Protein Sources,26,4,0,158,,0,100,g
+170069,"Elk, cooked",generic,Protein Sources,25,1.4,0,122,,0,100,g
+170070,"Bison, cooked",generic,Protein Sources,24,2.4,0,143,,0,100,g
+170071,Tuna salad (with mayo),generic,Protein Sources,20,12,3,205,,0,100,g
+170072,Chicken salad (with mayo),generic,Protein Sources,18,10,4,188,,0,100,g
+170073,Egg salad,generic,Protein Sources,14,14,3,210,,0,100,g
+170074,"Beef liver, cooked",generic,Protein Sources,26,3.6,3.9,150,,0,100,g
+170075,"Chicken liver, cooked",generic,Protein Sources,26,3.7,0.7,137,,0,100,g
+170076,"Pork liver, cooked",generic,Protein Sources,26,3.6,1.3,140,,0,100,g
+170077,"Oysters, cooked",generic,Protein Sources,9.5,2,5.2,68,,0,100,g
+170078,"Clams, cooked",generic,Protein Sources,12,0.9,2.5,60,,0,100,g
+170079,"Scallops, cooked",generic,Protein Sources,17,0.5,2.2,88,,0,100,g
+170080,"Mussels, cooked",generic,Protein Sources,12,2,3.7,86,,0,100,g
+170081,"Crab, cooked",generic,Protein Sources,12.5,1,0,61,,0,100,g
+170082,"Lobster, cooked",generic,Protein Sources,20,1,0.5,98,,0,100,g
+170083,"Anchovies, canned",generic,Protein Sources,29,9.7,0,210,,0,28,g
+170084,"Mackerel, Atlantic, cooked",generic,Protein Sources,21.6,13.9,0,205,,0,100,g
+170085,"Herring, Atlantic, cooked",generic,Protein Sources,20.4,11.3,0,203,,0,100,g
+170086,"Trout, rainbow, cooked",generic,Protein Sources,19.5,5.4,0,141,,0,100,g
+170087,"Catfish, channel, cooked",generic,Protein Sources,18.2,9.3,0,156,,0,100,g
+170088,"Flounder, cooked",generic,Protein Sources,19.2,0.8,0,91,,0,100,g
+170089,"Snapper, red, cooked",generic,Protein Sources,22,1.3,0,109,,0,100,g
+170090,"Swordfish, cooked",generic,Protein Sources,22.7,4.4,0,155,,0,100,g
+170091,"Striped bass, cooked",generic,Protein Sources,24,3.2,0,141,,0,100,g
+170092,"Mussels, steamed",generic,Protein Sources,24,4,7,172,,0,100,g
+170093,"Sausage patty, pork, cooked",generic,Protein Sources,11,17,1.2,212,,0,45,g
+170094,"Italian sausage, cooked",generic,Protein Sources,12,17,3,215,,0,56,g
+170095,Kielbasa sausage,generic,Protein Sources,12,21,2.4,270,,0,57,g
+170096,"Bratwurst sausage, cooked",generic,Protein Sources,12,23,2,304,,0,85,g
+170097,"Breakfast sausage links, cooked",generic,Protein Sources,9,7,1,107,,0,45,g
+170098,Spam,generic,Protein Sources,13,27,0,340,,0,56,g
+170099,"Corned beef, cooked",generic,Protein Sources,23,21,0,285,,0,100,g
+170100,Liverwurst,generic,Protein Sources,15,30,2,365,,0,57,g
+170101,"Milk, whole, 3.7% fat",generic,Dairy,3.2,3.7,4.8,64,,4.7,100,ml
+170102,"Milk, 2% fat",generic,Dairy,3.3,1.9,5,61,,5,100,ml
+170103,"Milk, 1% fat",generic,Dairy,3.4,0.8,5.1,43,,5.1,100,ml
+170104,"Milk, skim",generic,Dairy,3.4,0.1,5.1,35,,5.2,100,ml
+170105,"Milk, raw",generic,Dairy,3.2,3.7,4.6,64,,4.7,100,ml
+170106,"Buttermilk, low fat",generic,Dairy,3.3,0.9,4.8,49,,4.8,100,ml
+170107,"Almond milk, unsweetened",generic,Dairy,0.4,1.1,0.6,15,,0,100,ml
+170108,"Almond milk, sweetened",generic,Dairy,0.4,1.1,1,30,,0.5,100,ml
+170109,"Oat milk, unsweetened",generic,Dairy,2,1.5,1,10,,0,100,ml
+170110,"Oat milk, original",generic,Dairy,2,1.5,2,15,,1,100,ml
+170111,"Soy milk, unsweetened",generic,Dairy,3.3,1.6,1.3,33,,0.5,100,ml
+170112,"Soy milk, original",generic,Dairy,3.3,1.6,2.3,54,,1,100,ml
+170113,"Cashew milk, unsweetened",generic,Dairy,0.3,1.5,0.6,20,,0,100,ml
+170114,"Coconut milk, full fat canned",generic,Dairy,3.3,21,2.2,230,,2,100,ml
+170115,"Coconut milk, light canned",generic,Dairy,1.1,5.1,2.2,70,,2,100,ml
+170116,"Cheddar cheese, sharp",generic,Dairy,23.5,30.6,1.3,403,,0.7,28,g
+170117,"Cheddar cheese, mild",generic,Dairy,23.5,30.6,1.3,403,,0.7,28,g
+170118,"Mozzarella cheese, whole milk",generic,Dairy,22.2,17.1,3.1,280,,0.7,28,g
+170119,"Mozzarella cheese, low moisture",generic,Dairy,27.5,20.9,0,320,,0,28,g
+170120,"Mozzarella cheese, part skim",generic,Dairy,27.5,13,2.2,280,,0,28,g
+170121,Swiss cheese,generic,Dairy,26.9,21.1,1.5,380,,0,28,g
+170122,Provolone cheese,generic,Dairy,25.6,19.6,0.6,352,,0,28,g
+170123,"Parmesan cheese, grated",generic,Dairy,38.2,25.9,4.1,456,,0,5,g
+170124,"Parmesan cheese, block",generic,Dairy,38.2,25.9,4.1,456,,0,28,g
+170125,Feta cheese,generic,Dairy,16.7,21.3,3.7,264,,1.2,28,g
+170126,Gouda cheese,generic,Dairy,24.9,27.4,2.2,406,,0,28,g
+170127,Brie cheese,generic,Dairy,20.8,27.7,0.4,334,,0,28,g
+170128,Blue cheese,generic,Dairy,21,32.1,2.3,450,,0,28,g
+170129,Cream cheese,generic,Dairy,5.9,34.4,4.1,342,,0,28,g
+170130,"Ricotta cheese, whole milk",generic,Dairy,6.5,7.7,2.6,121,,0,28,g
+170131,"Ricotta cheese, part skim",generic,Dairy,6.9,4.3,2.6,91,,0,28,g
+170132,"Cottage cheese, 4% fat",generic,Dairy,11,5,3.4,110,,1.9,113,g
+170133,"Cottage cheese, 1% fat",generic,Dairy,11.1,1.2,3.4,81,,1.9,113,g
+170134,"Cottage cheese, 2% fat",generic,Dairy,11.1,2.2,3.4,92,,1.9,113,g
+170135,"American cheese, processed",generic,Dairy,16.3,16.5,1.5,243,,0,19,g
+170136,Velveeta cheese,generic,Dairy,14.3,13.5,3.2,205,,0,32,g
+170137,"String cheese, mozzarella",generic,Dairy,28,20,1,320,,0,28,g
+170138,"Butter, salted",generic,Dairy,0.6,81,0.1,717,,0,14,g
+170139,"Butter, unsalted",generic,Dairy,0.6,81,0.1,717,,0,14,g
+170140,Ghee,generic,Dairy,0.3,62,0,562,,0,14,g
+170141,"Heavy cream, whipping",generic,Dairy,2.2,35,2.7,340,,2.7,15,ml
+170142,Sour cream,generic,Dairy,3.6,20,3.8,198,,0.5,15,g
+170143,Whipped cream,generic,Dairy,1.7,17.3,1.2,166,,0,15,ml
+170144,Crème fraîche,generic,Dairy,2.1,35,2.7,339,,0,15,ml
+170145,"Greek yogurt, plain, full fat",generic,Dairy,10.2,5.3,3.3,100,,3,100,g
+170146,"Greek yogurt, plain, low fat",generic,Dairy,10.3,1.9,3.7,70,,3.7,100,g
+170147,"Greek yogurt, plain, nonfat",generic,Dairy,10,0.2,3.6,59,,3.6,100,g
+170148,"Greek yogurt, vanilla, low fat",generic,Dairy,10,1.5,14,115,,13,100,g
+170149,"Yogurt, plain, whole milk",generic,Dairy,3.5,3.3,4.7,61,,4.2,100,g
+170150,"Yogurt, plain, low fat",generic,Dairy,3.5,1.5,4.7,51,,4.2,100,g
+170151,"Yogurt, plain, nonfat",generic,Dairy,3.6,0.1,5,59,,4.7,100,g
+170152,"Yogurt, vanilla, low fat",generic,Dairy,3.4,1.5,17,97,,16.9,100,g
+170153,"Yogurt, fruit, low fat",generic,Dairy,3.4,1.5,20,110,,19,100,g
+170154,"Kefir, plain, full fat",generic,Dairy,3.4,4,3.8,80,,3.8,100,ml
+170155,"Kefir, plain, low fat",generic,Dairy,3.4,0.7,3.9,53,,3.9,100,ml
+170156,"Kefir, fruit, full fat",generic,Dairy,3.4,4,10,130,,10,100,ml
+170157,"Ice cream, vanilla",generic,Dairy,3.5,14,15.6,207,,14,100,g
+170158,"Ice cream, chocolate",generic,Dairy,3.3,14.7,16,220,,15.8,100,g
+170159,"Ice cream, strawberry",generic,Dairy,3,13.5,15.5,201,,13.4,100,g
+170160,"Frozen yogurt, vanilla",generic,Dairy,3.5,1.5,22,110,,20,100,g
+170161,"Frozen yogurt, chocolate",generic,Dairy,3.3,0.6,23,110,,21,100,g
+170162,Rice milk,generic,Dairy,0.3,1.5,2.2,21,,1.9,100,ml
+170163,"Chocolate milk, whole",generic,Dairy,3.3,3.7,11,96,,11,100,ml
+170164,"Chocolate milk, low fat",generic,Dairy,3.4,1.9,11,79,,11,100,ml
+170165,"White rice, long grain, cooked",generic,Grains & Bread,2.7,0.3,28,130,,0,100,g
+170166,"White rice, short grain, cooked",generic,Grains & Bread,2.7,0.2,30,139,,0,100,g
+170167,"Brown rice, long grain, cooked",generic,Grains & Bread,2.6,0.9,23,111,,0.4,100,g
+170168,"Jasmine rice, cooked",generic,Grains & Bread,2.7,0.3,30,139,,0,100,g
+170169,"Basmati rice, cooked",generic,Grains & Bread,2.7,0.3,28,130,,0.4,100,g
+170170,"Arborio rice, cooked",generic,Grains & Bread,2,0.3,30,140,,0,100,g
+170171,"Wild rice, cooked",generic,Grains & Bread,1.7,0.3,35,166,,3,100,g
+170172,"Black rice, cooked",generic,Grains & Bread,2.6,0.6,35,160,,1.5,100,g
+170173,"Quinoa, cooked",generic,Grains & Bread,4.4,1.9,21,120,,2.8,100,g
+170174,"Buckwheat, cooked",generic,Grains & Bread,3.4,1,20,92,,2.7,100,g
+170175,"Couscous, cooked",generic,Grains & Bread,3.8,0.2,23,112,,1.1,100,g
+170176,"Bulgar wheat, cooked",generic,Grains & Bread,2.7,0.2,22,102,,5.9,100,g
+170177,"Millet, cooked",generic,Grains & Bread,6.2,1.7,24,119,,2.3,100,g
+170178,"Amaranth, cooked",generic,Grains & Bread,3.7,0.9,19,102,,2.1,100,g
+170179,"Teff, cooked",generic,Grains & Bread,3.9,1.5,33,180,,2.7,100,g
+170180,"Farro, cooked",generic,Grains & Bread,3.5,0.4,28,130,,3.1,100,g
+170181,"Oats, rolled, dry",generic,Grains & Bread,10.7,6.9,54,389,,8.3,100,g
+170182,"Oats, instant, prepared with water",generic,Grains & Bread,2.4,1.4,27,150,,4,200,g
+170183,"Oats, old fashioned, dry",generic,Grains & Bread,10.7,6.9,54,389,,8.3,100,g
+170184,"Oatmeal, prepared with water",generic,Grains & Bread,2.4,1.4,27,150,,4,200,g
+170185,"Pasta, spaghetti, cooked",generic,Grains & Bread,3.6,0.3,25,131,,1.5,100,g
+170186,"Pasta, penne, cooked",generic,Grains & Bread,3.6,0.3,25,131,,1.5,100,g
+170187,"Pasta, elbow, cooked",generic,Grains & Bread,3.6,0.3,25,131,,1.5,100,g
+170188,"Pasta, whole wheat, cooked",generic,Grains & Bread,3.7,0.4,24,124,,3.9,100,g
+170189,"Pasta, egg noodles, cooked",generic,Grains & Bread,3.9,1.1,25,135,,1.5,100,g
+170190,"Pasta, lasagna noodles, cooked",generic,Grains & Bread,3.6,0.3,25,131,,1.5,100,g
+170192,Bread, whole wheat,generic,Grains & Bread,13.6,3.6,44,246,,7,1 slice
+170193,Bread, sourdough,generic,Grains & Bread,10,2,46,262,,2,1 slice
+170194,Bread, rye,generic,Grains & Bread,8.5,1.1,48,259,,5.8,1 slice
+170195,Bread, pumpernickel,generic,Grains & Bread,6,1.2,48,246,,4.2,1 slice
+170196,Bread, multigrain,generic,Grains & Bread,12,4,41,246,,6,1 slice
+170197,Bread, ciabatta,generic,Grains & Bread,8,4,46,280,,2,1 slice
+170198,Bread, focaccia,generic,Grains & Bread,6,5,35,230,,2,1 slice
+170199,Bagel, plain,generic,Grains & Bread,9.2,1.4,54,289,,2.7,1 bagel
+170200,Bagel, whole wheat,generic,Grains & Bread,11,1.6,52,290,,6,1 bagel
+170201,Bagel, everything,generic,Grains & Bread,10,2,54,310,,3,1 bagel
+170202,English muffin, whole wheat,generic,Grains & Bread,8.3,1.5,42,230,,6,1 muffin
+170203,English muffin, plain,generic,Grains & Bread,8.3,1.5,42,230,,2,1 muffin
+170204,Croissant, butter,generic,Grains & Bread,4.8,14,27,231,,1.5,1 croissant
+170205,Croissant, chocolate,generic,Grains & Bread,5.6,16,31,272,,2,1 croissant
+170206,Croissant, almond,generic,Grains & Bread,5.4,16,34,292,,3,1 croissant
+170209,Tortilla, spinach,generic,Grains & Bread,3.5,3.5,38,215,,3,1 tortilla
+170210,Tortilla, wheat,generic,Grains & Bread,4,3.2,35,200,,5,1 tortilla
+170211,Pita bread, white,generic,Grains & Bread,5.5,1.1,35,165,,1.7,1 pita
+170212,Pita bread, whole wheat,generic,Grains & Bread,6.3,1.3,35,170,,4.7,1 pita
+170216,Rice cakes, plain,generic,Grains & Bread,1.9,1.1,22,110,,1.1,1 cake
+170217,Rice cakes, chocolate,generic,Grains & Bread,2,2,24,120,,0,1 cake
+170218,Crackers, saltine,generic,Grains & Bread,2.5,2,21,124,,0.8,4 crackers
+170219,Crackers, whole grain,generic,Grains & Bread,3.5,2,20,130,,3,4 crackers
+170220,Crackers, cheese,generic,Grains & Bread,3,7,20,150,,0,6 crackers
+170221,Crackers, peanut butter,generic,Grains & Bread,3.5,5,16,140,,1,4 crackers
+170224,"Granola, low fat",generic,Grains & Bread,4,4,30,180,,2,30,g
+170225,"Granola, regular",generic,Grains & Bread,4,7,35,210,,3,30,g
+170226,"Granola, low sugar",generic,Grains & Bread,4,5,18,140,,3,30,g
+170227,"Cereal, Cheerios",generic,Grains & Bread,2,1,20,80,,1,30,g
+170228,"Cereal, Fruity Pebbles",generic,Grains & Bread,1,1,27,110,,12,30,g
+170229,"Cereal, Frosted Flakes",generic,Grains & Bread,1,0.2,26,110,,12,30,g
+170230,"Cereal, Lucky Charms",generic,Grains & Bread,1,1,25,110,,12,30,g
+170231,"Cereal, Raisin Bran",generic,Grains & Bread,3,1,29,150,,8,40,g
+170232,"Cereal, All Bran",generic,Grains & Bread,4,1,23,110,,10,30,g
+170233,"Cereal, Special K",generic,Grains & Bread,6,0.5,17,110,,3,30,g
+170234,"Cereal, Cinnamon Toast Crunch",generic,Grains & Bread,1,3,27,120,,10,30,g
+170235,"Cereal, Honey Nut Cheerios",generic,Grains & Bread,2,1,22,100,,9,30,g
+170236,"Muesli, with nuts",generic,Grains & Bread,5,5,60,280,,6,60,g
+170237,"Barley, pearled, cooked",generic,Grains & Bread,2.3,0.4,22,94,,3.8,100,g
+170238,"Cornmeal, yellow, dry",generic,Grains & Bread,8.1,3.9,75,384,,7.3,100,g
+170239,"Popcorn, air-popped",generic,Grains & Bread,3.5,3.5,35,110,,3.5,30,g
+170240,"Popcorn, oil-popped",generic,Grains & Bread,3.5,9,35,155,,3.5,30,g
+170241,"Popcorn, caramel",generic,Grains & Bread,1.5,8,32,160,,0.5,30,g
+170242,Pancake, plain,generic,Grains & Bread,3.5,3.5,27,150,,1.5,1 pancake
+170243,Pancake, blueberry,generic,Grains & Bread,3.5,3.5,28,160,,1.5,1 pancake
+170244,Pancake, chocolate chip,generic,Grains & Bread,3.5,5,30,180,,1,1 pancake
+170245,Waffle, plain,generic,Grains & Bread,4,7,26,218,,0.6,1 waffle
+170246,Waffle, whole grain,generic,Grains & Bread,5,8,26,228,,2.6,1 waffle
+170247,Waffle, chocolate chip,generic,Grains & Bread,4,9,30,250,,1,1 waffle
+170248,"Pretzel, hard",generic,Grains & Bread,3,1,24,110,,1,30,g
+170249,"Pretzel, soft",generic,Grains & Bread,3,3,25,140,,2,60,g
+170250,Bran muffin,generic,Grains & Bread,4,5,30,170,,5,60,g
+170251,Banana muffin,generic,Grains & Bread,3,5,33,190,,1,60,g
+170252,Blueberry muffin,generic,Grains & Bread,3,5,32,190,,1,60,g
+170253,Apple cinnamon muffin,generic,Grains & Bread,3,5,31,180,,1,60,g
+170254,Cornbread muffin,generic,Grains & Bread,2,5,30,180,,1,60,g
+170300,Banana,generic,Fruits,1.1,0.3,23,89,,12,100,g
+170301,"Apple, Gala",generic,Fruits,0.3,0.2,25,95,,19,100,g
+170302,"Apple, Granny Smith",generic,Fruits,0.3,0.2,25,95,,19,100,g
+170303,"Apple, Honeycrisp",generic,Fruits,0.4,0.2,26,100,,20,100,g
+170304,"Orange, navel",generic,Fruits,0.9,0.1,12,47,,9,100,g
+170305,"Orange, Florida",generic,Fruits,0.7,0.2,12,47,,9,100,g
+170306,Strawberry,generic,Fruits,0.8,0.3,7,32,,7,100,g
+170307,Blueberry,generic,Fruits,0.7,0.3,14,57,,10,100,g
+170308,Raspberry,generic,Fruits,1.2,0.7,12,52,,7,100,g
+170309,Blackberry,generic,Fruits,1.4,0.5,10,43,,5,100,g
+170310,"Grape, red",generic,Fruits,0.6,0.4,18,81,,16,100,g
+170311,"Grape, green",generic,Fruits,0.6,0.4,18,81,,16,100,g
+170312,Watermelon,generic,Fruits,0.6,0.2,12,30,,7,100,g
+170313,Cantaloupe,generic,Fruits,0.8,0.2,8,34,,8,100,g
+170314,Honeydew,generic,Fruits,0.5,0.1,9,36,,9,100,g
+170315,Mango,generic,Fruits,0.8,0.3,15,60,,14,100,g
+170316,Pineapple,generic,Fruits,0.5,0.1,13,50,,10,100,g
+170317,Peach,generic,Fruits,0.9,0.3,10,39,,9,100,g
+170318,Pear,generic,Fruits,0.4,0.1,15,57,,10,100,g
+170319,Plum,generic,Fruits,0.7,0.3,11,46,,10,100,g
+170320,Cherry,generic,Fruits,1.1,0.2,12,63,,8,100,g
+170321,"Kiwi, golden",generic,Fruits,1.1,0.5,15,77,,6,100,g
+170322,"Kiwi, green",generic,Fruits,0.8,0.5,15,61,,7,100,g
+170323,Papaya,generic,Fruits,0.5,0.1,11,43,,7,100,g
+170324,"Coconut, raw",generic,Fruits,3.3,33,9,354,,9,100,g
+170325,"Coconut, shredded, unsweetened",generic,Fruits,3.3,33,9,354,,9,100,g
+170326,"Coconut, shredded, sweetened",generic,Fruits,2.2,19,25,268,,23,100,g
+170327,Avocado,generic,Fruits,2.7,15,9,160,,7,100,g
+170328,Lemon,generic,Fruits,0.6,0.3,9,29,,2.5,100,g
+170329,Lime,generic,Fruits,0.7,0.2,11,30,,1.5,100,g
+170330,"Grapefruit, pink",generic,Fruits,0.8,0.1,13,52,,9,100,g
+170331,"Grapefruit, white",generic,Fruits,0.8,0.1,13,42,,8,100,g
+170332,Tangerine,generic,Fruits,0.7,0.3,13,47,,9,100,g
+170333,Pomegranate,generic,Fruits,1.7,0.3,19,83,,14,100,g
+170334,"Fig, fresh",generic,Fruits,0.8,0.3,19,74,,16,100,g
+170335,"Date, Medjool",generic,Fruits,1.8,0.2,75,280,,67,100,g
+170336,"Date, Deglet Noor",generic,Fruits,1.6,0.2,66,282,,55,100,g
+170337,Raisin,generic,Fruits,3.1,0.5,79,299,,47,100,g
+170338,"Cranberry, dried",generic,Fruits,0.4,0.2,77,308,,65,100,g
+170339,"Apricot, dried",generic,Fruits,3.4,0.5,63,241,,53,100,g
+170340,Prune,generic,Fruits,2.2,0.4,64,240,,38,100,g
+170341,"Currants, black",generic,Fruits,1.4,0.4,15,63,,8,100,g
+170342,"Currants, red",generic,Fruits,1.4,0.2,15,56,,4.5,100,g
+170343,Gooseberry,generic,Fruits,0.9,0.4,10,44,,6,100,g
+170344,Passionfruit,generic,Fruits,2.2,0.7,23,97,,12,100,g
+170345,Persimmon,generic,Fruits,0.8,0.3,18,70,,18,100,g
+170346,Lychee,generic,Fruits,0.8,0.4,15,66,,15,100,g
+170347,Dragon fruit,generic,Fruits,1.2,0.4,13,60,,3,100,g
+170348,Guava,generic,Fruits,2.6,0.9,14,68,,9,100,g
+170349,Jackfruit,generic,Fruits,1.5,0.3,23,95,,10,100,g
+170350,Mulberry,generic,Fruits,1.4,0.4,10,43,,0.7,100,g
+170351,Loganberry,generic,Fruits,1.4,0.4,10,46,,2,100,g
+170352,Boysenberry,generic,Fruits,1.4,0.4,10,43,,5,100,g
+170353,"Tangerine juice, fresh",generic,Fruits,0.7,0.2,10,45,,8,100,ml
+170354,"Orange juice, fresh",generic,Fruits,0.9,0.1,11,45,,9,100,ml
+170355,"Apple juice, unsweetened",generic,Fruits,0.1,0.1,11,46,,10,100,ml
+170356,"Grape juice, unsweetened",generic,Fruits,0.6,0.1,16,67,,15,100,ml
+170357,"Cranberry juice, unsweetened",generic,Fruits,0.4,0.1,12,46,,12,100,ml
+170358,Pomegranate juice,generic,Fruits,0.2,0,17,68,,14,100,ml
+170359,Grapefruit juice,generic,Fruits,0.6,0.1,10,41,,9,100,ml
+170360,Pineapple juice,generic,Fruits,0.5,0.1,12,50,,9,100,ml
+170361,Mango juice,generic,Fruits,0.3,0.1,13,55,,12,100,ml
+170362,Papaya juice,generic,Fruits,0.4,0.2,10,47,,8,100,ml
+170363,"Watermelon juice, fresh",generic,Fruits,0.4,0.2,7,30,,6,100,ml
+170364,Mixed berry juice,generic,Fruits,0.5,0.1,15,65,,13,100,ml
+170365,Acai berry juice,generic,Fruits,0.4,0.1,6,36,,3,100,ml
+170366,Tart cherry juice,generic,Fruits,0.4,0.1,12,56,,11,100,ml
+170367,"Broccoli, raw",generic,Vegetables,2.8,0.4,7,34,,1.4,100,g
+170368,"Broccoli, cooked",generic,Vegetables,2.8,0.4,7,34,,1.4,100,g
+170369,"Spinach, raw",generic,Vegetables,2.9,0.4,3.6,23,,0.4,100,g
+170370,"Spinach, cooked",generic,Vegetables,3.7,0.4,3.7,23,,0.4,100,g
+170371,"Kale, raw",generic,Vegetables,3.3,0.9,7,49,,1.3,100,g
+170372,"Kale, cooked",generic,Vegetables,3.5,1.7,7,50,,1.3,100,g
+170373,"Lettuce, romaine, raw",generic,Vegetables,1.2,0.3,3.3,15,,0.6,100,g
+170374,"Lettuce, iceberg, raw",generic,Vegetables,0.9,0.1,2.2,14,,0.7,100,g
+170375,"Lettuce, butterhead, raw",generic,Vegetables,1.4,0.2,2.2,14,,0.7,100,g
+170376,"Arugula, raw",generic,Vegetables,2.6,0.7,4,25,,2.2,100,g
+170377,"Watercress, raw",generic,Vegetables,2.3,0.1,3.5,22,,0.5,100,g
+170378,"Bok choy, raw",generic,Vegetables,1.5,0.2,2.2,13,,0.6,100,g
+170379,"Swiss chard, raw",generic,Vegetables,1.8,0.2,3.7,19,,0.6,100,g
+170380,"Collard greens, raw",generic,Vegetables,3.6,0.6,7,33,,1.3,100,g
+170381,"Tomato, raw",generic,Vegetables,0.9,0.2,3.9,18,,2.6,100,g
+170382,"Tomato, cooked",generic,Vegetables,1,0.3,4,21,,2.5,100,g
+170383,"Tomato, cherry",generic,Vegetables,0.9,0.2,3.9,18,,2.4,100,g
+170384,"Tomato, sun-dried",generic,Vegetables,3.3,3.3,10,70,,2,100,g
+170385,"Onion, yellow, raw",generic,Vegetables,1.1,0.1,9,40,,4.2,100,g
+170386,"Onion, yellow, cooked",generic,Vegetables,1.5,0.2,9,44,,1.7,100,g
+170387,"Onion, red, raw",generic,Vegetables,1.3,0.3,11,40,,4.9,100,g
+170388,"Onion, white, raw",generic,Vegetables,1.1,0.1,9,40,,4.2,100,g
+170389,"Onion, sweet, raw",generic,Vegetables,1.1,0.1,7,33,,5,100,g
+170390,"Garlic, raw",generic,Vegetables,6.4,0.5,33,149,,1,100,g
+170391,"Garlic, cooked",generic,Vegetables,1.6,0.2,7,37,,0.5,30,g
+170392,"Bell pepper, red, raw",generic,Vegetables,1,0.3,6,31,,4.2,100,g
+170393,"Bell pepper, green, raw",generic,Vegetables,0.9,0.3,7,30,,2,100,g
+170394,"Bell pepper, yellow, raw",generic,Vegetables,1,0.3,7,30,,5.3,100,g
+170395,"Bell pepper, orange, raw",generic,Vegetables,1,0.3,7,31,,4.9,100,g
+170396,"Carrot, raw",generic,Vegetables,0.9,0.2,10,41,,2.8,100,g
+170397,"Carrot, cooked",generic,Vegetables,1,0.2,8,35,,2.4,100,g
+170398,"Carrot, baby",generic,Vegetables,0.7,0.1,8,35,,4.7,100,g
+170399,"Celery, raw",generic,Vegetables,0.7,0.2,3,16,,0.6,100,g
+170400,"Celery, cooked",generic,Vegetables,0.7,0.2,4,19,,0.7,100,g
+170401,"Cucumber, raw",generic,Vegetables,0.7,0.1,4,16,,0.5,100,g
+170402,"Cucumber, with skin",generic,Vegetables,0.7,0.1,4,16,,0.5,100,g
+170403,"Zucchini, raw",generic,Vegetables,0.6,0.4,3,21,,1,100,g
+170404,"Zucchini, cooked",generic,Vegetables,0.6,0.4,3,21,,1,100,g
+170405,"Mushroom, raw",generic,Vegetables,3.1,0.3,3,22,,0.7,100,g
+170406,"Mushroom, white, raw",generic,Vegetables,3.1,0.3,3,22,,0.7,100,g
+170407,"Mushroom, cremini, raw",generic,Vegetables,3.1,0.3,3,22,,0.7,100,g
+170408,"Mushroom, portobello, raw",generic,Vegetables,3.3,0.2,3,22,,1.3,100,g
+170409,"Mushroom, shiitake, cooked",generic,Vegetables,1.5,0.2,6,34,,0.9,100,g
+170410,"Mushroom, oyster, cooked",generic,Vegetables,1.7,0.2,5,28,,1,100,g
+170411,"Cauliflower, raw",generic,Vegetables,1.9,0.3,5,25,,2,100,g
+170412,"Cauliflower, cooked",generic,Vegetables,1.9,0.3,5,25,,2,100,g
+170413,"Asparagus, raw",generic,Vegetables,2.2,0.2,3.7,20,,2,100,g
+170414,"Asparagus, cooked",generic,Vegetables,2.4,0.1,3.7,20,,2,100,g
+170415,"Green beans, raw",generic,Vegetables,1.8,0.1,7,31,,1.8,100,g
+170416,"Green beans, cooked",generic,Vegetables,1.9,0.1,7,31,,1.9,100,g
+170417,"Peas, green, raw",generic,Vegetables,5.4,0.4,11,81,,7,100,g
+170418,"Peas, green, cooked",generic,Vegetables,5.4,0.4,11,84,,5.7,100,g
+170419,"Snap peas, raw",generic,Vegetables,1.9,0.2,7,42,,2.6,100,g
+170420,"Snap peas, cooked",generic,Vegetables,2.1,0.1,8,42,,2.2,100,g
+170421,"Snow peas, raw",generic,Vegetables,1.9,0.2,7,42,,2.6,100,g
+170422,"Corn, yellow, raw",generic,Vegetables,3.4,1.4,19,86,,3.2,100,g
+170423,"Corn, yellow, cooked",generic,Vegetables,3.4,1.5,21,96,,2.4,100,g
+170425,"Potato, white, baked with skin",generic,Vegetables,2,0.1,17,77,,1.7,100,g
+170426,"Potato, white, boiled",generic,Vegetables,1.7,0.1,16,69,,1.5,100,g
+170427,"Potato, red, baked with skin",generic,Vegetables,2.5,0.1,20,93,,1.6,100,g
+170428,"Potato, russet, baked",generic,Vegetables,2.1,0.1,17,77,,1.7,100,g
+170429,"Sweet potato, baked",generic,Vegetables,1.6,0.1,21,86,,3,100,g
+170430,"Sweet potato, boiled",generic,Vegetables,1.8,0.1,20,76,,3,100,g
+170431,"Yam, baked",generic,Vegetables,1.5,0.1,28,116,,3.9,100,g
+170432,"Butternut squash, raw",generic,Vegetables,1,0.1,11,45,,1.1,100,g
+170433,"Butternut squash, cooked",generic,Vegetables,0.9,0.1,11,45,,1.1,100,g
+170434,"Acorn squash, cooked",generic,Vegetables,0.8,0.1,15,57,,1.5,100,g
+170435,"Spaghetti squash, cooked",generic,Vegetables,0.6,0.4,7,31,,1.1,100,g
+170436,"Eggplant, raw",generic,Vegetables,0.8,0.2,5,25,,3,100,g
+170437,"Eggplant, cooked",generic,Vegetables,0.8,0.2,5,25,,3,100,g
+170438,"Cabbage, green, raw",generic,Vegetables,1.3,0.1,5,25,,2.2,100,g
+170439,"Cabbage, red, raw",generic,Vegetables,1.4,0.1,7,31,,2.2,100,g
+170440,"Cabbage, Napa, raw",generic,Vegetables,1.2,0.1,3,12,,0.8,100,g
+170441,"Brussels sprouts, raw",generic,Vegetables,2.4,0.3,8,43,,2.2,100,g
+170442,"Brussels sprouts, cooked",generic,Vegetables,2.4,0.3,8,43,,2.2,100,g
+170443,"Artichoke, raw",generic,Vegetables,2.7,0.2,10,47,,5.2,100,g
+170444,"Artichoke, cooked",generic,Vegetables,3.3,0.2,14,68,,5.2,100,g
+170445,"Beet, raw",generic,Vegetables,1.6,0.2,10,43,,2.8,100,g
+170446,"Beet, cooked",generic,Vegetables,1.7,0.2,10,44,,2.4,100,g
+170447,"Radish, raw",generic,Vegetables,0.6,0.1,4,16,,0.6,100,g
+170448,"Turnip, raw",generic,Vegetables,0.9,0.1,8,36,,2.3,100,g
+170449,"Turnip, cooked",generic,Vegetables,0.8,0.1,8,36,,2.3,100,g
+170450,"Rutabaga, raw",generic,Vegetables,1.2,0.2,8,37,,2.3,100,g
+170451,"Parsnip, raw",generic,Vegetables,1.2,0.3,17,75,,4.5,100,g
+170452,"Parsnip, cooked",generic,Vegetables,1.2,0.3,17,75,,4.5,100,g
+170453,"Okra, raw",generic,Vegetables,1.9,0.2,7,33,,3.2,100,g
+170454,"Okra, cooked",generic,Vegetables,2,0.2,7,33,,3.2,100,g
+170455,"Jalapeno, raw",generic,Vegetables,0.9,0.4,6,29,,4.8,100,g
+170456,Serrano pepper,generic,Vegetables,1,0.2,6,32,,2,100,g
+170457,Habanero pepper,generic,Vegetables,1.1,0.4,9,40,,8,100,g
+170458,"Cucumber, pickled",generic,Vegetables,0.6,0.2,4,12,,1.2,100,g
+170459,"Pumpkin, raw",generic,Vegetables,1,0.1,7,26,,0.5,100,g
+170460,"Pumpkin, cooked",generic,Vegetables,1.1,0.1,9,34,,1,100,g
+170461,"Leek, raw",generic,Vegetables,1.5,0.3,14,61,,2.4,100,g
+170462,"Leek, cooked",generic,Vegetables,1.8,0.3,14,61,,2.4,100,g
+170463,"Fennel, raw",generic,Vegetables,1.2,0.2,7,31,,2.1,100,g
+170464,Daikon radish,generic,Vegetables,0.6,0.1,4,18,,1.6,100,g
+170465,"Kohlrabi, raw",generic,Vegetables,1.7,0.1,7,27,,3.6,100,g
+170466,"Chives, raw",generic,Vegetables,2.7,0.7,7,30,,2.4,100,g
+170467,"Mint, fresh",generic,Vegetables,3.7,0.9,8,70,,1.2,100,g
+170468,"Basil, fresh",generic,Vegetables,3.2,0.6,2.7,23,,0.7,100,g
+170469,"Cilantro, raw",generic,Vegetables,2.1,0.6,3.7,23,,2.4,100,g
+170470,"Parsley, fresh",generic,Vegetables,2.7,0.7,6,36,,3.3,100,g
+170501,"Peanuts, raw",generic,Legumes & Nuts,26,49,16,567,,4.7,100,g
+170502,"Peanuts, roasted, salted",generic,Legumes & Nuts,25.8,49.2,16,567,,6,100,g
+170503,"Peanuts, roasted, unsalted",generic,Legumes & Nuts,25.8,49.2,16,567,,4.7,100,g
+170504,"Almonds, raw",generic,Legumes & Nuts,21,49.4,22,579,,12.5,100,g
+170505,"Almonds, roasted, salted",generic,Legumes & Nuts,20.9,49.9,21,579,,12.5,100,g
+170506,"Almonds, blanched",generic,Legumes & Nuts,21,49.4,21,579,,12.5,100,g
+170507,"Almonds, sliced",generic,Legumes & Nuts,21,49.4,22,579,,12.5,100,g
+170508,"Cashews, raw",generic,Legumes & Nuts,18,46,30,553,,2.8,100,g
+170509,"Cashews, roasted, salted",generic,Legumes & Nuts,18,46,30,553,,2.8,100,g
+170510,"Walnuts, English",generic,Legumes & Nuts,9,66,14,654,,6.7,100,g
+170511,"Walnuts, black",generic,Legumes & Nuts,8.1,58.4,8.4,618,,4.7,100,g
+170512,"Pecans, raw",generic,Legumes & Nuts,9,72,14,691,,10,100,g
+170513,"Pistachios, roasted, salted",generic,Legumes & Nuts,20,45,28,567,,10.6,100,g
+170514,"Pistachios, raw",generic,Legumes & Nuts,20.3,45.3,27.7,560,,10.3,100,g
+170515,"Macadamia nuts, raw",generic,Legumes & Nuts,7.9,75.8,14,718,,9.4,100,g
+170516,"Hazelnuts, raw",generic,Legumes & Nuts,14,60.5,17,628,,9.7,100,g
+170517,"Brazil nuts, raw",generic,Legumes & Nuts,14.3,66.4,12,656,,2.6,100,g
+170518,Pine nuts,generic,Legumes & Nuts,13.7,68.4,13,673,,3.7,100,g
+170519,"Sunflower seeds, raw",generic,Legumes & Nuts,20.8,51.5,20,584,,8.6,100,g
+170520,Pumpkin seeds (pepitas),generic,Legumes & Nuts,18.5,45.8,20,540,,3.1,100,g
+170521,Chia seeds,generic,Legumes & Nuts,17,31,28,486,,27.6,100,g
+170522,Flax seeds,generic,Legumes & Nuts,18,42,29,534,,27.3,100,g
+170523,Hemp seeds,generic,Legumes & Nuts,10,12,3,561,,1.1,100,g
+170524,Sesame seeds,generic,Legumes & Nuts,18,50,26,565,,11.8,100,g
+170525,"Pumpkin seeds, white",generic,Legumes & Nuts,18.5,45.8,20,540,,3.1,100,g
+170526,Watermelon seeds,generic,Legumes & Nuts,11.5,47.4,16,557,,0,100,g
+170527,"Peanut butter, creamy",generic,Legumes & Nuts,25,25,20,588,,6,32,g
+170528,"Peanut butter, chunky",generic,Legumes & Nuts,25,25,20,588,,6,32,g
+170529,"Peanut butter, natural",generic,Legumes & Nuts,25,25,20,588,,6,32,g
+170530,"Peanut butter, powdered",generic,Legumes & Nuts,12,0.5,7,96,,1,16,g
+170531,Almond butter,generic,Legumes & Nuts,21,50,20,613,,12,32,g
+170532,Cashew butter,generic,Legumes & Nuts,17,42,28,563,,1.5,32,g
+170533,Sunflower seed butter,generic,Legumes & Nuts,16,52,20,609,,7,32,g
+170534,"Tahini, from hulled seeds",generic,Legumes & Nuts,17,53,9,595,,9.3,15,g
+170535,"Tahini, from whole seeds",generic,Legumes & Nuts,16,48,21,595,,9,15,g
+170536,"Black beans, cooked",generic,Legumes & Nuts,8.9,0.5,20,132,,4.5,100,g
+170537,"Black beans, canned, drained",generic,Legumes & Nuts,8.3,0.3,18,123,,4,100,g
+170538,"Kidney beans, red, cooked",generic,Legumes & Nuts,8.7,0.3,20,127,,6.4,100,g
+170539,"Kidney beans, red, canned",generic,Legumes & Nuts,7,0.2,17,110,,4.5,100,g
+170540,"Pinto beans, cooked",generic,Legumes & Nuts,9,0.4,24,143,,6.4,100,g
+170541,"Pinto beans, canned",generic,Legumes & Nuts,8.5,0.3,20,120,,5.4,100,g
+170542,"Chickpeas (garbanzo), cooked",generic,Legumes & Nuts,15,5,27,269,,7.6,100,g
+170543,"Chickpeas, canned, drained",generic,Legumes & Nuts,9.4,2.6,16,167,,4.8,100,g
+170544,"White beans, cooked",generic,Legumes & Nuts,9,0.3,20,128,,5.8,100,g
+170545,"White beans, canned",generic,Legumes & Nuts,8.7,0.2,18,120,,5,100,g
+170546,"Navy beans, cooked",generic,Legumes & Nuts,9,0.3,20,128,,5.8,100,g
+170547,"Lentils, green, cooked",generic,Legumes & Nuts,9,0.4,20,116,,3.9,100,g
+170548,"Lentils, red, cooked",generic,Legumes & Nuts,9.1,0.4,20,116,,1.8,100,g
+170549,"Lentils, brown, cooked",generic,Legumes & Nuts,8.8,0.4,20,116,,3.9,100,g
+170550,"Edamame, shelled, cooked",generic,Legumes & Nuts,11.1,5.2,10,122,,2.2,100,g
+170551,"Edamame, in pod, cooked",generic,Legumes & Nuts,11.9,6.4,9.9,123,,2.6,100,g
+170552,"Peas, split, cooked",generic,Legumes & Nuts,8.2,0.4,21,116,,8.3,100,g
+170553,"Broad beans, cooked",generic,Legumes & Nuts,9.6,0.4,17,111,,5.3,100,g
+170554,"Butter beans, cooked",generic,Legumes & Nuts,7.6,0.3,20,129,,4.7,100,g
+170555,"Black-eyed peas, cooked",generic,Legumes & Nuts,8.7,0.5,20,130,,4,100,g
+170556,"Mung beans, cooked",generic,Legumes & Nuts,3.1,0.2,21,104,,2.3,100,g
+170557,"Azuki beans, cooked",generic,Legumes & Nuts,8.3,0.1,20,128,,3.2,100,g
+170558,"Fava beans, cooked",generic,Legumes & Nuts,6.4,0.2,17,110,,5.2,100,g
+170559,"Lupini beans, cooked",generic,Legumes & Nuts,13,0.4,5,98,,5,100,g
+170560,"Mixed beans, canned",generic,Legumes & Nuts,8,0.3,18,120,,4.5,100,g
+170601,"Olive oil, extra virgin",generic,Oils & Fats,0,14,0,119,,0,14,g
+170602,"Olive oil, virgin",generic,Oils & Fats,0,14,0,119,,0,14,g
+170603,"Olive oil, light",generic,Oils & Fats,0,14,0,119,,0,14,g
+170604,Coconut oil,generic,Oils & Fats,0,14,0,117,,0,14,g
+170605,Vegetable oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170606,Canola oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170607,Sesame oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170608,Avocado oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170609,Peanut oil,generic,Oils & Fats,0,14,0,119,,0,14,g
+170610,Sunflower oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170611,Safflower oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170612,Grapeseed oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170613,Walnut oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170614,Flaxseed oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170615,MCT oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170616,Mustard seed oil,generic,Oils & Fats,0,14,0,120,,0,14,g
+170617,"Mayonnaise, regular",generic,Oils & Fats,0.1,11,0,99,,0,15,g
+170618,"Mayonnaise, light",generic,Oils & Fats,0.1,5,0.3,50,,0,15,g
+170619,"Mayonnaise, olive oil based",generic,Oils & Fats,0.1,11,0,99,,0,15,g
+170620,"Margarine, regular",generic,Oils & Fats,0.2,11,0,99,,0,14,g
+170621,"Margarine, light",generic,Oils & Fats,0.1,5.5,0.5,49,,0,7,g
+170622,Ghee (clarified butter),generic,Oils & Fats,0.3,14,0,124,,0,14,g
+170623,Lard,generic,Oils & Fats,0,13,0,117,,0,14,g
+170624,"Shortening, vegetable",generic,Oils & Fats,0,12,0,110,,0,12,g
+170625,Cooking spray, canola,generic,Oils & Fats,0,0.1,0,1,,0,1 spray
+170626,Cooking spray, olive oil,generic,Oils & Fats,0,0.1,0,1,,0,1 spray
+170701,"Dark chocolate, 70% cacao",generic,Snacks & Sweets,12,43,46,598,,24,100,g
+170702,"Dark chocolate, 85% cacao",generic,Snacks & Sweets,12,42,33,602,,11,100,g
+170703,"Dark chocolate, 90% cacao",generic,Snacks & Sweets,11,43,25,603,,7,100,g
+170704,Milk chocolate,generic,Snacks & Sweets,8,30,58,540,,2,100,g
+170705,Milk chocolate with almonds,generic,Snacks & Sweets,9,33,54,568,,3,100,g
+170706,White chocolate,generic,Snacks & Sweets,6,32,59,540,,0,100,g
+170707,"Chocolate chips, semi-sweet",generic,Snacks & Sweets,7,30,63,540,,3,100,g
+170708,"Chocolate chips, dark",generic,Snacks & Sweets,8,35,57,570,,7,100,g
+170709,"Chocolate candy bar, general",generic,Snacks & Sweets,4,15,56,380,,2,45,g
+170710,Chocolate covered nuts,generic,Snacks & Sweets,6,24,47,420,,2,40,g
+170711,Honey,generic,Snacks & Sweets,0.3,0,82,304,,0,21,g
+170712,Maple syrup,generic,Snacks & Sweets,0,0.1,67,260,,0,20,ml
+170713,Agave nectar,generic,Snacks & Sweets,0,0,76,310,,0,20,ml
+170714,Corn syrup,generic,Snacks & Sweets,0,0,85,282,,0,21,g
+170715,Brown sugar,generic,Snacks & Sweets,0,0,97,387,,0,12,g
+170716,White granulated sugar,generic,Snacks & Sweets,0,0,100,387,,0,12,g
+170717,"Jelly, grape",generic,Snacks & Sweets,0.4,0,28,107,,26,32,g
+170718,"Jam, strawberry",generic,Snacks & Sweets,0.6,0.2,28,108,,23,32,g
+170719,"Jam, raspberry",generic,Snacks & Sweets,0.4,0,28,107,,20,32,g
+170720,Peanut butter cups,generic,Snacks & Sweets,5,20,30,300,,16,42,g
+170721,"Granola bar, low fat",generic,Snacks & Sweets,3,2,24,130,,8,30,g
+170722,"Granola bar, regular",generic,Snacks & Sweets,4,7,25,165,,4,35,g
+170723,"Granola bar, chocolate",generic,Snacks & Sweets,3,8,28,180,,7,40,g
+170724,"Protein bar, vanilla",generic,Snacks & Sweets,20,8,23,230,,3,65,g
+170725,"Protein bar, chocolate",generic,Snacks & Sweets,20,9,23,240,,3,68,g
+170726,"Protein bar, cookies and cream",generic,Snacks & Sweets,20,7,24,235,,2,65,g
+170727,Energy bar,generic,Snacks & Sweets,5,5,40,220,,5,60,g
+170728,"Chips, potato, regular",generic,Snacks & Sweets,2,10,50,280,,1,28,g
+170729,"Chips, potato, light",generic,Snacks & Sweets,2,5,50,240,,1,28,g
+170730,"Chips, tortilla, plain",generic,Snacks & Sweets,2,7,50,280,,3,28,g
+170731,"Chips, tortilla, cheese",generic,Snacks & Sweets,2,8,50,290,,1,28,g
+170732,"Chips, vegetable",generic,Snacks & Sweets,2,8,50,280,,3,28,g
+170733,"Pretzels, twisted",generic,Snacks & Sweets,3,1,83,330,,2,28,g
+170734,"Candy, gummy bears",generic,Snacks & Sweets,1,0,94,340,,0,28,g
+170735,"Candy, hard candy",generic,Snacks & Sweets,0,0.5,98,385,,0,28,g
+170736,"Candy, licorice",generic,Snacks & Sweets,1,1,80,310,,1,28,g
+170737,"Candy, taffy",generic,Snacks & Sweets,1,3,78,312,,0,28,g
+170738,"Candy, lollipop",generic,Snacks & Sweets,0,0.1,27,108,,27,17,g
+170739,"Candy, caramel",generic,Snacks & Sweets,1,5,75,308,,62,28,g
+170740,"Candy, fudge",generic,Snacks & Sweets,1,8,73,348,,68,28,g
+170741,"Cookie, chocolate chip",generic,Snacks & Sweets,2,8,40,210,,15,30,g
+170742,"Cookie, oatmeal raisin",generic,Snacks & Sweets,2,7,35,190,,18,30,g
+170743,"Cookie, sugar",generic,Snacks & Sweets,1,6,40,210,,24,30,g
+170744,"Cookie, shortbread",generic,Snacks & Sweets,2,9,40,230,,1,28,g
+170745,"Cookie, fortune",generic,Snacks & Sweets,1,1,85,330,,0,28,g
+170746,Brownie,generic,Snacks & Sweets,2,6,35,180,,20,35,g
+170747,"Donut, glazed",generic,Snacks & Sweets,2,11,36,270,,15,52,g
+170748,"Donut, chocolate",generic,Snacks & Sweets,2,12,40,300,,20,60,g
+170749,"Donut, jelly-filled",generic,Snacks & Sweets,2,10,40,290,,24,60,g
+170750,"Muffin, blueberry, store-bought",generic,Snacks & Sweets,3,9,40,280,,20,60,g
+170751,"Cake, vanilla",generic,Snacks & Sweets,2,6,45,250,,30,60,g
+170752,"Cake, chocolate",generic,Snacks & Sweets,2,8,45,270,,25,60,g
+170753,"Cake, carrot",generic,Snacks & Sweets,2,10,45,280,,25,60,g
+170754,"Cake, cheesecake",generic,Snacks & Sweets,5,15,35,280,,20,80,g
+170755,"Pie, apple",generic,Snacks & Sweets,2,5,35,180,,20,100,g
+170756,"Pie, pumpkin",generic,Snacks & Sweets,2,4,30,150,,15,100,g
+170757,Trail mix,generic,Snacks & Sweets,6,20,50,410,,5,50,g
+170758,"Popcorn, candy coated",generic,Snacks & Sweets,2,6,80,320,,0,50,g
+170759,Peppermint candy,generic,Snacks & Sweets,0,0.5,99,388,,0,14,g
+170760,"Dates, stuffed",generic,Snacks & Sweets,2,8,70,340,,5,50,g
+170801,"Coffee, brewed, black",generic,Beverages,0.1,0,0,2,,0,240,ml
+170802,Espresso,generic,Beverages,0.1,0,0.1,2,,0,30,ml
+170803,Americano,generic,Beverages,0.1,0,0,15,,0,240,ml
+170804,"Latte, whole milk",generic,Beverages,4,4,7,120,,7,240,ml
+170805,"Latte, 2% milk",generic,Beverages,4,3,7,105,,7,240,ml
+170806,"Latte, skim milk",generic,Beverages,4,0.2,7,80,,7,240,ml
+170807,"Latte, soy milk",generic,Beverages,3,2,4,80,,3,240,ml
+170808,"Cappuccino, whole milk",generic,Beverages,4,4,7,120,,7,240,ml
+170809,"Cappuccino, 2% milk",generic,Beverages,4,3,7,105,,7,240,ml
+170810,Macchiato,generic,Beverages,2,2,3,40,,0,60,ml
+170811,"Mocha, whole milk",generic,Beverages,4,5,20,180,,18,240,ml
+170812,Flat white,generic,Beverages,4,4,7,120,,7,240,ml
+170813,Cortado,generic,Beverages,3,3,4,60,,0,100,ml
+170814,"Tea, black, brewed",generic,Beverages,0,0,0.5,2,,0,240,ml
+170815,"Tea, green, brewed",generic,Beverages,0,0,0,2,,0,240,ml
+170816,"Tea, white, brewed",generic,Beverages,0,0,0,2,,0,240,ml
+170817,"Tea, oolong, brewed",generic,Beverages,0,0,0,2,,0,240,ml
+170818,"Tea, herbal, brewed",generic,Beverages,0,0,0,2,,0,240,ml
+170819,"Tea, matcha, prepared with water",generic,Beverages,1.2,0.2,1.3,35,,0,240,ml
+170820,"Tea, chai latte",generic,Beverages,3,3,10,130,,8,240,ml
+170821,"Orange juice, fresh squeezed",generic,Beverages,0.9,0.1,11,47,,9,240,ml
+170822,"Orange juice, from concentrate",generic,Beverages,0.9,0.1,13,56,,11,240,ml
+170823,"Apple juice, unsweetened",generic,Beverages,0.1,0.1,26,110,,24,240,ml
+170824,"Grape juice, unsweetened",generic,Beverages,1.4,0.2,38,160,,36,240,ml
+170825,"Cranberry juice, unsweetened",generic,Beverages,0.9,0.2,29,110,,29,240,ml
+170826,Pomegranate juice,generic,Beverages,0.5,0.2,41,160,,32,240,ml
+170827,"Lemonade, fresh",generic,Beverages,0,0,26,99,,26,240,ml
+170828,"Limeade, fresh",generic,Beverages,0,0,27,100,,26,240,ml
+170829,Pineapple juice,generic,Beverages,1.2,0.2,29,120,,27,240,ml
+170830,Mango juice,generic,Beverages,0.7,0.2,31,135,,28,240,ml
+170831,Papaya juice,generic,Beverages,1,0.5,24,113,,19,240,ml
+170832,Watermelon juice,generic,Beverages,1,0.5,16,72,,14,240,ml
+170833,"Vegetable juice, mixed",generic,Beverages,1.7,0.2,10,47,,2,240,ml
+170834,Tomato juice,generic,Beverages,1.8,0.2,8,41,,1.7,240,ml
+170835,Carrot juice,generic,Beverages,1.2,0.3,12,55,,11,240,ml
+170836,Beet juice,generic,Beverages,1.6,0.2,13,59,,11,240,ml
+170837,Celery juice,generic,Beverages,0.6,0.1,4,20,,0.5,240,ml
+170838,"Ginger juice, fresh",generic,Beverages,0.3,0,9,26,,0,30,ml
+170839,Wheatgrass juice,generic,Beverages,0.6,0.2,2,20,,1,30,ml
+170840,"Soda, cola, regular",generic,Beverages,0,0,39,140,,39,355,ml
+170841,"Soda, cola, diet",generic,Beverages,0,0,0,0,,0,355,ml
+170842,"Soda, lemon-lime, regular",generic,Beverages,0,0,39,140,,39,355,ml
+170843,"Soda, lemon-lime, diet",generic,Beverages,0,0,0.5,0,,0,355,ml
+170844,"Soda, root beer",generic,Beverages,0,0,39,165,,39,355,ml
+170845,"Soda, ginger ale",generic,Beverages,0,0,33,124,,33,355,ml
+170846,"Soda, orange",generic,Beverages,0,0,44,160,,44,355,ml
+170847,"Soda, grape",generic,Beverages,0,0,40,160,,40,355,ml
+170848,"Energy drink, typical",generic,Beverages,0,0,54,220,,54,250,ml
+170849,"Sports drink, typical",generic,Beverages,0,0,14,63,,14,240,ml
+170850,Coconut water,generic,Beverages,0.7,0.2,9,46,,9,240,ml
+170851,"Kombucha, plain",generic,Beverages,0.5,0,2,15,,0,240,ml
+170852,"Kombucha, flavored",generic,Beverages,0.5,0,4,30,,4,240,ml
+170853,"Beer, regular",generic,Beverages,1.6,0,3.6,153,,0,355,ml
+170854,"Beer, light",generic,Beverages,1.2,0,4.6,110,,0,355,ml
+170855,"Beer, IPA",generic,Beverages,1.6,0,6,200,,0,355,ml
+170856,"Beer, stout",generic,Beverages,2.6,0,7,210,,0,355,ml
+170857,"Wine, red",generic,Beverages,0.2,0,2.6,88,,0.9,150,ml
+170858,"Wine, white",generic,Beverages,0.2,0,1.4,84,,0.9,150,ml
+170859,"Wine, rosé",generic,Beverages,0.1,0,2.4,84,,0.9,150,ml
+170860,"Wine, sparkling",generic,Beverages,0.1,0,1,84,,0,150,ml
+170861,Champagne,generic,Beverages,0.1,0,1,84,,0,150,ml
+170862,Vodka,generic,Beverages,0,0,0,96,,0,44,ml
+170863,Whiskey,generic,Beverages,0,0,0,105,,0,44,ml
+170864,Rum,generic,Beverages,0,0,0,97,,0,44,ml
+170865,Gin,generic,Beverages,0,0,0,110,,0,44,ml
+170866,Tequila,generic,Beverages,0,0,0,97,,0,44,ml
+170867,Brandy,generic,Beverages,0,0,0.4,100,,0,44,ml
+170868,Liqueur,generic,Beverages,0,0.3,15,165,,15,44,ml
+170869,"Smoothie, berry, store-bought",generic,Beverages,2,1,30,150,,20,240,ml
+170870,"Smoothie, tropical, store-bought",generic,Beverages,1,1,35,160,,25,240,ml
+170871,"Protein shake, vanilla",generic,Beverages,25,2,4,140,,2,240,ml
+170872,"Protein shake, chocolate",generic,Beverages,25,2,4,140,,3,240,ml
+170873,"Protein shake, strawberry",generic,Beverages,25,2,4,140,,3,240,ml
+170901,Ketchup,generic,Condiments & Sauces,0.4,0.1,4,15,,3,15,g
+170902,"Mustard, yellow",generic,Condiments & Sauces,1,0.4,1.6,12,,0.5,5,g
+170903,"Mustard, Dijon",generic,Condiments & Sauces,1,0.8,1,15,,0,5,g
+170904,"Mustard, spicy brown",generic,Condiments & Sauces,1,0.5,1,15,,0,5,g
+170905,Soy sauce,generic,Condiments & Sauces,11,0.6,5,68,,0,15,ml
+170906,"Soy sauce, low sodium",generic,Condiments & Sauces,9,0.5,1,10,,0,15,ml
+170907,Tamari sauce,generic,Condiments & Sauces,11,0.6,5,68,,0,15,ml
+170908,"Hot sauce, generic",generic,Condiments & Sauces,0.5,0.2,0.5,3,,0,5,g
+170909,"Hot sauce, sriracha",generic,Condiments & Sauces,0.3,0.1,2.9,13,,2,5,g
+170910,"Hot sauce, habanero",generic,Condiments & Sauces,0.3,0.1,1.4,6,,1,5,g
+170911,"Hot sauce, cayenne",generic,Condiments & Sauces,0.5,0,1,4,,0,5,g
+170912,Barbecue sauce,generic,Condiments & Sauces,0.4,0,12,36,,10,17,g
+170913,"BBQ sauce, low sugar",generic,Condiments & Sauces,0,0,4,14,,2,17,g
+170914,Ranch dressing,generic,Condiments & Sauces,0.5,7,1,65,,0,15,g
+170915,"Ranch dressing, light",generic,Condiments & Sauces,0,3,1,30,,0,15,g
+170916,Italian dressing,generic,Condiments & Sauces,0.1,5,0.5,45,,0,15,ml
+170917,"Italian dressing, light",generic,Condiments & Sauces,0,2,1,20,,0,15,ml
+170918,Caesar dressing,generic,Condiments & Sauces,0.5,8,1,75,,0,15,ml
+170919,"Caesar dressing, light",generic,Condiments & Sauces,0.5,3,1,30,,0,15,ml
+170920,Balsamic vinaigrette,generic,Condiments & Sauces,0,4,1,40,,0,15,ml
+170921,"Vinaigrette, olive oil based",generic,Condiments & Sauces,0.1,6,1,55,,0,15,ml
+170922,"Salsa, fresh",generic,Condiments & Sauces,0.3,0,1.5,8,,0.5,30,g
+170923,"Salsa, red",generic,Condiments & Sauces,0.5,0.1,4,17,,2,32,g
+170924,"Salsa, verde",generic,Condiments & Sauces,0.4,0,1.5,10,,0.5,30,g
+170925,"Salsa, corn",generic,Condiments & Sauces,0.5,1,4,30,,0.5,32,g
+170926,"Hummus, classic",generic,Condiments & Sauces,3.7,4.2,8,100,,2.4,30,g
+170927,"Hummus, roasted garlic",generic,Condiments & Sauces,3.7,4.2,8,100,,1,30,g
+170928,"Hummus, roasted red pepper",generic,Condiments & Sauces,3,4,9,105,,1.5,30,g
+170929,Guacamole,generic,Condiments & Sauces,2,9,5,125,,2,30,g
+170930,"Guacamole, light",generic,Condiments & Sauces,1,4,5,60,,2,30,g
+170931,Teriyaki sauce,generic,Condiments & Sauces,1,0,11,45,,10,15,ml
+170932,Worcestershire sauce,generic,Condiments & Sauces,0.9,0,0.6,9,,0,5,ml
+170933,Fish sauce,generic,Condiments & Sauces,2.4,0,0.1,6,,0,5,ml
+170934,"Pesto, basil",generic,Condiments & Sauces,3.6,31,4,365,,1,100,g
+170935,Marinara sauce,generic,Condiments & Sauces,1.5,0.5,4,24,,1,100,ml
+170936,Alfredo sauce,generic,Condiments & Sauces,4,17,3,180,,0,100,ml
+170937,Buffalo sauce,generic,Condiments & Sauces,0.2,0.4,0.5,3,,0,15,ml
+170938,"Relish, sweet",generic,Condiments & Sauces,0.3,0.1,5,20,,4,15,g
+170939,"Olives, green, pitted",generic,Condiments & Sauces,0.8,3.3,0.6,30,,0,30,g
+170940,"Olives, black, pitted",generic,Condiments & Sauces,0.8,3,2,26,,0,30,g
+170941,"Pickles, dill",generic,Condiments & Sauces,0.6,0.1,1,8,,0.5,30,g
+170942,Pickle juice,generic,Condiments & Sauces,0.2,0,0.4,3,,0,30,ml
+170943,Capers,generic,Condiments & Sauces,2.4,0.9,4,23,,3.2,30,g
+170944,Sesame paste (tahini),generic,Condiments & Sauces,16,48,21,595,,9,30,g
+170945,"Miso, white",generic,Condiments & Sauces,8,6,14,145,,2,30,g
+170946,"Miso, red",generic,Condiments & Sauces,12,6,8,170,,2,30,g
+170947,Soy butter,generic,Condiments & Sauces,20,35,4,490,,1,30,g
+170948,Coconut aminos,generic,Condiments & Sauces,1,0,0.4,6,,0,10,ml
+170949,Liquid smoke,generic,Condiments & Sauces,0,0,0,0,,0,1,tsp
+171002,Pizza, supreme,generic,Prepared Foods,14,15,38,330,,2,1 slice
+171003,Pizza, veggie,generic,Prepared Foods,11,8,36,280,,2,1 slice
+171004,"Hamburger patty, 1/4 lb",generic,Prepared Foods,20,15,2,250,,0,113,g
+171005,"Cheeseburger, 1/4 lb",generic,Prepared Foods,22,18,3,300,,0,127,g
+171006,"Hamburger, double",generic,Prepared Foods,32,25,35,540,,2,215,g
+171007,"Hot dog, beef",generic,Prepared Foods,13,16,2,240,,0,57,g
+171008,"Hot dog, chicken",generic,Prepared Foods,12,10,3,170,,0,56,g
+171009,Hot dog with chili,generic,Prepared Foods,14,20,4,280,,0,85,g
+171010,"French fries, frozen, baked",generic,Prepared Foods,3.4,3.4,17,107,,0.8,100,g
+171011,"French fries, frozen, fried",generic,Prepared Foods,3.4,15,17,250,,1.6,100,g
+171012,"French fries, fast food",generic,Prepared Foods,3.2,15,26,280,,2.4,100,g
+171013,Sweet potato fries,generic,Prepared Foods,1.5,8,20,150,,2,100,g
+171014,Chicken nuggets,generic,Prepared Foods,12,10,15,210,,0,100,g
+171015,"Chicken wings, Buffalo",generic,Prepared Foods,28,17,1,290,,0,100,g
+171016,"Fried chicken, drumstick",generic,Prepared Foods,26,17,8,310,,0,100,g
+171017,"Fried chicken, thigh",generic,Prepared Foods,24,20,8,330,,0,100,g
+171018,"Fried chicken, breast",generic,Prepared Foods,28,12,8,290,,0,100,g
+171021,Taco, beef,generic,Prepared Foods,12,10,15,250,,2,1 taco
+171022,Taco, chicken,generic,Prepared Foods,14,9,14,240,,2,1 taco
+171023,Taco, fish,generic,Prepared Foods,12,12,15,280,,1,1 taco
+171025,Burrito, beef,generic,Prepared Foods,20,18,45,500,,3,1 burrito
+171026,Burrito, chicken,generic,Prepared Foods,22,15,50,520,,3,1 burrito
+171027,Burrito, vegetarian,generic,Prepared Foods,15,15,60,490,,6,1 burrito
+171028,Quesadilla, chicken,generic,Prepared Foods,22,15,30,420,,2,1 quesadilla
+171029,Quesadilla, beef,generic,Prepared Foods,20,16,30,430,,2,1 quesadilla
+171030,Enchilada, chicken,generic,Prepared Foods,18,10,25,320,,2,1 enchilada
+171031,"Burrito bowl, chicken",generic,Prepared Foods,25,12,55,480,,6,280,g
+171032,Sushi roll, California,generic,Prepared Foods,7,5,33,220,,1,1 roll
+171033,Sushi roll, salmon,generic,Prepared Foods,8,6,32,250,,1,1 roll
+171034,Sushi roll, spicy tuna,generic,Prepared Foods,9,7,32,260,,1,1 roll
+171035,Sushi roll, vegetable,generic,Prepared Foods,3,4,40,200,,2,1 roll
+171036,Sushi roll, shrimp tempura,generic,Prepared Foods,6,8,38,280,,1,1 roll
+171037,Nigiri sushi, salmon,generic,Prepared Foods,2,1,3,40,,0,2 pieces
+171038,Nigiri sushi, tuna,generic,Prepared Foods,2,0.5,3,37,,0,2 pieces
+171039,Nigiri sushi, shrimp,generic,Prepared Foods,2,0.5,3,37,,0,2 pieces
+171040,Ramen noodles, prepared,generic,Prepared Foods,9,3,40,290,,2,1 bowl
+171042,Pho, beef,generic,Prepared Foods,10,2,15,140,,2,1 cup
+171045,Lo mein, chicken,generic,Prepared Foods,18,12,45,450,,2,1 serving
+171046,Fried rice, chicken,generic,Prepared Foods,15,10,45,420,,2,1 cup
+171047,Mac and cheese, boxed,generic,Prepared Foods,9,9,45,380,,2,1 cup
+171048,Mac and cheese, homemade,generic,Prepared Foods,15,12,50,420,,2,1 cup
+171049,"Lasagna, meat",generic,Prepared Foods,18,15,25,360,,2,200,g
+171050,"Lasagna, vegetarian",generic,Prepared Foods,12,8,30,280,,3,200,g
+171064,Garden salad, with dressing,generic,Prepared Foods,3,10,10,160,,3,1 salad
+171069,"Oatmeal, plain, prepared",generic,Prepared Foods,5,3,27,150,,4,200,g
+171070,"Oatmeal, with berries",generic,Prepared Foods,5,3,35,190,,6,200,g
+171071,"Oatmeal, with nuts",generic,Prepared Foods,8,8,35,270,,6,200,g
+171072,"Scrambled eggs, 2 eggs",generic,Prepared Foods,18,16,2,230,,0,100,g
+171073,"Fried eggs, 2 eggs",generic,Prepared Foods,18,16,0,240,,0,100,g
+171074,"Boiled eggs, 2 eggs",generic,Prepared Foods,18,16,1.2,240,,0.6,100,g
+171075,"Omelet, plain, 2 eggs",generic,Prepared Foods,18,16,2,230,,0,100,g
+171076,"Omelet, cheese, 2 eggs",generic,Prepared Foods,21,20,2,310,,0,130,g
+171077,"Omelet, vegetable, 2 eggs",generic,Prepared Foods,15,12,5,220,,2,120,g
+171078,"Omelet, meat, 2 eggs",generic,Prepared Foods,22,18,3,310,,0,130,g
+171079,"Pancakes, 2, with syrup",generic,Prepared Foods,7,7,54,350,,2,200,g
+171080,"Pancakes, 2, with butter and syrup",generic,Prepared Foods,7,10,54,390,,2,200,g
+171081,"Waffles, 2, with syrup",generic,Prepared Foods,8,14,54,435,,1,200,g
+171082,"Waffles, 2, with butter and syrup",generic,Prepared Foods,8,18,54,480,,1,200,g
+171083,French toast,generic,Prepared Foods,6,6,30,240,,1,100,g
+171084,"Crepes, plain",generic,Prepared Foods,4,2,15,110,,0.5,50,g
+171085,Crepes with chocolate,generic,Prepared Foods,5,4,28,195,,2,60,g
+171086,"Hash browns, frozen",generic,Prepared Foods,2,6,12,140,,1,60,g
+171087,"Hash browns, homemade",generic,Prepared Foods,2,9,12,160,,1,60,g
+171088,Breakfast sandwich, egg and cheese,generic,Prepared Foods,16,14,30,350,,1,1 sandwich
+171091,Granola with yogurt,generic,Prepared Foods,8,7,45,300,,5,150,g
+171092,Yogurt parfait,generic,Prepared Foods,10,5,40,280,,4,150,g
+171093,Protein pancakes,generic,Prepared Foods,20,6,25,260,,2,150,g

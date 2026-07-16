@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+    volumes:
+      - db-data:/app/instance
+    restart: unless-stopped
+
+  # Uncomment to use PostgreSQL instead of SQLite:
+  # app:
+  #   environment:
+  #     - DATABASE_URL=postgresql://nutritrack:nutritrack@db:5432/nutritrack
+  #
+  # db:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: nutritrack
+  #     POSTGRES_PASSWORD: nutritrack
+  #     POSTGRES_DB: nutritrack
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  db-data:
+  # pg-data:

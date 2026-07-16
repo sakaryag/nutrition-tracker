@@ -13,3 +13,6 @@ build/
 *.egg-info/
 .vscode/
 .idea/
+# Kaggle downloaded datasets (can be hundreds of MB)
+~/.cache/kagglehub/
+.kaggle/

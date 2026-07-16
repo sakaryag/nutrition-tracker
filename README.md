@@ -92,6 +92,34 @@ pytest tests/ -v
 
 ---
 
+## Importing Meal Datasets (optional)
+
+The app ships with ~800 USDA ingredient foods. To also search for whole dishes and recipes (Turkish recipes, international meals), you can import two Kaggle datasets.
+
+**Step 1 — Get a Kaggle API key**
+1. Sign in at [kaggle.com](https://www.kaggle.com) → Settings → API → **Create New Token**
+2. Save the downloaded `kaggle.json` to:
+   - Windows: `C:\Users\<you>\.kaggle\kaggle.json`
+   - macOS/Linux: `~/.kaggle/kaggle.json`
+
+**Step 2 — Install extra dependencies**
+```bash
+pip install kagglehub[pandas-datasets] pandas
+```
+
+**Step 3 — Run the seeder**
+```bash
+python seed_data/seed_meals_kaggle.py
+```
+
+This downloads and imports:
+- [`bit104/turkish-recipes-structured`](https://www.kaggle.com/datasets/bit104/turkish-recipes-structured) — Turkish recipes
+- [`nazmussakibrupol/3a2m-cooking-recipe-dataset`](https://www.kaggle.com/datasets/nazmussakibrupol/3a2m-cooking-recipe-dataset) — international cooking recipes
+
+Datasets are **not included in this repo** (size + license). The script is safe to re-run — duplicates are skipped.
+
+---
+
 ## Tech Stack
 
 - **Backend:** Flask 3, Flask-SQLAlchemy, Flask-Migrate

@@ -56,8 +56,8 @@ Open **http://localhost:5000** in your browser. The database is created automati
 Create a `.env` file in the project root to override defaults:
 
 ```env
-# Enable login/register (default: false — no login required)
-AUTH_ENABLED=true
+# Disable login/register (default: true — login is required)
+# AUTH_ENABLED=false
 
 # Required when AUTH_ENABLED=true — use a long random string
 SECRET_KEY=change-me-to-something-secret

@@ -9,7 +9,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-only-replace-in-production')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///nutritrack.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'false').lower() == 'true'
+    AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
     DEFAULT_PROTEIN_TARGET = float(os.getenv('DEFAULT_PROTEIN_TARGET', '150'))
     DEFAULT_FAT_TARGET = float(os.getenv('DEFAULT_FAT_TARGET', '65'))
     DEFAULT_CARBS_TARGET = float(os.getenv('DEFAULT_CARBS_TARGET', '250'))

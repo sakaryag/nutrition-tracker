@@ -139,7 +139,7 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
 
 | Variable | Default | Description |
 |---|---|---|
-| `AUTH_ENABLED` | `false` | Set `true` to require login |
+| `AUTH_ENABLED` | `true` | Login required by default. Set `false` to skip auth entirely. |
 | `SECRET_KEY` | `dev-only-...` | Flask session secret — change in production |
 | `DATABASE_URL` | `sqlite:///nutritrack.db` | SQLite or `postgresql://...` |
 | `DEFAULT_PROTEIN_TARGET` | `150` | Initial macro target (g) |

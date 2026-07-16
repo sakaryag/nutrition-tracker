@@ -96,18 +96,28 @@ pytest tests/ -v
 
 The app ships with ~800 USDA ingredient foods. To also search for whole dishes and recipes (Turkish recipes, international meals), you can import two Kaggle datasets.
 
-**Step 1 — Get a Kaggle API key**
-1. Sign in at [kaggle.com](https://www.kaggle.com) → Settings → API → **Create New Token**
-2. Save the downloaded `kaggle.json` to:
-   - Windows: `C:\Users\<you>\.kaggle\kaggle.json`
-   - macOS/Linux: `~/.kaggle/kaggle.json`
+### Step 1 — Create a Kaggle account and get an API key
 
-**Step 2 — Install extra dependencies**
+1. Sign up or sign in at [kaggle.com](https://www.kaggle.com)
+2. Go to **kaggle.com/settings** → scroll to **API** section → click **Create New Token**
+3. A file called `kaggle.json` downloads automatically. It looks like this:
+   ```json
+   {"username": "yourusername", "key": "abc123..."}
+   ```
+4. Move that file to the right location:
+   - **Windows:** `C:\Users\<YourName>\.kaggle\kaggle.json`
+   - **macOS/Linux:** `~/.kaggle/kaggle.json`
+
+> **Keep this file private.** Never share it, commit it to git, or paste it in a chat. If it leaks, go to kaggle.com/settings → API → **Expire Token** and create a new one.
+
+### Step 2 — Install extra dependencies
+
 ```bash
 pip install kagglehub[pandas-datasets] pandas
 ```
 
-**Step 3 — Run the seeder**
+### Step 3 — Run the seeder
+
 ```bash
 python seed_data/seed_meals_kaggle.py
 ```
@@ -116,7 +126,9 @@ This downloads and imports:
 - [`bit104/turkish-recipes-structured`](https://www.kaggle.com/datasets/bit104/turkish-recipes-structured) — Turkish recipes
 - [`nazmussakibrupol/3a2m-cooking-recipe-dataset`](https://www.kaggle.com/datasets/nazmussakibrupol/3a2m-cooking-recipe-dataset) — international cooking recipes
 
-Datasets are **not included in this repo** (size + license). The script is safe to re-run — duplicates are skipped.
+Imported meals appear under the **Meals** filter in the template search. The script is safe to re-run — duplicates are skipped automatically.
+
+> Datasets are **not included in this repo** due to size and licensing. They are downloaded directly from Kaggle to your local machine.
 
 ---
 

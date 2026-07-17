@@ -1,165 +1,155 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %} — Settings{% endblock %}
 
 {% block content %}
 <section class="page-settings">
 
   <div class="page-header">
-    <h1>Settings</h1>
+    <h1 data-i18n="settings.title">Settings</h1>
   </div>
 
   <article class="settings-card" style="margin-bottom:1.5rem;">
-    <h2>TDEE Calculator</h2>
-    <p class="settings-description">Calculate your daily calorie needs based on your body stats and activity level. Results will pre-fill your targets below.</p>
+    <h2 data-i18n="settings.tdeeCalc">TDEE Calculator</h2>
+    <p class="settings-description" data-i18n="settings.tdeeDesc">Calculate your daily calorie needs based on your body stats and activity level. Results will pre-fill your targets below.</p>
 
     <form id="tdee-form" novalidate>
       <div class="form-row">
         <div class="form-group">
-          <label for="tdee-gender">Gender</label>
+          <label for="tdee-gender" data-i18n="settings.gender">Gender</label>
           <select id="tdee-gender" class="form-control">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="male" data-i18n="settings.male">Male</option>
+            <option value="female" data-i18n="settings.female">Female</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="tdee-age">Age</label>
+          <label for="tdee-age" data-i18n="settings.age">Age</label>
           <input type="number" id="tdee-age" class="form-control" min="14" max="100" required />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label for="tdee-weight">Weight (kg)</label>
+          <label for="tdee-weight" data-i18n="settings.weight">Weight (kg)</label>
           <input type="number" id="tdee-weight" class="form-control" min="30" max="300" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="tdee-height">Height (cm)</label>
+          <label for="tdee-height" data-i18n="settings.height">Height (cm)</label>
           <input type="number" id="tdee-height" class="form-control" min="100" max="250" step="1" required />
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label for="tdee-activity">Activity Level</label>
+          <label for="tdee-activity" data-i18n="settings.activityLevel">Activity Level</label>
           <select id="tdee-activity" class="form-control">
-            <option value="sedentary">Sedentary (office job, little exercise)</option>
-            <option value="light">Light (1-3 days/week exercise)</option>
-            <option value="moderate" selected>Moderate (3-5 days/week exercise)</option>
-            <option value="active">Active (6-7 days/week exercise)</option>
-            <option value="very_active">Very Active (athlete / physical job)</option>
+            <option value="sedentary" data-i18n="settings.sedentary">Sedentary (office job, little exercise)</option>
+            <option value="light" data-i18n="settings.light">Light (1-3 days/week exercise)</option>
+            <option value="moderate" selected data-i18n="settings.moderate">Moderate (3-5 days/week exercise)</option>
+            <option value="active" data-i18n="settings.active">Active (6-7 days/week exercise)</option>
+            <option value="very_active" data-i18n="settings.veryActive">Very Active (athlete / physical job)</option>
           </select>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label for="tdee-goal">Goal</label>
+          <label for="tdee-goal" data-i18n="settings.goal">Goal</label>
           <select id="tdee-goal" class="form-control">
-            <option value="cut">Cut (lose fat, -20%)</option>
-            <option value="maintain" selected>Maintain weight</option>
-            <option value="bulk">Bulk (gain muscle, +15%)</option>
+            <option value="cut" data-i18n="settings.cut">Cut (lose fat, -20%)</option>
+            <option value="maintain" selected data-i18n="settings.maintain">Maintain weight</option>
+            <option value="bulk" data-i18n="settings.bulk">Bulk (gain muscle, +15%)</option>
           </select>
         </div>
       </div>
 
       <div class="form-group">
-        <label>Macro Split</label>
+        <label data-i18n="settings.macroSplit">Macro Split</label>
         <div class="preset-buttons">
-          <button type="button" class="btn btn-preset active" data-preset="balanced">Balanced (30/30/40)</button>
-          <button type="button" class="btn btn-preset" data-preset="high_protein">High Protein (40/25/35)</button>
-          <button type="button" class="btn btn-preset" data-preset="low_carb">Low Carb (35/40/25)</button>
-          <button type="button" class="btn btn-preset" data-preset="keto">Keto (25/65/10)</button>
-          <button type="button" class="btn btn-preset" data-preset="custom">Custom</button>
+          <button type="button" class="btn btn-preset active" data-preset="balanced" data-i18n="settings.balanced">Balanced (30/30/40)</button>
+          <button type="button" class="btn btn-preset" data-preset="high_protein" data-i18n="settings.highProtein">High Protein (40/25/35)</button>
+          <button type="button" class="btn btn-preset" data-preset="low_carb" data-i18n="settings.lowCarb">Low Carb (35/40/25)</button>
+          <button type="button" class="btn btn-preset" data-preset="keto" data-i18n="settings.keto">Keto (25/65/10)</button>
+          <button type="button" class="btn btn-preset" data-preset="custom" data-i18n="settings.custom">Custom</button>
         </div>
       </div>
 
       <div id="custom-split" class="form-row" hidden>
         <div class="form-group">
-          <label for="custom-protein-pct">Protein %</label>
+          <label for="custom-protein-pct" data-i18n="settings.proteinPct">Protein %</label>
           <input type="number" id="custom-protein-pct" class="form-control" min="5" max="70" value="30" />
         </div>
         <div class="form-group">
-          <label for="custom-fat-pct">Fat %</label>
+          <label for="custom-fat-pct" data-i18n="settings.fatPct">Fat %</label>
           <input type="number" id="custom-fat-pct" class="form-control" min="5" max="70" value="30" />
         </div>
         <div class="form-group">
-          <label for="custom-carbs-pct">Carbs %</label>
+          <label for="custom-carbs-pct" data-i18n="settings.carbsPct">Carbs %</label>
           <input type="number" id="custom-carbs-pct" class="form-control" min="5" max="70" value="40" />
         </div>
         <p class="form-hint" id="pct-total">Total: 100%</p>
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Calculate</button>
+        <button type="submit" class="btn btn-primary" data-i18n="settings.calculate">Calculate</button>
       </div>
     </form>
 
     <div id="tdee-results" class="tdee-results" hidden>
-      <h3>Your Results</h3>
+      <h3 data-i18n="settings.yourResults">Your Results</h3>
       <div class="tdee-results__grid">
         <div class="tdee-stat">
-          <span class="tdee-stat__label">BMR</span>
+          <span class="tdee-stat__label" data-i18n="settings.bmr">BMR</span>
           <span class="tdee-stat__value" id="result-bmr">&#8212;</span>
           <span class="tdee-stat__unit">kcal</span>
         </div>
         <div class="tdee-stat">
-          <span class="tdee-stat__label">TDEE</span>
+          <span class="tdee-stat__label" data-i18n="settings.tdee">TDEE</span>
           <span class="tdee-stat__value" id="result-tdee">&#8212;</span>
           <span class="tdee-stat__unit">kcal</span>
         </div>
         <div class="tdee-stat tdee-stat--highlight">
-          <span class="tdee-stat__label">Daily Target</span>
+          <span class="tdee-stat__label" data-i18n="settings.dailyTarget">Daily Target</span>
           <span class="tdee-stat__value" id="result-calories">&#8212;</span>
           <span class="tdee-stat__unit">kcal</span>
         </div>
       </div>
       <div class="tdee-macros">
-        <div class="tdee-macro"><span class="macro-tag macro-tag--protein">Protein</span> <strong id="result-protein">&#8212;</strong> g</div>
-        <div class="tdee-macro"><span class="macro-tag macro-tag--fat">Fat</span> <strong id="result-fat">&#8212;</strong> g</div>
-        <div class="tdee-macro"><span class="macro-tag macro-tag--carbs">Carbs</span> <strong id="result-carbs">&#8212;</strong> g</div>
+        <div class="tdee-macro"><span class="macro-tag macro-tag--protein" data-i18n="macro.protein">Protein</span> <strong id="result-protein">&#8212;</strong> g</div>
+        <div class="tdee-macro"><span class="macro-tag macro-tag--fat" data-i18n="macro.fat">Fat</span> <strong id="result-fat">&#8212;</strong> g</div>
+        <div class="tdee-macro"><span class="macro-tag macro-tag--carbs" data-i18n="macro.carbs">Carbs</span> <strong id="result-carbs">&#8212;</strong> g</div>
       </div>
-      <button type="button" class="btn btn-primary" id="apply-tdee">Apply as My Targets</button>
+      <button type="button" class="btn btn-primary" id="apply-tdee" data-i18n="settings.applyTargets">Apply as My Targets</button>
     </div>
-  </article>
-
-  <article class="settings-card" style="margin-bottom:1.5rem;">
-    <h2>Language / Dil</h2>
-    <p class="settings-description">Choose the language for food names in search results.</p>
-    <div class="preset-buttons">
-      <button type="button" class="btn btn-preset" id="lang-en">English</button>
-      <button type="button" class="btn btn-preset" id="lang-tr">Türkçe</button>
-    </div>
-    <p class="form-hint" id="lang-note" style="margin-top:.5rem;"></p>
   </article>
 
   <article class="settings-card">
-    <h2>Daily Targets</h2>
-    <p class="settings-description">Set your daily macro and calorie goals. These take effect immediately for today and all future dates.</p>
+    <h2 data-i18n="settings.dailyTargets">Daily Targets</h2>
+    <p class="settings-description" data-i18n="settings.targetsDesc">Set your daily macro and calorie goals. These take effect immediately for today and all future dates.</p>
 
     <form id="targets-form" novalidate>
       <div class="form-row">
         <div class="form-group">
-          <label for="target-protein">Protein (g)</label>
+          <label for="target-protein" data-i18n="settings.proteinG">Protein (g)</label>
           <input type="number" id="target-protein" name="protein" class="form-control" min="0" step="1" required />
         </div>
         <div class="form-group">
-          <label for="target-fat">Fat (g)</label>
+          <label for="target-fat" data-i18n="settings.fatG">Fat (g)</label>
           <input type="number" id="target-fat" name="fat" class="form-control" min="0" step="1" required />
         </div>
         <div class="form-group">
-          <label for="target-carbs">Carbs (g)</label>
+          <label for="target-carbs" data-i18n="settings.carbsG">Carbs (g)</label>
           <input type="number" id="target-carbs" name="carbs" class="form-control" min="0" step="1" required />
         </div>
         <div class="form-group">
-          <label for="target-calories">Calories (kcal)</label>
+          <label for="target-calories" data-i18n="settings.caloriesKcal">Calories (kcal)</label>
           <input type="number" id="target-calories" name="calories" class="form-control" min="0" step="10" required />
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary" id="save-targets-btn">Save Targets</button>
+        <button type="submit" class="btn btn-primary" id="save-targets-btn" data-i18n="settings.saveTargets">Save Targets</button>
       </div>
     </form>
 
     <div id="settings-success" class="alert alert-success" hidden>
-      Targets saved successfully.
+      <span data-i18n="settings.targetsSaved">Targets saved successfully.</span>
     </div>
   </article>
 
@@ -168,20 +158,4 @@
 
 {% block scripts %}
 <script src="/static/js/settings.js"></script>
-<script>
-(function() {
-  const enBtn = document.getElementById('lang-en');
-  const trBtn = document.getElementById('lang-tr');
-  const note  = document.getElementById('lang-note');
-  function update() {
-    const l = Lang.get();
-    enBtn.classList.toggle('active', l === 'en');
-    trBtn.classList.toggle('active', l === 'tr');
-    note.textContent = l === 'tr' ? 'Türkçe besin isimleri aktif.' : 'English food names active.';
-  }
-  enBtn.addEventListener('click', () => { Lang.set('en'); update(); });
-  trBtn.addEventListener('click', () => { Lang.set('tr'); update(); });
-  update();
-})();
-</script>
 {% endblock %}

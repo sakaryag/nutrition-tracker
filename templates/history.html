@@ -1,17 +1,17 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %} — History{% endblock %}
 
 {% block content %}
 <section class="page-history">
 
   <div class="page-header">
-    <h1>History</h1>
+    <h1 data-i18n="hist.title">History</h1>
   </div>
 
   <!-- Date Picker -->
   <div class="history-controls">
     <div class="form-group">
-      <label for="history-date">Select Date</label>
+      <label for="history-date" data-i18n="hist.selectDate">Select Date</label>
       <input type="date" id="history-date" class="form-control" />
     </div>
   </div>
@@ -19,51 +19,51 @@
   <!-- Summary Cards -->
   <section class="summary-cards" aria-label="Nutrient totals for selected date">
     <article class="summary-card summary-card--protein">
-      <h2 class="summary-card__label">Protein</h2>
+      <h2 class="summary-card__label" data-i18n="macro.protein">Protein</h2>
       <p class="summary-card__value"><span id="h-summary-protein">0</span> / <span id="h-target-protein">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--protein" id="h-bar-protein" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="h-remaining-protein">0</span> g remaining</p>
+      <p class="summary-card__remaining"><span id="h-remaining-protein">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
     </article>
     <article class="summary-card summary-card--fat">
-      <h2 class="summary-card__label">Fat</h2>
+      <h2 class="summary-card__label" data-i18n="macro.fat">Fat</h2>
       <p class="summary-card__value"><span id="h-summary-fat">0</span> / <span id="h-target-fat">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--fat" id="h-bar-fat" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="h-remaining-fat">0</span> g remaining</p>
+      <p class="summary-card__remaining"><span id="h-remaining-fat">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
     </article>
     <article class="summary-card summary-card--carbs">
-      <h2 class="summary-card__label">Carbs</h2>
+      <h2 class="summary-card__label" data-i18n="macro.carbs">Carbs</h2>
       <p class="summary-card__value"><span id="h-summary-carbs">0</span> / <span id="h-target-carbs">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--carbs" id="h-bar-carbs" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="h-remaining-carbs">0</span> g remaining</p>
+      <p class="summary-card__remaining"><span id="h-remaining-carbs">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
     </article>
     <article class="summary-card summary-card--calories">
-      <h2 class="summary-card__label">Calories</h2>
+      <h2 class="summary-card__label" data-i18n="macro.calories">Calories</h2>
       <p class="summary-card__value"><span id="h-summary-calories">0</span> / <span id="h-target-calories">0</span> kcal</p>
       <div class="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--calories" id="h-bar-calories" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="h-remaining-calories">0</span> kcal remaining</p>
+      <p class="summary-card__remaining"><span id="h-remaining-calories">0</span> kcal <span data-i18n="macro.remaining">remaining</span></p>
     </article>
   </section>
 
   <!-- Entry List -->
   <section class="entries-section" aria-label="Entries for selected date">
-    <h2 class="section-title">Entries</h2>
+    <h2 class="section-title" data-i18n="hist.entries">Entries</h2>
     <div id="h-entries-list">
-      <p class="empty-msg">Select a date to view entries.</p>
+      <p class="empty-msg" data-i18n="hist.noEntries">Select a date to view entries.</p>
     </div>
   </section>
 
   <!-- Trends Chart -->
   <section class="trends-section">
     <div class="trends-header">
-      <h2 class="section-title">Trends</h2>
+      <h2 class="section-title" data-i18n="hist.trends">Trends</h2>
       <div class="btn-group" role="group" aria-label="Trend period">
         <button class="btn btn-sm btn-outline active" data-days="7">7 Days</button>
         <button class="btn btn-sm btn-outline" data-days="14">14 Days</button>
@@ -77,19 +77,19 @@
 
   <!-- Export -->
   <section class="export-section">
-    <h2 class="section-title">Export CSV</h2>
+    <h2 class="section-title" data-i18n="hist.exportCsv">Export CSV</h2>
     <form class="export-form" id="export-form">
       <div class="form-row">
         <div class="form-group">
-          <label for="export-start">Start Date</label>
+          <label for="export-start" data-i18n="hist.startDate">Start Date</label>
           <input type="date" id="export-start" class="form-control" required />
         </div>
         <div class="form-group">
-          <label for="export-end">End Date</label>
+          <label for="export-end" data-i18n="hist.endDate">End Date</label>
           <input type="date" id="export-end" class="form-control" required />
         </div>
         <div class="form-group form-group--action">
-          <button type="submit" class="btn btn-primary">Download CSV</button>
+          <button type="submit" class="btn btn-primary" data-i18n="hist.downloadCsv">Download CSV</button>
         </div>
       </div>
     </form>

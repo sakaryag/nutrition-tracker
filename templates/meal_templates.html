@@ -5,12 +5,12 @@
 <section class="page-meals">
 
   <div class="page-header">
-    <h1>Meal Templates</h1>
-    <button class="btn btn-primary" id="open-template-form">+ New Template</button>
+    <h1 data-i18n="meals.title">Meal Templates</h1>
+    <button class="btn btn-primary" id="open-template-form" data-i18n="meals.newTemplate">+ New Template</button>
   </div>
 
   <div id="templates-list">
-    <p class="empty-msg">Loading templates&hellip;</p>
+    <p class="empty-msg" data-i18n="common.loading">Loading templates&hellip;</p>
   </div>
 
 </section>
@@ -19,7 +19,7 @@
 <div class="modal-overlay" id="template-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-modal-title" hidden>
   <div class="modal modal--wide">
     <div class="modal-header">
-      <h2 class="modal-title" id="tpl-modal-title">New Template</h2>
+      <h2 class="modal-title" id="tpl-modal-title" data-i18n="meals.newTitle">New Template</h2>
       <button class="btn btn-icon modal-close" id="close-template-modal" aria-label="Close">&times;</button>
     </div>
     <form id="template-form" novalidate>
@@ -27,42 +27,42 @@
 
       <div class="form-row">
         <div class="form-group" style="flex:2">
-          <label for="tpl-name">Template Name <span aria-hidden="true">*</span></label>
-          <input type="text" id="tpl-name" class="form-control" placeholder="e.g. My usual breakfast" required />
+          <label for="tpl-name" data-i18n="meals.templateName">Template Name <span aria-hidden="true">*</span></label>
+          <input type="text" id="tpl-name" class="form-control" data-i18n-placeholder="meals.namePlaceholder" placeholder="e.g. My usual breakfast" required />
         </div>
         <div class="form-group">
-          <label for="tpl-meal-type">Meal Type</label>
+          <label for="tpl-meal-type" data-i18n="meals.mealType">Meal Type</label>
           <select id="tpl-meal-type" class="form-control">
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snack">Snack</option>
+            <option value="Breakfast" data-i18n="meals.breakfast">Breakfast</option>
+            <option value="Lunch" data-i18n="meals.lunch">Lunch</option>
+            <option value="Dinner" data-i18n="meals.dinner">Dinner</option>
+            <option value="Snack" data-i18n="meals.snack">Snack</option>
           </select>
         </div>
       </div>
 
       <!-- Items list -->
       <div class="tpl-items-section">
-        <h3 class="section-title">Items</h3>
+        <h3 class="section-title" data-i18n="meals.items">Items</h3>
         <div id="tpl-items-list"></div>
 
         <!-- Add item row -->
         <div class="tpl-add-item">
           <div class="tpl-search-filter">
-            <button type="button" class="btn btn-sm btn-outline active" data-filter="ingredient">Ingredients</button>
-            <button type="button" class="btn btn-sm btn-outline" data-filter="meal">Meals</button>
+            <button type="button" class="btn btn-sm btn-outline active" data-filter="ingredient" data-i18n="meals.ingredients">Ingredients</button>
+            <button type="button" class="btn btn-sm btn-outline" data-filter="meal" data-i18n="meals.meals">Meals</button>
           </div>
           <div class="form-group autocomplete-wrap" style="flex:2">
-            <input type="text" id="tpl-item-search" class="form-control" placeholder="Search food to add..." autocomplete="off" />
+            <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="meals.searchPlaceholder" placeholder="Search food to add..." autocomplete="off" />
             <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
           </div>
-          <button type="button" class="btn btn-secondary" id="tpl-add-custom-item">+ Custom Item</button>
+          <button type="button" class="btn btn-secondary" id="tpl-add-custom-item" data-i18n="meals.customItem">+ Custom Item</button>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="cancel-template">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="save-template-btn">Save Template</button>
+        <button type="button" class="btn btn-secondary" id="cancel-template" data-i18n="meals.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-template-btn" data-i18n="meals.save">Save Template</button>
       </div>
     </form>
   </div>

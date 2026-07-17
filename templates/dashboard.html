@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 {% block title %} — Dashboard{% endblock %}
 
 {% block content %}
@@ -14,45 +14,45 @@
   <!-- Summary Cards -->
   <section class="summary-cards" aria-label="Daily nutrient totals">
     <article class="summary-card summary-card--protein">
-      <h2 class="summary-card__label">Protein <span class="summary-card__pct" id="pct-protein"></span></h2>
+      <h2 class="summary-card__label" data-i18n="macro.protein">Protein <span class="summary-card__pct" id="pct-protein"></span></h2>
       <p class="summary-card__value"><span id="summary-protein">0</span> / <span id="target-protein">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-protein" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--protein" id="bar-protein" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-protein">0</span> g remaining</p>
-      <p class="summary-card__split">Split: <span id="split-protein">—</span></p>
+      <p class="summary-card__remaining"><span id="remaining-protein">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-protein">—</span></p>
     </article>
     <article class="summary-card summary-card--fat">
-      <h2 class="summary-card__label">Fat <span class="summary-card__pct" id="pct-fat"></span></h2>
+      <h2 class="summary-card__label" data-i18n="macro.fat">Fat <span class="summary-card__pct" id="pct-fat"></span></h2>
       <p class="summary-card__value"><span id="summary-fat">0</span> / <span id="target-fat">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-fat" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--fat" id="bar-fat" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-fat">0</span> g remaining</p>
-      <p class="summary-card__split">Split: <span id="split-fat">—</span></p>
+      <p class="summary-card__remaining"><span id="remaining-fat">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-fat">—</span></p>
     </article>
     <article class="summary-card summary-card--carbs">
-      <h2 class="summary-card__label">Carbs <span class="summary-card__pct" id="pct-carbs"></span></h2>
+      <h2 class="summary-card__label" data-i18n="macro.carbs">Carbs <span class="summary-card__pct" id="pct-carbs"></span></h2>
       <p class="summary-card__value"><span id="summary-carbs">0</span> / <span id="target-carbs">0</span> g</p>
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-carbs" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--carbs" id="bar-carbs" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-carbs">0</span> g remaining</p>
-      <p class="summary-card__split">Split: <span id="split-carbs">—</span></p>
+      <p class="summary-card__remaining"><span id="remaining-carbs">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-carbs">—</span></p>
     </article>
     <article class="summary-card summary-card--calories">
-      <h2 class="summary-card__label">Calories <span class="summary-card__pct" id="pct-calories"></span></h2>
+      <h2 class="summary-card__label" data-i18n="macro.calories">Calories <span class="summary-card__pct" id="pct-calories"></span></h2>
       <p class="summary-card__value"><span id="summary-calories">0</span> / <span id="target-calories">0</span> kcal</p>
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-calories" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--calories" id="bar-calories" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-calories">0</span> kcal remaining</p>
+      <p class="summary-card__remaining"><span id="remaining-calories">0</span> kcal <span data-i18n="macro.remaining">remaining</span></p>
     </article>
   </section>
 
   <!-- Macro Donut Chart -->
   <section class="macro-donut-section" aria-label="Macro breakdown chart">
-    <h2 class="section-title">Macro Breakdown</h2>
+    <h2 class="section-title" data-i18n="dash.macroBreakdown">Macro Breakdown</h2>
     <div class="donut-wrap">
       <canvas id="macro-donut" width="220" height="220"></canvas>
       <p class="donut-center-label" id="donut-center-label">0 kcal</p>
@@ -61,30 +61,30 @@
 
   <!-- Add Food Button -->
   <div class="action-bar">
-    <button class="btn btn-primary" id="open-add-form">+ Add Food</button>
+    <button class="btn btn-primary" id="open-add-form" data-i18n="dash.addFood">+ Add Food</button>
   </div>
 
   <!-- Meal Templates Quick Log -->
   <section class="quick-add" aria-label="Log meal template">
-    <h2 class="section-title">Meal Templates</h2>
+    <h2 class="section-title" data-i18n="dash.mealTemplates">Meal Templates</h2>
     <div class="quick-add__list" id="template-chips">
-      <p class="empty-msg">Loading templates&hellip;</p>
+      <p class="empty-msg" data-i18n="dash.loadingTemplates">Loading templates&hellip;</p>
     </div>
   </section>
 
   <!-- Quick Add Section -->
   <section class="quick-add" aria-label="Quick add recent foods">
-    <h2 class="section-title">Recent Foods</h2>
+    <h2 class="section-title" data-i18n="dash.recentFoods">Recent Foods</h2>
     <div class="quick-add__list" id="quick-add-list">
-      <p class="empty-msg">Loading recent foods&hellip;</p>
+      <p class="empty-msg" data-i18n="dash.loadingRecents">Loading recent foods&hellip;</p>
     </div>
   </section>
 
   <!-- Today's Entries -->
   <section class="entries-section" aria-label="Today's food entries">
-    <h2 class="section-title">Today's Entries</h2>
+    <h2 class="section-title" data-i18n="dash.todaysEntries">Today's Entries</h2>
     <div id="entries-list">
-      <p class="empty-msg">No entries yet. Add a food to get started.</p>
+      <p class="empty-msg" data-i18n="dash.noEntries">No entries yet. Add a food to get started.</p>
     </div>
   </section>
 
@@ -94,7 +94,7 @@
 <div class="modal-overlay" id="entry-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
   <div class="modal">
     <div class="modal-header">
-      <h2 class="modal-title" id="modal-title">Add Food</h2>
+      <h2 class="modal-title" id="modal-title" data-i18n="entry.addFood">Add Food</h2>
       <button class="btn btn-icon modal-close" id="close-modal" aria-label="Close">&times;</button>
     </div>
     <form id="entry-form" novalidate>
@@ -103,54 +103,54 @@
 
       <!-- Food Name with Autocomplete -->
       <div class="form-group autocomplete-wrap">
-        <label for="entry-food-name">Food Name <span aria-hidden="true">*</span></label>
-        <input type="text" id="entry-food-name" name="food_name" class="form-control" placeholder="Search or type a food name" autocomplete="off" required />
+        <label for="entry-food-name" data-i18n="entry.foodName">Food Name <span aria-hidden="true">*</span></label>
+        <input type="text" id="entry-food-name" name="food_name" class="form-control" data-i18n-placeholder="entry.searchPlaceholder" placeholder="Search or type a food name" autocomplete="off" required />
         <ul class="autocomplete-dropdown" id="food-autocomplete" role="listbox" hidden></ul>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="entry-protein">Protein (g) <span aria-hidden="true">*</span></label>
+          <label for="entry-protein" data-i18n="entry.protein">Protein (g) <span aria-hidden="true">*</span></label>
           <input type="number" id="entry-protein" name="protein" class="form-control" min="0" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="entry-fat">Fat (g) <span aria-hidden="true">*</span></label>
+          <label for="entry-fat" data-i18n="entry.fat">Fat (g) <span aria-hidden="true">*</span></label>
           <input type="number" id="entry-fat" name="fat" class="form-control" min="0" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="entry-carbs">Carbs (g) <span aria-hidden="true">*</span></label>
+          <label for="entry-carbs" data-i18n="entry.carbs">Carbs (g) <span aria-hidden="true">*</span></label>
           <input type="number" id="entry-carbs" name="carbs" class="form-control" min="0" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="entry-calories">Calories (kcal)</label>
+          <label for="entry-calories" data-i18n="entry.calories">Calories (kcal)</label>
           <input type="number" id="entry-calories" name="calories" class="form-control" min="0" step="1" placeholder="Auto" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="entry-meal-type">Meal <span aria-hidden="true">*</span></label>
+          <label for="entry-meal-type" data-i18n="entry.meal">Meal <span aria-hidden="true">*</span></label>
           <select id="entry-meal-type" name="meal_type" class="form-control" required>
-            <option value="">Select meal</option>
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-            <option value="Snack">Snack</option>
+            <option value="" data-i18n="entry.selectMeal">Select meal</option>
+            <option value="Breakfast" data-i18n="entry.breakfast">Breakfast</option>
+            <option value="Lunch" data-i18n="entry.lunch">Lunch</option>
+            <option value="Dinner" data-i18n="entry.dinner">Dinner</option>
+            <option value="Snack" data-i18n="entry.snack">Snack</option>
           </select>
         </div>
         <div class="form-group">
-          <label for="entry-serving-size">Serving Size <span aria-hidden="true">*</span></label>
+          <label for="entry-serving-size" data-i18n="entry.servingSize">Serving Size <span aria-hidden="true">*</span></label>
           <input type="number" id="entry-serving-size" name="serving_size" class="form-control" min="0.1" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="entry-serving-unit">Unit <span aria-hidden="true">*</span></label>
-          <input type="text" id="entry-serving-unit" name="serving_unit" class="form-control" placeholder="g, oz, cup…" required />
+          <label for="entry-serving-unit" data-i18n="entry.unit">Unit <span aria-hidden="true">*</span></label>
+          <input type="text" id="entry-serving-unit" name="serving_unit" class="form-control" data-i18n-placeholder="entry.unitPlaceholder" placeholder="g, oz, cup…" required />
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="cancel-entry">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="save-entry-btn">Save Entry</button>
+        <button type="button" class="btn btn-secondary" id="cancel-entry" data-i18n="entry.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-entry-btn" data-i18n="entry.save">Save Entry</button>
       </div>
     </form>
   </div>

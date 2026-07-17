@@ -952,3 +952,25 @@ input, select, textarea { font: inherit; }
   font-size: 0.75rem;
   opacity: 0.7;
 }
+/* ---------- Language Toggle ---------- */
+.lang-toggle {
+  background: none;
+  border: 1.5px solid var(--color-border, #ddd);
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  margin-left: auto;
+  transition: background var(--transition), border-color var(--transition);
+  white-space: nowrap;
+}
+.lang-toggle:hover { background: var(--color-bg); }
+.lang-toggle.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+@media (min-width: 768px) {
+  .lang-toggle { margin-left: 0; order: -1; }
+}

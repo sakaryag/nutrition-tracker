@@ -78,14 +78,14 @@
       usdaFoodsList.innerHTML = '<p class="empty-msg">Type at least 2 characters to search USDA foods.</p>';
       return;
     }
-    usdaFoodsList.innerHTML = '<p class="empty-msg">Searching&hellip;</p>';
+    usdaFoodsList.innerHTML = '<p class="empty-msg">' + t('common.loading') + '</p>';
     try {
       const foods = await api(`/api/foods?q=${encodeURIComponent(q)}${Lang.langParam()}`);
       const usda = (foods || []).filter(f => f.source === 'usda');
       renderUsdaFoods(usda);
     } catch (err) {
       usdaFoodsList.innerHTML = '<p class="empty-msg">Search failed.</p>';
-      showToast('Search error: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
 
@@ -97,7 +97,7 @@
       renderCustomFoods(customFoods);
     } catch (err) {
       customFoodsList.innerHTML = '<p class="empty-msg">Could not load foods.</p>';
-      showToast('Error: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
 
@@ -126,17 +126,17 @@
     let actions = '';
     if (isCustom) {
       actions = `
-        <button class="btn btn-sm btn-outline" data-action="edit" data-id="${f.id}" title="Edit">Edit</button>
-        <button class="btn btn-sm btn-danger" data-action="delete" data-id="${f.id}" title="Delete">Delete</button>`;
+        <button class="btn btn-sm btn-outline" data-action="edit" data-id="${f.id}" title="${escHtml(t('foods.edit'))}">${escHtml(t('foods.edit'))}</button>
+        <button class="btn btn-sm btn-danger" data-action="delete" data-id="${f.id}" title="${escHtml(t('foods.delete'))}">${escHtml(t('foods.delete'))}</button>`;
     } else {
       actions = `
-        <button class="btn btn-sm btn-outline" data-action="clone" data-id="${f.id}" title="Clone to custom">Clone</button>`;
+        <button class="btn btn-sm btn-outline" data-action="clone" data-id="${f.id}" title="${escHtml(t('foods.clone'))}">${escHtml(t('foods.clone'))}</button>`;
     }
 
     return `<article class="food-card" data-id="${f.id}">
       <div class="food-card__info">
         <p class="food-card__name">${escHtml(f.name)}${mealBadge}${brand}</p>
-        <p class="food-card__meta">Serving: ${escHtml(serving)}</p>
+        <p class="food-card__meta">${escHtml(t('foods.serving'))}: ${escHtml(serving)}</p>
         <div class="food-card__macros">${macros}</div>
       </div>
       <div class="food-card__actions">${actions}</div>
@@ -152,13 +152,13 @@
       const food = customFoods.find(f => String(f.id) === String(id));
       if (food) openCfModal(food);
     } else if (btn.dataset.action === 'delete') {
-      if (!confirm('Delete this food? This cannot be undone.')) return;
+      if (!confirm(t('foods.delete') + '?')) return;
       try {
         await api(`/api/foods/${id}`, { method: 'DELETE' });
-        showToast('Food deleted', 'success');
+        showToast(t('common.success'), 'success');
         await loadCustomFoods();
       } catch (err) {
-        showToast('Error: ' + err.message, 'error');
+        showToast(t('common.error') + ': ' + err.message, 'error');
       }
     }
   });
@@ -168,23 +168,23 @@
     if (!btn || btn.dataset.action !== 'clone') return;
     const id = btn.dataset.id;
     btn.disabled = true;
-    btn.textContent = 'Cloning…';
+    btn.textContent = t('common.loading');
     try {
       await api(`/api/foods/${id}/clone`, { method: 'POST' });
-      showToast('Food cloned to your custom library', 'success');
+      showToast(t('common.success'), 'success');
       await loadCustomFoods();
       switchTab('custom');
     } catch (err) {
-      showToast('Clone failed: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Clone';
+      btn.textContent = t('foods.clone');
     }
   });
 
   /* ---- Custom Food Modal ---- */
   function openCfModal(food = null) {
     editingFoodId = food ? food.id : null;
-    cfModalTitle.textContent = food ? 'Edit Custom Food' : 'Add Custom Food';
+    cfModalTitle.textContent = food ? t('foods.editTitle') : t('foods.addTitle');
     cfForm.reset();
     document.getElementById('cf-id').value = '';
 
@@ -242,15 +242,15 @@
     try {
       if (editingFoodId) {
         await api(`/api/foods/${editingFoodId}`, { method: 'PUT', body: JSON.stringify(body) });
-        showToast('Food updated', 'success');
+        showToast(t('common.success'), 'success');
       } else {
         await api('/api/foods', { method: 'POST', body: JSON.stringify(body) });
-        showToast('Food added', 'success');
+        showToast(t('common.success'), 'success');
       }
       closeCfModal();
       await loadCustomFoods();
     } catch (err) {
-      showToast('Error: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     } finally {
       saveBtn.disabled = false;
     }

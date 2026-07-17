@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,17 +11,18 @@
   <header class="site-header">
     <nav class="nav-bar">
       <a class="nav-brand" href="/">NutriTrack</a>
+      <button class="lang-toggle" id="lang-toggle" title="TR/EN">&#127760; <span id="lang-label">EN</span></button>
       <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <ul class="nav-links">
-        <li><a href="/" class="nav-link">Dashboard</a></li>
-        <li><a href="/history" class="nav-link">History</a></li>
-        <li><a href="/foods" class="nav-link">My Foods</a></li>
-        <li><a href="/meals" class="nav-link">Meals</a></li>
-        <li><a href="/settings" class="nav-link">Settings</a></li>
+        <li><a href="/" class="nav-link" data-i18n="nav.dashboard">Dashboard</a></li>
+        <li><a href="/history" class="nav-link" data-i18n="nav.history">History</a></li>
+        <li><a href="/foods" class="nav-link" data-i18n="nav.myFoods">My Foods</a></li>
+        <li><a href="/meals" class="nav-link" data-i18n="nav.meals">Meals</a></li>
+        <li><a href="/settings" class="nav-link" data-i18n="nav.settings">Settings</a></li>
         {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
-        <li><a href="/logout" class="nav-link">Logout ({{ session.username }})</a></li>
+        <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
         {% endif %}
       </ul>
     </nav>
@@ -33,7 +34,30 @@
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
+  <script src="/static/js/i18n.js"></script>
   <script src="/static/js/app.js"></script>
   {% block scripts %}{% endblock %}
+
+  <script>
+  (function () {
+    var toggle = document.getElementById('lang-toggle');
+    var label  = document.getElementById('lang-label');
+
+    function updateLangUI() {
+      var l = Lang.get();
+      label.textContent = l === 'tr' ? 'TR' : 'EN';
+      toggle.classList.toggle('active', l === 'tr');
+      applyTranslations();
+    }
+
+    toggle.addEventListener('click', function () {
+      var next = Lang.get() === 'tr' ? 'en' : 'tr';
+      Lang.set(next);
+      updateLangUI();
+    });
+
+    updateLangUI();
+  })();
+  </script>
 </body>
 </html>

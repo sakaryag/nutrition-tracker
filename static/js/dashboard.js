@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    dashboard.js — Daily tracking dashboard logic
    ============================================================ */
 
@@ -67,7 +67,7 @@
       renderSummary(data);
       renderDonut(data);
     } catch (err) {
-      showToast('Could not load summary: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
 
@@ -139,7 +139,7 @@
       ? ['#4A90D9', '#E8913A', '#5CB85C']
       : ['#e2e8f0'];
     const labels = hasData
-      ? ['Protein ' + p + 'g (' + pPct + '%)', 'Fat ' + f + 'g (' + fPct + '%)', 'Carbs ' + c + 'g (' + cPct + '%)']
+      ? [t('macro.protein') + ' ' + p + 'g (' + pPct + '%)', t('macro.fat') + ' ' + f + 'g (' + fPct + '%)', t('macro.carbs') + ' ' + c + 'g (' + cPct + '%)']
       : ['No data'];
 
     if (donutChart) donutChart.destroy();
@@ -170,15 +170,16 @@
       const entries = await api(`/api/entries?date=${currentDate}`);
       renderEntries(entries);
     } catch (err) {
-      showToast('Could not load entries: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
 
   const MEAL_ORDER = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+  const MEAL_I18N  = { 'Breakfast': 'entry.breakfast', 'Lunch': 'entry.lunch', 'Dinner': 'entry.dinner', 'Snack': 'entry.snack' };
 
   function renderEntries(entries) {
     if (!entries || entries.length === 0) {
-      entriesList.innerHTML = '<p class="empty-msg">No entries yet. Add a food to get started.</p>';
+      entriesList.innerHTML = '<p class="empty-msg">' + escHtml(t('dash.noEntries')) + '</p>';
       return;
     }
 
@@ -193,8 +194,9 @@
     let html = '';
     MEAL_ORDER.forEach(meal => {
       if (groups[meal].length === 0) return;
+      const mealLabel = t(MEAL_I18N[meal]) || meal;
       html += `<div class="meal-group">
-        <p class="meal-group__title">${meal}</p>`;
+        <p class="meal-group__title">${escHtml(mealLabel)}</p>`;
       groups[meal].forEach(e => {
         html += renderEntryCard(e);
       });
@@ -217,8 +219,8 @@
         </div>
       </div>
       <div class="entry-card__actions">
-        <button class="btn btn-icon" title="Edit" data-action="edit" data-id="${e.id}">&#9998;</button>
-        <button class="btn btn-icon" title="Delete" data-action="delete" data-id="${e.id}">&#128465;</button>
+        <button class="btn btn-icon" title="${escHtml(t('common.edit'))}" data-action="edit" data-id="${e.id}">&#9998;</button>
+        <button class="btn btn-icon" title="${escHtml(t('common.delete'))}" data-action="delete" data-id="${e.id}">&#128465;</button>
       </div>
     </article>`;
   }
@@ -258,7 +260,7 @@
     editingId = entry ? entry.id : null;
     selectedFood = null;
     manualMacroEdit = false;
-    modalTitle.textContent = entry ? 'Edit Entry' : 'Add Food';
+    modalTitle.textContent = entry ? t('entry.editEntry') : t('entry.addFood');
     entryForm.reset();
     document.getElementById('entry-id').value = '';
     document.getElementById('entry-saved-food-id').value = '';
@@ -284,6 +286,8 @@
         serving_unit: entry.serving_unit ?? 'g',
       };
     }
+    // Update modal option labels for current language
+    applyTranslations();
     entryModal.hidden = false;
     foodNameInput.focus();
   }
@@ -435,13 +439,12 @@
     try {
       if (editingId) {
         await api(`/api/entries/${editingId}`, { method: 'PUT', body: JSON.stringify(body) });
-        showToast('Entry updated', 'success');
+        showToast(t('common.success'), 'success');
       } else {
-        // Pass the date so backend logs it for the currently-viewed day
         body.entry_date = currentDate;
         const hadSavedFoodId = !!sfId;
         const result = await api('/api/entries', { method: 'POST', body: JSON.stringify(body) });
-        showToast('Entry added', 'success');
+        showToast(t('common.success'), 'success');
         if (!hadSavedFoodId && result && result.food_auto_saved) {
           showToast('Food saved to library', 'success');
         }
@@ -449,7 +452,7 @@
       closeModal();
       await loadPage();
     } catch (err) {
-      showToast('Error: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     } finally {
       saveBtn.disabled = false;
     }
@@ -466,16 +469,16 @@
         const entry = entries.find(en => String(en.id) === String(id));
         if (entry) openModal(entry);
       } catch (err) {
-        showToast('Could not load entry: ' + err.message, 'error');
+        showToast(t('common.error') + ': ' + err.message, 'error');
       }
     } else if (btn.dataset.action === 'delete') {
-      if (!confirm('Delete this entry?')) return;
+      if (!confirm(t('common.delete') + '?')) return;
       try {
         await api(`/api/entries/${id}`, { method: 'DELETE' });
-        showToast('Entry deleted', 'success');
+        showToast(t('common.success'), 'success');
         await loadPage();
       } catch (err) {
-        showToast('Error: ' + err.message, 'error');
+        showToast(t('common.error') + ': ' + err.message, 'error');
       }
     }
   });
@@ -490,8 +493,8 @@
         templateChipsList.innerHTML = '<p class="empty-msg">No templates yet. <a href="/meals">Create one</a></p>';
         return;
       }
-      templateChipsList.innerHTML = templates.map(t =>
-        `<button class="quick-add-chip" data-template-id="${t.id}">${escHtml(t.name)} <span class="chip-sub">${Math.round(t.total_calories)} kcal</span></button>`
+      templateChipsList.innerHTML = templates.map(tpl =>
+        `<button class="quick-add-chip" data-template-id="${tpl.id}">${escHtml(tpl.name)} <span class="chip-sub">${Math.round(tpl.total_calories)} kcal</span></button>`
       ).join('');
     } catch (_) {
       templateChipsList.innerHTML = '<p class="empty-msg">Could not load templates.</p>';
@@ -510,7 +513,7 @@
       showToast(`Logged "${result.template}" (${result.logged} items)`, 'success');
       await loadPage();
     } catch (err) {
-      showToast('Error: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     } finally {
       chip.disabled = false;
     }

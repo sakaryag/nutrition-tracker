@@ -5,26 +5,26 @@
 <section class="page-foods">
 
   <div class="page-header">
-    <h1>My Foods</h1>
-    <button class="btn btn-primary" id="open-custom-food-form">+ Add Custom Food</button>
+    <h1 data-i18n="foods.title">My Foods</h1>
+    <button class="btn btn-primary" id="open-custom-food-form" data-i18n="foods.addCustom">+ Add Custom Food</button>
   </div>
 
   <!-- Tabs -->
   <div class="tabs" role="tablist">
-    <button class="tab active" role="tab" id="tab-custom" aria-controls="panel-custom" aria-selected="true">Custom Foods</button>
-    <button class="tab" role="tab" id="tab-usda" aria-controls="panel-usda" aria-selected="false">USDA Foods</button>
+    <button class="tab active" role="tab" id="tab-custom" aria-controls="panel-custom" aria-selected="true" data-i18n="foods.customFoods">Custom Foods</button>
+    <button class="tab" role="tab" id="tab-usda" aria-controls="panel-usda" aria-selected="false" data-i18n="foods.usdaFoods">USDA Foods</button>
   </div>
 
   <!-- Search Bar -->
   <div class="foods-search">
-    <label for="foods-search-input" class="visually-hidden">Search foods</label>
-    <input type="search" id="foods-search-input" class="form-control" placeholder="Search foods&hellip;" autocomplete="off" />
+    <label for="foods-search-input" class="visually-hidden" data-i18n="foods.title">Search foods</label>
+    <input type="search" id="foods-search-input" class="form-control" data-i18n-placeholder="foods.searchPlaceholder" placeholder="Search foods&hellip;" autocomplete="off" />
   </div>
 
   <!-- Custom Foods Panel -->
   <div class="tab-panel" id="panel-custom" role="tabpanel" aria-labelledby="tab-custom">
     <div id="custom-foods-list">
-      <p class="empty-msg">Loading&hellip;</p>
+      <p class="empty-msg" data-i18n="common.loading">Loading&hellip;</p>
     </div>
   </div>
 
@@ -41,7 +41,7 @@
 <div class="modal-overlay" id="custom-food-modal" role="dialog" aria-modal="true" aria-labelledby="cf-modal-title" hidden>
   <div class="modal">
     <div class="modal-header">
-      <h2 class="modal-title" id="cf-modal-title">Add Custom Food</h2>
+      <h2 class="modal-title" id="cf-modal-title" data-i18n="foods.addTitle">Add Custom Food</h2>
       <button class="btn btn-icon modal-close" id="close-custom-food-modal" aria-label="Close">&times;</button>
     </div>
     <form id="custom-food-form" novalidate>
@@ -49,56 +49,56 @@
 
       <div class="form-row">
         <div class="form-group form-group--grow">
-          <label for="cf-name">Name <span aria-hidden="true">*</span></label>
+          <label for="cf-name" data-i18n="foods.name">Name <span aria-hidden="true">*</span></label>
           <input type="text" id="cf-name" name="name" class="form-control" required />
         </div>
         <div class="form-group">
-          <label for="cf-brand">Brand</label>
+          <label for="cf-brand" data-i18n="foods.brand">Brand</label>
           <input type="text" id="cf-brand" name="brand" class="form-control" />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="cf-category">Category</label>
-          <input type="text" id="cf-category" name="category" class="form-control" placeholder="e.g. Dairy, Grain" />
+          <label for="cf-category" data-i18n="foods.category">Category</label>
+          <input type="text" id="cf-category" name="category" class="form-control" data-i18n-placeholder="foods.categoryPlaceholder" placeholder="e.g. Dairy, Grain" />
         </div>
         <div class="form-group">
-          <label for="food-type">Type</label>
+          <label for="food-type" data-i18n="foods.type">Type</label>
           <select id="food-type" name="food_type" class="form-control">
-            <option value="ingredient">Ingredient</option>
-            <option value="meal">Meal</option>
+            <option value="ingredient" data-i18n="foods.ingredient">Ingredient</option>
+            <option value="meal" data-i18n="foods.meal">Meal</option>
           </select>
         </div>
       </div>
 
       <fieldset class="fieldset-macros">
-        <legend>Macros (per serving)</legend>
+        <legend data-i18n="foods.macrosPerServing">Macros (per serving)</legend>
         <div class="form-row">
           <div class="form-group">
-            <label for="cf-protein">Protein (g) <span aria-hidden="true">*</span></label>
+            <label for="cf-protein" data-i18n="foods.protein">Protein (g) <span aria-hidden="true">*</span></label>
             <input type="number" id="cf-protein" name="protein" class="form-control" min="0" step="0.1" required />
           </div>
           <div class="form-group">
-            <label for="cf-fat">Fat (g) <span aria-hidden="true">*</span></label>
+            <label for="cf-fat" data-i18n="foods.fat">Fat (g) <span aria-hidden="true">*</span></label>
             <input type="number" id="cf-fat" name="fat" class="form-control" min="0" step="0.1" required />
           </div>
           <div class="form-group">
-            <label for="cf-carbs">Carbs (g) <span aria-hidden="true">*</span></label>
+            <label for="cf-carbs" data-i18n="foods.carbs">Carbs (g) <span aria-hidden="true">*</span></label>
             <input type="number" id="cf-carbs" name="carbs" class="form-control" min="0" step="0.1" required />
           </div>
           <div class="form-group">
-            <label for="cf-calories">Calories (kcal) <span aria-hidden="true">*</span></label>
+            <label for="cf-calories" data-i18n="foods.calories">Calories (kcal) <span aria-hidden="true">*</span></label>
             <input type="number" id="cf-calories" name="calories" class="form-control" min="0" step="1" required />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="cf-fiber">Fiber (g)</label>
+            <label for="cf-fiber" data-i18n="foods.fiber">Fiber (g)</label>
             <input type="number" id="cf-fiber" name="fiber" class="form-control" min="0" step="0.1" />
           </div>
           <div class="form-group">
-            <label for="cf-sugar">Sugar (g)</label>
+            <label for="cf-sugar" data-i18n="foods.sugar">Sugar (g)</label>
             <input type="number" id="cf-sugar" name="sugar" class="form-control" min="0" step="0.1" />
           </div>
         </div>
@@ -106,18 +106,18 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="cf-default-serving">Default Serving <span aria-hidden="true">*</span></label>
+          <label for="cf-default-serving" data-i18n="foods.defaultServing">Default Serving <span aria-hidden="true">*</span></label>
           <input type="number" id="cf-default-serving" name="default_serving" class="form-control" min="0.1" step="0.1" required />
         </div>
         <div class="form-group">
-          <label for="cf-serving-unit">Unit <span aria-hidden="true">*</span></label>
-          <input type="text" id="cf-serving-unit" name="serving_unit" class="form-control" placeholder="g, oz, cup…" required />
+          <label for="cf-serving-unit" data-i18n="foods.unit">Unit <span aria-hidden="true">*</span></label>
+          <input type="text" id="cf-serving-unit" name="serving_unit" class="form-control" data-i18n-placeholder="foods.unitPlaceholder" placeholder="g, oz, cup…" required />
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="cancel-custom-food">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="save-custom-food-btn">Save Food</button>
+        <button type="button" class="btn btn-secondary" id="cancel-custom-food" data-i18n="foods.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="save-custom-food-btn" data-i18n="foods.save">Save Food</button>
       </div>
     </form>
   </div>

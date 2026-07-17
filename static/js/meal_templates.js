@@ -53,21 +53,21 @@
 
   function renderTemplates() {
     if (!templates || templates.length === 0) {
-      templatesList.innerHTML = '<p class="empty-msg">No meal templates yet. Click "+ New Template" to create one.</p>';
+      templatesList.innerHTML = '<p class="empty-msg">' + esc(t('meals.noTemplates')) + '</p>';
       return;
     }
-    templatesList.innerHTML = templates.map(function (t) {
-      var n = t.items ? t.items.length : 0;
-      var m = 'P:' + r1(t.total_protein) + 'g F:' + r1(t.total_fat) + 'g C:' + r1(t.total_carbs) + 'g ' + Math.round(t.total_calories) + 'kcal';
-      return '<article class="food-card" data-id="' + t.id + '">' +
+    templatesList.innerHTML = templates.map(function (tpl) {
+      var n = tpl.items ? tpl.items.length : 0;
+      var m = 'P:' + r1(tpl.total_protein) + 'g F:' + r1(tpl.total_fat) + 'g C:' + r1(tpl.total_carbs) + 'g ' + Math.round(tpl.total_calories) + 'kcal';
+      return '<article class="food-card" data-id="' + tpl.id + '">' +
         '<div class="food-card__info">' +
-          '<p class="food-card__name">' + esc(t.name) + '</p>' +
-          '<p class="food-card__meta">' + esc(t.meal_type) + ' &mdash; ' + n + ' item' + (n !== 1 ? 's' : '') + '</p>' +
+          '<p class="food-card__name">' + esc(tpl.name) + '</p>' +
+          '<p class="food-card__meta">' + esc(tpl.meal_type) + ' &mdash; ' + n + ' item' + (n !== 1 ? 's' : '') + '</p>' +
           '<div class="food-card__macros">' + m + '</div>' +
         '</div>' +
         '<div class="food-card__actions">' +
-          '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + t.id + '">Edit</button>' +
-          '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + t.id + '">Delete</button>' +
+          '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + tpl.id + '">' + esc(t('meals.edit')) + '</button>' +
+          '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + tpl.id + '">' + esc(t('meals.delete')) + '</button>' +
         '</div>' +
       '</article>';
     }).join('');
@@ -78,21 +78,21 @@
     if (!btn) return;
     var id = parseInt(btn.dataset.id, 10);
     if (btn.dataset.action === 'edit') {
-      var tpl = templates.find(function (t) { return t.id === id; });
+      var tpl = templates.find(function (tpl) { return tpl.id === id; });
       if (tpl) openModal(tpl);
     } else if (btn.dataset.action === 'delete') {
-      if (!confirm('Delete this template?')) return;
+      if (!confirm(t('meals.delete') + '?')) return;
       try {
         await api('/api/meal-templates/' + id, { method: 'DELETE' });
-        showToast('Template deleted', 'success');
+        showToast(t('common.success'), 'success');
         await loadTemplates();
-      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+      } catch (err) { showToast(t('common.error') + ': ' + err.message, 'error'); }
     }
   });
 
   function openModal(tpl) {
     editingTemplateId = tpl ? tpl.id : null;
-    modalTitle.textContent = tpl ? 'Edit Template' : 'New Template';
+    modalTitle.textContent = tpl ? t('meals.editTitle') : t('meals.newTitle');
     form.reset();
     document.getElementById('tpl-id').value = '';
     templateItems = [];
@@ -283,21 +283,21 @@
           serving_size: it.serving_size, serving_unit: it.serving_unit };
       }),
     };
-    if (!body.name) { showToast('Template name is required', 'error'); return; }
+    if (!body.name) { showToast(t('meals.templateName') + ' required', 'error'); return; }
     if (!body.items.length) { showToast('Add at least one item', 'error'); return; }
     var saveBtn = document.getElementById('save-template-btn');
     saveBtn.disabled = true;
     try {
       if (editingTemplateId) {
         await api('/api/meal-templates/' + editingTemplateId, { method: 'PUT', body: JSON.stringify(body) });
-        showToast('Template updated', 'success');
+        showToast(t('common.success'), 'success');
       } else {
         await api('/api/meal-templates', { method: 'POST', body: JSON.stringify(body) });
-        showToast('Template created', 'success');
+        showToast(t('common.success'), 'success');
       }
       closeModal();
       await loadTemplates();
-    } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    } catch (err) { showToast(t('common.error') + ': ' + err.message, 'error'); }
     finally { saveBtn.disabled = false; }
   });
 

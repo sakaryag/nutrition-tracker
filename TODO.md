@@ -64,6 +64,12 @@
 - [ ] Fuzzy search (handle typos)
 - [ ] Recent search history
 
+## AI / Claude Integration
+- [ ] **Natural language food logging chatbot** — text input where user types e.g. "I had 2 eggs, a slice of toast and a cup of milk for breakfast" and the app parses it into food entries. Approach: send the text to Claude API with a system prompt that returns structured JSON `[{name, quantity, unit}]`, match each item against the food library, and log them. Show a confirmation step before writing entries.
+- [ ] **User-provided Claude API key** — add an "AI Settings" section to the Settings page where users paste their own Anthropic API key. Store it in the browser's `localStorage` (never sent to the server) and use it client-side for the chatbot feature. Show a "Get API key" link to console.anthropic.com. Fallback gracefully when no key is set.
+- [ ] **Smart portion estimation** — when Claude extracts a food but quantity is ambiguous ("a bowl of oatmeal"), use Claude to suggest a reasonable gram estimate based on typical serving sizes.
+- [ ] **Daily summary insights** — optional end-of-day prompt: Claude reviews the day's macros vs targets and gives a one-paragraph insight (e.g. "You hit protein but went over fat — consider leaner protein sources tomorrow").
+
 ## Dashboard (enhancements)
 - [ ] Water intake tracker
 - [ ] Notes / mood field per day

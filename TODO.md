@@ -9,6 +9,19 @@
 - [ ] **Turkish meal dataset** — curate or source a dataset of common Turkish dishes (mercimek çorbası, manti, iskender, döner, karnıyarık, börek, menemen, pilav, köfte, dolma…) with accurate per-100g macros. Consider OpenFoodFacts Turkey data or USDA SR Legacy as a base.
 - [ ] **Country-specific meal datasets** — extend the meal seeding infrastructure to support per-country datasets (e.g. Italian, Turkish, Mexican) selectable in Settings.
 
+## Dataset & Food Library
+
+> **Top recommendation:** Use a two-layer strategy: (1) Bundle a small curated CSV (<2 MB) of the 3,000-5,000 most common foods sourced from USDA public-domain data directly in the repository under data/foods.csv — this gives zero-setup, offline, instant lookup for the majority of tracking needs. (2) Integrate the OpenFoodFacts API as a live fallback for foods not found in the local dataset — no API key needed, just a User-Agent header, with 3M+ product coverage. For recipe data specifically, add optional Hugging Face Datasets Hub queries against `datahiveai/recipes-with-nutrition` (no auth, REST API) for users who want recipe import. This combination covers 95%+ of use cases with zero user-facing setup, no account required, and no bundled secrets.
+
+- [ ] **Data layer: bundle seed foods CSV** — Download USDA FoodData Central Foundation Foods dataset (public domain, fdc.nal.usda.gov/download-datasets), filter to top ~3,000-5,000 common foods, export as `data/foods.csv` (~1-2 MB). Fields: food_name, calories_kcal, protein_g, fat_g, carbs_g, fiber_g, sugar_g, sodium_mg per 100 g serving.
+- [ ] **Data layer: OpenFoodFacts API fallback** — Implement `search_openfoodfacts(query: str)` using `GET https://search.openfoodfacts.org/search?q={query}&json=true` with `User-Agent: NutritionTracker/1.0 (contact@example.com)` header. Map response `nutriments` fields to internal NutritionInfo model. Use as fallback when food not found in bundled CSV.
+- [ ] **Data layer: HuggingFace recipe lookup (optional)** — Implement recipe search against `datahiveai/recipes-with-nutrition` via `GET https://datasets-server.huggingface.co/search?dataset=datahiveai/recipes-with-nutrition&config=default&split=train&query={name}`. No auth needed. Note CC BY-NC 4.0 license — ensure app's license is compatible.
+- [ ] **USDA FoodData Central API (optional/advanced)** — Document in README that users can optionally supply a free USDA API key (api.data.gov/signup) as `USDA_API_KEY` env var to enable higher-quality USDA lookups via `https://api.nal.usda.gov/fdc/v1/foods/search`. Implement as an opt-in provider, not required for basic use.
+- [ ] **Data update script** — Add `scripts/update_foods_csv.py` to periodically regenerate `data/foods.csv` from the latest USDA public download, so the bundled data can be refreshed with a single command before cutting a new release.
+- [ ] Integrate OpenFoodFacts API for real-time food search (no auth, free, 3M+ products)
+- [ ] Integrate USDA FoodData Central API for authoritative ingredient data
+- [ ] Explore Hugging Face Datasets Hub for hosting cleaned meal CSVs
+
 ## Deploy
 - [ ] Push to GitHub repo `https://github.com/sakaryag/nutrition-tracker`
 - [ ] Deploy to Railway / Render / Fly.io

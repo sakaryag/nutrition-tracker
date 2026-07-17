@@ -91,6 +91,14 @@ def _auto_seed(app):
         except ImportError:
             pass
 
+    # Auto-seed recipe catalog if empty
+    try:
+        from models.recipe_catalog import RecipeCatalog
+        if RecipeCatalog.query.first() is None:
+            app.logger.info('Recipe catalog empty — run seed_data/seed_meals_kaggle.py to populate.')
+    except Exception:
+        pass
+
 
 if __name__ == '__main__':
     application = create_app()

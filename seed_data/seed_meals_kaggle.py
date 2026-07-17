@@ -1,78 +1,138 @@
 import sys, os
 from pathlib import Path
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-ku = os.getenv("KAGGLE_USERNAME")
-kk = os.getenv("KAGGLE_KEY")
-if ku and kk:
-    os.environ["KAGGLE_USERNAME"] = ku
-    os.environ["KAGGLE_KEY"] = kk
-
-try:
-    import kagglehub
-    import pandas as pd
-    import json
-except ImportError:
-    print("Run: pip install kagglehub[pandas-datasets] pandas")
-    sys.exit(1)
-
+import json
+import pandas as pd
 from app import create_app
 from models import db
-from models.saved_food import SavedFood
+from models.recipe_catalog import RecipeCatalog
 
-def _float(val, default=0.0):
-    try:
-        return float(val)
-    except Exception:
-        return default
+TURKISH_PATH = Path(r"C:\Users\z004mvzt\.cache\kagglehub\datasets\bit104\turkish-recipes-structured\versions\1\recipes_groq_cleaned.json")
+A3M_PATH = Path(r"C:\Users\z004mvzt\.cache\kagglehub\datasets\nazmussakibrupol\3a2m-cooking-recipe-dataset\versions\1\3A2M.csv")
 
-def _str(val, default=""):
-    if val is None or (isinstance(val, float) and pd.isna(val)):
-        return default
-    return str(val).strip()
-
-def _kcal(p, f, c, cal=None):
-    if cal and cal > 0:
-        return round(cal, 1)
-    return round(p * 4 + f * 9 + c * 4, 1)
 
 def import_turkish(app):
     print("\n--- Turkish Recipes (bit104/turkish-recipes-structured) ---")
-    path = kagglehub.dataset_download("bit104/turkish-recipes-structured")
-    json_file = os.path.join(path, "recipes_groq_cleaned.json")
-    with open(json_file, encoding="utf-8") as f:
-        data = json.load(f)
-    print(f"  Records: {len(data)}")
+    if not TURKISH_PATH.exists():
+        print(f"  ERROR: File not found: {TURKISH_PATH}")
+        return 0
 
-    # Turkish dataset columns: tarif_adi (name), kategori (category), porsiyon (serving)
-    # No macro data — imported with 0s so user can search by name and fill macros later
+    with open(TURKISH_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+    print(f"  Records in file: {len(data)}")
+
     count = 0
+    skipped = 0
     with app.app_context():
+        # Build a set of existing names for this source to avoid per-row queries
+        existing = set(
+            r[0] for r in db.session.query(RecipeCatalog.name)
+            .filter_by(source="turkish-kaggle").all()
+        )
+        batch = []
         for item in data:
-            name = _str(item.get("tarif_adi") or item.get("name") or item.get("title"))
+            name = str(item.get("tarif_adi") or item.get("name") or item.get("title") or "").strip()
             if not name:
                 continue
-            if SavedFood.query.filter_by(name=name, food_type="meal").first():
+            if name in existing:
+                skipped += 1
                 continue
-            cat = _str(item.get("kategori") or item.get("category") or "Turkish")
-            db.session.add(SavedFood(
-                name=name, brand=None, category=cat,
-                protein=0.0, fat=0.0, carbs=0.0, calories=0.0,
-                default_serving=250.0, serving_unit="g",
-                source="usda", food_type="meal", is_archived=False,
+            category = str(item.get("kategori") or item.get("category") or "").strip() or None
+            batch.append(RecipeCatalog(
+                name=name,
+                category=category,
+                cuisine="Turkish",
+                source="turkish-kaggle",
             ))
+            existing.add(name)
             count += 1
-        db.session.commit()
-    print(f"  Imported {count} Turkish recipes (macros not in dataset — fill via My Foods).")
+
+        if batch:
+            db.session.add_all(batch)
+            db.session.commit()
+
+    print(f"  Imported: {count}  |  Skipped (already exist): {skipped}")
     return count
+
+
+def import_3a2m(app):
+    print("\n--- 3A2M Cooking Recipes (nazmussakibrupol/3a2m-cooking-recipe-dataset) ---")
+    if not A3M_PATH.exists():
+        print(f"  ERROR: File not found: {A3M_PATH}")
+        return 0
+
+    print("  Reading CSV (this may take a moment)...")
+    df = pd.read_csv(A3M_PATH, usecols=["title", "genre"], dtype=str, low_memory=False)
+    print(f"  Total rows in CSV: {len(df)}")
+
+    # Filter: title length between 3 and 80, drop nulls
+    df = df.dropna(subset=["title"])
+    df["title"] = df["title"].str.strip()
+    df = df[df["title"].str.len().between(3, 80)]
+    print(f"  After length filter: {len(df)}")
+
+    # Deduplicate by title
+    df = df.drop_duplicates(subset=["title"])
+    print(f"  After deduplication: {len(df)}")
+
+    # Sample up to 15,000 spread across genres (up to 1,500 per genre)
+    sampled = (
+        df.groupby("genre", dropna=False)
+        .apply(lambda x: x.sample(min(len(x), 1500), random_state=42))
+        .reset_index(drop=True)
+    )
+    sampled = sampled.head(15000)
+    print(f"  Sampled: {len(sampled)}")
+
+    count = 0
+    skipped = 0
+    BATCH_SIZE = 500
+
+    with app.app_context():
+        # Build set of existing names for this source
+        existing = set(
+            r[0] for r in db.session.query(RecipeCatalog.name)
+            .filter_by(source="3a2m-kaggle").all()
+        )
+        batch = []
+        for _, row in sampled.iterrows():
+            name = str(row["title"]).strip()
+            if not name or name in existing:
+                skipped += 1
+                continue
+            genre = row.get("genre")
+            category = str(genre).strip() if pd.notna(genre) and str(genre).strip() else None
+            batch.append(RecipeCatalog(
+                name=name,
+                category=category,
+                cuisine=None,
+                source="3a2m-kaggle",
+            ))
+            existing.add(name)
+            count += 1
+
+            if len(batch) >= BATCH_SIZE:
+                db.session.add_all(batch)
+                db.session.commit()
+                batch = []
+                print(f"  ...committed {count} rows so far")
+
+        if batch:
+            db.session.add_all(batch)
+            db.session.commit()
+
+    print(f"  Imported: {count}  |  Skipped (already exist): {skipped}")
+    return count
+
 
 if __name__ == "__main__":
     app = create_app()
-    total = import_turkish(app)
-    print(f"\nDone. Total meals imported: {total}")
-    print("Note: Turkish recipes have no macro data in the dataset.")
-    print("Search for them in Meal Templates -> Meals, then edit macros via My Foods.")
+    turkish_count = import_turkish(app)
+    a3m_count = import_3a2m(app)
+    print(f"\nDone.")
+    print(f"  Turkish recipes imported: {turkish_count}")
+    print(f"  3A2M recipes imported:    {a3m_count}")
+    print(f"  Total:                    {turkish_count + a3m_count}")

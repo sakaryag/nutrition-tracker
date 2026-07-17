@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app, session
 from models import db
 from models.saved_food import SavedFood
+from models.recipe_catalog import RecipeCatalog
 
 foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
 
@@ -25,7 +26,26 @@ def search_foods():
     if q:
         query = query.filter(SavedFood.name.ilike(f'%{q}%'))
     foods = query.order_by(SavedFood.name).limit(50).all()
-    return jsonify([f.to_dict() for f in foods])
+    results = [f.to_dict() for f in foods]
+
+    # Also search recipe_catalog for meal-type queries
+    if food_type in ('', 'meal') and q:
+        cat_query = RecipeCatalog.query.filter(
+            RecipeCatalog.name.ilike(f'%{q}%')
+        ).limit(20).all()
+        catalog_results = [f.to_dict() for f in cat_query]
+        if food_type == 'meal':
+            # Merge: saved_food meal results + catalog results (deduplicated by name)
+            saved_names = {r['name'].lower() for r in results}
+            catalog_results = [r for r in catalog_results if r['name'].lower() not in saved_names]
+            results = results + catalog_results
+        else:
+            # No food_type filter: append catalog results (deduplicated by name)
+            saved_names = {r['name'].lower() for r in results}
+            catalog_results = [r for r in catalog_results if r['name'].lower() not in saved_names]
+            results = results + catalog_results
+
+    return jsonify(results)
 
 
 @foods_bp.route('', methods=['POST'])

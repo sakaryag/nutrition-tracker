@@ -8,3 +8,4 @@ from models.saved_food import SavedFood
 from models.user import User
 from models.meal_template import MealTemplate
 from models.meal_template_item import MealTemplateItem
+from models.recipe_catalog import RecipeCatalog

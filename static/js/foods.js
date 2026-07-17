@@ -80,7 +80,7 @@
     }
     usdaFoodsList.innerHTML = '<p class="empty-msg">Searching&hellip;</p>';
     try {
-      const foods = await api(`/api/foods?q=${encodeURIComponent(q)}`);
+      const foods = await api(`/api/foods?q=${encodeURIComponent(q)}${Lang.langParam()}`);
       const usda = (foods || []).filter(f => f.source === 'usda');
       renderUsdaFoods(usda);
     } catch (err) {

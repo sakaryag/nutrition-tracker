@@ -20,6 +20,7 @@ class SavedFood(db.Model):
     default_serving = db.Column(db.Float, default=100)
     serving_unit = db.Column(db.String(20), default='g')
     food_type = db.Column(db.String(20), nullable=False, default='ingredient')
+    name_tr = db.Column(db.String(300), nullable=True)
     is_archived = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -48,5 +49,6 @@ class SavedFood(db.Model):
             'default_serving': self.default_serving,
             'serving_unit': self.serving_unit,
             'food_type': self.food_type,
+            'name_tr': self.name_tr,
             'is_archived': self.is_archived,
         }

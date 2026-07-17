@@ -89,6 +89,17 @@ function debounce(fn, ms) {
   };
 }
 
+/* ---------- Language helpers ---------- */
+const Lang = {
+  get() { return localStorage.getItem('nt_lang') || 'en'; },
+  set(l) { localStorage.setItem('nt_lang', l); document.documentElement.lang = l; },
+  isTr() { return this.get() === 'tr'; },
+  foodName(food) { return (this.isTr() && food.name_tr) ? food.name_tr : food.name; },
+  langParam() { return this.isTr() ? '&lang=tr' : ''; },
+};
+// Apply on load
+document.documentElement.lang = Lang.get();
+
 /* ---------- Nav: mobile toggle + active link ---------- */
 (function initNav() {
   const toggle = document.querySelector('.nav-toggle');

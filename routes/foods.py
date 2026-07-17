@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
+from sqlalchemy import case, or_
 from models import db
 from models.saved_food import SavedFood
 
@@ -21,9 +22,28 @@ def search_foods():
         query = query.filter_by(source=source)
     if food_type:
         query = query.filter_by(food_type=food_type)
+
+    lang = request.args.get('lang', 'en').strip()
+    name_col = SavedFood.name_tr if lang == 'tr' else SavedFood.name
+
     if q:
-        query = query.filter(SavedFood.name.ilike(f'%{q}%'))
-    foods = query.order_by(SavedFood.name).limit(50).all()
+        # Search both English and Turkish columns so "süt" and "milk" both work
+        query = query.filter(
+            or_(SavedFood.name.ilike(f'%{q}%'), SavedFood.name_tr.ilike(f'%{q}%'))
+        )
+        relevance = case(
+            (name_col.ilike(q),           0),
+            (name_col.ilike(f'{q}%'),     1),
+            (name_col.ilike(f'% {q}%'),   2),
+            (name_col.ilike(f'%,{q}%'),   2),
+            else_=3,
+        )
+        type_order = case((SavedFood.food_type == 'ingredient', 0), else_=1)
+        foods = query.order_by(relevance, type_order, name_col).limit(50).all()
+    else:
+        type_order = case((SavedFood.food_type == 'ingredient', 0), else_=1)
+        foods = query.order_by(type_order, name_col).limit(50).all()
+
     return jsonify([f.to_dict() for f in foods])
 
 

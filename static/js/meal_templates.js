@@ -211,7 +211,7 @@
   var debouncedItemSearch = debounce(async function (q) {
     if (q.length < 2) { itemAutocomplete.hidden = true; return; }
     try {
-      var foods = await api('/api/foods?q=' + encodeURIComponent(q) + '&food_type=' + encodeURIComponent(itemSearchFilter));
+      var foods = await api('/api/foods?q=' + encodeURIComponent(q) + '&food_type=' + encodeURIComponent(itemSearchFilter) + Lang.langParam());
       renderAC(foods);
     } catch (_) { itemAutocomplete.hidden = true; }
   }, 280);
@@ -223,7 +223,7 @@
     itemAutocomplete.innerHTML = foods.slice(0, 10).map(function (f) {
       var sub = f.brand ? ' <span class="ac-sub">' + esc(f.brand) + '</span>' : '';
       return '<li role="option" tabindex="-1" data-food=\'' + JSON.stringify(f).replace(/'/g, '&#39;') + '\'>' +
-        esc(f.name) + sub + ' <span class="ac-sub">P:' + r1(f.protein) + ' F:' + r1(f.fat) + ' C:' + r1(f.carbs) + 'g</span></li>';
+        esc(Lang.foodName(f)) + sub + ' <span class="ac-sub">P:' + r1(f.protein) + ' F:' + r1(f.fat) + ' C:' + r1(f.carbs) + 'g</span></li>';
     }).join('');
     itemAutocomplete.hidden = false;
   }

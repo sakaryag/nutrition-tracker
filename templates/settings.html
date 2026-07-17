@@ -119,6 +119,16 @@
     </div>
   </article>
 
+  <article class="settings-card" style="margin-bottom:1.5rem;">
+    <h2>Language / Dil</h2>
+    <p class="settings-description">Choose the language for food names in search results.</p>
+    <div class="preset-buttons">
+      <button type="button" class="btn btn-preset" id="lang-en">English</button>
+      <button type="button" class="btn btn-preset" id="lang-tr">Türkçe</button>
+    </div>
+    <p class="form-hint" id="lang-note" style="margin-top:.5rem;"></p>
+  </article>
+
   <article class="settings-card">
     <h2>Daily Targets</h2>
     <p class="settings-description">Set your daily macro and calorie goals. These take effect immediately for today and all future dates.</p>
@@ -158,4 +168,20 @@
 
 {% block scripts %}
 <script src="/static/js/settings.js"></script>
+<script>
+(function() {
+  const enBtn = document.getElementById('lang-en');
+  const trBtn = document.getElementById('lang-tr');
+  const note  = document.getElementById('lang-note');
+  function update() {
+    const l = Lang.get();
+    enBtn.classList.toggle('active', l === 'en');
+    trBtn.classList.toggle('active', l === 'tr');
+    note.textContent = l === 'tr' ? 'Türkçe besin isimleri aktif.' : 'English food names active.';
+  }
+  enBtn.addEventListener('click', () => { Lang.set('en'); update(); });
+  trBtn.addEventListener('click', () => { Lang.set('tr'); update(); });
+  update();
+})();
+</script>
 {% endblock %}

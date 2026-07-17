@@ -330,7 +330,7 @@
   const debouncedSearch = debounce(async (q) => {
     if (q.length < 2) { autocompleteList.hidden = true; return; }
     try {
-      const foods = await api(`/api/foods?q=${encodeURIComponent(q)}`);
+      const foods = await api(`/api/foods?q=${encodeURIComponent(q)}${Lang.langParam()}`);
       renderAutocomplete(foods);
     } catch (_) {
       autocompleteList.hidden = true;
@@ -364,7 +364,7 @@
     autocompleteList.innerHTML = foods.slice(0, 10).map(f => {
       const brand = f.brand ? ` <span class="ac-sub">${escHtml(f.brand)}</span>` : '';
       const macros = `<span class="ac-sub">P:${round1(f.protein)}g F:${round1(f.fat)}g C:${round1(f.carbs)}g</span>`;
-      return `<li role="option" tabindex="-1" data-food='${JSON.stringify(f).replace(/'/g, "&#39;")}'>${escHtml(f.name)}${brand} ${macros}</li>`;
+      return `<li role="option" tabindex="-1" data-food='${JSON.stringify(f).replace(/'/g, "&#39;")}'>${escHtml(Lang.foodName(f))}${brand} ${macros}</li>`;
     }).join('');
     autocompleteList.hidden = false;
   }

@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, current_app, session
 from models import db
 from models.saved_food import SavedFood
-from models.recipe_catalog import RecipeCatalog
 
 foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
 
@@ -14,7 +13,6 @@ def check_auth():
 
 @foods_bp.route('', methods=['GET'])
 def search_foods():
-    """GET /api/foods?q=search&food_type=ingredient|meal"""
     q = request.args.get('q', '').strip()
     source = request.args.get('source', '').strip()
     food_type = request.args.get('food_type', '').strip()
@@ -26,44 +24,21 @@ def search_foods():
     if q:
         query = query.filter(SavedFood.name.ilike(f'%{q}%'))
     foods = query.order_by(SavedFood.name).limit(50).all()
-    results = [f.to_dict() for f in foods]
-
-    # Also search recipe_catalog for meal-type queries
-    if food_type in ('', 'meal') and q:
-        cat_query = RecipeCatalog.query.filter(
-            RecipeCatalog.name.ilike(f'%{q}%')
-        ).limit(20).all()
-        catalog_results = [f.to_dict() for f in cat_query]
-        if food_type == 'meal':
-            # Merge: saved_food meal results + catalog results (deduplicated by name)
-            saved_names = {r['name'].lower() for r in results}
-            catalog_results = [r for r in catalog_results if r['name'].lower() not in saved_names]
-            results = results + catalog_results
-        else:
-            # No food_type filter: append catalog results (deduplicated by name)
-            saved_names = {r['name'].lower() for r in results}
-            catalog_results = [r for r in catalog_results if r['name'].lower() not in saved_names]
-            results = results + catalog_results
-
-    return jsonify(results)
+    return jsonify([f.to_dict() for f in foods])
 
 
 @foods_bp.route('', methods=['POST'])
 def create_food():
-    """POST /api/foods"""
     data = request.get_json(silent=True) or {}
-
     name = data.get('name', '').strip()
     if not name:
         return jsonify({'error': 'name is required'}), 400
-
     try:
         protein = float(data['protein'])
         fat = float(data['fat'])
         carbs = float(data['carbs'])
     except (KeyError, TypeError, ValueError):
         return jsonify({'error': 'protein, fat, and carbs are required numeric fields'}), 400
-
     raw_cal = data.get('calories')
     calories = float(raw_cal) if raw_cal is not None else (protein * 4) + (fat * 9) + (carbs * 4)
     brand = data.get('brand', '')
@@ -74,14 +49,10 @@ def create_food():
     food_type = data.get('food_type', 'ingredient')
     if food_type not in ('ingredient', 'meal'):
         food_type = 'ingredient'
-
     food = SavedFood(
         name=name,
         brand=brand.strip() if brand else None,
-        protein=protein,
-        fat=fat,
-        carbs=carbs,
-        calories=calories,
+        protein=protein, fat=fat, carbs=carbs, calories=calories,
         fiber=float(fiber) if fiber is not None else None,
         sugar=float(sugar) if sugar is not None else None,
         default_serving=float(default_serving),
@@ -97,13 +68,11 @@ def create_food():
 
 @foods_bp.route('/<int:food_id>', methods=['PUT'])
 def update_food(food_id: int):
-    """PUT /api/foods/<id>"""
     food = db.session.get(SavedFood, food_id)
     if food is None:
         return jsonify({'error': 'Food not found'}), 404
     if food.source == 'usda':
         return jsonify({'error': 'USDA foods cannot be edited. Clone the food first.'}), 403
-
     data = request.get_json(silent=True) or {}
     if 'name' in data:
         food.name = data['name']
@@ -130,20 +99,17 @@ def update_food(food_id: int):
         food.serving_unit = data['serving_unit']
     if 'food_type' in data and data['food_type'] in ('ingredient', 'meal'):
         food.food_type = data['food_type']
-
     db.session.commit()
     return jsonify(food.to_dict())
 
 
 @foods_bp.route('/<int:food_id>', methods=['DELETE'])
 def delete_food(food_id: int):
-    """DELETE /api/foods/<id>"""
     food = db.session.get(SavedFood, food_id)
     if food is None:
         return jsonify({'error': 'Food not found'}), 404
     if food.source == 'usda':
         return jsonify({'error': 'USDA foods cannot be deleted. Clone the food first.'}), 403
-
     food.is_archived = True
     db.session.commit()
     return jsonify({'archived': food_id})
@@ -151,26 +117,15 @@ def delete_food(food_id: int):
 
 @foods_bp.route('/<int:food_id>/clone', methods=['POST'])
 def clone_food(food_id: int):
-    """POST /api/foods/<id>/clone"""
     food = db.session.get(SavedFood, food_id)
     if food is None:
         return jsonify({'error': 'Food not found'}), 404
-
     clone = SavedFood(
-        name=food.name,
-        brand=food.brand,
-        category=food.category,
-        protein=food.protein,
-        fat=food.fat,
-        carbs=food.carbs,
-        calories=food.calories,
-        fiber=food.fiber,
-        sugar=food.sugar,
-        default_serving=food.default_serving,
-        serving_unit=food.serving_unit,
-        food_type=food.food_type,
-        source='custom',
-        is_archived=False,
+        name=food.name, brand=food.brand, category=food.category,
+        protein=food.protein, fat=food.fat, carbs=food.carbs, calories=food.calories,
+        fiber=food.fiber, sugar=food.sugar,
+        default_serving=food.default_serving, serving_unit=food.serving_unit,
+        food_type=food.food_type, source='custom', is_archived=False,
     )
     db.session.add(clone)
     db.session.commit()

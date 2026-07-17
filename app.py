@@ -23,7 +23,7 @@ def create_app(config_name=None):
 
     with app.app_context():
         db.create_all()
-        _migrate_add_food_type(app)
+        _migrate_add_columns(app)
         _auto_seed(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
@@ -37,18 +37,21 @@ def create_app(config_name=None):
     return app
 
 
-def _migrate_add_food_type(app):
-    """Add food_type column to saved_food if it does not already exist (SQLite does not
-    auto-add columns when create_all() is called on an existing table)."""
-    try:
-        with db.engine.connect() as conn:
-            conn.execute(
-                text('ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT "ingredient"')
-            )
-            conn.commit()
-    except Exception:
-        # Column already exists — this is expected on all runs after the first.
-        pass
+def _migrate_add_columns(app):
+    """Add columns to saved_food that may not exist on older DBs (SQLite ignores
+    new columns in create_all on existing tables). Each ALTER is wrapped separately
+    so one failure doesn't block the others."""
+    migrations = [
+        'ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT "ingredient"',
+        'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
+    ]
+    with db.engine.connect() as conn:
+        for sql in migrations:
+            try:
+                conn.execute(text(sql))
+                conn.commit()
+            except Exception:
+                pass  # column already exists
 
 
 def _register_blueprints(app):

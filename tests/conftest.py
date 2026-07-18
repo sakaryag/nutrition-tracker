@@ -5,6 +5,7 @@ from models import db as _db
 
 class TestConfig:
     TESTING = True
+    AUTH_ENABLED = False
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'test-secret'

@@ -165,3 +165,44 @@ def log_template(template_id):
         'template': template.name,
         'entries': [e.to_dict() for e in entries],
     }), 201
+
+
+@meal_templates_bp.route('/<int:template_id>/log-single', methods=['POST'])
+def log_template_single(template_id):
+    """Log a template as one combined entry (total macros summed)."""
+    template = db.session.get(MealTemplate, template_id)
+    if template is None:
+        return jsonify({'error': 'Template not found'}), 404
+
+    data = request.get_json(silent=True) or {}
+    raw_date = data.get('date')
+    try:
+        entry_date = date.fromisoformat(raw_date) if raw_date else date.today()
+    except ValueError:
+        entry_date = date.today()
+
+    meal_type = data.get('meal_type') or template.meal_type
+
+    total_protein = sum(i.protein for i in template.items)
+    total_fat = sum(i.fat for i in template.items)
+    total_carbs = sum(i.carbs for i in template.items)
+    total_calories = sum(i.calories for i in template.items)
+    total_serving = sum((i.serving_size or 0) for i in template.items)
+
+    now = datetime.utcnow()
+    entry = FoodEntry(
+        food_name=template.name,
+        protein=round(total_protein, 1),
+        fat=round(total_fat, 1),
+        carbs=round(total_carbs, 1),
+        calories=round(total_calories, 1),
+        meal_type=meal_type,
+        serving_size=round(total_serving, 1) if total_serving else None,
+        serving_unit='g',
+        saved_food_id=None,
+        entry_date=entry_date,
+        entry_time=now.time(),
+    )
+    db.session.add(entry)
+    db.session.commit()
+    return jsonify({'logged': 1, 'template': template.name, 'entry': entry.to_dict()}), 201

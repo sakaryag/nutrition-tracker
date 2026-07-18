@@ -69,6 +69,7 @@ def create_food():
     food_type = data.get('food_type', 'ingredient')
     if food_type not in ('ingredient', 'meal'):
         food_type = 'ingredient'
+    g_per_unit = data.get('g_per_unit')
     food = SavedFood(
         name=name,
         brand=brand.strip() if brand else None,
@@ -80,6 +81,7 @@ def create_food():
         food_type=food_type,
         source='custom',
         is_archived=False,
+        g_per_unit=float(g_per_unit) if g_per_unit is not None else None,
     )
     db.session.add(food)
     db.session.commit()
@@ -119,6 +121,8 @@ def update_food(food_id: int):
         food.serving_unit = data['serving_unit']
     if 'food_type' in data and data['food_type'] in ('ingredient', 'meal'):
         food.food_type = data['food_type']
+    if 'g_per_unit' in data:
+        food.g_per_unit = float(data['g_per_unit']) if data['g_per_unit'] is not None else None
     db.session.commit()
     return jsonify(food.to_dict())
 

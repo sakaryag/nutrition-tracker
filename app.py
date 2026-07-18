@@ -44,6 +44,8 @@ def _migrate_add_columns(app):
     migrations = [
         'ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT "ingredient"',
         'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
+        'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
+        'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
     ]
     with db.engine.connect() as conn:
         for sql in migrations:

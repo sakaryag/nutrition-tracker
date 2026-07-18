@@ -21,6 +21,7 @@ class SavedFood(db.Model):
     serving_unit = db.Column(db.String(20), default='g')
     food_type = db.Column(db.String(20), nullable=False, default='ingredient')
     name_tr = db.Column(db.String(300), nullable=True)
+    g_per_unit = db.Column(db.Float, nullable=True)  # grams per 1 piece/slice/serving (enables cross-unit conversion)
     is_archived = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(
@@ -51,4 +52,5 @@ class SavedFood(db.Model):
             'food_type': self.food_type,
             'name_tr': self.name_tr,
             'is_archived': self.is_archived,
+            'g_per_unit': self.g_per_unit,
         }

@@ -1,0 +1,28 @@
+BUGS
+
+* units need to e selection for valid units, not and based on that it should be effected
+* there is only ingredients there should be also meals etc. lentil soap, manti, iskender, pasta
+* i cannot adapt food in the page of template 
+
+* food eklerken acilan yerde bisey secerken yanlislikla disari kayarsa gidiyo hersey
+* sik kullanilan yemekler ya da meal eklendiginde icerigi degil toplam egeri eklensin ama icerigi de ayarlanabilir olsun custom olarak ana kaydi degistirmeden
+* arama methodu iyilestirme
+* bread protein degeri niye yok
+* her baslikta direct oraya ekleme (breakfast/...
+
+
+
+
+as a feature add todo list the language support(turkish) also would be nice to find country specific meal datasets but in future and I created a git repo
+  https://github.com/sakaryag/nutrition-tracker.git push all to there when you are done, also create a entensive claudemd and skills file so that later on I can continue developing and
+  maintaning this project
+
+Feature:
+
+
+* chatbot to help to enter
+* MyFitnessPal, Cronometer
+* connect via phone
+* receive data from phone camera(app) scan barcode
+* admin user to add a suggested plan (diyetisyen)
+* after all how to make it easy to share people

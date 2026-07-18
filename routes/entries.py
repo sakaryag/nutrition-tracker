@@ -62,6 +62,7 @@ def create_entry():
     serving_size = data.get('serving_size')
     serving_unit = data.get('serving_unit', 'g')
     saved_food_id = data.get('saved_food_id')
+    template_id = data.get('template_id')
 
     now = datetime.utcnow()
     raw_date = data.get('entry_date')
@@ -83,6 +84,7 @@ def create_entry():
         serving_size=float(serving_size) if serving_size is not None else None,
         serving_unit=serving_unit,
         saved_food_id=int(saved_food_id) if saved_food_id is not None else None,
+        template_id=int(template_id) if template_id is not None else None,
         entry_date=entry_date,
         entry_time=now.time(),
     )
@@ -186,7 +188,7 @@ def delete_entry(entry_id: int):
 
 @entries_bp.route('/recent', methods=['GET'])
 def recent_entries():
-    """GET /api/entries/recent — 20 most recently used unique food names."""
+    """GET /api/entries/recent — 8 most recently used unique food names."""
     subq = (
         db.session.query(
             FoodEntry.food_name,
@@ -200,7 +202,28 @@ def recent_entries():
         db.session.query(FoodEntry)
         .join(subq, FoodEntry.id == subq.c.max_id)
         .order_by(FoodEntry.entry_date.desc(), FoodEntry.entry_time.desc())
-        .limit(20)
+        .limit(8)
         .all()
     )
     return jsonify([e.to_dict() for e in rows])
+
+
+@entries_bp.route('/clear-meal', methods=['DELETE'])
+def clear_meal():
+    """DELETE /api/entries/clear-meal?date=YYYY-MM-DD&meal_type=Breakfast"""
+    date_str = request.args.get('date')
+    meal_type = request.args.get('meal_type', '').strip()
+    if not meal_type:
+        return jsonify({'error': 'meal_type is required'}), 400
+    try:
+        target_date = date.fromisoformat(date_str) if date_str else date.today()
+    except ValueError:
+        return jsonify({'error': 'Invalid date'}), 400
+
+    deleted = (
+        FoodEntry.query
+        .filter_by(entry_date=target_date, meal_type=meal_type)
+        .delete()
+    )
+    db.session.commit()
+    return jsonify({'deleted': deleted, 'meal_type': meal_type})

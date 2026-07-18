@@ -19,7 +19,7 @@
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-protein" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--protein" id="bar-protein" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-protein">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__remaining"><span id="remaining-protein">0</span> g <span class="remaining-label" id="lbl-remaining-protein">remaining</span></p>
       <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-protein">—</span></p>
     </article>
     <article class="summary-card summary-card--fat">
@@ -28,7 +28,7 @@
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-fat" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--fat" id="bar-fat" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-fat">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__remaining"><span id="remaining-fat">0</span> g <span class="remaining-label" id="lbl-remaining-fat">remaining</span></p>
       <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-fat">—</span></p>
     </article>
     <article class="summary-card summary-card--carbs">
@@ -37,7 +37,7 @@
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-carbs" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--carbs" id="bar-carbs" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-carbs">0</span> g <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__remaining"><span id="remaining-carbs">0</span> g <span class="remaining-label" id="lbl-remaining-carbs">remaining</span></p>
       <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-carbs">—</span></p>
     </article>
     <article class="summary-card summary-card--calories">
@@ -46,7 +46,7 @@
       <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-calories" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar progress-bar--calories" id="bar-calories" style="width:0%"></div>
       </div>
-      <p class="summary-card__remaining"><span id="remaining-calories">0</span> kcal <span data-i18n="macro.remaining">remaining</span></p>
+      <p class="summary-card__remaining"><span id="remaining-calories">0</span> kcal <span class="remaining-label" id="lbl-remaining-calories">remaining</span></p>
     </article>
   </section>
 
@@ -74,7 +74,10 @@
 
   <!-- Quick Add Section -->
   <section class="quick-add" aria-label="Quick add recent foods">
-    <h2 class="section-title" data-i18n="dash.recentFoods">Recent Foods</h2>
+    <div class="section-header-row">
+      <h2 class="section-title" data-i18n="dash.recentFoods">Recent Foods</h2>
+      <button class="btn btn-sm btn-ghost" id="clear-recents-btn" title="Clear recent foods list">&#x2715; Clear</button>
+    </div>
     <div class="quick-add__list" id="quick-add-list">
       <p class="empty-msg" data-i18n="dash.loadingRecents">Loading recent foods&hellip;</p>
     </div>
@@ -144,15 +147,57 @@
         </div>
         <div class="form-group">
           <label for="entry-serving-unit" data-i18n="entry.unit">Unit <span aria-hidden="true">*</span></label>
-          <input type="text" id="entry-serving-unit" name="serving_unit" class="form-control" data-i18n-placeholder="entry.unitPlaceholder" placeholder="g, oz, cup…" required />
+          <select id="entry-serving-unit" name="serving_unit" class="form-control" required>
+            <option value="g">g (gram)</option>
+            <option value="ml">ml (millilitre)</option>
+            <option value="oz">oz (ounce)</option>
+            <option value="cup">cup (~240 ml)</option>
+            <option value="tbsp">tbsp (tablespoon)</option>
+            <option value="tsp">tsp (teaspoon)</option>
+            <option value="glass">glass (200 ml)</option>
+            <option value="piece">piece</option>
+            <option value="slice">slice</option>
+            <option value="serving">serving</option>
+          </select>
         </div>
       </div>
+      <p class="form-hint" id="unit-equiv-hint" hidden></p>
 
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" id="cancel-entry" data-i18n="entry.cancel">Cancel</button>
         <button type="submit" class="btn btn-primary" id="save-entry-btn" data-i18n="entry.save">Save Entry</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Template Adjust Modal -->
+<div class="modal-overlay" id="tpl-adjust-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-adjust-title" hidden>
+  <div class="modal modal--wide">
+    <div class="modal-header">
+      <h2 class="modal-title" id="tpl-adjust-title">Log Template</h2>
+      <button class="btn btn-icon modal-close" id="close-tpl-adjust" aria-label="Close">&times;</button>
+    </div>
+    <p class="form-hint" style="margin-bottom:0.75rem;">Adjust, remove, or add items before logging.</p>
+    <div id="tpl-adjust-items"></div>
+
+    <!-- Add item search -->
+    <div class="tpl-add-item-row autocomplete-wrap" style="margin-top:0.75rem;">
+      <input type="text" id="tpl-item-search" class="form-control" placeholder="Add item… (search food)" autocomplete="off" />
+      <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
+    </div>
+
+    <div class="tpl-adjust-totals" id="tpl-adjust-totals"></div>
+
+    <label class="tpl-save-label" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-size:0.88rem;">
+      <input type="checkbox" id="tpl-save-changes" />
+      Also update the saved template
+    </label>
+
+    <div class="form-actions" style="margin-top:1rem;">
+      <button type="button" class="btn btn-secondary" id="cancel-tpl-adjust">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirm-tpl-log">Log as One Entry</button>
+    </div>
   </div>
 </div>
 {% endblock %}

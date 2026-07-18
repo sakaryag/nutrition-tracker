@@ -1,0 +1,6998 @@
+{
+  "dataset": "epirecipes",
+  "files": [
+    {
+      "name": "epi_r.csv",
+      "size_bytes": 55252032,
+      "row_count": 20052,
+      "columns": {
+        "title": {
+          "dtype": "str",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "Lentil, Apple, and Turkey Wrap ",
+            "Boudin Blanc Terrine with Red Onion Confit ",
+            "Potato and Fennel Soup Hodge "
+          ]
+        },
+        "rating": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "2.5",
+            "4.375",
+            "3.75"
+          ]
+        },
+        "calories": {
+          "dtype": "float64",
+          "non_null": 15935,
+          "null_pct": "20.5%",
+          "samples": [
+            "426.0",
+            "403.0",
+            "165.0"
+          ]
+        },
+        "protein": {
+          "dtype": "float64",
+          "non_null": 15890,
+          "null_pct": "20.8%",
+          "samples": [
+            "30.0",
+            "18.0",
+            "6.0"
+          ]
+        },
+        "fat": {
+          "dtype": "float64",
+          "non_null": 15869,
+          "null_pct": "20.9%",
+          "samples": [
+            "7.0",
+            "23.0",
+            "7.0"
+          ]
+        },
+        "sodium": {
+          "dtype": "float64",
+          "non_null": 15933,
+          "null_pct": "20.5%",
+          "samples": [
+            "559.0",
+            "1439.0",
+            "165.0"
+          ]
+        },
+        "#cakeweek": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "#wasteless": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "22-minute meals": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "3-ingredient recipes": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "30 days of groceries": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "advance prep required": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "alabama": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "alaska": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "alcoholic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "almond": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "amaretto": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "anchovy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "anise": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "anniversary": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "anthony bourdain": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "aperitif": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "appetizer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "apple": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "apple juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "apricot": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "arizona": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "artichoke": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "arugula": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "asian pear": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "asparagus": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "aspen": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "atlanta": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "australia": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "avocado": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "back to school": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "backyard bbq": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bacon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bake": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "banana": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "barley": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "basil": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bass": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bastille day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "bean": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beef": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beef rib": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beef shank": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beef tenderloin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beet": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bell pepper": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "berry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "beverly hills": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "birthday": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "biscuit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bitters": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "blackberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "blender": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "blue cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "blueberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "boil": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bok choy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bon app\u00e9tit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "bon app\ufffd\ufffdtit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "boston": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bourbon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "braise": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bran": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brandy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bread": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "breadcrumbs": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "breakfast": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brisket": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "broccoli": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "broccoli rabe": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "broil": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brooklyn": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brown rice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brownie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brunch": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "brussel sprout": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "buffalo": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "buffet": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bulgaria": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "bulgur": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "burrito": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "butter": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "buttermilk": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "butternut squash": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "butterscotch/caramel": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cabbage": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cake": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "california": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "calvados": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cambridge": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "campari": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "camping": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "canada": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "candy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "candy thermometer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cantaloupe": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "capers": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "caraway": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cardamom": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "carrot": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cashew": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "casserole/gratin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cauliflower": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "caviar": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "celery": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chambord": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "champagne": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chard": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chartreuse": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cheddar": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cherry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chestnut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chicago": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chicken": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chickpea": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chile": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chile pepper": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chili": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chill": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "chive": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "chocolate": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "christmas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "christmas eve": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cilantro": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cinco de mayo": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cinnamon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "citrus": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "clam": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "clove": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cobbler/crumble": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cocktail": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cocktail party": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "coconut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cod": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "coffee": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "coffee grinder": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cognac/armagnac": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "collard greens": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "colorado": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "columbus": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "condiment": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "condiment/spread": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "connecticut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cook like a diner": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cookbook critic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cookie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cookies": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "coriander": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "corn": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cornmeal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "costa mesa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cottage cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "couscous": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "crab": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cranberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cranberry sauce": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cream cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cr\u00e9me de cacao": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cr\u00eape": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cr\ufffd\ufffdme de cacao": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cuba": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cucumber": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cumin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cupcake": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "currant": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "curry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "custard": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dairy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "dairy free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dallas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "date": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "deep-fry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "denver": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dessert": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "digestif": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dill": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dinner": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dip": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "diwali": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dominican republic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dorie greenspan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "double boiler": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "dried fruit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "drink": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "drinks": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "duck": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "easter": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "eau de vie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "edible gift": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "egg": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "egg nog": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "eggplant": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "egypt": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "emeril lagasse": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "endive": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "engagement party": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "england": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "entertaining": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "epi + ushg": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "epi loves the microwave": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "escarole": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fall": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "family reunion": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fat free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "father's day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fennel": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "feta": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fig": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fish": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "flaming hot summer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "flat bread": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "florida": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fontina": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "food processor": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "fortified wine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fourth of july": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "france": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "frangelico": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "frankenrecipe": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "freeze/chill": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "freezer food": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "friendsgiving": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "frittata": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fritter": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "frozen dessert": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fruit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fruit juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "fry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "game": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "garlic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "georgia": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "germany": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "gin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ginger": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "goat cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "goose": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "gouda": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "gourmet": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "graduation": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grains": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grand marnier": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "granola": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grape": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grapefruit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grappa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "green bean": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "green onion/scallion": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grill": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "grill/barbecue": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ground beef": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ground lamb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "guam": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "guava": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "haiti": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "halibut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "halloween": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ham": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hamburger": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hanukkah": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "harpercollins": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hawaii": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hazelnut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "healdsburg": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "healthy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "herb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "high fiber": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hollywood": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hominy/cornmeal/masa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "honey": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "honeydew": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hors d'oeuvre": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "horseradish": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hot drink": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hot pepper": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "house & garden": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "house cocktail": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "houston": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "hummus": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ice cream": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ice cream machine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "iced coffee": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "iced tea": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "idaho": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "illinois": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "indiana": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "iowa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ireland": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "israel": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "italy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "jalape\u00f1o": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "jam or jelly": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "jamaica": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "japan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "jerusalem artichoke": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "juicer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "j\u00edcama": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kahl\u00faa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kale": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kansas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kansas city": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kentucky": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kentucky derby": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kid-friendly": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kidney friendly": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kirsch": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kitchen olympics": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kiwi": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kosher": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kosher for passover": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kumquat": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "kwanzaa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "labor day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lamb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lamb chop": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lamb shank": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lancaster": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "las vegas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lasagna": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "leafy green": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "leek": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "legume": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lemon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lemon juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lemongrass": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lentil": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lettuce": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lima bean": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lime": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lime juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lingonberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "liqueur": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lobster": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "london": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "long beach": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "los angeles": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "louisiana": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "louisville": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low cal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low carb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low cholesterol": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low fat": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low sodium": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low sugar": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "low/no sugar": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lunar new year": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lunch": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "lychee": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "macadamia nut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "macaroni and cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "maine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mandoline": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mango": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "maple syrup": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mardi gras": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "margarita": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "marinade": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "marinate": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "marsala": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "marscarpone": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "marshmallow": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "martini": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "maryland": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "massachusetts": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mayonnaise": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "meat": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "meatball": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "meatloaf": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "melon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mexico": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mezcal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "miami": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "michigan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "microwave": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "midori": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "milk/cream": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "minneapolis": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "minnesota": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mint": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mississippi": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "missouri": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mixer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "molasses": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "monterey jack": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mortar and pestle": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mother's day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mozzarella": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "muffin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mushroom": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mussel": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mustard": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "mustard greens": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "nancy silverton": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "nebraska": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "nectarine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new hampshire": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new jersey": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new mexico": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new orleans": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new year's day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "new year's eve": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "new york": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "no meat, no problem": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "no sugar added": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "no-cook": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "non-alcoholic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "noodle": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "north carolina": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "nut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "nutmeg": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oat": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oatmeal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "octopus": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ohio": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oklahoma": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "okra": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oktoberfest": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "olive": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "omelet": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "one-pot meal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "onion": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "orange": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "orange juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oregano": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oregon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "organic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "orzo": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oscars": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "oyster": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pacific palisades": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "paleo": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pan-fry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pancake": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "papaya": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "paprika": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "parade": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "paris": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "parmesan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "parsley": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "parsnip": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "party": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pasadena": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "passion fruit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "passover": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pasta": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pasta maker": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pastry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pea": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "peach": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "peanut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "peanut butter": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "peanut free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pear": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pecan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pennsylvania": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pepper": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pernod": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "persian new year": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "persimmon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "peru": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pescatarian": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "philippines": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "phyllo/puff pastry dough": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pickles": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "picnic": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pine nut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pineapple": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pistachio": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pittsburgh": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pizza": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "plantain": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "plum": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poach": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poblano": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poker/game night": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pomegranate": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pomegranate juice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poppy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pork": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "pork chop": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pork rib": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pork tenderloin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "port": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "portland": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pot pie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "potato": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "potato salad": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "potluck": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poultry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "poultry sausage": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pressure cooker": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "prosciutto": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "providence": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "prune": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "pumpkin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "punch": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "purim": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quail": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quiche": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quick & easy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quick and healthy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quince": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "quinoa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rabbit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rack of lamb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "radicchio": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "radish": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "raisin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ramadan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ramekin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "raspberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "raw": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "red wine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rhode island": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rhubarb": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ricotta": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "roast": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "root vegetable": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rosemary": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rosh hashanah/yom kippur": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "ros\u00e9": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rub": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rum": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rutabaga": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "rye": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "saffron": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sage": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sake": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "salad": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "salad dressing": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "salmon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "salsa": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "san francisco": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sandwich": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sandwich theory": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sangria": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "santa monica": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sardine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sauce": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sausage": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "saut\u00e9": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "scallop": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "scotch": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "seafood": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "seattle": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "seed": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "self": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "semolina": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sesame": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sesame oil": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "shallot": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "shavuot": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "shellfish": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sherry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "shower": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "shrimp": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "side": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "simmer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "skewer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "slow cooker": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "smoker": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "smoothie": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "snapper": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sorbet": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "souffl\u00e9/meringue": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "soup/stew": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "sour cream": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sourdough": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "south carolina": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "soy": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "soy free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "soy sauce": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spain": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sparkling wine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spinach": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spirit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spring": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "spritzer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "squash": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "squid": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "st. louis": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "st. patrick's day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "steak": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "steam": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "stew": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "stir-fry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "stock": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "strawberry": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "stuffing/dressing": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sugar conscious": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sugar snap pea": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sukkot": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "summer": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "super bowl": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "suzanne goin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "sweet potato/yam": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "swiss cheese": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "switzerland": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "swordfish": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "taco": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tailgating": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tamarind": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tangerine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tapioca": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tarragon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tart": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tea": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tennessee": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tequila": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tested & improved": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "texas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "thanksgiving": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "thyme": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tilapia": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tofu": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tomatillo": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tomato": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tortillas": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tree nut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tree nut free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "triple sec": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tropical fruit": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "trout": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "tuna": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "turnip": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "utah": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "valentine's day": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vanilla": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "veal": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vegan": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vegetable": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "1.0"
+          ]
+        },
+        "vegetarian": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "venison": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vermont": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vermouth": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vinegar": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "virginia": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "vodka": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "waffle": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "walnut": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wasabi": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "washington": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "washington, d.c.": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "watercress": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "watermelon": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wedding": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "weelicious": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "west virginia": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "westwood": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wheat/gluten-free": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "whiskey": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "white wine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "whole wheat": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wild rice": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "windsor": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wine": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "winter": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "1.0",
+            "0.0"
+          ]
+        },
+        "wisconsin": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "wok": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "yellow squash": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "yogurt": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "yonkers": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "yuca": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "zucchini": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "cookbooks": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "leftovers": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "snack": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "snack week": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "0.0",
+            "0.0",
+            "0.0"
+          ]
+        },
+        "turkey": {
+          "dtype": "float64",
+          "non_null": 20052,
+          "null_pct": "0.0%",
+          "samples": [
+            "1.0",
+            "0.0",
+            "0.0"
+          ]
+        }
+      },
+      "detected": {
+        "name_col": "title",
+        "calories_col": "calories",
+        "protein_col": "protein",
+        "fat_col": "fat",
+        "carbs_col": "low carb",
+        "sodium_col": "sodium"
+      },
+      "rows_with_all_nutrition": 14373,
+      "rows_usable": 14373,
+      "null_rates": {
+        "calories": "20.5%",
+        "protein": "20.8%",
+        "fat": "20.9%",
+        "carbs": "0.0%",
+        "sodium": "20.5%"
+      },
+      "sample_names": [
+        "Lentil, Apple, and Turkey Wrap ",
+        "Boudin Blanc Terrine with Red Onion Confit ",
+        "Potato and Fennel Soup Hodge "
+      ]
+    },
+    {
+      "name": "full_format_recipes.json",
+      "size_bytes": 35249903,
+      "row_count": 20130,
+      "columns": {
+        "directions": {
+          "dtype": "object",
+          "non_null": 20111,
+          "null_pct": "0.1%",
+          "samples": [
+            "['1. Place the stock, lentils, celery, carrot, thyme, and salt in a medium sauce",
+            "['Combine first 9 ingredients in heavy medium saucepan. Add 3 shallots. Bring to",
+            "['In a large heavy saucepan cook diced fennel and onion in butter over moderate "
+          ]
+        },
+        "fat": {
+          "dtype": "float64",
+          "non_null": 15908,
+          "null_pct": "21.0%",
+          "samples": [
+            "7.0",
+            "23.0",
+            "7.0"
+          ]
+        },
+        "date": {
+          "dtype": "datetime64[us, UTC]",
+          "non_null": 20111,
+          "null_pct": "0.1%",
+          "samples": [
+            "2006-09-01 04:00:00+00:00",
+            "2004-08-20 04:00:00+00:00",
+            "2004-08-20 04:00:00+00:00"
+          ]
+        },
+        "categories": {
+          "dtype": "object",
+          "non_null": 20111,
+          "null_pct": "0.1%",
+          "samples": [
+            "['Sandwich', 'Bean', 'Fruit', 'Tomato', 'turkey', 'Vegetable', 'Kid-Friendly', '",
+            "['Food Processor', 'Onion', 'Pork', 'Bake', 'Bastille Day', \"New Year's Eve\", 'D",
+            "['Soup/Stew', 'Dairy', 'Potato', 'Vegetable', 'Fennel', 'Gourmet', 'New York']"
+          ]
+        },
+        "calories": {
+          "dtype": "float64",
+          "non_null": 15976,
+          "null_pct": "20.6%",
+          "samples": [
+            "426.0",
+            "403.0",
+            "165.0"
+          ]
+        },
+        "desc": {
+          "dtype": "str",
+          "non_null": 13495,
+          "null_pct": "33.0%",
+          "samples": [
+            "This uses the same ingredients found in boudin blanc, the classic French white s",
+            "The Sicilian-style tomato sauce has tons of Mediterranean flavor, thanks to the ",
+            "This recipe can be prepared in 45 minutes or less."
+          ]
+        },
+        "protein": {
+          "dtype": "float64",
+          "non_null": 15929,
+          "null_pct": "20.9%",
+          "samples": [
+            "30.0",
+            "18.0",
+            "6.0"
+          ]
+        },
+        "rating": {
+          "dtype": "float64",
+          "non_null": 20100,
+          "null_pct": "0.1%",
+          "samples": [
+            "2.5",
+            "4.375",
+            "3.75"
+          ]
+        },
+        "title": {
+          "dtype": "str",
+          "non_null": 20111,
+          "null_pct": "0.1%",
+          "samples": [
+            "Lentil, Apple, and Turkey Wrap ",
+            "Boudin Blanc Terrine with Red Onion Confit ",
+            "Potato and Fennel Soup Hodge "
+          ]
+        },
+        "ingredients": {
+          "dtype": "object",
+          "non_null": 20111,
+          "null_pct": "0.1%",
+          "samples": [
+            "['4 cups low-sodium vegetable or chicken stock', '1 cup dried brown lentils', '1",
+            "['1 1/2 cups whipping cream', '2 medium onions, chopped', '5 teaspoons salt', '3",
+            "['1 fennel bulb (sometimes called anise), stalks discarded, bulb cut\\xa0into 1/2"
+          ]
+        },
+        "sodium": {
+          "dtype": "float64",
+          "non_null": 15974,
+          "null_pct": "20.6%",
+          "samples": [
+            "559.0",
+            "1439.0",
+            "165.0"
+          ]
+        }
+      },
+      "detected": {
+        "name_col": "title",
+        "calories_col": "calories",
+        "protein_col": "protein",
+        "fat_col": "fat",
+        "carbs_col": "sodium",
+        "sodium_col": "sodium"
+      },
+      "rows_with_all_nutrition": 14403,
+      "rows_usable": 14403,
+      "null_rates": {
+        "calories": "20.6%",
+        "protein": "20.9%",
+        "fat": "21.0%",
+        "carbs": "20.6%",
+        "sodium": "20.6%"
+      },
+      "sample_names": [
+        "Lentil, Apple, and Turkey Wrap ",
+        "Boudin Blanc Terrine with Red Onion Confit ",
+        "Potato and Fennel Soup Hodge "
+      ]
+    }
+  ],
+  "best_file": "full_format_recipes.json",
+  "total_rows": 20130,
+  "usable_rows": 14403,
+  "columns": {
+    "name_col": "title",
+    "calories_col": "calories",
+    "protein_col": "protein",
+    "fat_col": "fat",
+    "carbs_col": "sodium",
+    "sodium_col": "sodium",
+    "category_col": null
+  },
+  "null_rates": {
+    "calories": "20.6%",
+    "protein": "20.9%",
+    "fat": "21.0%",
+    "carbs": "20.6%",
+    "sodium": "20.6%"
+  },
+  "sample_names": [
+    "Lentil, Apple, and Turkey Wrap ",
+    "Boudin Blanc Terrine with Red Onion Confit ",
+    "Potato and Fennel Soup Hodge "
+  ],
+  "verdict": "The best file is 'full_format_recipes.json' with 20,130 total rows. 14,403 rows (71.5%) have a recipe name plus non-zero calories, protein, and fat values, making them fully usable for nutrition-based analysis or ML. Key nutrition columns are present and reasonably populated. The dataset is well-suited for dietary analysis, recipe recommendation, and macro-nutrient modeling, though rows missing any nutrition fields should be filtered before use."
+}

@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var UNIT_OPTIONS = ['g', 'ml', 'piece', 'slice', 'serving'];
+  var UNIT_OPTIONS = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp', 'glass', 'piece', 'slice', 'serving'];
 
   var templates = [];
   var editingTemplateId = null;

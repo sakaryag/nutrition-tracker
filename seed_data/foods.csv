@@ -189,31 +189,31 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 170188,"Pasta, whole wheat, cooked",generic,Grains & Bread,3.7,0.4,24,124,,3.9,100,g
 170189,"Pasta, egg noodles, cooked",generic,Grains & Bread,3.9,1.1,25,135,,1.5,100,g
 170190,"Pasta, lasagna noodles, cooked",generic,Grains & Bread,3.6,0.3,25,131,,1.5,100,g
-170192,Bread, whole wheat,generic,Grains & Bread,13.6,3.6,44,246,,7,1 slice
-170193,Bread, sourdough,generic,Grains & Bread,10,2,46,262,,2,1 slice
-170194,Bread, rye,generic,Grains & Bread,8.5,1.1,48,259,,5.8,1 slice
-170195,Bread, pumpernickel,generic,Grains & Bread,6,1.2,48,246,,4.2,1 slice
-170196,Bread, multigrain,generic,Grains & Bread,12,4,41,246,,6,1 slice
-170197,Bread, ciabatta,generic,Grains & Bread,8,4,46,280,,2,1 slice
-170198,Bread, focaccia,generic,Grains & Bread,6,5,35,230,,2,1 slice
-170199,Bagel, plain,generic,Grains & Bread,9.2,1.4,54,289,,2.7,1 bagel
-170200,Bagel, whole wheat,generic,Grains & Bread,11,1.6,52,290,,6,1 bagel
-170201,Bagel, everything,generic,Grains & Bread,10,2,54,310,,3,1 bagel
-170202,English muffin, whole wheat,generic,Grains & Bread,8.3,1.5,42,230,,6,1 muffin
-170203,English muffin, plain,generic,Grains & Bread,8.3,1.5,42,230,,2,1 muffin
-170204,Croissant, butter,generic,Grains & Bread,4.8,14,27,231,,1.5,1 croissant
-170205,Croissant, chocolate,generic,Grains & Bread,5.6,16,31,272,,2,1 croissant
-170206,Croissant, almond,generic,Grains & Bread,5.4,16,34,292,,3,1 croissant
-170209,Tortilla, spinach,generic,Grains & Bread,3.5,3.5,38,215,,3,1 tortilla
-170210,Tortilla, wheat,generic,Grains & Bread,4,3.2,35,200,,5,1 tortilla
-170211,Pita bread, white,generic,Grains & Bread,5.5,1.1,35,165,,1.7,1 pita
-170212,Pita bread, whole wheat,generic,Grains & Bread,6.3,1.3,35,170,,4.7,1 pita
-170216,Rice cakes, plain,generic,Grains & Bread,1.9,1.1,22,110,,1.1,1 cake
-170217,Rice cakes, chocolate,generic,Grains & Bread,2,2,24,120,,0,1 cake
-170218,Crackers, saltine,generic,Grains & Bread,2.5,2,21,124,,0.8,4 crackers
-170219,Crackers, whole grain,generic,Grains & Bread,3.5,2,20,130,,3,4 crackers
-170220,Crackers, cheese,generic,Grains & Bread,3,7,20,150,,0,6 crackers
-170221,Crackers, peanut butter,generic,Grains & Bread,3.5,5,16,140,,1,4 crackers
+170192,Bread, whole wheat,Grains & Bread,13.6,3.6,44,246,,7,7,1 slice
+170193,Bread, sourdough,Grains & Bread,10,2,46,262,,2,2,1 slice
+170194,Bread, rye,Grains & Bread,8.5,1.1,48,259,,5.8,5.8,1 slice
+170195,Bread, pumpernickel,Grains & Bread,6,1.2,48,246,,4.2,4.2,1 slice
+170196,Bread, multigrain,Grains & Bread,12,4,41,246,,6,6,1 slice
+170197,Bread, ciabatta,Grains & Bread,8,4,46,280,,2,2,1 slice
+170198,Bread, focaccia,Grains & Bread,6,5,35,230,,2,2,1 slice
+170199,Bagel, plain,Grains & Bread,9.2,1.4,54,289,,2.7,2.7,1 bagel
+170200,Bagel, whole wheat,Grains & Bread,11,1.6,52,290,,6,6,1 bagel
+170201,Bagel, everything,Grains & Bread,10,2,54,310,,3,3,1 bagel
+170202,English muffin, whole wheat,Grains & Bread,8.3,1.5,42,230,,6,6,1 muffin
+170203,English muffin, plain,Grains & Bread,8.3,1.5,42,230,,2,2,1 muffin
+170204,Croissant, butter,Grains & Bread,4.8,14,27,231,,1.5,1.5,1 croissant
+170205,Croissant, chocolate,Grains & Bread,5.6,16,31,272,,2,2,1 croissant
+170206,Croissant, almond,Grains & Bread,5.4,16,34,292,,3,3,1 croissant
+170209,Tortilla, spinach,Grains & Bread,3.5,3.5,38,215,,3,3,1 tortilla
+170210,Tortilla, wheat,Grains & Bread,4,3.2,35,200,,5,5,1 tortilla
+170211,Pita bread, white,Grains & Bread,5.5,1.1,35,165,,1.7,1.7,1 pita
+170212,Pita bread, whole wheat,Grains & Bread,6.3,1.3,35,170,,4.7,4.7,1 pita
+170216,Rice cakes, plain,Grains & Bread,1.9,1.1,22,110,,1.1,1.1,1 cake
+170217,Rice cakes, chocolate,Grains & Bread,2,2,24,120,,0,0,1 cake
+170218,Crackers, saltine,Grains & Bread,2.5,2,21,124,,0.8,0.8,4 crackers
+170219,Crackers, whole grain,Grains & Bread,3.5,2,20,130,,3,3,4 crackers
+170220,Crackers, cheese,Grains & Bread,3,7,20,150,,0,0,6 crackers
+170221,Crackers, peanut butter,Grains & Bread,3.5,5,16,140,,1,1,4 crackers
 170224,"Granola, low fat",generic,Grains & Bread,4,4,30,180,,2,30,g
 170225,"Granola, regular",generic,Grains & Bread,4,7,35,210,,3,30,g
 170226,"Granola, low sugar",generic,Grains & Bread,4,5,18,140,,3,30,g
@@ -232,12 +232,12 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 170239,"Popcorn, air-popped",generic,Grains & Bread,3.5,3.5,35,110,,3.5,30,g
 170240,"Popcorn, oil-popped",generic,Grains & Bread,3.5,9,35,155,,3.5,30,g
 170241,"Popcorn, caramel",generic,Grains & Bread,1.5,8,32,160,,0.5,30,g
-170242,Pancake, plain,generic,Grains & Bread,3.5,3.5,27,150,,1.5,1 pancake
-170243,Pancake, blueberry,generic,Grains & Bread,3.5,3.5,28,160,,1.5,1 pancake
-170244,Pancake, chocolate chip,generic,Grains & Bread,3.5,5,30,180,,1,1 pancake
-170245,Waffle, plain,generic,Grains & Bread,4,7,26,218,,0.6,1 waffle
-170246,Waffle, whole grain,generic,Grains & Bread,5,8,26,228,,2.6,1 waffle
-170247,Waffle, chocolate chip,generic,Grains & Bread,4,9,30,250,,1,1 waffle
+170242,Pancake, plain,Grains & Bread,3.5,3.5,27,150,,1.5,1.5,1 pancake
+170243,Pancake, blueberry,Grains & Bread,3.5,3.5,28,160,,1.5,1.5,1 pancake
+170244,Pancake, chocolate chip,Grains & Bread,3.5,5,30,180,,1,1,1 pancake
+170245,Waffle, plain,Grains & Bread,4,7,26,218,,0.6,0.6,1 waffle
+170246,Waffle, whole grain,Grains & Bread,5,8,26,228,,2.6,2.6,1 waffle
+170247,Waffle, chocolate chip,Grains & Bread,4,9,30,250,,1,1,1 waffle
 170248,"Pretzel, hard",generic,Grains & Bread,3,1,24,110,,1,30,g
 170249,"Pretzel, soft",generic,Grains & Bread,3,3,25,140,,2,60,g
 170250,Bran muffin,generic,Grains & Bread,4,5,30,170,,5,60,g
@@ -499,8 +499,8 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 170622,Ghee (clarified butter),generic,Oils & Fats,0.3,14,0,124,,0,14,g
 170623,Lard,generic,Oils & Fats,0,13,0,117,,0,14,g
 170624,"Shortening, vegetable",generic,Oils & Fats,0,12,0,110,,0,12,g
-170625,Cooking spray, canola,generic,Oils & Fats,0,0.1,0,1,,0,1 spray
-170626,Cooking spray, olive oil,generic,Oils & Fats,0,0.1,0,1,,0,1 spray
+170625,Cooking spray, canola,Oils & Fats,0,0.1,0,1,,0,0,1 spray
+170626,Cooking spray, olive oil,Oils & Fats,0,0.1,0,1,,0,0,1 spray
 170701,"Dark chocolate, 70% cacao",generic,Snacks & Sweets,12,43,46,598,,24,100,g
 170702,"Dark chocolate, 85% cacao",generic,Snacks & Sweets,12,42,33,602,,11,100,g
 170703,"Dark chocolate, 90% cacao",generic,Snacks & Sweets,11,43,25,603,,7,100,g
@@ -683,8 +683,8 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 170947,Soy butter,generic,Condiments & Sauces,20,35,4,490,,1,30,g
 170948,Coconut aminos,generic,Condiments & Sauces,1,0,0.4,6,,0,10,ml
 170949,Liquid smoke,generic,Condiments & Sauces,0,0,0,0,,0,1,tsp
-171002,Pizza, supreme,generic,Prepared Foods,14,15,38,330,,2,1 slice
-171003,Pizza, veggie,generic,Prepared Foods,11,8,36,280,,2,1 slice
+171002,Pizza, supreme,Prepared Foods,14,15,38,330,,2,2,1 slice
+171003,Pizza, veggie,Prepared Foods,11,8,36,280,,2,2,1 slice
 171004,"Hamburger patty, 1/4 lb",generic,Prepared Foods,20,15,2,250,,0,113,g
 171005,"Cheeseburger, 1/4 lb",generic,Prepared Foods,22,18,3,300,,0,127,g
 171006,"Hamburger, double",generic,Prepared Foods,32,25,35,540,,2,215,g
@@ -700,33 +700,33 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 171016,"Fried chicken, drumstick",generic,Prepared Foods,26,17,8,310,,0,100,g
 171017,"Fried chicken, thigh",generic,Prepared Foods,24,20,8,330,,0,100,g
 171018,"Fried chicken, breast",generic,Prepared Foods,28,12,8,290,,0,100,g
-171021,Taco, beef,generic,Prepared Foods,12,10,15,250,,2,1 taco
-171022,Taco, chicken,generic,Prepared Foods,14,9,14,240,,2,1 taco
-171023,Taco, fish,generic,Prepared Foods,12,12,15,280,,1,1 taco
-171025,Burrito, beef,generic,Prepared Foods,20,18,45,500,,3,1 burrito
-171026,Burrito, chicken,generic,Prepared Foods,22,15,50,520,,3,1 burrito
-171027,Burrito, vegetarian,generic,Prepared Foods,15,15,60,490,,6,1 burrito
-171028,Quesadilla, chicken,generic,Prepared Foods,22,15,30,420,,2,1 quesadilla
-171029,Quesadilla, beef,generic,Prepared Foods,20,16,30,430,,2,1 quesadilla
-171030,Enchilada, chicken,generic,Prepared Foods,18,10,25,320,,2,1 enchilada
+171021,Taco, beef,Prepared Foods,12,10,15,250,,2,2,1 taco
+171022,Taco, chicken,Prepared Foods,14,9,14,240,,2,2,1 taco
+171023,Taco, fish,Prepared Foods,12,12,15,280,,1,1,1 taco
+171025,Burrito, beef,Prepared Foods,20,18,45,500,,3,3,1 burrito
+171026,Burrito, chicken,Prepared Foods,22,15,50,520,,3,3,1 burrito
+171027,Burrito, vegetarian,Prepared Foods,15,15,60,490,,6,6,1 burrito
+171028,Quesadilla, chicken,Prepared Foods,22,15,30,420,,2,2,1 quesadilla
+171029,Quesadilla, beef,Prepared Foods,20,16,30,430,,2,2,1 quesadilla
+171030,Enchilada, chicken,Prepared Foods,18,10,25,320,,2,2,1 enchilada
 171031,"Burrito bowl, chicken",generic,Prepared Foods,25,12,55,480,,6,280,g
-171032,Sushi roll, California,generic,Prepared Foods,7,5,33,220,,1,1 roll
-171033,Sushi roll, salmon,generic,Prepared Foods,8,6,32,250,,1,1 roll
-171034,Sushi roll, spicy tuna,generic,Prepared Foods,9,7,32,260,,1,1 roll
-171035,Sushi roll, vegetable,generic,Prepared Foods,3,4,40,200,,2,1 roll
-171036,Sushi roll, shrimp tempura,generic,Prepared Foods,6,8,38,280,,1,1 roll
-171037,Nigiri sushi, salmon,generic,Prepared Foods,2,1,3,40,,0,2 pieces
-171038,Nigiri sushi, tuna,generic,Prepared Foods,2,0.5,3,37,,0,2 pieces
-171039,Nigiri sushi, shrimp,generic,Prepared Foods,2,0.5,3,37,,0,2 pieces
-171040,Ramen noodles, prepared,generic,Prepared Foods,9,3,40,290,,2,1 bowl
-171042,Pho, beef,generic,Prepared Foods,10,2,15,140,,2,1 cup
-171045,Lo mein, chicken,generic,Prepared Foods,18,12,45,450,,2,1 serving
-171046,Fried rice, chicken,generic,Prepared Foods,15,10,45,420,,2,1 cup
-171047,Mac and cheese, boxed,generic,Prepared Foods,9,9,45,380,,2,1 cup
-171048,Mac and cheese, homemade,generic,Prepared Foods,15,12,50,420,,2,1 cup
+171032,Sushi roll, California,Prepared Foods,7,5,33,220,,1,1,1 roll
+171033,Sushi roll, salmon,Prepared Foods,8,6,32,250,,1,1,1 roll
+171034,Sushi roll, spicy tuna,Prepared Foods,9,7,32,260,,1,1,1 roll
+171035,Sushi roll, vegetable,Prepared Foods,3,4,40,200,,2,2,1 roll
+171036,Sushi roll, shrimp tempura,Prepared Foods,6,8,38,280,,1,1,1 roll
+171037,Nigiri sushi, salmon,Prepared Foods,2,1,3,40,,0,0,2 pieces
+171038,Nigiri sushi, tuna,Prepared Foods,2,0.5,3,37,,0,0,2 pieces
+171039,Nigiri sushi, shrimp,Prepared Foods,2,0.5,3,37,,0,0,2 pieces
+171040,Ramen noodles, prepared,Prepared Foods,9,3,40,290,,2,2,1 bowl
+171042,Pho, beef,Prepared Foods,10,2,15,140,,2,2,1 cup
+171045,Lo mein, chicken,Prepared Foods,18,12,45,450,,2,2,1 serving
+171046,Fried rice, chicken,Prepared Foods,15,10,45,420,,2,2,1 cup
+171047,Mac and cheese, boxed,Prepared Foods,9,9,45,380,,2,2,1 cup
+171048,Mac and cheese, homemade,Prepared Foods,15,12,50,420,,2,2,1 cup
 171049,"Lasagna, meat",generic,Prepared Foods,18,15,25,360,,2,200,g
 171050,"Lasagna, vegetarian",generic,Prepared Foods,12,8,30,280,,3,200,g
-171064,Garden salad, with dressing,generic,Prepared Foods,3,10,10,160,,3,1 salad
+171064,Garden salad, with dressing,Prepared Foods,3,10,10,160,,3,3,1 salad
 171069,"Oatmeal, plain, prepared",generic,Prepared Foods,5,3,27,150,,4,200,g
 171070,"Oatmeal, with berries",generic,Prepared Foods,5,3,35,190,,6,200,g
 171071,"Oatmeal, with nuts",generic,Prepared Foods,8,8,35,270,,6,200,g
@@ -746,7 +746,7 @@ usda_fdc_id,name,brand,category,protein,fat,carbs,calories,fiber,sugar,default_s
 171085,Crepes with chocolate,generic,Prepared Foods,5,4,28,195,,2,60,g
 171086,"Hash browns, frozen",generic,Prepared Foods,2,6,12,140,,1,60,g
 171087,"Hash browns, homemade",generic,Prepared Foods,2,9,12,160,,1,60,g
-171088,Breakfast sandwich, egg and cheese,generic,Prepared Foods,16,14,30,350,,1,1 sandwich
+171088,Breakfast sandwich, egg and cheese,Prepared Foods,16,14,30,350,,1,1,1 sandwich
 171091,Granola with yogurt,generic,Prepared Foods,8,7,45,300,,5,150,g
 171092,Yogurt parfait,generic,Prepared Foods,10,5,40,280,,4,150,g
 171093,Protein pancakes,generic,Prepared Foods,20,6,25,260,,2,150,g

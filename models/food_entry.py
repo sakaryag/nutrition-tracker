@@ -24,6 +24,8 @@ class FoodEntry(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
+    template_id = db.Column(db.Integer, nullable=True)  # set when logged from a meal template
+
     saved_food = db.relationship('SavedFood', backref='entries', lazy=True)
 
     def to_dict(self):
@@ -38,6 +40,7 @@ class FoodEntry(db.Model):
             'serving_size': self.serving_size,
             'serving_unit': self.serving_unit,
             'saved_food_id': self.saved_food_id,
+            'template_id': self.template_id,
             'entry_date': self.entry_date.isoformat(),
             'entry_time': self.entry_time.isoformat(),
         }

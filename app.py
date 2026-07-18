@@ -6,12 +6,14 @@ from models import db
 from config import config
 
 
-def create_app(config_name=None):
+def create_app(config_name=None, test_config=None):
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
 
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config.get(config_name, config['default']))
+    if test_config is not None:
+        app.config.from_object(test_config)
 
     db.init_app(app)
     Migrate(app, db)

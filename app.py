@@ -26,7 +26,7 @@ def create_app(config_name=None, test_config=None):
     _register_cli(app)
 
     with app.app_context():
-        db.create_all()
+        _create_all_if_needed(app)
         _migrate_add_columns(app)
         _auto_seed(app)
 
@@ -42,6 +42,24 @@ def create_app(config_name=None, test_config=None):
                 cursor.close()
 
     return app
+
+
+def _create_all_if_needed(app):
+    """Only create tables if the database is new (no tables exist yet).
+
+    The SQLite DB is persisted across deploys (e.g. via a Railway volume), so
+    calling db.create_all() unconditionally on every startup would raise
+    'table X already exists' once the schema has already been created.
+    Flask-Migrate (and _migrate_add_columns) handle subsequent schema changes.
+    """
+    try:
+        inspector = db.inspect(db.engine)
+        existing_tables = inspector.get_table_names()
+    except Exception:
+        existing_tables = []
+
+    if not existing_tables:
+        db.create_all()
 
 
 def _backup_db(app):

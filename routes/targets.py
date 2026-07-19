@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, current_app, session
 from datetime import date
 from models import db
 from models.daily_target import DailyTarget
+from routes.auth import current_user_id
 
 targets_bp = Blueprint('targets', __name__, url_prefix='/api/targets')
 
@@ -16,12 +17,11 @@ def check_auth():
 def get_target():
     """GET /api/targets"""
     today = date.today()
-    target = (
-        DailyTarget.query
-        .filter(DailyTarget.effective_from <= today)
-        .order_by(DailyTarget.effective_from.desc())
-        .first()
-    )
+    uid = current_user_id()
+    q = DailyTarget.query.filter(DailyTarget.effective_from <= today)
+    if uid is not None:
+        q = q.filter(DailyTarget.user_id == uid)
+    target = q.order_by(DailyTarget.effective_from.desc()).first()
     if target:
         return jsonify(target.to_dict())
     return jsonify({
@@ -52,6 +52,7 @@ def create_target():
         carbs=carbs,
         calories=calories,
         effective_from=date.today(),
+        user_id=current_user_id(),
     )
     db.session.add(target)
     db.session.commit()

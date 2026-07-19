@@ -32,3 +32,9 @@ def meals():
 @login_required
 def settings():
     return render_template('settings.html')
+
+
+@pages_bp.route('/chat')
+@login_required
+def chat():
+    return render_template('chat.html')

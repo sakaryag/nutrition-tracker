@@ -4,6 +4,7 @@ from models import db
 from models.meal_template import MealTemplate
 from models.meal_template_item import MealTemplateItem
 from models.food_entry import FoodEntry
+from routes.auth import current_user_id
 
 meal_templates_bp = Blueprint('meal_templates', __name__, url_prefix='/api/meal-templates')
 
@@ -16,8 +17,11 @@ def check_auth():
 
 @meal_templates_bp.route('', methods=['GET'])
 def list_templates():
-    templates = MealTemplate.query.order_by(MealTemplate.name).all()
-    return jsonify([t.to_dict() for t in templates])
+    uid = current_user_id()
+    q = MealTemplate.query
+    if uid is not None:
+        q = q.filter_by(user_id=uid)
+    return jsonify([t.to_dict() for t in q.order_by(MealTemplate.name).all()])
 
 
 @meal_templates_bp.route('', methods=['POST'])
@@ -30,6 +34,7 @@ def create_template():
     template = MealTemplate(
         name=name,
         meal_type=data.get('meal_type', 'Snack'),
+        user_id=current_user_id(),
     )
     db.session.add(template)
     db.session.flush()
@@ -63,19 +68,28 @@ def create_template():
     return jsonify(template.to_dict()), 201
 
 
+def _own_template(template_id):
+    """Fetch template and verify ownership. Returns (template, error_response)."""
+    uid = current_user_id()
+    template = db.session.get(MealTemplate, template_id)
+    if template is None or (uid is not None and template.user_id != uid):
+        return None, (jsonify({'error': 'Template not found'}), 404)
+    return template, None
+
+
 @meal_templates_bp.route('/<int:template_id>', methods=['GET'])
 def get_template(template_id):
-    template = db.session.get(MealTemplate, template_id)
-    if template is None:
-        return jsonify({'error': 'Template not found'}), 404
+    template, err = _own_template(template_id)
+    if err:
+        return err
     return jsonify(template.to_dict())
 
 
 @meal_templates_bp.route('/<int:template_id>', methods=['PUT'])
 def update_template(template_id):
-    template = db.session.get(MealTemplate, template_id)
-    if template is None:
-        return jsonify({'error': 'Template not found'}), 404
+    template, err = _own_template(template_id)
+    if err:
+        return err
 
     data = request.get_json(silent=True) or {}
     if 'name' in data:
@@ -116,9 +130,9 @@ def update_template(template_id):
 
 @meal_templates_bp.route('/<int:template_id>', methods=['DELETE'])
 def delete_template(template_id):
-    template = db.session.get(MealTemplate, template_id)
-    if template is None:
-        return jsonify({'error': 'Template not found'}), 404
+    template, err = _own_template(template_id)
+    if err:
+        return err
     db.session.delete(template)
     db.session.commit()
     return jsonify({'deleted': template_id})
@@ -126,9 +140,9 @@ def delete_template(template_id):
 
 @meal_templates_bp.route('/<int:template_id>/log', methods=['POST'])
 def log_template(template_id):
-    template = db.session.get(MealTemplate, template_id)
-    if template is None:
-        return jsonify({'error': 'Template not found'}), 404
+    template, err = _own_template(template_id)
+    if err:
+        return err
 
     data = request.get_json(silent=True) or {}
     raw_date = data.get('date')
@@ -140,6 +154,7 @@ def log_template(template_id):
     else:
         entry_date = date.today()
 
+    uid = current_user_id()
     now = datetime.utcnow()
     entries = []
     for item in template.items:
@@ -153,6 +168,7 @@ def log_template(template_id):
             serving_size=item.serving_size,
             serving_unit=item.serving_unit,
             saved_food_id=item.saved_food_id,
+            user_id=uid,
             entry_date=entry_date,
             entry_time=now.time(),
         )
@@ -170,9 +186,9 @@ def log_template(template_id):
 @meal_templates_bp.route('/<int:template_id>/log-single', methods=['POST'])
 def log_template_single(template_id):
     """Log a template as one combined entry (total macros summed)."""
-    template = db.session.get(MealTemplate, template_id)
-    if template is None:
-        return jsonify({'error': 'Template not found'}), 404
+    template, err = _own_template(template_id)
+    if err:
+        return err
 
     data = request.get_json(silent=True) or {}
     raw_date = data.get('date')

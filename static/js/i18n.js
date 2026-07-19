@@ -9,6 +9,7 @@ const i18n = {
     'nav.history':    'History',
     'nav.myFoods':    'My Foods',
     'nav.meals':      'Meals',
+    'nav.chat':       'Chat',
     'nav.settings':   'Settings',
     'nav.logout':     'Logout',
 
@@ -203,6 +204,7 @@ const i18n = {
     'nav.history':    'Geçmiş',
     'nav.myFoods':    'Besinlerim',
     'nav.meals':      'Öğünler',
+    'nav.chat':       'Sohbet',
     'nav.settings':   'Ayarlar',
     'nav.logout':     'Çıkış',
 

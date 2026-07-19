@@ -6,6 +6,7 @@ class DailyTarget(db.Model):
     __tablename__ = 'daily_target'
 
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
     protein = db.Column(db.Float, nullable=False)
     fat = db.Column(db.Float, nullable=False)
     carbs = db.Column(db.Float, nullable=False)

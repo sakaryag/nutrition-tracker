@@ -3,6 +3,7 @@ from datetime import date
 from models import db
 from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
+from routes.auth import current_user_id
 from sqlalchemy import func
 
 summary_bp = Blueprint('summary', __name__, url_prefix='/api/summary')
@@ -14,13 +15,11 @@ def check_auth():
         return jsonify({'error': 'Authentication required'}), 401
 
 
-def _get_target(target_date: date) -> dict:
-    target = (
-        DailyTarget.query
-        .filter(DailyTarget.effective_from <= target_date)
-        .order_by(DailyTarget.effective_from.desc())
-        .first()
-    )
+def _get_target(target_date: date, uid) -> dict:
+    q = DailyTarget.query.filter(DailyTarget.effective_from <= target_date)
+    if uid is not None:
+        q = q.filter(DailyTarget.user_id == uid)
+    target = q.order_by(DailyTarget.effective_from.desc()).first()
     if target:
         return {
             'id': target.id,
@@ -40,17 +39,16 @@ def _get_target(target_date: date) -> dict:
     }
 
 
-def _totals_for_date(target_date: date) -> dict:
-    row = (
-        db.session.query(
-            func.coalesce(func.sum(FoodEntry.protein), 0.0).label('protein'),
-            func.coalesce(func.sum(FoodEntry.fat), 0.0).label('fat'),
-            func.coalesce(func.sum(FoodEntry.carbs), 0.0).label('carbs'),
-            func.coalesce(func.sum(FoodEntry.calories), 0.0).label('calories'),
-        )
-        .filter(FoodEntry.entry_date == target_date)
-        .one()
-    )
+def _totals_for_date(target_date: date, uid) -> dict:
+    q = db.session.query(
+        func.coalesce(func.sum(FoodEntry.protein), 0.0).label('protein'),
+        func.coalesce(func.sum(FoodEntry.fat), 0.0).label('fat'),
+        func.coalesce(func.sum(FoodEntry.carbs), 0.0).label('carbs'),
+        func.coalesce(func.sum(FoodEntry.calories), 0.0).label('calories'),
+    ).filter(FoodEntry.entry_date == target_date)
+    if uid is not None:
+        q = q.filter(FoodEntry.user_id == uid)
+    row = q.one()
     return {
         'protein': round(row.protein, 2),
         'fat': round(row.fat, 2),
@@ -71,8 +69,9 @@ def daily_summary():
     else:
         target_date = date.today()
 
-    totals = _totals_for_date(target_date)
-    target = _get_target(target_date)
+    uid = current_user_id()
+    totals = _totals_for_date(target_date, uid)
+    target = _get_target(target_date, uid)
     remaining = {
         'protein': round(target['protein'] - totals['protein'], 2),
         'fat': round(target['fat'] - totals['fat'], 2),
@@ -102,19 +101,17 @@ def range_summary():
     except ValueError:
         return jsonify({'error': 'Invalid date format, use YYYY-MM-DD'}), 400
 
-    rows = (
-        db.session.query(
-            FoodEntry.entry_date,
-            func.coalesce(func.sum(FoodEntry.protein), 0.0).label('protein'),
-            func.coalesce(func.sum(FoodEntry.fat), 0.0).label('fat'),
-            func.coalesce(func.sum(FoodEntry.carbs), 0.0).label('carbs'),
-            func.coalesce(func.sum(FoodEntry.calories), 0.0).label('calories'),
-        )
-        .filter(FoodEntry.entry_date >= start_date, FoodEntry.entry_date <= end_date)
-        .group_by(FoodEntry.entry_date)
-        .order_by(FoodEntry.entry_date)
-        .all()
-    )
+    uid = current_user_id()
+    q = db.session.query(
+        FoodEntry.entry_date,
+        func.coalesce(func.sum(FoodEntry.protein), 0.0).label('protein'),
+        func.coalesce(func.sum(FoodEntry.fat), 0.0).label('fat'),
+        func.coalesce(func.sum(FoodEntry.carbs), 0.0).label('carbs'),
+        func.coalesce(func.sum(FoodEntry.calories), 0.0).label('calories'),
+    ).filter(FoodEntry.entry_date >= start_date, FoodEntry.entry_date <= end_date)
+    if uid is not None:
+        q = q.filter(FoodEntry.user_id == uid)
+    rows = q.group_by(FoodEntry.entry_date).order_by(FoodEntry.entry_date).all()
     return jsonify([
         {
             'date': row.entry_date.isoformat(),

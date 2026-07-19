@@ -24,7 +24,8 @@ class FoodEntry(db.Model):
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    template_id = db.Column(db.Integer, nullable=True)  # set when logged from a meal template
+    template_id = db.Column(db.Integer, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
 
     saved_food = db.relationship('SavedFood', backref='entries', lazy=True)
 

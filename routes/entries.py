@@ -3,6 +3,7 @@ from datetime import date, datetime
 from models import db
 from models.food_entry import FoodEntry
 from models.saved_food import SavedFood
+from routes.auth import current_user_id
 from sqlalchemy import func
 
 entries_bp = Blueprint('entries', __name__, url_prefix='/api/entries')
@@ -30,12 +31,11 @@ def list_entries():
     else:
         target_date = date.today()
 
-    entries = (
-        FoodEntry.query
-        .filter_by(entry_date=target_date)
-        .order_by(FoodEntry.entry_time)
-        .all()
-    )
+    uid = current_user_id()
+    q = FoodEntry.query.filter_by(entry_date=target_date)
+    if uid is not None:
+        q = q.filter_by(user_id=uid)
+    entries = q.order_by(FoodEntry.entry_time).all()
     return jsonify([e.to_dict() for e in entries])
 
 
@@ -74,6 +74,7 @@ def create_entry():
     else:
         entry_date = now.date()
 
+    uid = current_user_id()
     entry = FoodEntry(
         food_name=food_name,
         protein=protein,
@@ -85,6 +86,7 @@ def create_entry():
         serving_unit=serving_unit,
         saved_food_id=int(saved_food_id) if saved_food_id is not None else None,
         template_id=int(template_id) if template_id is not None else None,
+        user_id=uid,
         entry_date=entry_date,
         entry_time=now.time(),
     )
@@ -125,8 +127,9 @@ def create_entry():
 @entries_bp.route('/<int:entry_id>', methods=['PUT'])
 def update_entry(entry_id: int):
     """PUT /api/entries/<id>"""
+    uid = current_user_id()
     entry = db.session.get(FoodEntry, entry_id)
-    if entry is None:
+    if entry is None or (uid is not None and entry.user_id != uid):
         return jsonify({'error': 'Entry not found'}), 404
 
     data = request.get_json(silent=True) or {}
@@ -177,8 +180,9 @@ def update_entry(entry_id: int):
 @entries_bp.route('/<int:entry_id>', methods=['DELETE'])
 def delete_entry(entry_id: int):
     """DELETE /api/entries/<id>"""
+    uid = current_user_id()
     entry = db.session.get(FoodEntry, entry_id)
-    if entry is None:
+    if entry is None or (uid is not None and entry.user_id != uid):
         return jsonify({'error': 'Entry not found'}), 404
 
     db.session.delete(entry)
@@ -189,14 +193,11 @@ def delete_entry(entry_id: int):
 @entries_bp.route('/recent', methods=['GET'])
 def recent_entries():
     """GET /api/entries/recent — 8 most recently used unique food names."""
-    subq = (
-        db.session.query(
-            FoodEntry.food_name,
-            func.max(FoodEntry.id).label('max_id'),
-        )
-        .group_by(FoodEntry.food_name)
-        .subquery()
-    )
+    uid = current_user_id()
+    base_q = db.session.query(FoodEntry.food_name, func.max(FoodEntry.id).label('max_id'))
+    if uid is not None:
+        base_q = base_q.filter(FoodEntry.user_id == uid)
+    subq = base_q.group_by(FoodEntry.food_name).subquery()
 
     rows = (
         db.session.query(FoodEntry)
@@ -220,10 +221,10 @@ def clear_meal():
     except ValueError:
         return jsonify({'error': 'Invalid date'}), 400
 
-    deleted = (
-        FoodEntry.query
-        .filter_by(entry_date=target_date, meal_type=meal_type)
-        .delete()
-    )
+    uid = current_user_id()
+    q = FoodEntry.query.filter_by(entry_date=target_date, meal_type=meal_type)
+    if uid is not None:
+        q = q.filter_by(user_id=uid)
+    deleted = q.delete()
     db.session.commit()
     return jsonify({'deleted': deleted, 'meal_type': meal_type})

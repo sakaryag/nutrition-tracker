@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %} — Chat{% endblock %}
+
+{% block content %}
+<section class="page-chat">
+
+  <div class="chat-header">
+    <div class="chat-header__left">
+      <h1>NutriBot</h1>
+      <p class="chat-header__subtitle" id="chat-subtitle">AI Nutrition Assistant</p>
+    </div>
+    <div class="chat-status-badge" id="chat-status-badge">
+      <span class="chat-status-dot"></span>
+      <span class="chat-status-label" id="chat-status-label">Connecting…</span>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages" role="log" aria-live="polite">
+    <div class="chat-bubble chat-bubble--bot" id="chat-welcome">
+      <div class="chat-bubble__content">
+        <p id="chat-welcome-text">Hi! I can help you log your food. Just tell me what you ate — for example: <em>"I had 2 eggs and toast for breakfast"</em> or <em>"80g of oats with milk"</em>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-logged-banner" id="chat-logged-banner" hidden>
+    <span class="chat-logged-icon">✓</span>
+    <span id="chat-logged-text">Logged: </span>
+  </div>
+
+  <form class="chat-input-row" id="chat-form" autocomplete="off">
+    <textarea
+      id="chat-input"
+      class="chat-input"
+      rows="1"
+      placeholder="Tell me what you ate…"
+      aria-label="Message"
+      maxlength="500"
+    ></textarea>
+    <button type="submit" class="btn btn-primary chat-send-btn" id="chat-send-btn" aria-label="Send">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </form>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/chat.js"></script>
+{% endblock %}

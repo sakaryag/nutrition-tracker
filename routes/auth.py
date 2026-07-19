@@ -6,6 +6,11 @@ from models.user import User
 auth_bp = Blueprint('auth', __name__)
 
 
+def current_user_id():
+    """Return the logged-in user's id, or None when auth is disabled."""
+    return session.get('user_id')
+
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):

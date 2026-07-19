@@ -1,4 +1,6 @@
 import os
+import shutil
+from datetime import datetime
 from flask import Flask
 from flask_migrate import Migrate
 from sqlalchemy import event, text
@@ -29,14 +31,48 @@ def create_app(config_name=None, test_config=None):
         _auto_seed(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+        _backup_db(app)
         with app.app_context():
             @event.listens_for(db.engine, 'connect')
             def _set_sqlite_pragma(dbapi_conn, connection_record):
                 cursor = dbapi_conn.cursor()
                 cursor.execute('PRAGMA journal_mode=WAL')
+                cursor.execute('PRAGMA synchronous=NORMAL')
+                cursor.execute('PRAGMA wal_checkpoint(PASSIVE)')
                 cursor.close()
 
     return app
+
+
+def _backup_db(app):
+    """Keep last 3 daily backups of the SQLite DB next to the original."""
+    uri = app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if not uri.startswith('sqlite:///'):
+        return
+    db_path = uri.replace('sqlite:///', '')
+    if not os.path.isabs(db_path):
+        db_path = os.path.join(app.instance_path, os.path.basename(db_path))
+    if not os.path.exists(db_path):
+        return
+    today = datetime.now().strftime('%Y-%m-%d')
+    backup_path = db_path + f'.backup-{today}'
+    if not os.path.exists(backup_path):
+        try:
+            shutil.copy2(db_path, backup_path)
+            # Remove backups older than 3 days
+            backup_dir = os.path.dirname(db_path)
+            base = os.path.basename(db_path)
+            backups = sorted([
+                f for f in os.listdir(backup_dir)
+                if f.startswith(base + '.backup-')
+            ])
+            for old in backups[:-3]:
+                try:
+                    os.remove(os.path.join(backup_dir, old))
+                except OSError:
+                    pass
+        except OSError:
+            pass
 
 
 def _migrate_add_columns(app):
@@ -48,6 +84,9 @@ def _migrate_add_columns(app):
         'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
         'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
         'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
+        'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES user(id)',
+        'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES user(id)',
+        'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES user(id)',
     ]
     with db.engine.connect() as conn:
         for sql in migrations:
@@ -67,6 +106,7 @@ def _register_blueprints(app):
         from routes.foods import foods_bp
         from routes.export import export_bp
         from routes.meal_templates import meal_templates_bp
+        from routes.chat import chat_bp
         from routes.pages import pages_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
@@ -75,6 +115,7 @@ def _register_blueprints(app):
         app.register_blueprint(foods_bp)
         app.register_blueprint(export_bp)
         app.register_blueprint(meal_templates_bp)
+        app.register_blueprint(chat_bp)
         app.register_blueprint(pages_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')

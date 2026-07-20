@@ -1,3 +1,6 @@
+import json
+import urllib.request
+
 from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import case, or_
 from models import db
@@ -10,6 +13,49 @@ foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
 def check_auth():
     if current_app.config.get('AUTH_ENABLED') and 'user_id' not in session:
         return jsonify({'error': 'Authentication required'}), 401
+
+
+@foods_bp.route('/barcode', methods=['GET'])
+def barcode_lookup():
+    code = request.args.get('code', '').strip()
+    if not code:
+        return jsonify({'found': False, 'message': 'code is required'}), 400
+    if not code.isdigit() or not (6 <= len(code) <= 14):
+        return jsonify({'found': False, 'message': 'Invalid barcode'}), 400
+    try:
+        url = f'https://world.openfoodfacts.org/api/v2/product/{code}.json'
+        req = urllib.request.Request(url, headers={'User-Agent': 'NutriTrack/1.0'})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+        if data.get('status') != 1:
+            return jsonify({'found': False, 'message': 'Product not found'})
+        product = data.get('product', {})
+        name = product.get('product_name', '').strip()
+        if not name:
+            return jsonify({'found': False, 'message': 'Product has no name'})
+        nutriments = product.get('nutriments', {})
+        protein = nutriments.get('proteins_100g')
+        fat = nutriments.get('fat_100g')
+        carbs = nutriments.get('carbohydrates_100g')
+        if protein is None or fat is None or carbs is None:
+            return jsonify({'found': False, 'message': 'Incomplete nutrition data'})
+        kcal = nutriments.get('energy-kcal_100g')
+        if kcal is None:
+            energy_kj = nutriments.get('energy_100g')
+            kcal = round(energy_kj / 4.184, 1) if energy_kj is not None else round(
+                float(protein) * 4 + float(fat) * 9 + float(carbs) * 4, 1
+            )
+        return jsonify({
+            'found': True,
+            'name': name,
+            'protein': round(float(protein), 1),
+            'fat': round(float(fat), 1),
+            'carbs': round(float(carbs), 1),
+            'calories': round(float(kcal), 1),
+            'barcode': code,
+        })
+    except Exception:
+        return jsonify({'found': False, 'message': 'Lookup failed'})
 
 
 @foods_bp.route('', methods=['GET'])

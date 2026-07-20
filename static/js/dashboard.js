@@ -313,6 +313,24 @@
   closeModalBtn.addEventListener('click',closeModal);
   cancelEntryBtn.addEventListener('click',closeModal);
 
+  var scanBarcodeBtn = document.getElementById('scan-barcode-btn');
+  if(scanBarcodeBtn) scanBarcodeBtn.addEventListener('click',function(){
+    openBarcodeScanner(function(food){
+      pendingMealType=null;
+      openModal();
+      prefillFromFood({
+        food_name: food.name,
+        name: food.name,
+        protein: food.protein,
+        fat: food.fat,
+        carbs: food.carbs,
+        calories: food.calories,
+        default_serving: 100,
+        serving_unit: 'g',
+      });
+    });
+  });
+
   function prefillFromFood(food) {
     foodNameInput.value=food.food_name??food.name??'';
     document.getElementById('entry-protein').value=food.protein??'';

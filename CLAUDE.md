@@ -28,12 +28,16 @@ To enable login, ensure `.env` contains `AUTH_ENABLED=true`. To skip login set i
 | Auth | Session-based, gated by `AUTH_ENABLED` env var |
 | Testing | pytest |
 | Deploy | Docker + gunicorn, CI via GitHub Actions |
+| Chat / NLP | spaCy en_core_web_sm + rapidfuzz (offline), Anthropic Claude Haiku (optional) |
 
 ## Project Structure
 
 ```
-app.py                  → Flask app factory (create_app), blueprint registration, auto-seed
+app.py                  → Flask app factory (create_app), blueprint registration, auto-seed, _patch_name_tr
 config.py               → Environment config (reads .env via python-dotenv)
+local_model.py          → Offline NLP food parser: spaCy en_core_web_sm + rapidfuzz
+ai.py                   → Supporting AI utilities for chat
+seed_data/add_name_tr.py → Script that wrote Turkish names into foods.csv (one-shot, not runtime)
 models/
   __init__.py           → db = SQLAlchemy(), imports all models
   food_entry.py         → FoodEntry (per-day log rows)
@@ -50,7 +54,8 @@ routes/
   foods.py              → /api/foods CRUD + clone
   export.py             → /api/export/csv
   meal_templates.py     → /api/meal-templates CRUD + /<id>/log
-  pages.py              → HTML page routes (/, /history, /foods, /meals, /settings)
+  chat.py               → /api/chat, /api/chat/status — NLP pipeline, Anthropic fallback
+  pages.py              → HTML page routes (/, /history, /foods, /meals, /meals, /chat, /settings)
 seed_data/
   seed.py               → USDA food CSV seeder (flask seed or auto on first run)
   meals.py              → Meal/dish seeder (seed_meals(), runs if no meal rows exist)
@@ -61,6 +66,9 @@ static/
   js/history.js         → History page (date picker, trends chart)
   js/foods.js           → My Foods page (custom food CRUD)
   js/meal_templates.js  → Meal Templates page (CRUD + editable item rows)
+  js/chat.js            → Chat page (history, send, error recovery, user API key)
+  js/settings.js        → Settings (targets, TDEE calculator, Anthropic API key management)
+  js/i18n.js            → EN/TR translation dictionary + Lang.get()/t() helpers
 templates/
   base.html             → Layout, nav (Dashboard/History/My Foods/Meals/Settings), Chart.js CDN
   dashboard.html        → Summary cards, macro donut, quick-add recents, template chips, entry list
@@ -90,6 +98,9 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
 - **Config via environment** — `config.py` reads `.env` with sensible defaults
 - **No raw SQL** — all queries through SQLAlchemy ORM (SQLite + PostgreSQL portable)
 - **Auth gated by env var** — `AUTH_ENABLED=false` (default) skips login entirely for local use
+- **Persistent sessions** — `session.permanent = True` + `PERMANENT_SESSION_LIFETIME = timedelta(days=30)` — users stay logged in 30 days
+- **Offline-first chat** — spaCy + rapidfuzz pipeline works with zero API keys; Anthropic is optional upgrade
+- **Turkish i18n** — `name_tr` on `SavedFood`, `_patch_name_tr()` back-fills on startup, `i18n.js` for UI strings
 
 ## Key Patterns
 
@@ -118,8 +129,12 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
   Wrap in try/except — silently skip if column already exists.
 - `saved_food.source`: `'usda'` (read-only seed) or `'custom'` (user-created)
 - `saved_food.food_type`: `'ingredient'` or `'meal'`
+- `saved_food.name_tr`: Turkish name (all 751 USDA foods populated)
+- `saved_food.g_per_unit`: grams per piece/slice/serving — used to scale macros on unit change
+- `saved_food.valid_units`: JSON string — whitelist of allowed units for this food
 - Daily targets use `effective_from` date so history is preserved when targets change
 - USDA foods cannot be edited/deleted; users can clone them
+- **New columns pattern**: add to `_migrate_add_columns()` in `app.py`. Data backfills go in a `_patch_*()` function also called from `create_app()`. Never rely on `db.create_all()` for new columns on existing tables.
 
 ### Frontend JS
 - `app.js` exposes globals: `api(url, opts)`, `showToast(msg, type)`, `debounce(fn, ms)`
@@ -127,6 +142,16 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
 - Each page has its own JS file loaded via `{% block scripts %}`
 - No frameworks — plain DOM manipulation, event delegation where possible
 - Autocomplete pattern: debounced input → `GET /api/foods?q=...` → `<ul role="listbox">` dropdown
+
+### Chat / AI Pipeline
+
+- `GET /api/chat/status` — returns `{backend, model, ready}`. Backend values: `'anthropic'`, `'local-nlp'`, `'fallback'`
+- `POST /api/chat` — body: `{messages, lang, api_key}`. `api_key` is user's personal Anthropic key from localStorage
+- Priority: (1) Anthropic Haiku if any key available, (2) `local_model.parse_and_match()` (spaCy + rapidfuzz), (3) regex fallback
+- `_anthropic_key()` checks `os.environ['ANTHROPIC_API_KEY']` first, then `.env` file
+- Anthropic strict alternating roles: backend merges consecutive same-role messages; frontend pops user message from history on error
+- User API key stored in `localStorage` as `nt_anthropic_key`, sent as `api_key` in POST body, never persisted server-side
+- spaCy model (`en_core_web_sm`) downloaded at Docker build time — adds ~50MB to image
 
 ### Meal Templates
 - Parent: `MealTemplate` (name, meal_type)
@@ -146,6 +171,7 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
 | `DEFAULT_FAT_TARGET` | `65` | Initial macro target (g) |
 | `DEFAULT_CARBS_TARGET` | `250` | Initial macro target (g) |
 | `DEFAULT_CALORIES_TARGET` | `2200` | Initial calorie target (kcal) |
+| `ANTHROPIC_API_KEY` | _(none)_ | Optional — enables Claude Haiku chat backend |
 
 ## Running Tests
 
@@ -186,7 +212,9 @@ For production:
 2. `docker compose up --build`
 3. Run `flask db upgrade` after first deploy
 
-## Known Bugs (see TODO.md)
+## Known Bugs / Pending (see TODO.md)
 
 - Unit dropdown in meal template items does not correctly scale macros on unit change
-- Meal dataset not yet seeded — Meals filter in template search returns empty
+- Meal dataset not yet seeded — Meals filter in template search returns sparse results
+- `valid_units` column exists on `saved_food` but unit dropdown in food search not yet filtered by it
+- `parser.py` in project root — scratch file from a background agent, not integrated

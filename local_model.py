@@ -63,11 +63,11 @@ _MEAL_MAP = {
     'lunch': 'Lunch', 'noon': 'Lunch', 'midday': 'Lunch',
     'dinner': 'Dinner', 'supper': 'Dinner', 'evening': 'Dinner',
     'snack': 'Snack', 'snacking': 'Snack',
-    # Turkish
-    'kahvaltı': 'Breakfast', 'sabah': 'Breakfast',
-    'öğle': 'Lunch', 'öğlen': 'Lunch',
-    'akşam': 'Dinner',
-    'atıştırmalık': 'Snack', 'ara öğün': 'Snack',
+    # Turkish — both with diacritics and ASCII-folded versions
+    'kahvaltı': 'Breakfast', 'kahvalti': 'Breakfast', 'sabah': 'Breakfast',
+    'öğle': 'Lunch', 'ogle': 'Lunch', 'öğlen': 'Lunch', 'oglen': 'Lunch',
+    'akşam': 'Dinner', 'aksam': 'Dinner',
+    'atıştırmalık': 'Snack', 'atistirmalik': 'Snack',
 }
 
 # Words that are never food names
@@ -181,8 +181,11 @@ def _mentions_spacy(text: str, nlp) -> list[dict]:
             try:
                 qty = _parse_number(tok.text)
             except ValueError:
-                i += 1
-                continue
+                # spaCy marks word-numbers ("two", "half") as like_num
+                qty = _WORD_NUMBERS.get(tok.lower_)
+                if qty is None:
+                    i += 1
+                    continue
         elif tok.lower_ in _WORD_NUMBERS:
             qty = _WORD_NUMBERS[tok.lower_]
         else:
@@ -237,13 +240,16 @@ def _mentions_spacy(text: str, nlp) -> list[dict]:
         words = [w for w in words if w not in _SKIP and not w.isnumeric() and len(w) > 1]
         if not words:
             continue
-        food_text = ' '.join(words)
-        # Skip if all words already covered or if clearly not a food
-        if all(w in covered_words for w in words):
+        # Strip already-covered leading words so "banana and greek yogurt" chunk
+        # yields a second mention "greek yogurt" rather than being discarded wholesale
+        uncovered = [w for w in words if w not in covered_words]
+        if not uncovered:
             continue
+        food_text = ' '.join(uncovered)
         if any(bad in food_text for bad in ('today', 'yesterday', 'morning', 'meal', 'day')):
             continue
         results.append({'food_text': food_text, 'quantity': None, 'unit': None})
+        covered_words.update(uncovered)
 
     return results
 
@@ -266,25 +272,52 @@ def extract_mentions(text: str) -> list[dict]:
 
 def fuzzy_match(food_text: str, db_names: list[str], threshold: int = 55) -> tuple[int, float]:
     """
-    Match food_text against db_names using rapidfuzz token_set_ratio.
-    Returns (index, score) or (-1, 0) if below threshold.
-    token_set_ratio handles word-order differences and partial names well.
+    Match food_text against db_names.
+    Uses token_ratio (not token_set_ratio) to avoid short queries scoring 100
+    against long DB entries. Applies a length-penalty so "süt" doesn't beat
+    "Yulaf sütü" over plain "Süt, tam yağlı".
     """
     if not food_text or not db_names:
         return -1, 0.0
     try:
         from rapidfuzz import process as rfp, fuzz as rff
-        result = rfp.extractOne(
-            food_text, db_names,
-            scorer=rff.token_set_ratio,
-            score_cutoff=threshold,
-        )
-        if result is None:
+        query = food_text.strip().lower()
+        query_words = set(query.split())
+        best_idx, best_score = -1, 0.0
+
+        # Pre-compute first segment of each DB name (before first comma)
+        # "egg, whole, boiled" → "egg" | "egg salad" → "egg salad"
+        db_first_segs = [n.split(',')[0].strip() for n in db_names]
+
+        for idx, name in enumerate(db_names):
+            name_words = set(name.replace(',', '').split())
+            # Base: WRatio against full name
+            score = rff.WRatio(query, name)
+            # Boost: strong match against first segment (most informative part)
+            seg_score = rff.WRatio(query, db_first_segs[idx])
+            if seg_score > score:
+                score = score * 0.4 + seg_score * 0.6
+            # Coverage bonus: all query words found in DB name
+            if query_words and query_words.issubset(name_words):
+                score = min(100, score + 6)
+            # Specificity penalty: if the query has FEWER words than the DB name's
+            # first segment, penalize longer/more-specific entries.
+            # e.g. query "milk" (1w) vs first_seg "oat milk" (2w) vs "milk" (1w)
+            # → "oat milk" gets penalised; bare "milk" does not.
+            first_seg_words = set(db_first_segs[idx].split())
+            extra_words = len(first_seg_words) - len(query_words)
+            if extra_words > 0:
+                score *= max(0.6, 1.0 - 0.12 * extra_words)
+            # Tie-break: prefer shorter DB names (Egg > Egg salad, Milk > Oat milk)
+            cur_len = len(db_names[best_idx]) if best_idx >= 0 else 9999
+            if score > best_score or (abs(score - best_score) < 3 and len(name) < cur_len):
+                best_score = score
+                best_idx = idx
+
+        if best_score < threshold:
             return -1, 0.0
-        _matched, score, idx = result
-        return idx, float(score)
+        return best_idx, best_score
     except ImportError:
-        # No rapidfuzz — plain substring fallback
         ft = food_text.lower()
         for idx, name in enumerate(db_names):
             nl = name.lower()
@@ -305,12 +338,13 @@ def detect_meal(text: str) -> str:
     return 'Snack'
 
 
-def parse_and_match(text: str, food_db: list[dict]) -> list[dict]:
+def parse_and_match(text: str, food_db: list[dict], lang: str = 'en') -> list[dict]:
     """
     Full pipeline: natural language → matched food entries with scaled macros.
 
     food_db items must have:
       id, name, protein, fat, carbs, calories, default_serving, serving_unit
+    Optional: name_tr (Turkish name, used when lang='tr')
 
     Returns list of dicts compatible with FoodEntry / chat _execute_log schema.
     """
@@ -322,18 +356,21 @@ def parse_and_match(text: str, food_db: list[dict]) -> list[dict]:
     if not mentions:
         return []
 
-    db_names = [f['name'].lower() for f in food_db]
-    # Also build lemmatized first-word index for better matching
-    # e.g. "Egg, whole, cooked" → "egg" as primary key
+    # Build name lists — prefer Turkish names when lang='tr' and name_tr exists
+    if lang == 'tr':
+        db_names = [(f.get('name_tr') or f['name']).lower() for f in food_db]
+    else:
+        db_names = [f['name'].lower() for f in food_db]
+
+    # First-word index: "Egg, whole, cooked" → "egg", "Yumurta, tam" → "yumurta"
     db_first_words = [n.split(',')[0].split()[0] for n in db_names]
+
     results = []
     seen_ids: set = set()
 
     for mention in mentions:
         idx, score = fuzzy_match(mention['food_text'], db_names)
-        # If full-name match is weak, try matching just the first word of each DB entry
-        # e.g. "scrambled egg" weak against "Egg, whole, cooked" full name,
-        # but strong against first-word "egg"
+        # If full-name match is weak, try just the first word of each DB entry
         if score < 70:
             idx2, score2 = fuzzy_match(mention['food_text'], db_first_words, threshold=65)
             if score2 > score:

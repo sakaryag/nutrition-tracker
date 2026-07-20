@@ -442,15 +442,20 @@ def _rule_based_chat(last_msg: str, uid, lang: str, food_tokens: list) -> dict:
             rows = _SF.query.filter_by(is_archived=False).limit(300).all()
             for r in rows:
                 candidate_map[r.id] = {
-                    'id': r.id, 'name': r.name,
+                    'id': r.id, 'name': r.name, 'name_tr': r.name_tr,
                     'protein': r.protein, 'fat': r.fat,
                     'carbs': r.carbs, 'calories': r.calories,
                     'default_serving': r.default_serving,
                     'serving_unit': r.serving_unit,
                 }
+        else:
+            # Ensure name_tr is included for Turkish matching
+            for fid, f in candidate_map.items():
+                if 'name_tr' not in f:
+                    f['name_tr'] = None
 
         food_db = list(candidate_map.values())
-        results = _nlp_parse(last_msg, food_db)
+        results = _nlp_parse(last_msg, food_db, lang=lang)
 
         if results:
             names = [e['food_name'] for e in results]

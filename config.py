@@ -14,6 +14,12 @@ class Config:
         _db_url = 'postgresql://' + _db_url[len('postgres://'):]
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,       # test connection before use — drops stale SSL connections gracefully
+        'pool_recycle': 280,         # recycle connections every 4m40s (Railway idle timeout is ~5min)
+        'pool_size': 5,
+        'max_overflow': 2,
+    }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     DEFAULT_PROTEIN_TARGET = float(os.getenv('DEFAULT_PROTEIN_TARGET', '150'))

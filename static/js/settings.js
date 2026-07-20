@@ -166,4 +166,43 @@
   })();
 
   init();
+
+  // ----------------------------------------------------------------
+  // API Key management
+  // ----------------------------------------------------------------
+  (function () {
+    const keyInput    = document.getElementById('anthropic-api-key');
+    const saveKeyBtn  = document.getElementById('save-api-key-btn');
+    const clearKeyBtn = document.getElementById('clear-api-key-btn');
+    const keyStatus   = document.getElementById('api-key-status');
+
+    function updateKeyStatus() {
+      const key = localStorage.getItem('nt_anthropic_key') || '';
+      if (key) {
+        keyStatus.textContent = '✓ Key saved (ends in …' + key.slice(-6) + ')';
+        keyStatus.style.color = 'var(--color-success)';
+        keyInput.value = '';
+        keyInput.placeholder = '••••••••••••••••••••';
+      } else {
+        keyStatus.textContent = 'No key saved — using server key or smart search mode.';
+        keyStatus.style.color = 'var(--color-text-muted)';
+        keyInput.placeholder = 'sk-ant-api03-...';
+      }
+    }
+
+    saveKeyBtn.addEventListener('click', function () {
+      const val = keyInput.value.trim();
+      if (!val) { keyStatus.textContent = 'Please enter a key first.'; return; }
+      if (!val.startsWith('sk-ant-')) { keyStatus.textContent = 'Key should start with sk-ant-'; keyStatus.style.color = 'var(--color-danger)'; return; }
+      localStorage.setItem('nt_anthropic_key', val);
+      updateKeyStatus();
+    });
+
+    clearKeyBtn.addEventListener('click', function () {
+      localStorage.removeItem('nt_anthropic_key');
+      updateKeyStatus();
+    });
+
+    updateKeyStatus();
+  })();
 })();

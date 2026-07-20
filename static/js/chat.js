@@ -18,21 +18,23 @@
   // Status check
   // ----------------------------------------------------------------
   async function checkStatus() {
+    const userKey = localStorage.getItem('nt_anthropic_key') || '';
     try {
-      const data = await api('/api/chat/status');
+      const data = await api('/api/chat/status?has_user_key=' + (userKey ? '1' : '0'));
       const ready = data.ready;
       statusBadge.classList.toggle('ready',   ready);
       statusBadge.classList.toggle('offline', !ready);
       if (ready) {
         if (data.backend === 'anthropic') {
-          statusLabel.textContent = 'Anthropic · ' + (data.model || '');
+          const src = userKey && !data.server_key ? ' (your key)' : '';
+          statusLabel.textContent = 'Anthropic · ' + (data.model || '') + src;
         } else if (data.backend === 'ollama') {
           statusLabel.textContent = 'Ollama · ' + (data.model || '');
         } else {
           statusLabel.textContent = 'Smart search mode';
         }
       } else {
-        statusLabel.textContent = 'Offline — run: ollama pull ' + (data.model || 'llama3.1');
+        statusLabel.textContent = 'No AI key — using smart search mode';
       }
     } catch (_) {
       statusBadge.classList.add('offline');
@@ -103,12 +105,13 @@
     showTyping();
 
     const lang = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
+    const userKey = localStorage.getItem('nt_anthropic_key') || '';
 
     try {
       const data = await api('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, lang }),
+        body: JSON.stringify({ messages: history, lang, api_key: userKey }),
       });
 
       hideTyping();

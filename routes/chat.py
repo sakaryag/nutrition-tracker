@@ -329,8 +329,9 @@ def _call_ollama(messages, system_prompt):
         raise RuntimeError(f'Ollama error: {e}')
 
 
-def _call_anthropic(messages, system_prompt):
+def _call_anthropic(messages, system_prompt, api_key: str = ''):
     import urllib.request
+    key = api_key or _anthropic_key()
     formatted = []
     for m in messages:
         formatted.append({'role': m['role'], 'content': m['content']})
@@ -345,7 +346,7 @@ def _call_anthropic(messages, system_prompt):
         data=payload,
         headers={
             'Content-Type': 'application/json',
-            'x-api-key': _anthropic_key(),
+            'x-api-key': key,
             'anthropic-version': '2023-06-01',
         },
         method='POST',
@@ -358,9 +359,10 @@ def _call_anthropic(messages, system_prompt):
         raise RuntimeError(f'Anthropic error: {e}')
 
 
-def _get_reply(messages, system_prompt):
-    if _anthropic_key():
-        return _call_anthropic(messages, system_prompt)
+def _get_reply(messages, system_prompt, user_key: str = ''):
+    key = user_key.strip() or _anthropic_key()
+    if key:
+        return _call_anthropic(messages, system_prompt, api_key=key)
     if _ollama_available():
         return _call_ollama(messages, system_prompt)
     return None  # signal: use rule-based fallback
@@ -514,6 +516,7 @@ def chat():
     messages   = data.get('messages', [])   # [{role, content}, ...]
     lang       = data.get('lang', 'en')
     uid        = current_user_id()
+    user_key   = data.get('api_key', '').strip()
 
     if not messages:
         return jsonify({'error': 'messages required'}), 400
@@ -523,7 +526,7 @@ def chat():
     system_prompt = _build_system(uid, lang, food_tokens)
 
     try:
-        raw_reply = _get_reply(messages, system_prompt)
+        raw_reply = _get_reply(messages, system_prompt, user_key=user_key)
     except RuntimeError as e:
         return jsonify({'error': str(e), 'reply': str(e), 'logged': []}), 502
 
@@ -554,7 +557,8 @@ def chat():
 @chat_bp.route('/status', methods=['GET'])
 def status():
     """Check which LLM backend is available."""
-    if _anthropic_key():
+    has_user_key = request.args.get('has_user_key') == '1'
+    if has_user_key or _anthropic_key():
         return jsonify({'backend': 'anthropic', 'model': 'claude-haiku-4-5-20251001', 'ready': True})
     import urllib.request
     try:

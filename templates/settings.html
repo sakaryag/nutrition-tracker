@@ -119,6 +119,20 @@
     </div>
   </article>
 
+  <article class="settings-card" style="margin-bottom:1.5rem;">
+    <h2 data-i18n="settings.chatTitle">Chat / AI Assistant</h2>
+    <p class="settings-description" data-i18n="settings.chatDesc">Add your own Anthropic API key to enable the AI chat assistant. Your key is stored only in this browser and never sent to our servers except to make chat requests.</p>
+    <div class="form-group" style="max-width:480px;">
+      <label for="anthropic-api-key" data-i18n="settings.apiKey">Anthropic API Key</label>
+      <div style="display:flex;gap:0.5rem;">
+        <input type="password" id="anthropic-api-key" class="form-control" placeholder="sk-ant-api03-..." autocomplete="off" />
+        <button type="button" class="btn btn-primary" id="save-api-key-btn" data-i18n="settings.saveKey">Save</button>
+        <button type="button" class="btn btn-secondary" id="clear-api-key-btn" data-i18n="settings.clearKey">Clear</button>
+      </div>
+      <p class="form-hint" id="api-key-status" style="margin-top:0.4rem;"></p>
+    </div>
+  </article>
+
   <article class="settings-card">
     <h2 data-i18n="settings.dailyTargets">Daily Targets</h2>
     <p class="settings-description" data-i18n="settings.targetsDesc">Set your daily macro and calorie goals. These take effect immediately for today and all future dates.</p>

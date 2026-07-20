@@ -48,7 +48,12 @@ OLLAMA_URL   = os.getenv('OLLAMA_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.1')
 
 def _anthropic_key() -> str:
-    """Read ANTHROPIC_API_KEY from .env file directly, ignoring OS environment."""
+    """Read ANTHROPIC_API_KEY from environment or .env file."""
+    # Check OS environment first (works on Railway, Docker, etc.)
+    key = os.environ.get('ANTHROPIC_API_KEY', '').strip()
+    if key:
+        return key
+    # Fallback: read from .env file for local dev
     env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
     try:
         with open(os.path.normpath(env_path), encoding='utf-8') as f:
@@ -108,11 +113,21 @@ def _search_foods(query: str, lang: str = 'en', limit: int = 4):
         filters.append(SavedFood.name.ilike(f'%{query}%'))
     if SavedFood.name_tr is not None:
         filters.append(SavedFood.name_tr.ilike(f'%{query}%'))
+
+    from sqlalchemy import case as sa_case
+    name_col = SavedFood.name_tr if lang == 'tr' else SavedFood.name
+    relevance = sa_case(
+        (SavedFood.name.ilike(en_query),          0),  # exact match
+        (SavedFood.name.ilike(f'{en_query} %'),   1),  # starts with
+        (SavedFood.name.ilike(f'{en_query},%'),   1),
+        (SavedFood.name.ilike(f'% {en_query} %'), 2),  # whole word in middle
+        else_=3,
+    )
     foods = (
         SavedFood.query
         .filter_by(is_archived=False)
         .filter(or_(*filters))
-        .order_by(SavedFood.name)
+        .order_by(relevance, SavedFood.name)
         .limit(limit)
         .all()
     )

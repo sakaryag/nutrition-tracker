@@ -101,7 +101,7 @@ def _migrate_add_columns(app):
     new columns in create_all on existing tables). Each ALTER is wrapped separately
     so one failure doesn't block the others."""
     migrations = [
-        'ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT "ingredient"',
+        "ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
         'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
         'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
         'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',

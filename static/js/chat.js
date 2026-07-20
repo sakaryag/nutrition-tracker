@@ -28,6 +28,8 @@
         if (data.backend === 'anthropic') {
           const src = userKey && !data.server_key ? ' (your key)' : '';
           statusLabel.textContent = 'Anthropic · ' + (data.model || '') + src;
+        } else if (data.backend === 'local-nlp') {
+          statusLabel.textContent = 'Local NLP · ' + (data.model || 'spaCy + rapidfuzz');
         } else if (data.backend === 'ollama') {
           statusLabel.textContent = 'Ollama · ' + (data.model || '');
         } else {

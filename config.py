@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -14,6 +15,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
+    PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     DEFAULT_PROTEIN_TARGET = float(os.getenv('DEFAULT_PROTEIN_TARGET', '150'))
     DEFAULT_FAT_TARGET = float(os.getenv('DEFAULT_FAT_TARGET', '65'))
     DEFAULT_CARBS_TARGET = float(os.getenv('DEFAULT_CARBS_TARGET', '250'))

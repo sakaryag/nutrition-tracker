@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import wraps
 from flask import Blueprint, request, redirect, url_for, render_template, session, jsonify, current_app
 from models import db
@@ -38,6 +39,7 @@ def login():
     user = User.query.filter_by(username=username).first()
     if user is None or not user.check_pw(password):
         return render_template('login.html', error='Invalid username or password.')
+    session.permanent = True
     session['user_id'] = user.id
     session['username'] = user.username
     return redirect(url_for('pages.dashboard'))
@@ -65,6 +67,7 @@ def register():
     user.set_pw(password)
     db.session.add(user)
     db.session.commit()
+    session.permanent = True
     session['user_id'] = user.id
     session['username'] = user.username
     return redirect(url_for('pages.dashboard'))

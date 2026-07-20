@@ -59,7 +59,10 @@ def _create_all_if_needed(app):
         existing_tables = []
 
     if not existing_tables:
-        db.create_all()
+        try:
+            db.create_all()
+        except Exception:
+            pass  # another worker already created the tables
 
 
 def _backup_db(app):

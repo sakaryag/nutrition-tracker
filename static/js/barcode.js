@@ -60,27 +60,31 @@
     card.appendChild(actions);
 
     overlay.appendChild(card);
-    return { overlay: overlay, video: video, statusEl: statusEl, errorEl: errorEl, cancelBtn: cancelBtn };
+    return { overlay: overlay, card: card, video: video, statusEl: statusEl, errorEl: errorEl, cancelBtn: cancelBtn };
   }
 
   function stopTracks(stream) {
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
   }
 
-  // Load ZXing decoder from CDN (only when BarcodeDetector not available)
-  var _zxingCallbacks = [];
+  var _zxingReady = false;
+  var _zxingCbs = [];
   function loadZXing(cb) {
-    if (typeof ZXing !== 'undefined') { cb(null); return; }
-    _zxingCallbacks.push(cb);
-    if (_zxingCallbacks.length > 1) return;
+    if (_zxingReady) { cb(null); return; }
+    _zxingCbs.push(cb);
+    if (_zxingCbs.length > 1) return;
     var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js';
-    s.onload = function () { _zxingCallbacks.splice(0).forEach(function (fn) { fn(null); }); };
-    s.onerror = function () { _zxingCallbacks.splice(0).forEach(function (fn) { fn(new Error('load failed')); }); };
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js';
+    s.onload = function () {
+      _zxingReady = true;
+      _zxingCbs.splice(0).forEach(function (fn) { fn(null); });
+    };
+    s.onerror = function () {
+      _zxingCbs.splice(0).forEach(function (fn) { fn(new Error('load failed')); });
+    };
     document.head.appendChild(s);
   }
 
-  // Show manual barcode input inside the card
   function showManualInput(card, statusEl, errorEl, lookup) {
     statusEl.textContent = 'Enter the barcode number from the product.';
     var row = document.createElement('div');
@@ -94,13 +98,12 @@
     btn.textContent = 'Look up';
     row.appendChild(input);
     row.appendChild(btn);
-    // Insert before statusEl
     card.insertBefore(row, statusEl);
     function doLookup() {
       var code = input.value.trim();
       if (!code) return;
       btn.disabled = true;
-      lookup(code, statusEl, errorEl, function () { btn.disabled = false; });
+      lookup(code, function () { btn.disabled = false; });
     }
     btn.addEventListener('click', doLookup);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
@@ -109,20 +112,18 @@
 
   window.openBarcodeScanner = function (onResult) {
     injectStyles();
-
-    // Always try camera; only fall back to text if no camera API at all
-    var hasCamera = typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    var hasCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     var els = buildModal();
     document.body.appendChild(els.overlay);
 
     var stream = null;
-    var rafId = null;
+    var zxingReader = null;
     var closed = false;
 
     function close() {
       if (closed) return;
       closed = true;
-      if (rafId) cancelAnimationFrame(rafId);
+      if (zxingReader) { try { zxingReader.reset(); } catch (_) {} zxingReader = null; }
       stopTracks(stream);
       stream = null;
       document.removeEventListener('keydown', onKeyDown);
@@ -133,137 +134,115 @@
     document.addEventListener('keydown', onKeyDown);
     els.cancelBtn.addEventListener('click', close);
 
-    function lookup(code, statusEl, errorEl, resetFn) {
-      statusEl.textContent = 'Looking up…';
-      errorEl.textContent = '';
+    function lookup(code, resetFn) {
+      els.statusEl.textContent = 'Looking up…';
+      els.errorEl.textContent = '';
       fetch('/api/foods/barcode?code=' + encodeURIComponent(code))
         .then(function (r) { return r.json(); })
         .then(function (data) {
           if (data.found) { close(); onResult(data); }
           else {
-            errorEl.textContent = data.message || 'Product not found.';
-            statusEl.textContent = '';
+            els.errorEl.textContent = data.message || 'Product not found.';
+            els.statusEl.textContent = '';
             if (resetFn) resetFn();
           }
         })
         .catch(function () {
-          errorEl.textContent = 'Lookup failed. Check connection.';
-          statusEl.textContent = '';
+          els.errorEl.textContent = 'Lookup failed. Check connection.';
+          els.statusEl.textContent = '';
           if (resetFn) resetFn();
         });
     }
 
     if (!hasCamera) {
       els.video.hidden = true;
-      showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
+      showManualInput(els.card, els.statusEl, els.errorEl, lookup);
       return;
+    }
+
+    function showRetry() {
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-secondary';
+      btn.textContent = 'Try again';
+      btn.style.marginTop = '.5rem';
+      btn.addEventListener('click', function () {
+        btn.remove();
+        els.errorEl.textContent = '';
+        startScanning();
+      });
+      els.errorEl.parentNode.insertBefore(btn, els.errorEl.nextSibling);
     }
 
     function handleCode(code) {
       els.statusEl.textContent = 'Found: ' + code + '. Looking up…';
       stopTracks(stream);
       stream = null;
-      lookup(code, els.statusEl, els.errorEl, function () {
-        var retryBtn = document.createElement('button');
-        retryBtn.className = 'btn btn-secondary';
-        retryBtn.textContent = 'Try again';
-        retryBtn.style.marginTop = '.5rem';
-        retryBtn.addEventListener('click', function () {
-          retryBtn.remove();
-          els.errorEl.textContent = '';
-          startCamera();
-        });
-        els.errorEl.parentNode.insertBefore(retryBtn, els.errorEl.nextSibling);
-      });
+      lookup(code, showRetry);
     }
 
-    // Native BarcodeDetector scan loop (Chrome Android, Safari 17.4+)
-    function scanWithNative() {
-      var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-      var scanning = false;
-      els.statusEl.textContent = 'Point camera at barcode…';
-      (function loop() {
-        if (closed) return;
-        rafId = requestAnimationFrame(function () {
-          if (closed || scanning) { if (!closed) loop(); return; }
-          if (!els.video.videoWidth) { loop(); return; }
-          scanning = true;
-          detector.detect(els.video)
-            .then(function (barcodes) {
-              scanning = false;
-              if (closed) return;
-              if (!barcodes.length) { loop(); return; }
-              handleCode(barcodes[0].rawValue);
-            })
-            .catch(function () { scanning = false; if (!closed) loop(); });
-        });
-      })();
-    }
-
-    // ZXing canvas scan loop (all other browsers)
-    function scanWithZXing() {
-      var reader = new ZXing.MultiFormatReader();
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d', { willReadFrequently: true });
-      els.statusEl.textContent = 'Point camera at barcode…';
-      (function loop() {
-        if (closed) return;
-        rafId = requestAnimationFrame(function () {
-          if (closed) return;
-          if (!els.video.videoWidth) { loop(); return; }
-          canvas.width = els.video.videoWidth;
-          canvas.height = els.video.videoHeight;
-          ctx.drawImage(els.video, 0, 0);
-          try {
-            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            var lum = new ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
-            var bmp = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));
-            var result = reader.decode(bmp);
-            handleCode(result.getText());
-          } catch (e) {
-            loop();
-          }
-        });
-      })();
-    }
-
-    function startCamera() {
+    function startScanning() {
       els.statusEl.textContent = 'Starting camera…';
       els.video.hidden = false;
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
         .then(function (s) {
           if (closed) { stopTracks(s); return; }
           stream = s;
           els.video.srcObject = stream;
           els.video.play();
+          els.statusEl.textContent = 'Point camera at barcode…';
+
           if (typeof BarcodeDetector !== 'undefined') {
-            scanWithNative();
+            // Native API (Chrome Android, Safari 17.4+)
+            var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+            (function loop() {
+              if (closed) return;
+              requestAnimationFrame(function () {
+                if (closed) return;
+                if (!els.video.videoWidth) { loop(); return; }
+                detector.detect(els.video)
+                  .then(function (barcodes) {
+                    if (closed) return;
+                    if (!barcodes.length) { loop(); return; }
+                    handleCode(barcodes[0].rawValue);
+                  })
+                  .catch(function () { if (!closed) loop(); });
+              });
+            })();
           } else {
-            scanWithZXing();
+            // ZXing BrowserMultiFormatReader (all other browsers)
+            zxingReader = new ZXingBrowser.BrowserMultiFormatReader();
+            zxingReader.decodeFromStream(stream, els.video, function (result, err) {
+              if (closed) return;
+              if (result) {
+                zxingReader.reset();
+                zxingReader = null;
+                handleCode(result.getText());
+              }
+              // err is NotFoundException on every empty frame — normal, ignore
+            });
           }
         })
         .catch(function () {
           if (closed) return;
           els.video.hidden = true;
           els.errorEl.textContent = 'Camera access denied. Enter barcode manually.';
-          showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
+          showManualInput(els.card, els.statusEl, els.errorEl, lookup);
         });
     }
 
-    // When BarcodeDetector not native, load ZXing first then open camera
     if (typeof BarcodeDetector !== 'undefined') {
-      startCamera();
+      startScanning();
     } else {
-      els.statusEl.textContent = 'Loading scanner…';
       loadZXing(function (err) {
         if (closed) return;
         if (err) {
           els.video.hidden = true;
-          els.errorEl.textContent = 'Scanner library failed to load. Enter barcode manually.';
-          showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
+          els.errorEl.textContent = 'Scanner library failed to load.';
+          showManualInput(els.card, els.statusEl, els.errorEl, lookup);
           return;
         }
-        startCamera();
+        startScanning();
       });
     }
   };

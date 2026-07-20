@@ -106,25 +106,38 @@ def _migrate_add_columns(app):
     """Add columns that may not exist on older DBs. Each ALTER runs in its own
     transaction so a failure (column already exists) doesn't abort the others.
     This is critical for PostgreSQL which aborts the whole transaction on error."""
-    migrations = [
-        "ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
-        'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
-        'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
-        'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
-        'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
-        'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
-        'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
-        'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
-    ]
+    is_pg = 'postgresql' in app.config.get('SQLALCHEMY_DATABASE_URI', '')
+    if is_pg:
+        # PostgreSQL: IF NOT EXISTS is a no-op — no error, no log noise
+        migrations = [
+            "ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
+            'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS name_tr VARCHAR(300)',
+            'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS g_per_unit FLOAT',
+            'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS valid_units VARCHAR(500)',
+            'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS template_id INTEGER',
+            'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
+        ]
+    else:
+        # SQLite does not support IF NOT EXISTS on ALTER TABLE — use try/except
+        migrations = [
+            "ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
+            'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
+            'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
+            'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
+            'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
+            'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+        ]
     for sql in migrations:
-        # Each statement gets its own connection+transaction so PostgreSQL
-        # transaction-abort on duplicate column doesn't cascade to the rest.
         with db.engine.connect() as conn:
             try:
                 conn.execute(text(sql))
                 conn.commit()
             except Exception:
-                conn.rollback()  # column already exists or other benign error
+                conn.rollback()
 
 
 def _register_blueprints(app):

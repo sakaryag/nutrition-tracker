@@ -122,11 +122,13 @@
       if (data.logged && data.logged.length > 0) {
         loggedText.textContent = 'Logged: ' + data.logged.join(', ');
         loggedBanner.hidden = false;
-        // Auto-hide after 6s
         setTimeout(() => { loggedBanner.hidden = true; }, 6000);
       }
     } catch (err) {
       hideTyping();
+      // Remove the user message from history so the next send doesn't
+      // create consecutive user messages (Anthropic rejects that with 400)
+      history.pop();
       appendBubble('bot', '<em style="color:var(--color-danger)">' + renderText(String(err)) + '</em>');
     } finally {
       busy = false;

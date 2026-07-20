@@ -332,9 +332,17 @@ def _call_ollama(messages, system_prompt):
 def _call_anthropic(messages, system_prompt, api_key: str = ''):
     import urllib.request
     key = api_key or _anthropic_key()
+    # Anthropic requires strictly alternating user/assistant roles.
+    # Merge consecutive same-role messages to avoid 400 errors.
     formatted = []
     for m in messages:
-        formatted.append({'role': m['role'], 'content': m['content']})
+        if formatted and formatted[-1]['role'] == m['role']:
+            formatted[-1]['content'] += '\n' + m['content']
+        else:
+            formatted.append({'role': m['role'], 'content': m['content']})
+    # Must start with user role
+    if formatted and formatted[0]['role'] != 'user':
+        formatted = formatted[1:]
     payload = json.dumps({
         'model': 'claude-haiku-4-5-20251001',
         'max_tokens': 1024,

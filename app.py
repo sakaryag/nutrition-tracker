@@ -62,7 +62,7 @@ def _create_all_if_needed(app):
         try:
             db.create_all()
         except Exception:
-            pass  # another worker already created the tables
+            pass  # another worker already created the tables, or they exist on persistent volume
 
 
 def _backup_db(app):

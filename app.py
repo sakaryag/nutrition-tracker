@@ -29,6 +29,7 @@ def create_app(config_name=None, test_config=None):
         _create_all_if_needed(app)
         _migrate_add_columns(app)
         _auto_seed(app)
+        _patch_name_tr(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
         _backup_db(app)
@@ -162,6 +163,28 @@ def _auto_seed(app):
             app.logger.info('Database seeded with initial food data.')
         except ImportError:
             pass
+
+
+def _patch_name_tr(app):
+    """Back-fill name_tr for existing USDA foods that have NULL name_tr."""
+    import csv as csv_mod
+    from models.saved_food import SavedFood
+    if not SavedFood.query.filter(SavedFood.source == 'usda', SavedFood.name_tr == None).first():
+        return  # nothing to patch
+    csv_path = os.path.join(os.path.dirname(__file__), 'seed_data', 'foods.csv')
+    if not os.path.exists(csv_path):
+        return
+    with open(csv_path, newline='', encoding='utf-8') as f:
+        rows = {r['usda_fdc_id']: r for r in csv_mod.DictReader(f)}
+    updated = 0
+    for food in SavedFood.query.filter_by(source='usda').all():
+        row = rows.get(str(food.usda_fdc_id))
+        if row and row.get('name_tr') and not food.name_tr:
+            food.name_tr = row['name_tr']
+            updated += 1
+    if updated:
+        db.session.commit()
+        app.logger.info(f'Patched name_tr for {updated} USDA foods.')
 
 
 

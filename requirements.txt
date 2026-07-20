@@ -4,11 +4,11 @@ Flask-Migrate==4.1.0
 python-dotenv==1.1.0
 psycopg2-binary==2.9.10
 gunicorn==23.0.0
-# Local NLP model — smart offline food parsing (no API key needed):
-spacy>=3.7
 rapidfuzz>=3.0
 # Optional — needed for Claude AI chat backend:
 # anthropic>=0.30.0
+# Local NLP model (installed separately in Docker, not needed for tests):
+# spacy>=3.7  →  pip install spacy && python -m spacy download en_core_web_sm
 # Optional — only needed to import Kaggle meal datasets:
 # kagglehub[pandas-datasets]
 # pandas

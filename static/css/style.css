@@ -1288,10 +1288,63 @@ input, select, textarea { font: inherit; }
     display: none;
   }
 
-  /* Prevent .tpl-item-row__macros from overflowing */
+  /* Meal template item rows: stack to 2 lines on mobile */
+  .tpl-item-row {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.6rem 0;
+  }
+  .tpl-item-row__name {
+    flex: 1 1 100%;
+    font-size: 0.95rem;
+  }
+  .tpl-item-row__meta {
+    flex: 1 1 100%;
+  }
   .tpl-item-row__macros {
+    flex: 1 1 100%;
     min-width: 0;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+  }
+  .tpl-item-row__serving {
+    flex: 1 1 calc(50% - 0.5rem);
+    width: auto !important;
+    font-size: 1rem;
+    padding: 0.5rem 0.6rem;
+    min-height: 2.5rem;
+  }
+  .tpl-item-row__unit {
+    flex: 1 1 calc(50% - 0.5rem);
+    width: auto !important;
+    font-size: 1rem;
+    padding: 0.5rem 0.4rem;
+    min-height: 2.5rem;
+  }
+
+  /* Add item search area: full width, bigger tap targets */
+  .tpl-add-item {
+    flex-direction: column;
+  }
+  .tpl-add-item .form-group {
+    width: 100%;
+  }
+  .tpl-add-item .form-control {
+    font-size: 1rem;
+    padding: 0.6rem 0.75rem;
+    min-height: 2.75rem;
+  }
+  .tpl-add-item .btn {
+    width: 100%;
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  .tpl-search-filter {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .tpl-search-filter .btn {
+    flex: 1;
   }
 
   /* Collapse TDEE results grid to single column */

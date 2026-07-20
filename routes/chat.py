@@ -30,6 +30,7 @@ Model response format (inside ```json ... ```):
 import json
 import re
 import os
+import logging
 from datetime import date, datetime
 from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import or_
@@ -40,10 +41,12 @@ from models.daily_target import DailyTarget
 from routes.auth import current_user_id
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/api/chat')
+log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
+# Ollama kept for optional use, but local_model is the primary offline backend
 OLLAMA_URL   = os.getenv('OLLAMA_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.1')
 
@@ -371,9 +374,10 @@ def _get_reply(messages, system_prompt, user_key: str = ''):
     key = user_key.strip() or _anthropic_key()
     if key:
         return _call_anthropic(messages, system_prompt, api_key=key)
-    if _ollama_available():
+    # Ollama is optional — try only if explicitly configured
+    if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
         return _call_ollama(messages, system_prompt)
-    return None  # signal: use rule-based fallback
+    return None  # signal: use local NLP model / rule-based fallback
 
 
 # ---------------------------------------------------------------------------
@@ -416,6 +420,60 @@ _UNIT_NORM = {'gr': 'g', 'gram': 'g', 'bardak': 'cup',
               'adet': 'piece', 'dilim': 'slice', 'porsiyon': 'serving'}
 
 def _rule_based_chat(last_msg: str, uid, lang: str, food_tokens: list) -> dict:
+    """
+    Smart food parser using local NLP model (spaCy + rapidfuzz) when available,
+    falling back to token search + regex amounts if not.
+    """
+    # ---- Try local NLP model first ----
+    try:
+        from local_model import parse_and_match as _nlp_parse
+        # Build a broad candidate pool: token search + top foods by name
+        from models.saved_food import SavedFood as _SF
+        candidate_map: dict = {}
+
+        # Token-based DB search (existing logic, fast)
+        for token in food_tokens:
+            for f in _search_foods(token, lang=lang, limit=5):
+                candidate_map[f['id']] = f
+
+        # If message mentions no recognisable tokens, pull top 300 foods for
+        # fuzzy matching to have a chance at something obscure
+        if not candidate_map:
+            rows = _SF.query.filter_by(is_archived=False).limit(300).all()
+            for r in rows:
+                candidate_map[r.id] = {
+                    'id': r.id, 'name': r.name,
+                    'protein': r.protein, 'fat': r.fat,
+                    'carbs': r.carbs, 'calories': r.calories,
+                    'default_serving': r.default_serving,
+                    'serving_unit': r.serving_unit,
+                }
+
+        food_db = list(candidate_map.values())
+        results = _nlp_parse(last_msg, food_db)
+
+        if results:
+            names = [e['food_name'] for e in results]
+            total_kcal = round(sum(e['calories'] for e in results))
+            if lang == 'tr':
+                # Show per-item details in Turkish
+                details = ', '.join(
+                    f"{e['food_name']} {e['serving_size']}{e['serving_unit']} ({e['calories']} kcal)"
+                    for e in results
+                )
+                reply = f"{details} kaydedildi — toplam {total_kcal} kcal."
+            else:
+                details = ', '.join(
+                    f"{e['food_name']} {e['serving_size']}{e['serving_unit']} ({e['calories']} kcal)"
+                    for e in results
+                )
+                reply = f"Logged: {details} — {total_kcal} kcal total."
+            return {'action': 'log', 'entries': results, 'reply': reply}
+
+    except Exception as exc:
+        log.warning('local_model failed (%s) — using regex fallback', exc)
+
+    # ---- Regex / token fallback (original logic) ----
     amounts = [(float(v.replace(',', '.')), _UNIT_NORM.get(u.lower(), u.lower()))
                for v, u in _AMOUNT_RE.findall(last_msg)]
 
@@ -459,6 +517,15 @@ def _rule_based_chat(last_msg: str, uid, lang: str, food_tokens: list) -> dict:
     else:
         reply = f"Logged {', '.join(names)} — {total_kcal} kcal total."
     return {'action': 'log', 'entries': entries, 'reply': reply}
+
+
+def _local_model_available() -> bool:
+    """True if spaCy + rapidfuzz are both installed."""
+    try:
+        from local_model import is_available
+        return is_available()
+    except ImportError:
+        return False
 
 
 def _ollama_available() -> bool:
@@ -564,16 +631,20 @@ def chat():
 
 @chat_bp.route('/status', methods=['GET'])
 def status():
-    """Check which LLM backend is available."""
+    """Check which backend is active."""
     has_user_key = request.args.get('has_user_key') == '1'
     if has_user_key or _anthropic_key():
         return jsonify({'backend': 'anthropic', 'model': 'claude-haiku-4-5-20251001', 'ready': True})
-    import urllib.request
-    try:
-        with urllib.request.urlopen(f'{OLLAMA_URL}/api/tags', timeout=3) as r:
-            data = json.loads(r.read())
-            models = [m['name'] for m in data.get('models', [])]
-            ready = any(OLLAMA_MODEL in m for m in models)
-            return jsonify({'backend': 'ollama', 'model': OLLAMA_MODEL, 'models': models, 'ready': ready})
-    except Exception:
-        return jsonify({'backend': 'rule-based', 'model': None, 'ready': True})
+    if _local_model_available():
+        return jsonify({'backend': 'local-nlp', 'model': 'spaCy + rapidfuzz', 'ready': True})
+    if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
+        import urllib.request
+        try:
+            with urllib.request.urlopen(f'{OLLAMA_URL}/api/tags', timeout=3) as r:
+                data = json.loads(r.read())
+                models = [m['name'] for m in data.get('models', [])]
+                ready = any(OLLAMA_MODEL in m for m in models)
+                return jsonify({'backend': 'ollama', 'model': OLLAMA_MODEL, 'models': models, 'ready': ready})
+        except Exception:
+            pass
+    return jsonify({'backend': 'rule-based', 'model': None, 'ready': True})

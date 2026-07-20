@@ -67,6 +67,7 @@
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
   }
 
+  // @zxing/library UMD — exposes global ZXing with BrowserMultiFormatReader
   var _zxingReady = false;
   var _zxingCbs = [];
   function loadZXing(cb) {
@@ -74,7 +75,7 @@
     _zxingCbs.push(cb);
     if (_zxingCbs.length > 1) return;
     var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js';
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js';
     s.onload = function () {
       _zxingReady = true;
       _zxingCbs.splice(0).forEach(function (fn) { fn(null); });
@@ -174,10 +175,17 @@
     }
 
     function handleCode(code) {
-      els.statusEl.textContent = 'Found: ' + code + '. Looking up…';
+      if (closed) return;
+      // Stop ZXing reader before doing the lookup so it doesn't keep firing
+      if (zxingReader) { try { zxingReader.reset(); } catch (_) {} zxingReader = null; }
       stopTracks(stream);
       stream = null;
-      lookup(code, showRetry);
+      els.statusEl.textContent = 'Found: ' + code + '. Looking up…';
+      lookup(code, function () {
+        showRetry();
+        // Restart camera on retry
+        startScanning();
+      });
     }
 
     function startScanning() {
@@ -193,7 +201,7 @@
           els.statusEl.textContent = 'Point camera at barcode…';
 
           if (typeof BarcodeDetector !== 'undefined') {
-            // Native API (Chrome Android, Safari 17.4+)
+            // Native API — Chrome Android, Safari 17.4+
             var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
             (function loop() {
               if (closed) return;
@@ -210,16 +218,18 @@
               });
             })();
           } else {
-            // ZXing BrowserMultiFormatReader (all other browsers)
-            zxingReader = new ZXingBrowser.BrowserMultiFormatReader();
+            // ZXing.BrowserMultiFormatReader — all other browsers
+            // decodeFromStream fires callback on every frame:
+            //   result is set when a barcode is found; err is NotFoundException otherwise (normal)
+            zxingReader = new ZXing.BrowserMultiFormatReader();
+            var handled = false;
             zxingReader.decodeFromStream(stream, els.video, function (result, err) {
-              if (closed) return;
+              if (closed || handled) return;
               if (result) {
-                zxingReader.reset();
-                zxingReader = null;
+                handled = true;
                 handleCode(result.getText());
               }
-              // err is NotFoundException on every empty frame — normal, ignore
+              // err === NotFoundException on empty frames — ignore
             });
           }
         })
@@ -238,7 +248,7 @@
         if (closed) return;
         if (err) {
           els.video.hidden = true;
-          els.errorEl.textContent = 'Scanner library failed to load.';
+          els.errorEl.textContent = 'Scanner unavailable. Enter barcode manually.';
           showManualInput(els.card, els.statusEl, els.errorEl, lookup);
           return;
         }

@@ -20,7 +20,21 @@ def create_app(config_name=None, test_config=None):
     # pool_size/max_overflow only work with PostgreSQL, not SQLite StaticPool used in tests
     if 'postgresql' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
         opts = app.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})
-        opts.update({'pool_size': 5, 'max_overflow': 2, 'connect_args': {'connect_timeout': 10}})
+        opts.update({
+            'pool_size': 5,
+            'max_overflow': 2,
+            'connect_args': {
+                'connect_timeout': 10,
+                # TCP keepalives prevent Railway from killing idle connections mid-pool.
+                # keepalives_idle=60: start probes after 60s idle
+                # keepalives_interval=10: probe every 10s
+                # keepalives_count=5: give up after 5 missed probes
+                'keepalives': 1,
+                'keepalives_idle': 60,
+                'keepalives_interval': 10,
+                'keepalives_count': 5,
+            },
+        })
 
     db.init_app(app)
     Migrate(app, db)

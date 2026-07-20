@@ -1,0 +1,3547 @@
+{
+  "Chicken breast, boneless skinless, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken breast, boneless skinless, raw": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken thigh, boneless skinless, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken thigh, boneless skinless, raw": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken drumstick, skin on, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken drumstick, skin on, raw": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken wing, skin on, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Turkey breast, boneless skinless, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Turkey breast, boneless skinless, raw": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Turkey thigh, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Ground turkey, 85% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ground turkey, 93% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Egg, whole, raw": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Egg, whole, boiled": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Egg, whole, fried": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Egg, scrambled": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Egg white, raw": {
+    "serving_unit": "g",
+    "default_serving": 33,
+    "g_per_unit": null
+  },
+  "Egg yolk, raw": {
+    "serving_unit": "g",
+    "default_serving": 17,
+    "g_per_unit": null
+  },
+  "Salmon, Atlantic, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Salmon, Atlantic, raw": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Tuna, canned in water, drained": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Tuna, fresh, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Cod, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Tilapia, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Shrimp, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Mahi-mahi, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Halibut, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Sardines, canned in oil, drained": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Ground beef, 85% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ground beef, 90% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ground beef, 93% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ground beef, 95% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Beef ribeye steak, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Beef sirloin steak, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Beef filet mignon, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Beef chuck roast, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Beef ground round, 80% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Pork loin, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Pork chop, center loin, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Pork tenderloin, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Bacon, pan fried": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pork sausage, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tofu, firm, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tofu, silken, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tempeh, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Seitan, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Chicken patty, cooked": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Fish fillet, battered and fried": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Beef hot dog, Hebrew National": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 55
+  },
+  "Turkey hot dog": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 45
+  },
+  "Deli ham, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Deli roast beef, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Deli turkey, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pepperoni, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Salami, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Bologna, sliced": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Beef jerky, original": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chicken jerky": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Whey protein powder, vanilla": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Whey protein powder, chocolate": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Casein protein powder, vanilla": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Plant-based protein powder, vanilla": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Ground chicken, 93% lean, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Chicken breast, with skin, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Duck breast, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lamb chop, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lamb ground, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Venison, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Elk, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bison, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tuna salad (with mayo)": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken salad (with mayo)": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Egg salad": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Beef liver, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Chicken liver, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Pork liver, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Oysters, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Clams, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Scallops, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mussels, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Crab, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Lobster, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Anchovies, canned": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Mackerel, Atlantic, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Herring, Atlantic, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Trout, rainbow, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Catfish, channel, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Flounder, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Snapper, red, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Swordfish, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Striped bass, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Mussels, steamed": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Sausage patty, pork, cooked": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 45
+  },
+  "Italian sausage, cooked": {
+    "serving_unit": "g",
+    "default_serving": 85,
+    "g_per_unit": null
+  },
+  "Kielbasa sausage": {
+    "serving_unit": "g",
+    "default_serving": 85,
+    "g_per_unit": null
+  },
+  "Bratwurst sausage, cooked": {
+    "serving_unit": "g",
+    "default_serving": 85,
+    "g_per_unit": null
+  },
+  "Breakfast sausage links, cooked": {
+    "serving_unit": "g",
+    "default_serving": 45,
+    "g_per_unit": null
+  },
+  "Spam": {
+    "serving_unit": "g",
+    "default_serving": 56,
+    "g_per_unit": null
+  },
+  "Corned beef, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Liverwurst": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Milk, whole, 3.7% fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Milk, 2% fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Milk, 1% fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Milk, skim": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Milk, raw": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Buttermilk, low fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Almond milk, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Almond milk, sweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Oat milk, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Oat milk, original": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soy milk, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soy milk, original": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cashew milk, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Coconut milk, full fat canned": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Coconut milk, light canned": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cheddar cheese, sharp": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Cheddar cheese, mild": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Mozzarella cheese, whole milk": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Mozzarella cheese, low moisture": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Mozzarella cheese, part skim": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Swiss cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Provolone cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Parmesan cheese, grated": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Parmesan cheese, block": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Feta cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Gouda cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Brie cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Blue cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Cream cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Ricotta cheese, whole milk": {
+    "serving_unit": "g",
+    "default_serving": 60,
+    "g_per_unit": null
+  },
+  "Ricotta cheese, part skim": {
+    "serving_unit": "g",
+    "default_serving": 60,
+    "g_per_unit": null
+  },
+  "Cottage cheese, 4% fat": {
+    "serving_unit": "g",
+    "default_serving": 113,
+    "g_per_unit": null
+  },
+  "Cottage cheese, 1% fat": {
+    "serving_unit": "g",
+    "default_serving": 113,
+    "g_per_unit": null
+  },
+  "Cottage cheese, 2% fat": {
+    "serving_unit": "g",
+    "default_serving": 113,
+    "g_per_unit": null
+  },
+  "American cheese, processed": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Velveeta cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "String cheese, mozzarella": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 28
+  },
+  "Butter, salted": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Butter, unsalted": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Ghee": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Heavy cream, whipping": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Sour cream": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Whipped cream": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Crème fraîche": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Greek yogurt, plain, full fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Greek yogurt, plain, low fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Greek yogurt, plain, nonfat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Greek yogurt, vanilla, low fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Yogurt, plain, whole milk": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Yogurt, plain, low fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Yogurt, plain, nonfat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Yogurt, vanilla, low fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Yogurt, fruit, low fat": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Kefir, plain, full fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Kefir, plain, low fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Kefir, fruit, full fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Ice cream, vanilla": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ice cream, chocolate": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Ice cream, strawberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Frozen yogurt, vanilla": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Frozen yogurt, chocolate": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Rice milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Chocolate milk, whole": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Chocolate milk, low fat": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "White rice, long grain, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "White rice, short grain, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Brown rice, long grain, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Jasmine rice, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Basmati rice, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Arborio rice, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Wild rice, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Black rice, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Quinoa, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Buckwheat, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Couscous, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Bulgar wheat, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Millet, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Amaranth, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Teff, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Farro, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Oats, rolled, dry": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Oats, instant, prepared with water": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Oats, old fashioned, dry": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Oatmeal, prepared with water": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Pasta, spaghetti, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Pasta, penne, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Pasta, elbow, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Pasta, whole wheat, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Pasta, egg noodles, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Pasta, lasagna noodles, cooked": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Bread": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bagel": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 105
+  },
+  "English muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 57
+  },
+  "Croissant": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 57
+  },
+  "Tortilla": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Pita bread": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 57
+  },
+  "Rice cakes": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 9
+  },
+  "Crackers": {
+    "serving_unit": "serving",
+    "default_serving": 4,
+    "g_per_unit": null
+  },
+  "Granola, low fat": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Granola, regular": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Granola, low sugar": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Cereal, Cheerios": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Fruity Pebbles": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Frosted Flakes": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Lucky Charms": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Raisin Bran": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, All Bran": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Special K": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Cinnamon Toast Crunch": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Cereal, Honey Nut Cheerios": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Muesli, with nuts": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Barley, pearled, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Cornmeal, yellow, dry": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Popcorn, air-popped": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Popcorn, oil-popped": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Popcorn, caramel": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pancake": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Waffle": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 75
+  },
+  "Pretzel, hard": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pretzel, soft": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 113
+  },
+  "Bran muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Banana muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Blueberry muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Apple cinnamon muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Cornbread muffin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Banana": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 120
+  },
+  "Apple, Gala": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 180
+  },
+  "Apple, Granny Smith": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 180
+  },
+  "Apple, Honeycrisp": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 180
+  },
+  "Orange, navel": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 180
+  },
+  "Orange, Florida": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 180
+  },
+  "Strawberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Blueberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Raspberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Blackberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Grape, red": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Grape, green": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Watermelon": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cantaloupe": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Honeydew": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mango": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 200
+  },
+  "Pineapple": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Peach": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Pear": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 170
+  },
+  "Plum": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 85
+  },
+  "Cherry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Kiwi, golden": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 75
+  },
+  "Kiwi, green": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 75
+  },
+  "Papaya": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Coconut, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Coconut, shredded, unsweetened": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Coconut, shredded, sweetened": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Avocado": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Lemon": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 70
+  },
+  "Lime": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 60
+  },
+  "Grapefruit, pink": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 250
+  },
+  "Grapefruit, white": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 250
+  },
+  "Tangerine": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 85
+  },
+  "Pomegranate": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 250
+  },
+  "Fig, fresh": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Date, Medjool": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 25
+  },
+  "Date, Deglet Noor": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 25
+  },
+  "Raisin": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cranberry, dried": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Apricot, dried": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Prune": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Currants, black": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Currants, red": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Gooseberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Passionfruit": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Persimmon": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Lychee": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Dragon fruit": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Guava": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Jackfruit": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mulberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Loganberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Boysenberry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tangerine juice, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Orange juice, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Apple juice, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Grape juice, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cranberry juice, unsweetened": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Pomegranate juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Grapefruit juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Pineapple juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Mango juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Papaya juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Watermelon juice, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Mixed berry juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Acai berry juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tart cherry juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Broccoli, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Broccoli, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Spinach, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Spinach, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Kale, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Kale, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Lettuce, romaine, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Lettuce, iceberg, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Lettuce, butterhead, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Arugula, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Watercress, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bok choy, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Swiss chard, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Collard greens, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tomato, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tomato, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tomato, cherry": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tomato, sun-dried": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Onion, yellow, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Onion, yellow, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Onion, red, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Onion, white, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Onion, sweet, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Garlic, raw": {
+    "serving_unit": "g",
+    "default_serving": 10,
+    "g_per_unit": null
+  },
+  "Garlic, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bell pepper, red, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bell pepper, green, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bell pepper, yellow, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Bell pepper, orange, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Carrot, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Carrot, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Carrot, baby": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Celery, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Celery, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cucumber, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cucumber, with skin": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Zucchini, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Zucchini, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, white, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, cremini, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, portobello, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, shiitake, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Mushroom, oyster, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cauliflower, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cauliflower, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Asparagus, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Asparagus, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Green beans, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Green beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Peas, green, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Peas, green, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Snap peas, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Snap peas, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Snow peas, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Corn, yellow, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Corn, yellow, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Potato, white, baked with skin": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Potato, white, boiled": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Potato, red, baked with skin": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Potato, russet, baked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Sweet potato, baked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Sweet potato, boiled": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Yam, baked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Butternut squash, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Butternut squash, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Acorn squash, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Spaghetti squash, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Eggplant, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Eggplant, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cabbage, green, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cabbage, red, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Cabbage, Napa, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Brussels sprouts, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Brussels sprouts, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Artichoke, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Artichoke, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Beet, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Beet, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Radish, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Turnip, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Turnip, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Rutabaga, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Parsnip, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Parsnip, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Okra, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Okra, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Jalapeno, raw": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Serrano pepper": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Habanero pepper": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Cucumber, pickled": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Pumpkin, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Pumpkin, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Leek, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Leek, cooked": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Fennel, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Daikon radish": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Kohlrabi, raw": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Chives, raw": {
+    "serving_unit": "g",
+    "default_serving": 5,
+    "g_per_unit": null
+  },
+  "Mint, fresh": {
+    "serving_unit": "g",
+    "default_serving": 5,
+    "g_per_unit": null
+  },
+  "Basil, fresh": {
+    "serving_unit": "g",
+    "default_serving": 5,
+    "g_per_unit": null
+  },
+  "Cilantro, raw": {
+    "serving_unit": "g",
+    "default_serving": 5,
+    "g_per_unit": null
+  },
+  "Parsley, fresh": {
+    "serving_unit": "g",
+    "default_serving": 5,
+    "g_per_unit": null
+  },
+  "Peanuts, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Peanuts, roasted, salted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Peanuts, roasted, unsalted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Almonds, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Almonds, roasted, salted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Almonds, blanched": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Almonds, sliced": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Cashews, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Cashews, roasted, salted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Walnuts, English": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Walnuts, black": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pecans, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pistachios, roasted, salted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pistachios, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Macadamia nuts, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Hazelnuts, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Brazil nuts, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pine nuts": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Sunflower seeds, raw": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pumpkin seeds (pepitas)": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chia seeds": {
+    "serving_unit": "g",
+    "default_serving": 15,
+    "g_per_unit": null
+  },
+  "Flax seeds": {
+    "serving_unit": "g",
+    "default_serving": 15,
+    "g_per_unit": null
+  },
+  "Hemp seeds": {
+    "serving_unit": "g",
+    "default_serving": 15,
+    "g_per_unit": null
+  },
+  "Sesame seeds": {
+    "serving_unit": "g",
+    "default_serving": 15,
+    "g_per_unit": null
+  },
+  "Pumpkin seeds, white": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Watermelon seeds": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Peanut butter, creamy": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Peanut butter, chunky": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Peanut butter, natural": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Peanut butter, powdered": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Almond butter": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Cashew butter": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Sunflower seed butter": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Tahini, from hulled seeds": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Tahini, from whole seeds": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Black beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Black beans, canned, drained": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Kidney beans, red, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Kidney beans, red, canned": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Pinto beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Pinto beans, canned": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chickpeas (garbanzo), cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chickpeas, canned, drained": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "White beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "White beans, canned": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Navy beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lentils, green, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lentils, red, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lentils, brown, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Edamame, shelled, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Edamame, in pod, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Peas, split, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Broad beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Butter beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Black-eyed peas, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Mung beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Azuki beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Fava beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Lupini beans, cooked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Mixed beans, canned": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Olive oil, extra virgin": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Olive oil, virgin": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Olive oil, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Coconut oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Vegetable oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Canola oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Sesame oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Avocado oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Peanut oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Sunflower oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Safflower oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Grapeseed oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Walnut oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Flaxseed oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "MCT oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mustard seed oil": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mayonnaise, regular": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mayonnaise, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mayonnaise, olive oil based": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Margarine, regular": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Margarine, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Ghee (clarified butter)": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Lard": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Shortening, vegetable": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Cooking spray": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Dark chocolate, 70% cacao": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Dark chocolate, 85% cacao": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Dark chocolate, 90% cacao": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Milk chocolate": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Milk chocolate with almonds": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "White chocolate": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Chocolate chips, semi-sweet": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Chocolate chips, dark": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Chocolate candy bar, general": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 45
+  },
+  "Chocolate covered nuts": {
+    "serving_unit": "g",
+    "default_serving": 40,
+    "g_per_unit": null
+  },
+  "Honey": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Maple syrup": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Agave nectar": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Corn syrup": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Brown sugar": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "White granulated sugar": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Jelly, grape": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Jam, strawberry": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Jam, raspberry": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Peanut butter cups": {
+    "serving_unit": "piece",
+    "default_serving": 2,
+    "g_per_unit": 21
+  },
+  "Granola bar, low fat": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 40
+  },
+  "Granola bar, regular": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 40
+  },
+  "Granola bar, chocolate": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 40
+  },
+  "Protein bar, vanilla": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 65
+  },
+  "Protein bar, chocolate": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 65
+  },
+  "Protein bar, cookies and cream": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 65
+  },
+  "Energy bar": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 60
+  },
+  "Chips, potato, regular": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chips, potato, light": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chips, tortilla, plain": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chips, tortilla, cheese": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Chips, vegetable": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Pretzels, twisted": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Candy, gummy bears": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Candy, hard candy": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 5
+  },
+  "Candy, licorice": {
+    "serving_unit": "g",
+    "default_serving": 28,
+    "g_per_unit": null
+  },
+  "Candy, taffy": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 14
+  },
+  "Candy, lollipop": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 17
+  },
+  "Candy, caramel": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 14
+  },
+  "Candy, fudge": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 28
+  },
+  "Cookie, chocolate chip": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 15
+  },
+  "Cookie, oatmeal raisin": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 15
+  },
+  "Cookie, sugar": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Cookie, shortbread": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 15
+  },
+  "Cookie, fortune": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 15
+  },
+  "Brownie": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 60
+  },
+  "Donut, glazed": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 60
+  },
+  "Donut, chocolate": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 60
+  },
+  "Donut, jelly-filled": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Muffin, blueberry, store-bought": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Cake, vanilla": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Cake, chocolate": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Cake, carrot": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Cake, cheesecake": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 100
+  },
+  "Pie, apple": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Pie, pumpkin": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Trail mix": {
+    "serving_unit": "g",
+    "default_serving": 50,
+    "g_per_unit": null
+  },
+  "Popcorn, candy coated": {
+    "serving_unit": "g",
+    "default_serving": 50,
+    "g_per_unit": null
+  },
+  "Peppermint candy": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 5
+  },
+  "Dates, stuffed": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 25
+  },
+  "Coffee, brewed, black": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Espresso": {
+    "serving_unit": "ml",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Americano": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Latte, whole milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Latte, 2% milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Latte, skim milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Latte, soy milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cappuccino, whole milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cappuccino, 2% milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Macchiato": {
+    "serving_unit": "ml",
+    "default_serving": 60,
+    "g_per_unit": null
+  },
+  "Mocha, whole milk": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Flat white": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Cortado": {
+    "serving_unit": "ml",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Tea, black, brewed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, green, brewed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, white, brewed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, oolong, brewed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, herbal, brewed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, matcha, prepared with water": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tea, chai latte": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Orange juice, fresh squeezed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Orange juice, from concentrate": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Lemonade, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Limeade, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Watermelon juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Vegetable juice, mixed": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Tomato juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Carrot juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Beet juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Celery juice": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Ginger juice, fresh": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Wheatgrass juice": {
+    "serving_unit": "ml",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Soda, cola, regular": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soda, cola, diet": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soda, lemon-lime, regular": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soda, lemon-lime, diet": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soda, root beer": {
+    "serving_unit": "ml",
+    "default_serving": 355,
+    "g_per_unit": null
+  },
+  "Soda, ginger ale": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Soda, orange": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Soda, grape": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Energy drink, typical": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Sports drink, typical": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Coconut water": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Kombucha, plain": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Kombucha, flavored": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Beer, regular": {
+    "serving_unit": "ml",
+    "default_serving": 355,
+    "g_per_unit": null
+  },
+  "Beer, light": {
+    "serving_unit": "ml",
+    "default_serving": 355,
+    "g_per_unit": null
+  },
+  "Beer, IPA": {
+    "serving_unit": "ml",
+    "default_serving": 355,
+    "g_per_unit": null
+  },
+  "Beer, stout": {
+    "serving_unit": "ml",
+    "default_serving": 355,
+    "g_per_unit": null
+  },
+  "Wine, red": {
+    "serving_unit": "ml",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Wine, white": {
+    "serving_unit": "ml",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Wine, rosé": {
+    "serving_unit": "ml",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Wine, sparkling": {
+    "serving_unit": "ml",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Champagne": {
+    "serving_unit": "ml",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Vodka": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Whiskey": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Rum": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Gin": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Tequila": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Brandy": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Liqueur": {
+    "serving_unit": "ml",
+    "default_serving": 44,
+    "g_per_unit": null
+  },
+  "Smoothie, berry, store-bought": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Smoothie, tropical, store-bought": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Protein shake, vanilla": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Protein shake, chocolate": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Protein shake, strawberry": {
+    "serving_unit": "ml",
+    "default_serving": 240,
+    "g_per_unit": null
+  },
+  "Ketchup": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mustard, yellow": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mustard, Dijon": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Mustard, spicy brown": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Soy sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Soy sauce, low sodium": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Tamari sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Hot sauce, generic": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Hot sauce, sriracha": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Hot sauce, habanero": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Hot sauce, cayenne": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Barbecue sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "BBQ sauce, low sugar": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Ranch dressing": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Ranch dressing, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Italian dressing": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Italian dressing, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Caesar dressing": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Caesar dressing, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Balsamic vinaigrette": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Vinaigrette, olive oil based": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Salsa, fresh": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Salsa, red": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Salsa, verde": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Salsa, corn": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Hummus, classic": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Hummus, roasted garlic": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Hummus, roasted red pepper": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Guacamole": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Guacamole, light": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Teriyaki sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Worcestershire sauce": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Fish sauce": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Pesto, basil": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Marinara sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Alfredo sauce": {
+    "serving_unit": "tbsp",
+    "default_serving": 2,
+    "g_per_unit": null
+  },
+  "Buffalo sauce": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Relish, sweet": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Olives, green, pitted": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Olives, black, pitted": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pickles, dill": {
+    "serving_unit": "g",
+    "default_serving": 30,
+    "g_per_unit": null
+  },
+  "Pickle juice": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Capers": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Sesame paste (tahini)": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Miso, white": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Miso, red": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Soy butter": {
+    "serving_unit": "tbsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Coconut aminos": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Liquid smoke": {
+    "serving_unit": "tsp",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Pizza": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Hamburger patty, 1/4 lb": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 113
+  },
+  "Cheeseburger, 1/4 lb": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Hamburger, double": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 215
+  },
+  "Hot dog, beef": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 85
+  },
+  "Hot dog, chicken": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 85
+  },
+  "Hot dog with chili": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 85
+  },
+  "French fries, frozen, baked": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "French fries, frozen, fried": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "French fries, fast food": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Sweet potato fries": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken nuggets": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Chicken wings, Buffalo": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Fried chicken, drumstick": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Fried chicken, thigh": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Fried chicken, breast": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  },
+  "Taco": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 120
+  },
+  "Burrito": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 300
+  },
+  "Quesadilla": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 200
+  },
+  "Enchilada": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 200
+  },
+  "Burrito bowl, chicken": {
+    "serving_unit": "g",
+    "default_serving": 280,
+    "g_per_unit": null
+  },
+  "Sushi roll": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 200
+  },
+  "Nigiri sushi": {
+    "serving_unit": "piece",
+    "default_serving": 2,
+    "g_per_unit": 20
+  },
+  "Ramen noodles": {
+    "serving_unit": "ml",
+    "default_serving": 450,
+    "g_per_unit": null
+  },
+  "Pho": {
+    "serving_unit": "ml",
+    "default_serving": 500,
+    "g_per_unit": null
+  },
+  "Lo mein": {
+    "serving_unit": "g",
+    "default_serving": 300,
+    "g_per_unit": null
+  },
+  "Fried rice": {
+    "serving_unit": "g",
+    "default_serving": 300,
+    "g_per_unit": null
+  },
+  "Mac and cheese": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Lasagna, meat": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Lasagna, vegetarian": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Garden salad": {
+    "serving_unit": "g",
+    "default_serving": 300,
+    "g_per_unit": null
+  },
+  "Oatmeal, plain, prepared": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Oatmeal, with berries": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Oatmeal, with nuts": {
+    "serving_unit": "g",
+    "default_serving": 250,
+    "g_per_unit": null
+  },
+  "Scrambled eggs, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Fried eggs, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Boiled eggs, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Omelet, plain, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Omelet, cheese, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Omelet, vegetable, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Omelet, meat, 2 eggs": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Pancakes, 2, with syrup": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Pancakes, 2, with butter and syrup": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Waffles, 2, with syrup": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "Waffles, 2, with butter and syrup": {
+    "serving_unit": "serving",
+    "default_serving": 1,
+    "g_per_unit": null
+  },
+  "French toast": {
+    "serving_unit": "slice",
+    "default_serving": 1,
+    "g_per_unit": 75
+  },
+  "Crepes, plain": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Crepes with chocolate": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 50
+  },
+  "Hash browns, frozen": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Hash browns, homemade": {
+    "serving_unit": "g",
+    "default_serving": 100,
+    "g_per_unit": null
+  },
+  "Breakfast sandwich": {
+    "serving_unit": "piece",
+    "default_serving": 1,
+    "g_per_unit": 150
+  },
+  "Granola with yogurt": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Yogurt parfait": {
+    "serving_unit": "g",
+    "default_serving": 200,
+    "g_per_unit": null
+  },
+  "Protein pancakes": {
+    "serving_unit": "g",
+    "default_serving": 150,
+    "g_per_unit": null
+  }
+}

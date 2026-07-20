@@ -635,8 +635,26 @@ def status():
     has_user_key = request.args.get('has_user_key') == '1'
     if has_user_key or _anthropic_key():
         return jsonify({'backend': 'anthropic', 'model': 'claude-haiku-4-5-20251001', 'ready': True})
-    if _local_model_available():
+    nlp_avail = _local_model_available()
+    if nlp_avail:
         return jsonify({'backend': 'local-nlp', 'model': 'spaCy + rapidfuzz', 'ready': True})
+    # Debug: report why local-nlp is unavailable
+    try:
+        import spacy  # noqa: F401
+        spacy_ok = True
+    except ImportError:
+        spacy_ok = False
+    try:
+        import rapidfuzz  # noqa: F401
+        rf_ok = True
+    except ImportError:
+        rf_ok = False
+    try:
+        import spacy as _sp
+        _sp.load('en_core_web_sm')
+        model_ok = True
+    except Exception as e:
+        model_ok = str(e)
     if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
         import urllib.request
         try:
@@ -647,4 +665,7 @@ def status():
                 return jsonify({'backend': 'ollama', 'model': OLLAMA_MODEL, 'models': models, 'ready': ready})
         except Exception:
             pass
-    return jsonify({'backend': 'rule-based', 'model': None, 'ready': True})
+    return jsonify({
+        'backend': 'rule-based', 'model': None, 'ready': True,
+        '_debug': {'spacy': spacy_ok, 'rapidfuzz': rf_ok, 'en_core_web_sm': model_ok},
+    })

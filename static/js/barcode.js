@@ -21,7 +21,7 @@
     document.head.appendChild(style);
   }
 
-  function buildModal(useCamera) {
+  function buildModal() {
     var overlay = document.createElement('div');
     overlay.id = 'bc-overlay';
     overlay.setAttribute('role', 'dialog');
@@ -35,36 +35,16 @@
     title.textContent = 'Scan Barcode';
     card.appendChild(title);
 
-    var video = null;
-    var manualInput = null;
-    var lookupBtn = null;
-
-    if (useCamera) {
-      video = document.createElement('video');
-      video.id = 'bc-video';
-      video.setAttribute('autoplay', '');
-      video.setAttribute('playsinline', '');
-      video.setAttribute('muted', '');
-      card.appendChild(video);
-    } else {
-      var manualRow = document.createElement('div');
-      manualRow.id = 'bc-manual-row';
-      manualInput = document.createElement('input');
-      manualInput.type = 'text';
-      manualInput.id = 'bc-manual-input';
-      manualInput.placeholder = 'Enter barcode number';
-      manualInput.inputMode = 'numeric';
-      lookupBtn = document.createElement('button');
-      lookupBtn.className = 'btn btn-primary';
-      lookupBtn.textContent = 'Look up';
-      manualRow.appendChild(manualInput);
-      manualRow.appendChild(lookupBtn);
-      card.appendChild(manualRow);
-    }
+    var video = document.createElement('video');
+    video.id = 'bc-video';
+    video.setAttribute('autoplay', '');
+    video.setAttribute('playsinline', '');
+    video.setAttribute('muted', '');
+    card.appendChild(video);
 
     var statusEl = document.createElement('p');
     statusEl.id = 'bc-status';
-    statusEl.textContent = useCamera ? 'Point camera at barcode…' : 'Enter the barcode number from the product.';
+    statusEl.textContent = 'Loading scanner…';
     card.appendChild(statusEl);
 
     var errorEl = document.createElement('p');
@@ -75,27 +55,64 @@
     actions.id = 'bc-actions';
     var cancelBtn = document.createElement('button');
     cancelBtn.className = 'btn btn-secondary';
-    cancelBtn.id = 'bc-cancel-btn';
     cancelBtn.textContent = 'Cancel';
     actions.appendChild(cancelBtn);
     card.appendChild(actions);
 
     overlay.appendChild(card);
-    return {
-      overlay: overlay, video: video, statusEl: statusEl, errorEl: errorEl,
-      cancelBtn: cancelBtn, manualInput: manualInput, lookupBtn: lookupBtn,
-    };
+    return { overlay: overlay, video: video, statusEl: statusEl, errorEl: errorEl, cancelBtn: cancelBtn };
   }
 
   function stopTracks(stream) {
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
   }
 
+  // Load ZXing decoder from CDN (only when BarcodeDetector not available)
+  var _zxingCallbacks = [];
+  function loadZXing(cb) {
+    if (typeof ZXing !== 'undefined') { cb(null); return; }
+    _zxingCallbacks.push(cb);
+    if (_zxingCallbacks.length > 1) return;
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1/umd/index.min.js';
+    s.onload = function () { _zxingCallbacks.splice(0).forEach(function (fn) { fn(null); }); };
+    s.onerror = function () { _zxingCallbacks.splice(0).forEach(function (fn) { fn(new Error('load failed')); }); };
+    document.head.appendChild(s);
+  }
+
+  // Show manual barcode input inside the card
+  function showManualInput(card, statusEl, errorEl, lookup) {
+    statusEl.textContent = 'Enter the barcode number from the product.';
+    var row = document.createElement('div');
+    row.id = 'bc-manual-row';
+    var input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Enter barcode number';
+    input.inputMode = 'numeric';
+    var btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.textContent = 'Look up';
+    row.appendChild(input);
+    row.appendChild(btn);
+    // Insert before statusEl
+    card.insertBefore(row, statusEl);
+    function doLookup() {
+      var code = input.value.trim();
+      if (!code) return;
+      btn.disabled = true;
+      lookup(code, statusEl, errorEl, function () { btn.disabled = false; });
+    }
+    btn.addEventListener('click', doLookup);
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
+    setTimeout(function () { input.focus(); }, 50);
+  }
+
   window.openBarcodeScanner = function (onResult) {
     injectStyles();
 
-    var supportsCamera = typeof BarcodeDetector !== 'undefined' && typeof navigator.mediaDevices !== 'undefined';
-    var els = buildModal(supportsCamera);
+    // Always try camera; only fall back to text if no camera API at all
+    var hasCamera = typeof navigator !== 'undefined' && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    var els = buildModal();
     document.body.appendChild(els.overlay);
 
     var stream = null;
@@ -107,6 +124,7 @@
       closed = true;
       if (rafId) cancelAnimationFrame(rafId);
       stopTracks(stream);
+      stream = null;
       document.removeEventListener('keydown', onKeyDown);
       if (els.overlay.parentNode) els.overlay.parentNode.removeChild(els.overlay);
     }
@@ -115,17 +133,14 @@
     document.addEventListener('keydown', onKeyDown);
     els.cancelBtn.addEventListener('click', close);
 
-    // Shared lookup helper used by manual-entry and camera-denied fallback
     function lookup(code, statusEl, errorEl, resetFn) {
       statusEl.textContent = 'Looking up…';
       errorEl.textContent = '';
       fetch('/api/foods/barcode?code=' + encodeURIComponent(code))
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          if (data.found) {
-            close();
-            onResult(data);
-          } else {
+          if (data.found) { close(); onResult(data); }
+          else {
             errorEl.textContent = data.message || 'Product not found.';
             statusEl.textContent = '';
             if (resetFn) resetFn();
@@ -138,106 +153,118 @@
         });
     }
 
-    if (!supportsCamera) {
-      function doLookup() {
-        var code = els.manualInput.value.trim();
-        if (!code) return;
-        els.lookupBtn.disabled = true;
-        lookup(code, els.statusEl, els.errorEl, function () { els.lookupBtn.disabled = false; });
-      }
-      els.lookupBtn.addEventListener('click', doLookup);
-      els.manualInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doLookup(); });
-      els.manualInput.focus();
+    if (!hasCamera) {
+      els.video.hidden = true;
+      showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
       return;
     }
 
-    var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-
-    function startCamera(onStream) {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .then(function (s) {
-          if (closed) { stopTracks(s); return; }
-          onStream(s);
-        })
-        .catch(function () {
-          if (closed) return;
-          // Camera denied — hide dead video, degrade to manual input
-          els.video.hidden = true;
-          els.errorEl.textContent = 'Camera access denied. Enter barcode manually.';
-          els.statusEl.textContent = '';
-          var manualRow = document.createElement('div');
-          manualRow.id = 'bc-manual-row';
-          var manualInput = document.createElement('input');
-          manualInput.type = 'text';
-          manualInput.placeholder = 'Enter barcode number';
-          manualInput.inputMode = 'numeric';
-          var lookupBtn = document.createElement('button');
-          lookupBtn.className = 'btn btn-primary';
-          lookupBtn.textContent = 'Look up';
-          manualRow.appendChild(manualInput);
-          manualRow.appendChild(lookupBtn);
-          els.video.parentNode.insertBefore(manualRow, els.video.nextSibling);
-          function doFallbackLookup() {
-            var code = manualInput.value.trim();
-            if (!code) return;
-            lookupBtn.disabled = true;
-            lookup(code, els.statusEl, els.errorEl, function () { lookupBtn.disabled = false; });
-          }
-          lookupBtn.addEventListener('click', doFallbackLookup);
-          manualInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') doFallbackLookup(); });
-          manualInput.focus();
+    function handleCode(code) {
+      els.statusEl.textContent = 'Found: ' + code + '. Looking up…';
+      stopTracks(stream);
+      stream = null;
+      lookup(code, els.statusEl, els.errorEl, function () {
+        var retryBtn = document.createElement('button');
+        retryBtn.className = 'btn btn-secondary';
+        retryBtn.textContent = 'Try again';
+        retryBtn.style.marginTop = '.5rem';
+        retryBtn.addEventListener('click', function () {
+          retryBtn.remove();
+          els.errorEl.textContent = '';
+          startCamera();
         });
-    }
-
-    var scanning = false;
-
-    function scan() {
-      if (closed) return;
-      rafId = requestAnimationFrame(function () {
-        if (closed || scanning) { if (!closed) scan(); return; }
-        if (!els.video.videoWidth) { scan(); return; }
-        scanning = true;
-        detector.detect(els.video)
-          .then(function (barcodes) {
-            scanning = false;
-            if (closed) return;
-            if (barcodes.length === 0) { scan(); return; }
-            var code = barcodes[0].rawValue;
-            els.statusEl.textContent = 'Found: ' + code + '. Looking up…';
-            stopTracks(stream);
-            stream = null;
-            lookup(code, els.statusEl, els.errorEl, function () {
-              // Not found — offer retry
-              var retryBtn = document.createElement('button');
-              retryBtn.className = 'btn btn-secondary';
-              retryBtn.textContent = 'Try again';
-              retryBtn.style.marginTop = '.5rem';
-              retryBtn.addEventListener('click', function () {
-                retryBtn.remove();
-                els.statusEl.textContent = 'Point camera at barcode…';
-                startCamera(function (s) {
-                  stream = s;
-                  els.video.hidden = false;
-                  els.video.srcObject = stream;
-                  els.video.play();
-                  scan();
-                });
-              });
-              els.errorEl.parentNode.insertBefore(retryBtn, els.errorEl.nextSibling);
-            });
-          })
-          .catch(function () {
-            scanning = false;
-            if (!closed) scan();
-          });
+        els.errorEl.parentNode.insertBefore(retryBtn, els.errorEl.nextSibling);
       });
     }
 
-    startCamera(function (s) {
-      stream = s;
-      els.video.srcObject = stream;
-      els.video.play();
-      scan();
-    });
+    // Native BarcodeDetector scan loop (Chrome Android, Safari 17.4+)
+    function scanWithNative() {
+      var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+      var scanning = false;
+      els.statusEl.textContent = 'Point camera at barcode…';
+      (function loop() {
+        if (closed) return;
+        rafId = requestAnimationFrame(function () {
+          if (closed || scanning) { if (!closed) loop(); return; }
+          if (!els.video.videoWidth) { loop(); return; }
+          scanning = true;
+          detector.detect(els.video)
+            .then(function (barcodes) {
+              scanning = false;
+              if (closed) return;
+              if (!barcodes.length) { loop(); return; }
+              handleCode(barcodes[0].rawValue);
+            })
+            .catch(function () { scanning = false; if (!closed) loop(); });
+        });
+      })();
+    }
+
+    // ZXing canvas scan loop (all other browsers)
+    function scanWithZXing() {
+      var reader = new ZXing.MultiFormatReader();
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d', { willReadFrequently: true });
+      els.statusEl.textContent = 'Point camera at barcode…';
+      (function loop() {
+        if (closed) return;
+        rafId = requestAnimationFrame(function () {
+          if (closed) return;
+          if (!els.video.videoWidth) { loop(); return; }
+          canvas.width = els.video.videoWidth;
+          canvas.height = els.video.videoHeight;
+          ctx.drawImage(els.video, 0, 0);
+          try {
+            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            var lum = new ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
+            var bmp = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));
+            var result = reader.decode(bmp);
+            handleCode(result.getText());
+          } catch (e) {
+            loop();
+          }
+        });
+      })();
+    }
+
+    function startCamera() {
+      els.statusEl.textContent = 'Starting camera…';
+      els.video.hidden = false;
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        .then(function (s) {
+          if (closed) { stopTracks(s); return; }
+          stream = s;
+          els.video.srcObject = stream;
+          els.video.play();
+          if (typeof BarcodeDetector !== 'undefined') {
+            scanWithNative();
+          } else {
+            scanWithZXing();
+          }
+        })
+        .catch(function () {
+          if (closed) return;
+          els.video.hidden = true;
+          els.errorEl.textContent = 'Camera access denied. Enter barcode manually.';
+          showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
+        });
+    }
+
+    // When BarcodeDetector not native, load ZXing first then open camera
+    if (typeof BarcodeDetector !== 'undefined') {
+      startCamera();
+    } else {
+      els.statusEl.textContent = 'Loading scanner…';
+      loadZXing(function (err) {
+        if (closed) return;
+        if (err) {
+          els.video.hidden = true;
+          els.errorEl.textContent = 'Scanner library failed to load. Enter barcode manually.';
+          showManualInput(els.overlay.querySelector('#bc-card'), els.statusEl, els.errorEl, lookup);
+          return;
+        }
+        startCamera();
+      });
+    }
   };
 })();

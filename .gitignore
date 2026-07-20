@@ -16,3 +16,5 @@ build/
 # Kaggle downloaded datasets (can be hundreds of MB)
 ~/.cache/kagglehub/
 .kaggle/
+# Claude Code internal state
+.claude/

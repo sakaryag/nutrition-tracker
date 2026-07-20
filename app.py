@@ -150,7 +150,7 @@ def _register_cli(app):
 
 def _auto_seed(app):
     from models.saved_food import SavedFood
-    if SavedFood.query.first() is None:
+    if SavedFood.query.filter_by(source='usda').first() is None:
         try:
             from seed_data.seed import seed_db
             seed_db()

@@ -17,6 +17,11 @@ def create_app(config_name=None, test_config=None):
     if test_config is not None:
         app.config.from_object(test_config)
 
+    # pool_size/max_overflow only work with PostgreSQL, not SQLite StaticPool used in tests
+    if 'postgresql' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
+        opts = app.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})
+        opts.update({'pool_size': 5, 'max_overflow': 2, 'connect_args': {'connect_timeout': 10}})
+
     db.init_app(app)
     Migrate(app, db)
 

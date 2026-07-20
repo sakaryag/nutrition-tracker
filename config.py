@@ -14,12 +14,10 @@ class Config:
         _db_url = 'postgresql://' + _db_url[len('postgres://'):]
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # pool_size/max_overflow only valid for PostgreSQL — set dynamically in create_app
     SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,       # test connection before use — drops stale SSL connections gracefully
-        'pool_recycle': 240,         # recycle every 4min — well under Railway's ~5min idle timeout
-        'pool_size': 5,
-        'max_overflow': 2,
-        'connect_args': {'connect_timeout': 10},
+        'pool_pre_ping': True,
+        'pool_recycle': 240,
     }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)

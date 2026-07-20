@@ -10,12 +10,9 @@ from models.saved_food import SavedFood
 def seed_db() -> None:
     """Bulk-insert USDA foods from CSV into saved_food table.
 
-    Idempotent: skips if any usda entries already exist.
+    Idempotent: deletes any existing usda entries before re-inserting, so
+    this can be called safely on every startup even with a persistent DB.
     """
-    if SavedFood.query.filter_by(source='usda').first() is not None:
-        current_app.logger.info('USDA seed data already present, skipping.')
-        return
-
     csv_path = os.path.join(os.path.dirname(__file__), 'foods.csv')
 
     rows = []
@@ -60,6 +57,10 @@ def seed_db() -> None:
                     is_archived=False,
                 )
             )
+
+    # Delete any existing USDA records to allow clean re-seed
+    SavedFood.query.filter_by(source='usda').delete()
+    db.session.commit()
 
     db.session.bulk_save_objects(rows)
     db.session.commit()

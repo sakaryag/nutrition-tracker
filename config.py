@@ -16,9 +16,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,       # test connection before use — drops stale SSL connections gracefully
-        'pool_recycle': 280,         # recycle connections every 4m40s (Railway idle timeout is ~5min)
+        'pool_recycle': 240,         # recycle every 4min — well under Railway's ~5min idle timeout
         'pool_size': 5,
         'max_overflow': 2,
+        'connect_args': {'connect_timeout': 10},
     }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)

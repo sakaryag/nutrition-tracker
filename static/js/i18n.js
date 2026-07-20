@@ -166,7 +166,7 @@ const i18n = {
     'settings.carbsG':        'Carbs (g)',
     'settings.caloriesKcal':  'Calories (kcal)',
     'settings.saveTargets':   'Save Targets',
-    'settings.targetsSaved':  'Targets saved successfully.',
+    'settings.targetsSaved':  'Targets saved!',
 
     /* Auth */
     'auth.login':           'Log In',
@@ -196,6 +196,49 @@ const i18n = {
     'common.slice':   'slice',
     'common.serving': 'serving',
     'common.kcal':    'kcal',
+
+    /* Template adjust modal (dashboard.js) */
+    'dash.logTemplate':        'Log Template',
+    'dash.adjustHint':         'Adjust, remove, or add items before logging.',
+    'dash.addItemPlaceholder': 'Add item… (search food)',
+    'dash.updateTemplate':     'Also update the saved template',
+    'dash.logAsEntry':         'Log as One Entry',
+    'dash.noTemplates':        'No templates yet.',
+    'dash.clearMeal':          'Clear all {meal} entries?',
+    'dash.mealCleared':        '{meal} cleared',
+
+    /* History page */
+    'hist.days7':           '7 Days',
+    'hist.days14':          '14 Days',
+    'hist.days30':          '30 Days',
+    'hist.dateNoEntries':   'No entries for this date.',
+    'hist.rangeRequired':   'Please select a date range',
+    'hist.invalidRange':    'Start date must be before end date',
+    'hist.chartProtein':    'Protein (g)',
+    'hist.chartFat':        'Fat (g)',
+    'hist.chartCarbs':      'Carbs (g)',
+    'hist.chartCalories':   'Calories',
+
+    /* Foods page */
+    'foods.searchMin': 'Type at least 2 characters to search.',
+    'foods.noCustom':  'No custom foods yet. Click "+ Add Custom Food" to create one.',
+    'foods.noUsda':    'No USDA foods found.',
+    'foods.mealBadge': '(meal)',
+
+    /* Settings */
+    'settings.macroTotal':    'Total: {pct}%',
+    'settings.macroMustAdd':  'Custom macro percentages must add up to 100%',
+
+    /* Meal templates */
+    'meals.noItems':      'No items yet. Search below or click + Custom Item.',
+    'meals.typeFirst':    'Type a food name first',
+    'meals.nameRequired': 'Template name required',
+    'meals.addItem':      'Add at least one item',
+    'meals.itemCount':    '{n} item(s)',
+
+    /* Common error states */
+    'common.loadError':  'Could not load data.',
+    'common.clearLabel': 'Clear',
   },
 
   tr: {
@@ -236,7 +279,7 @@ const i18n = {
     'entry.breakfast':    'Kahvaltı',
     'entry.lunch':        'Öğle Yemeği',
     'entry.dinner':       'Akşam Yemeği',
-    'entry.snack':        'Atıştirmalık',
+    'entry.snack':        'Atıştırmalık',
     'entry.searchPlaceholder': 'Besin ara veya yazın',
     'entry.unitPlaceholder':   'g, oz, su bardağı…',
 
@@ -289,7 +332,7 @@ const i18n = {
     'foods.delete':       'Sil',
     'foods.clone':        'Kopyala',
     'foods.serving':      'Porsiyon',
-    'foods.usdaNote':     'USDA besinleri düzenlene mez',
+    'foods.usdaNote':     'USDA besinleri düzenlenemez',
     'foods.categoryPlaceholder': 'ör. Süt Ürünleri, Tahıl',
     'foods.unitPlaceholder':     'g, oz, su bardağı…',
 
@@ -302,7 +345,7 @@ const i18n = {
     'meals.breakfast':    'Kahvaltı',
     'meals.lunch':        'Öğle Yemeği',
     'meals.dinner':       'Akşam Yemeği',
-    'meals.snack':        'Atıştirmalık',
+    'meals.snack':        'Atıştırmalık',
     'meals.items':        'Öğeler',
     'meals.ingredients':  'Malzemeler',
     'meals.meals':        'Öğünler',
@@ -315,12 +358,12 @@ const i18n = {
     'meals.newTitle':     'Yeni Şablon',
     'meals.editTitle':    'Şablonu Düzenle',
     'meals.searchPlaceholder': 'Eklenecek besini ara...',
-    'meals.namePlaceholder':   'ör. Olagan kahvaltım',
+    'meals.namePlaceholder':   'ör. Olağan kahvaltım',
 
     /* Settings */
     'settings.title':         'Ayarlar',
     'settings.tdeeCalc':      'TDEE Hesaplayıcı',
-    'settings.tdeeDesc':      'Vücudunuza ve aktivite seviyenize göre günlük kalori ihtiyacınızı hesaplayın.',
+    'settings.tdeeDesc':      'Vücudunuza ve aktivite seviyenize göre günlük kalori ihtiyacınızı hesaplayın. Sonuçlar aşağıdaki hedeflerinizi otomatik olarak dolduracaktır.',
     'settings.gender':        'Cinsiyet',
     'settings.male':          'Erkek',
     'settings.female':        'Kadın',
@@ -355,13 +398,13 @@ const i18n = {
     'settings.language':      'Dil / Language',
     'settings.langDesc':      'Arama sonuçlarındaki besin isimlerinin dilini seçin.',
     'settings.dailyTargets':  'Günlük Hedefler',
-    'settings.targetsDesc':   'Günlük makro ve kalori hedeflerinizi belirleyin.',
+    'settings.targetsDesc':   'Günlük makro ve kalori hedeflerinizi belirleyin. Bu değişiklikler bugünden itibaren geçerli olacaktır.',
     'settings.proteinG':      'Protein (g)',
     'settings.fatG':          'Yağ (g)',
     'settings.carbsG':        'Karbonhidrat (g)',
     'settings.caloriesKcal':  'Kalori (kcal)',
     'settings.saveTargets':   'Hedefleri Kaydet',
-    'settings.targetsSaved':  'Hedefler başarıyla kaydedildi.',
+    'settings.targetsSaved':  'Hedefler kaydedildi!',
 
     /* Auth */
     'auth.login':           'Giriş Yap',
@@ -391,6 +434,49 @@ const i18n = {
     'common.slice':   'dilim',
     'common.serving': 'porsiyon',
     'common.kcal':    'kcal',
+
+    /* Template adjust modal (dashboard.js) */
+    'dash.logTemplate':        'Şablonu Kaydet',
+    'dash.adjustHint':         'Kaydetmeden önce öğeleri düzenleyin, kaldırın veya ekleyin.',
+    'dash.addItemPlaceholder': 'Öğe ekle… (besin ara)',
+    'dash.updateTemplate':     'Kaydedilen şablonu da güncelle',
+    'dash.logAsEntry':         'Tek Girdi Olarak Kaydet',
+    'dash.noTemplates':        'Henüz şablon yok.',
+    'dash.clearMeal':          '{meal} kayıtlarını temizle?',
+    'dash.mealCleared':        '{meal} temizlendi',
+
+    /* History page */
+    'hist.days7':           '7 Gün',
+    'hist.days14':          '14 Gün',
+    'hist.days30':          '30 Gün',
+    'hist.dateNoEntries':   'Bu tarih için kayıt yok.',
+    'hist.rangeRequired':   'Lütfen bir tarih aralığı seçin',
+    'hist.invalidRange':    'Başlangıç tarihi bitiş tarihinden önce olmalıdır',
+    'hist.chartProtein':    'Protein (g)',
+    'hist.chartFat':        'Yağ (g)',
+    'hist.chartCarbs':      'Karbonhidrat (g)',
+    'hist.chartCalories':   'Kalori',
+
+    /* Foods page */
+    'foods.searchMin': 'Aramak için en az 2 karakter girin.',
+    'foods.noCustom':  'Henüz özel besin yok. Oluşturmak için "+ Özel Besin Ekle" düğmesine tıklayın.',
+    'foods.noUsda':    'USDA besini bulunamadı.',
+    'foods.mealBadge': '(öğün)',
+
+    /* Settings */
+    'settings.macroTotal':    'Toplam: {pct}%',
+    'settings.macroMustAdd':  'Özel makro yüzdeleri toplamı %100 olmalıdır',
+
+    /* Meal templates */
+    'meals.noItems':      'Henüz öğe yok. Aşağıda arayın veya + Özel Öğe ekleyin.',
+    'meals.typeFirst':    'Önce bir besin adı yazın',
+    'meals.nameRequired': 'Şablon adı gereklidir',
+    'meals.addItem':      'En az bir öğe ekleyin',
+    'meals.itemCount':    '{n} öğe',
+
+    /* Common error states */
+    'common.loadError':  'Veriler yüklenemedi.',
+    'common.clearLabel': 'Temizle',
   },
 };
 

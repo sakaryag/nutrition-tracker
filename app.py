@@ -83,6 +83,7 @@ def _migrate_add_columns(app):
         'ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT "ingredient"',
         'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
         'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
+        'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
         'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
         'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES user(id)',
         'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES user(id)',

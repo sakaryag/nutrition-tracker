@@ -44,7 +44,7 @@
       const data = await api(`/api/summary?date=${date}`);
       renderSummary(data);
     } catch (err) {
-      showToast('Could not load summary: ' + err.message, 'error');
+      showToast(t('common.loadError') + ' ' + err.message, 'error');
     }
   }
 
@@ -68,15 +68,16 @@
       const entries = await api(`/api/entries?date=${date}`);
       renderEntries(entries);
     } catch (err) {
-      entriesList.innerHTML = '<p class="empty-msg">Could not load entries.</p>';
+      entriesList.innerHTML = '<p class="empty-msg">' + escHtml(t('common.loadError')) + '</p>';
     }
   }
 
   const MEAL_ORDER = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+  const MEAL_I18N  = { Breakfast: 'entry.breakfast', Lunch: 'entry.lunch', Dinner: 'entry.dinner', Snack: 'entry.snack' };
 
   function renderEntries(entries) {
     if (!entries || entries.length === 0) {
-      entriesList.innerHTML = '<p class="empty-msg">No entries for this date.</p>';
+      entriesList.innerHTML = '<p class="empty-msg">' + escHtml(t('hist.dateNoEntries')) + '</p>';
       return;
     }
     const groups = {};
@@ -88,7 +89,8 @@
     let html = '';
     MEAL_ORDER.forEach(meal => {
       if (groups[meal].length === 0) return;
-      html += `<div class="meal-group"><p class="meal-group__title">${meal}</p>`;
+      const lbl = t(MEAL_I18N[meal]) || meal;
+      html += `<div class="meal-group"><p class="meal-group__title">${escHtml(lbl)}</p>`;
       groups[meal].forEach(e => { html += renderEntryCard(e); });
       html += '</div>';
     });
@@ -137,16 +139,16 @@
       }
       renderTrendsChart(dateList, results);
     } catch (err) {
-      showToast('Could not load trends: ' + err.message, 'error');
+      showToast(t('common.loadError') + ' ' + err.message, 'error');
     }
   }
 
   function renderTrendsChart(labels, results) {
     const datasets = [
-      { label: 'Protein (g)',  key: 'protein',  color: '#4A90D9' },
-      { label: 'Fat (g)',      key: 'fat',       color: '#E8913A' },
-      { label: 'Carbs (g)',    key: 'carbs',     color: '#5CB85C' },
-      { label: 'Calories',     key: 'calories',  color: '#D9534F' },
+      { label: t('hist.chartProtein'),  key: 'protein',  color: '#4A90D9' },
+      { label: t('hist.chartFat'),      key: 'fat',       color: '#E8913A' },
+      { label: t('hist.chartCarbs'),    key: 'carbs',     color: '#5CB85C' },
+      { label: t('hist.chartCalories'), key: 'calories',  color: '#D9534F' },
     ];
 
     const chartData = {
@@ -190,8 +192,8 @@
     e.preventDefault();
     const start = exportStart.value;
     const end   = exportEnd.value;
-    if (!start || !end) { showToast('Please select a date range', 'error'); return; }
-    if (start > end) { showToast('Start date must be before end date', 'error'); return; }
+    if (!start || !end) { showToast(t('hist.rangeRequired'), 'error'); return; }
+    if (start > end) { showToast(t('hist.invalidRange'), 'error'); return; }
     window.location.href = `/api/export?start=${start}&end=${end}`;
   });
 

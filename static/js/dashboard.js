@@ -30,7 +30,18 @@
     return null;
   }
 
-  function unitOptions(baseUnit, gPerUnit) {
+  function unitOptions(baseUnit, gPerUnit, validUnitsJson) {
+    /* If the food has a valid_units whitelist, use it exclusively */
+    if (validUnitsJson) {
+      var whitelist;
+      try { whitelist = typeof validUnitsJson === 'string' ? JSON.parse(validUnitsJson) : validUnitsJson; } catch (_) { whitelist = null; }
+      if (whitelist && whitelist.length) {
+        return Object.keys(UNITS).map(function (u) {
+          return { unit: u, enabled: whitelist.indexOf(u) !== -1 };
+        });
+      }
+    }
+    /* Fallback: group-based logic */
     var base = UNITS[baseUnit] || UNITS['g'];
     var baseGroup = base.group;
     return Object.keys(UNITS).map(function (u) {
@@ -45,8 +56,8 @@
     });
   }
 
-  function populateUnitSelect(sel, baseUnit, gPerUnit, currentVal) {
-    var opts = unitOptions(baseUnit || 'g', gPerUnit);
+  function populateUnitSelect(sel, baseUnit, gPerUnit, currentVal, validUnitsJson) {
+    var opts = unitOptions(baseUnit || 'g', gPerUnit, validUnitsJson);
     sel.innerHTML = opts.map(function (o) {
       return '<option value="' + o.unit + '"' + (o.enabled ? '' : ' disabled') + '>'
         + (o.enabled ? '' : String.fromCharCode(10005) + ' ') + UNIT_LABELS[o.unit] + '</option>';
@@ -230,7 +241,7 @@
 
   async function loadRecents() {
     try { var r=await api('/api/entries/recent'); renderRecents(r); }
-    catch(_){ quickAddList.innerHTML='<p class="empty-msg">Could not load recent foods.</p>'; }
+    catch(_){ quickAddList.innerHTML='<p class="empty-msg">'+escHtml(t('common.loadError'))+'</p>'; }
   }
   function renderRecents(recents) {
     if(!recents||recents.length===0){quickAddList.innerHTML='<p class="empty-msg">No recent foods yet.</p>';return;}
@@ -279,7 +290,7 @@
       foodGPerUnit=null;
       if(entry.saved_food_id){
         api('/api/foods/'+entry.saved_food_id).then(function(f){
-          if(f){foodGPerUnit=f.g_per_unit||null;populateUnitSelect(unitSelect,f.serving_unit||baseUnit,foodGPerUnit,baseUnit);}
+          if(f){foodGPerUnit=f.g_per_unit||null;populateUnitSelect(unitSelect,f.serving_unit||baseUnit,foodGPerUnit,baseUnit,f.valid_units||null);}
         }).catch(function(){});
       } else {
         populateUnitSelect(unitSelect,baseUnit,null,baseUnit);
@@ -312,7 +323,7 @@
     if(food.id) document.getElementById('entry-saved-food-id').value=food.id;
     foodGPerUnit=food.g_per_unit||null;
     var baseUnit=food.serving_unit||'g';
-    populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit);
+    populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit,food.valid_units||null);
     selectedFood={protein:food.protein??0,fat:food.fat??0,carbs:food.carbs??0,
       calories:food.calories??0,default_serving:food.default_serving??food.serving_size??100,
       serving_unit:baseUnit,g_per_unit:foodGPerUnit};
@@ -371,7 +382,7 @@
       document.getElementById('entry-serving-size').value=food.default_serving??'';
       foodGPerUnit=food.g_per_unit||null;
       var baseUnit=food.serving_unit||'g';
-      populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit);
+      populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit,food.valid_units||null);
       autocompleteList.hidden=true; updateUnitHint();
     }catch(_){}
   });
@@ -490,10 +501,10 @@
     }else if(btn.dataset.action==='add-to-meal'){
       pendingMealType=meal; openModal();
     }else if(btn.dataset.action==='clear-meal'){
-      if(!confirm('Clear all '+meal+' entries?')) return;
+      if(!confirm(t('dash.clearMeal').replace('{meal}',meal))) return;
       try{
         await api('/api/entries/clear-meal?date='+currentDate+'&meal_type='+encodeURIComponent(meal),{method:'DELETE'});
-        showToast(meal+' cleared','success'); await loadPage();
+        showToast(t('dash.mealCleared').replace('{meal}',meal),'success'); await loadPage();
       }catch(err){showToast(t('common.error')+': '+err.message,'error');}
     }
   });
@@ -502,7 +513,7 @@
     try{
       allTemplates=await api('/api/meal-templates');
       if(!allTemplates||allTemplates.length===0){
-        templateChipsList.innerHTML='<p class="empty-msg">No templates yet. <a href="/meals">Create one</a></p>';
+        templateChipsList.innerHTML='<p class="empty-msg">'+escHtml(t('dash.noTemplates'))+' <a href="/meals">Create one</a></p>';
         return;
       }
       templateChipsList.innerHTML=allTemplates.map(function(tpl){
@@ -513,7 +524,7 @@
           +'<span class="chip-sub">'+Math.round(tpl.total_calories)+' kcal</span>'
           +'</button>';
       }).join('');
-    }catch(_){templateChipsList.innerHTML='<p class="empty-msg">Could not load templates.</p>';}
+    }catch(_){templateChipsList.innerHTML='<p class="empty-msg">'+escHtml(t('common.loadError'))+'</p>';}
   }
 
   templateChipsList.addEventListener('click',function(e){

@@ -76,7 +76,7 @@
   <section class="quick-add" aria-label="Quick add recent foods">
     <div class="section-header-row">
       <h2 class="section-title" data-i18n="dash.recentFoods">Recent Foods</h2>
-      <button class="btn btn-sm btn-ghost" id="clear-recents-btn" title="Clear recent foods list">&#x2715; Clear</button>
+      <button class="btn btn-sm btn-ghost" id="clear-recents-btn" title="Clear recent foods list">&#x2715; <span data-i18n="common.clearLabel">Clear</span></button>
     </div>
     <div class="quick-add__list" id="quick-add-list">
       <p class="empty-msg" data-i18n="dash.loadingRecents">Loading recent foods&hellip;</p>
@@ -175,15 +175,15 @@
 <div class="modal-overlay" id="tpl-adjust-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-adjust-title" hidden>
   <div class="modal modal--wide">
     <div class="modal-header">
-      <h2 class="modal-title" id="tpl-adjust-title">Log Template</h2>
+      <h2 class="modal-title" id="tpl-adjust-title" data-i18n="dash.logTemplate">Log Template</h2>
       <button class="btn btn-icon modal-close" id="close-tpl-adjust" aria-label="Close">&times;</button>
     </div>
-    <p class="form-hint" style="margin-bottom:0.75rem;">Adjust, remove, or add items before logging.</p>
+    <p class="form-hint" style="margin-bottom:0.75rem;" data-i18n="dash.adjustHint">Adjust, remove, or add items before logging.</p>
     <div id="tpl-adjust-items"></div>
 
     <!-- Add item search -->
     <div class="tpl-add-item-row autocomplete-wrap" style="margin-top:0.75rem;">
-      <input type="text" id="tpl-item-search" class="form-control" placeholder="Add item… (search food)" autocomplete="off" />
+      <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="dash.addItemPlaceholder" placeholder="Add item… (search food)" autocomplete="off" />
       <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
     </div>
 
@@ -191,12 +191,12 @@
 
     <label class="tpl-save-label" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-size:0.88rem;">
       <input type="checkbox" id="tpl-save-changes" />
-      Also update the saved template
+      <span data-i18n="dash.updateTemplate">Also update the saved template</span>
     </label>
 
     <div class="form-actions" style="margin-top:1rem;">
-      <button type="button" class="btn btn-secondary" id="cancel-tpl-adjust">Cancel</button>
-      <button type="button" class="btn btn-primary" id="confirm-tpl-log">Log as One Entry</button>
+      <button type="button" class="btn btn-secondary" id="cancel-tpl-adjust" data-i18n="entry.cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirm-tpl-log" data-i18n="dash.logAsEntry">Log as One Entry</button>
     </div>
   </div>
 </div>

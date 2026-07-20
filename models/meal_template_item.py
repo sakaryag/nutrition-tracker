@@ -19,7 +19,12 @@ class MealTemplateItem(db.Model):
     serving_size = db.Column(db.Float, nullable=True)
     serving_unit = db.Column(db.String(20), default='g')
 
+    saved_food = db.relationship('SavedFood', foreign_keys=[saved_food_id], lazy='joined', uselist=False)
+
     def to_dict(self):
+        valid_units = None
+        if self.saved_food is not None:
+            valid_units = self.saved_food.valid_units
         return {
             'id': self.id,
             'template_id': self.template_id,
@@ -31,4 +36,5 @@ class MealTemplateItem(db.Model):
             'calories': self.calories,
             'serving_size': self.serving_size,
             'serving_unit': self.serving_unit,
+            'valid_units': valid_units,
         }

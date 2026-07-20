@@ -344,7 +344,7 @@ input, select, textarea { font: inherit; }
 
 .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
 
-.btn-group { display: flex; gap: 0.25rem; }
+.btn-group { display: flex; gap: 0.25rem; flex-wrap: wrap; }
 
 /* ---------- Action Bar ---------- */
 .action-bar {
@@ -913,6 +913,8 @@ input, select, textarea { font: inherit; }
   flex-direction: column;
   align-items: center;
   padding: 0.5rem 0 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .donut-center-label {
@@ -1026,6 +1028,7 @@ input, select, textarea { font: inherit; }
 
 .tpl-add-item {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
@@ -1263,3 +1266,65 @@ input, select, textarea { font: inherit; }
 }
 
 .chat-send-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* ---- Mobile overrides ---- */
+
+/* --- max-width: 640px --- */
+@media (max-width: 640px) {
+  /* Fix .lang-toggle competing with .nav-toggle for margin-left: auto */
+  .lang-toggle {
+    margin-left: 0;
+  }
+}
+
+/* --- max-width: 480px --- */
+@media (max-width: 480px) {
+  /* Stack .tpl-adjust-row to 3 columns on narrow phones */
+  .tpl-adjust-row {
+    grid-template-columns: 1fr 4rem auto;
+  }
+  /* Hide macros column in the adjust row to make room */
+  .tpl-adjust-macros {
+    display: none;
+  }
+
+  /* Prevent .tpl-item-row__macros from overflowing */
+  .tpl-item-row__macros {
+    min-width: 0;
+    font-size: 0.75rem;
+  }
+
+  /* Collapse TDEE results grid to single column */
+  .tdee-results__grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Full-width action bar buttons */
+  .action-bar {
+    flex-direction: column;
+  }
+  .action-bar .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Reduce chart height on narrow screens */
+  .chart-container {
+    height: 200px;
+  }
+
+  /* Stack .form-row inputs: each .form-group goes full-width */
+  .form-row .form-group {
+    flex: 1 1 100%;
+  }
+
+  /* Download CSV button goes full-width when wrapping */
+  .form-group--action {
+    flex: 1 1 100%;
+    align-self: stretch;
+  }
+  .form-group--action .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

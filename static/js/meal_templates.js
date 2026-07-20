@@ -5,6 +5,7 @@
   'use strict';
 
   var UNIT_OPTIONS = ['g', 'ml', 'oz', 'cup', 'tbsp', 'tsp', 'glass', 'piece', 'slice', 'serving'];
+  var ALL_UNIT_OPTIONS = UNIT_OPTIONS; /* full list kept for fallback */
 
   var templates = [];
   var editingTemplateId = null;
@@ -47,7 +48,7 @@
       templates = await api('/api/meal-templates');
       renderTemplates();
     } catch (_) {
-      templatesList.innerHTML = '<p class="empty-msg">Could not load templates.</p>';
+      templatesList.innerHTML = '<p class="empty-msg">' + esc(t('common.loadError')) + '</p>';
     }
   }
 
@@ -59,10 +60,11 @@
     templatesList.innerHTML = templates.map(function (tpl) {
       var n = tpl.items ? tpl.items.length : 0;
       var m = 'P:' + r1(tpl.total_protein) + 'g F:' + r1(tpl.total_fat) + 'g C:' + r1(tpl.total_carbs) + 'g ' + Math.round(tpl.total_calories) + 'kcal';
+      var itemLabel = t('meals.itemCount').replace('{n}', n);
       return '<article class="food-card" data-id="' + tpl.id + '">' +
         '<div class="food-card__info">' +
           '<p class="food-card__name">' + esc(tpl.name) + '</p>' +
-          '<p class="food-card__meta">' + esc(tpl.meal_type) + ' &mdash; ' + n + ' item' + (n !== 1 ? 's' : '') + '</p>' +
+          '<p class="food-card__meta">' + esc(tpl.meal_type) + ' &mdash; ' + esc(itemLabel) + '</p>' +
           '<div class="food-card__macros">' + m + '</div>' +
         '</div>' +
         '<div class="food-card__actions">' +
@@ -111,6 +113,7 @@
         return { food_name: i.food_name, saved_food_id: i.saved_food_id,
           protein: i.protein, fat: i.fat, carbs: i.carbs, calories: cal,
           serving_size: srv, serving_unit: i.serving_unit || 'g',
+          valid_units: i.valid_units || null,
           _bp: i.protein, _bf: i.fat, _bc: i.carbs, _bk: cal, _bs: srv };
       });
     }
@@ -133,9 +136,18 @@
   modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
 
   /* ---- render items ---- */
-  function unitOpts(sel) {
-    return UNIT_OPTIONS.map(function (u) {
-      return '<option value="' + u + '"' + (u === sel ? ' selected' : '') + '>' + u + '</option>';
+  function unitOpts(sel, validUnitsJson) {
+    var allowed = ALL_UNIT_OPTIONS;
+    if (validUnitsJson) {
+      try {
+        var wl = typeof validUnitsJson === 'string' ? JSON.parse(validUnitsJson) : validUnitsJson;
+        if (Array.isArray(wl) && wl.length) { allowed = wl; }
+      } catch (_) {}
+    }
+    return ALL_UNIT_OPTIONS.map(function (u) {
+      var enabled = allowed.indexOf(u) !== -1;
+      return '<option value="' + u + '"' + (u === sel ? ' selected' : '') + (enabled ? '' : ' disabled') + '>'
+        + (enabled ? '' : '✗ ') + u + '</option>';
     }).join('');
   }
 
@@ -145,14 +157,14 @@
 
   function renderItemsList() {
     if (templateItems.length === 0) {
-      itemsList.innerHTML = '<p class="empty-msg">No items yet. Search below or click + Custom Item.</p>';
+      itemsList.innerHTML = '<p class="empty-msg">' + esc(t('meals.noItems')) + '</p>';
       return;
     }
     itemsList.innerHTML = templateItems.map(function (it, idx) {
       return '<div class="tpl-item-row" data-idx="' + idx + '">' +
         '<span class="tpl-item-row__name">' + esc(it.food_name) + '</span>' +
         '<input class="form-control tpl-item-serving" type="number" min="0.1" step="0.1" value="' + r1(it.serving_size) + '" data-idx="' + idx + '" data-field="serving_size" />' +
-        '<select class="form-control tpl-item-unit" data-idx="' + idx + '" data-field="serving_unit">' + unitOpts(it.serving_unit) + '</select>' +
+        '<select class="form-control tpl-item-unit" data-idx="' + idx + '" data-field="serving_unit">' + unitOpts(it.serving_unit, it.valid_units || null) + '</select>' +
         '<span class="tpl-item-macros" data-macros="' + idx + '">' + macroLine(it) + '</span>' +
         '<button type="button" class="btn btn-icon btn-sm" data-remove="' + idx + '" title="Remove">&times;</button>' +
       '</div>';
@@ -238,7 +250,7 @@
       var cal = f.calories || (f.protein * 4 + f.fat * 9 + f.carbs * 4);
       templateItems.push({ food_name: f.name, saved_food_id: f.id,
         protein: f.protein, fat: f.fat, carbs: f.carbs, calories: cal,
-        serving_size: srv, serving_unit: unit,
+        serving_size: srv, serving_unit: unit, valid_units: f.valid_units || null,
         _bp: f.protein, _bf: f.fat, _bc: f.carbs, _bk: cal, _bs: srv });
       renderItemsList();
       itemSearch.value = '';
@@ -255,7 +267,7 @@
   /* ---- custom item ---- */
   addCustomItemBtn.addEventListener('click', function () {
     var name = itemSearch.value.trim();
-    if (!name) { showToast('Type a food name first', 'error'); return; }
+    if (!name) { showToast(t('meals.typeFirst'), 'error'); return; }
     templateItems.push({ food_name: name, saved_food_id: null,
       protein: 0, fat: 0, carbs: 0, calories: 0,
       serving_size: 100, serving_unit: 'g',
@@ -283,8 +295,8 @@
           serving_size: it.serving_size, serving_unit: it.serving_unit };
       }),
     };
-    if (!body.name) { showToast(t('meals.templateName') + ' required', 'error'); return; }
-    if (!body.items.length) { showToast('Add at least one item', 'error'); return; }
+    if (!body.name) { showToast(t('meals.nameRequired'), 'error'); return; }
+    if (!body.items.length) { showToast(t('meals.addItem'), 'error'); return; }
     var saveBtn = document.getElementById('save-template-btn');
     saveBtn.disabled = true;
     try {

@@ -47,7 +47,7 @@
     if (tab === 'usda') {
       const q = searchInput.value.trim();
       if (q.length >= 2) searchUsda(q);
-      else usdaFoodsList.innerHTML = '<p class="empty-msg">Type at least 2 characters to search USDA foods.</p>';
+      else usdaFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('foods.searchMin')) + '</p>';
     }
   }
 
@@ -75,7 +75,7 @@
 
   async function searchUsda(q) {
     if (q.length < 2) {
-      usdaFoodsList.innerHTML = '<p class="empty-msg">Type at least 2 characters to search USDA foods.</p>';
+      usdaFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('foods.searchMin')) + '</p>';
       return;
     }
     usdaFoodsList.innerHTML = '<p class="empty-msg">' + t('common.loading') + '</p>';
@@ -84,7 +84,7 @@
       const usda = (foods || []).filter(f => f.source === 'usda');
       renderUsdaFoods(usda);
     } catch (err) {
-      usdaFoodsList.innerHTML = '<p class="empty-msg">Search failed.</p>';
+      usdaFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('common.loadError')) + '</p>';
       showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
@@ -96,14 +96,14 @@
       customFoods = (foods || []).filter(f => !f.is_archived);
       renderCustomFoods(customFoods);
     } catch (err) {
-      customFoodsList.innerHTML = '<p class="empty-msg">Could not load foods.</p>';
+      customFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('common.loadError')) + '</p>';
       showToast(t('common.error') + ': ' + err.message, 'error');
     }
   }
 
   function renderCustomFoods(foods) {
     if (!foods || foods.length === 0) {
-      customFoodsList.innerHTML = '<p class="empty-msg">No custom foods yet. Click &ldquo;+ Add Custom Food&rdquo; to create one.</p>';
+      customFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('foods.noCustom')) + '</p>';
       return;
     }
     customFoodsList.innerHTML = foods.map(f => renderFoodCard(f, true)).join('');
@@ -111,7 +111,7 @@
 
   function renderUsdaFoods(foods) {
     if (!foods || foods.length === 0) {
-      usdaFoodsList.innerHTML = '<p class="empty-msg">No USDA foods found.</p>';
+      usdaFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('foods.noUsda')) + '</p>';
       return;
     }
     usdaFoodsList.innerHTML = foods.map(f => renderFoodCard(f, false)).join('');
@@ -121,7 +121,7 @@
     const brand = f.brand ? ` &mdash; ${escHtml(f.brand)}` : '';
     const macros = `P: ${r1(f.protein)}g &nbsp; F: ${r1(f.fat)}g &nbsp; C: ${r1(f.carbs)}g &nbsp; ${Math.round(f.calories ?? 0)} kcal`;
     const serving = `${f.default_serving} ${escHtml(f.serving_unit)}`;
-    const mealBadge = (f.food_type === 'meal') ? ' <span class="badge badge--meal">(meal)</span>' : '';
+    const mealBadge = (f.food_type === 'meal') ? ' <span class="badge badge--meal">' + escHtml(t('foods.mealBadge')) + '</span>' : '';
 
     let actions = '';
     if (isCustom) {

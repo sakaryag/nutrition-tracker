@@ -22,7 +22,7 @@
         document.getElementById('target-calories').value = targets.calories ?? '';
       }
     } catch (err) {
-      showToast('Could not load targets: ' + err.message, 'error');
+      showToast(t('common.loadError') + ' ' + err.message, 'error');
     }
   }
 
@@ -41,7 +41,7 @@
     try {
       await api('/api/targets', { method: 'POST', body: JSON.stringify(body) });
       successAlert.hidden = false;
-      showToast('Targets saved!', 'success');
+      showToast(t('settings.targetsSaved'), 'success');
       setTimeout(() => { successAlert.hidden = true; }, 4000);
     } catch (err) {
       showToast('Error saving targets: ' + err.message, 'error');
@@ -84,7 +84,7 @@
       var f = parseFloat(document.getElementById('custom-fat-pct').value)     || 0;
       var c = parseFloat(document.getElementById('custom-carbs-pct').value)   || 0;
       var total = p + f + c;
-      pctTotalEl.textContent = 'Total: ' + total + '%';
+      pctTotalEl.textContent = t('settings.macroTotal').replace('{pct}', total);
       if (Math.abs(total - 100) > 0.5) {
         pctTotalEl.classList.add('error');
       } else {
@@ -106,7 +106,7 @@
         var f = parseFloat(document.getElementById('custom-fat-pct').value)     || 0;
         var c = parseFloat(document.getElementById('custom-carbs-pct').value)   || 0;
         if (Math.abs(p + f + c - 100) > 0.5) {
-          showToast('Custom macro percentages must add up to 100%', 'error');
+          showToast(t('settings.macroMustAdd'), 'error');
           return;
         }
       }

@@ -97,26 +97,28 @@ def _backup_db(app):
 
 
 def _migrate_add_columns(app):
-    """Add columns to saved_food that may not exist on older DBs (SQLite ignores
-    new columns in create_all on existing tables). Each ALTER is wrapped separately
-    so one failure doesn't block the others."""
+    """Add columns that may not exist on older DBs. Each ALTER runs in its own
+    transaction so a failure (column already exists) doesn't abort the others.
+    This is critical for PostgreSQL which aborts the whole transaction on error."""
     migrations = [
         "ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
         'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
         'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
         'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
         'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
-        'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES user(id)',
-        'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES user(id)',
-        'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES user(id)',
+        'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+        'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+        'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
     ]
-    with db.engine.connect() as conn:
-        for sql in migrations:
+    for sql in migrations:
+        # Each statement gets its own connection+transaction so PostgreSQL
+        # transaction-abort on duplicate column doesn't cascade to the rest.
+        with db.engine.connect() as conn:
             try:
                 conn.execute(text(sql))
                 conn.commit()
             except Exception:
-                pass  # column already exists
+                conn.rollback()  # column already exists or other benign error
 
 
 def _register_blueprints(app):

@@ -331,6 +331,24 @@
     });
   });
 
+  var photoFoodBtn = document.getElementById('photo-food-btn');
+  if(photoFoodBtn) photoFoodBtn.addEventListener('click',function(){
+    openFoodImageScanner(function(food){
+      pendingMealType=null;
+      openModal();
+      prefillFromFood({
+        food_name: food.name,
+        name: food.name,
+        protein: food.protein,
+        fat: food.fat,
+        carbs: food.carbs,
+        calories: food.calories,
+        default_serving: food.estimated_grams||100,
+        serving_unit: 'g',
+      });
+    });
+  });
+
   function prefillFromFood(food) {
     foodNameInput.value=food.food_name??food.name??'';
     document.getElementById('entry-protein').value=food.protein??'';

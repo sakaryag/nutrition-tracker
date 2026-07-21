@@ -1,5 +1,8 @@
+import base64
 import json
+import re
 import urllib.request
+import urllib.error
 
 from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import case, or_
@@ -56,6 +59,110 @@ def barcode_lookup():
         })
     except Exception:
         return jsonify({'found': False, 'message': 'Lookup failed'})
+
+
+_ALLOWED_MIME = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
+
+
+@foods_bp.route('/image', methods=['POST'])
+def image_lookup():
+    api_key = request.form.get('api_key', '').strip()
+    if not api_key:
+        return jsonify({'found': False, 'message': 'Anthropic API key required — add yours in Settings'})
+    if 'image' not in request.files:
+        return jsonify({'found': False, 'message': 'image file is required'}), 400
+    img = request.files['image']
+    mime = (img.content_type or '').split(';')[0].strip()
+    if mime not in _ALLOWED_MIME:
+        return jsonify({'found': False, 'message': 'Unsupported image format (use JPEG, PNG, GIF or WebP)'}), 400
+    img_bytes = img.read(10 * 1024 * 1024 + 1)
+    if len(img_bytes) > 10 * 1024 * 1024:
+        return jsonify({'found': False, 'message': 'Image too large (max 10 MB)'}), 400
+    lang = request.form.get('lang', 'en').strip()
+    b64 = base64.b64encode(img_bytes).decode('utf-8')
+    if lang == 'tr':
+        prompt = (
+            'Bu yemek fotoğrafını analiz et. Görünen tüm yiyecekleri belirle ve porsiyonları tahmin et. '
+            'SADECE geçerli JSON döndür, markdown veya açıklama olmadan:\n'
+            '{"items": [{"food_name": "Tavuk göğsü", "estimated_grams": 180, '
+            '"protein": 31.0, "fat": 3.6, "carbs": 0.0, "calories": 165.0}]}\n'
+            'Kurallar:\n'
+            '- makrolar estimated_grams toplamı içindir (100g başına değil)\n'
+            '- estimated_grams görünen porsiyondur\n'
+            '- birden fazla yiyecek varsa her biri için ayrı öğe\n'
+            '- Türkçe yiyecek adları kullan'
+        )
+    else:
+        prompt = (
+            'Analyse this food photo. Identify all visible foods and estimate portions. '
+            'Return ONLY valid JSON, no markdown, no explanation:\n'
+            '{"items": [{"food_name": "Chicken breast", "estimated_grams": 180, '
+            '"protein": 31.0, "fat": 3.6, "carbs": 0.0, "calories": 165.0}]}\n'
+            'Rules:\n'
+            '- macros are per estimated_grams total (not per 100g)\n'
+            '- estimated_grams is the visible portion\n'
+            '- if multiple foods, one item per food\n'
+            '- use English food names'
+        )
+    try:
+        payload = json.dumps({
+            'model': 'claude-haiku-4-5-20251001',
+            'max_tokens': 1024,
+            'messages': [{
+                'role': 'user',
+                'content': [
+                    {'type': 'image', 'source': {'type': 'base64', 'media_type': mime, 'data': b64}},
+                    {'type': 'text', 'text': prompt},
+                ],
+            }],
+        }).encode()
+        req = urllib.request.Request(
+            'https://api.anthropic.com/v1/messages',
+            data=payload,
+            headers={
+                'Content-Type': 'application/json',
+                'x-api-key': api_key,
+                'anthropic-version': '2023-06-01',
+            },
+            method='POST',
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read())
+        except urllib.error.HTTPError as e:
+            body = e.read().decode('utf-8', errors='replace')
+            if e.code == 401:
+                return jsonify({'found': False, 'message': 'Invalid API key'})
+            try:
+                msg = json.loads(body).get('error', {}).get('message', body)
+            except Exception:
+                msg = body
+            return jsonify({'found': False, 'message': f'Anthropic {e.code}: {msg}'})
+        text = data['content'][0]['text']
+        text = re.sub(r'^```(?:json)?\s*', '', text.strip())
+        text = re.sub(r'\s*```$', '', text.strip())
+        parsed = json.loads(text)
+        items = parsed.get('items', [])
+        if not isinstance(items, list) or len(items) == 0:
+            return jsonify({'found': False, 'message': 'No food items recognised'})
+        clean = []
+        for it in items:
+            try:
+                clean.append({
+                    'food_name': str(it.get('food_name', '')),
+                    'estimated_grams': int(round(float(it.get('estimated_grams', 100)))),
+                    'protein': round(float(it.get('protein', 0)), 1),
+                    'fat': round(float(it.get('fat', 0)), 1),
+                    'carbs': round(float(it.get('carbs', 0)), 1),
+                    'calories': round(float(it.get('calories', 0)), 1),
+                })
+            except (TypeError, ValueError):
+                continue
+        if not clean:
+            return jsonify({'found': False, 'message': 'No food items recognised'})
+        return jsonify({'found': True, 'items': clean})
+    except Exception:
+        return jsonify({'found': False, 'message': 'Recognition failed'})
 
 
 @foods_bp.route('', methods=['GET'])

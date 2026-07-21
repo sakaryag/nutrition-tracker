@@ -334,18 +334,24 @@ def _call_ollama(messages, system_prompt):
 
 def _call_anthropic(messages, system_prompt, api_key: str = ''):
     import urllib.request
+    import urllib.error
     key = api_key or _anthropic_key()
     # Anthropic requires strictly alternating user/assistant roles.
     # Merge consecutive same-role messages to avoid 400 errors.
     formatted = []
     for m in messages:
+        content = (m.get('content') or '').strip()
+        if not content:
+            continue
         if formatted and formatted[-1]['role'] == m['role']:
-            formatted[-1]['content'] += '\n' + m['content']
+            formatted[-1]['content'] += '\n' + content
         else:
-            formatted.append({'role': m['role'], 'content': m['content']})
+            formatted.append({'role': m['role'], 'content': content})
     # Must start with user role
-    if formatted and formatted[0]['role'] != 'user':
+    while formatted and formatted[0]['role'] != 'user':
         formatted = formatted[1:]
+    if not formatted:
+        raise RuntimeError('No valid messages to send')
     payload = json.dumps({
         'model': 'claude-haiku-4-5-20251001',
         'max_tokens': 1024,
@@ -366,6 +372,13 @@ def _call_anthropic(messages, system_prompt, api_key: str = ''):
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
             return data['content'][0]['text']
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8', errors='replace')
+        try:
+            msg = json.loads(body).get('error', {}).get('message', body)
+        except Exception:
+            msg = body
+        raise RuntimeError(f'Anthropic {e.code}: {msg}')
     except Exception as e:
         raise RuntimeError(f'Anthropic error: {e}')
 

@@ -89,6 +89,45 @@ function debounce(fn, ms) {
   };
 }
 
+/* ---------- API usage & budget tracking (localStorage, resets monthly) ---------- */
+var ApiUsage = {
+  MODELS: {
+    'claude-haiku-4-5-20251001': { label: 'Haiku (fast, cheap)', inputPer1M: 0.80, outputPer1M: 4.00 },
+    'claude-sonnet-4-5':         { label: 'Sonnet (smarter)',     inputPer1M: 3.00, outputPer1M: 15.00 },
+  },
+  getModel: function () {
+    var m = localStorage.getItem('nt_anthropic_model') || 'claude-haiku-4-5-20251001';
+    return this.MODELS[m] ? m : 'claude-haiku-4-5-20251001';
+  },
+  setModel: function (m) { if (this.MODELS[m]) localStorage.setItem('nt_anthropic_model', m); },
+  getBudget: function () { return parseFloat(localStorage.getItem('nt_monthly_budget') || '0') || 0; },
+  setBudget: function (v) { localStorage.setItem('nt_monthly_budget', String(parseFloat(v) || 0)); },
+  _monthKey: function () {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+  },
+  getSpent: function () {
+    var stored = JSON.parse(localStorage.getItem('nt_usage') || '{}');
+    return stored.month === this._monthKey() ? (stored.cost || 0) : 0;
+  },
+  addCost: function (inputTokens, outputTokens, model) {
+    var pricing = this.MODELS[model] || this.MODELS['claude-haiku-4-5-20251001'];
+    var cost = (inputTokens / 1e6) * pricing.inputPer1M + (outputTokens / 1e6) * pricing.outputPer1M;
+    var key = this._monthKey();
+    var stored = JSON.parse(localStorage.getItem('nt_usage') || '{}');
+    var prev = stored.month === key ? (stored.cost || 0) : 0;
+    var total = prev + cost;
+    localStorage.setItem('nt_usage', JSON.stringify({ month: key, cost: total }));
+    return total;
+  },
+  checkBudget: function () {
+    var budget = this.getBudget();
+    var spent = this.getSpent();
+    if (!budget) return { ok: true, spent: spent, budget: 0 };
+    return { ok: spent < budget, spent: spent, budget: budget };
+  },
+};
+
 /* ---------- Language helpers ---------- */
 const Lang = {
   get() { return localStorage.getItem('nt_lang') || 'en'; },

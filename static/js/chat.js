@@ -24,19 +24,27 @@
       const ready = data.ready;
       statusBadge.classList.toggle('ready',   ready);
       statusBadge.classList.toggle('offline', !ready);
+      const hintEl = document.getElementById('chat-api-hint');
       if (ready) {
         if (data.backend === 'anthropic') {
+          const model = ApiUsage.MODELS[ApiUsage.getModel()];
+          const modelLabel = model ? model.label : (data.model || '');
           const src = userKey && !data.server_key ? ' (your key)' : '';
-          statusLabel.textContent = 'Anthropic · ' + (data.model || '') + src;
+          statusLabel.textContent = 'Anthropic · ' + modelLabel + src;
+          if (hintEl) hintEl.hidden = true;
         } else if (data.backend === 'local-nlp') {
-          statusLabel.textContent = 'Local NLP · ' + (data.model || 'spaCy + rapidfuzz');
+          statusLabel.textContent = 'Local NLP · spaCy + rapidfuzz';
+          if (hintEl) hintEl.hidden = false;
         } else if (data.backend === 'ollama') {
           statusLabel.textContent = 'Ollama · ' + (data.model || '');
+          if (hintEl) hintEl.hidden = true;
         } else {
           statusLabel.textContent = 'Smart search mode';
+          if (hintEl) hintEl.hidden = false;
         }
       } else {
         statusLabel.textContent = 'No AI key — using smart search mode';
+        if (hintEl) hintEl.hidden = false;
       }
     } catch (_) {
       statusBadge.classList.add('offline');
@@ -109,14 +117,32 @@
     const lang = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
     const userKey = localStorage.getItem('nt_anthropic_key') || '';
 
+    // Budget check before sending
+    if (userKey && typeof ApiUsage !== 'undefined') {
+      const budgetState = ApiUsage.checkBudget();
+      if (!budgetState.ok) {
+        hideTyping();
+        busy = false;
+        sendBtn.disabled = false;
+        history.pop();
+        appendBubble('bot', '<em style="color:var(--color-danger)">Monthly budget of $' + budgetState.budget.toFixed(2) + ' reached ($' + budgetState.spent.toFixed(3) + ' spent). Update your limit in Settings.</em>');
+        return;
+      }
+    }
+
+    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'claude-haiku-4-5-20251001';
+
     try {
       const data = await api('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, lang, api_key: userKey }),
+        body: JSON.stringify({ messages: history, lang, api_key: userKey, model }),
       });
 
       hideTyping();
+      if (data.usage && data.usage.input_tokens && typeof ApiUsage !== 'undefined') {
+        ApiUsage.addCost(data.usage.input_tokens, data.usage.output_tokens, data.usage.model || model);
+      }
       const reply = data.reply || '(no reply)';
       history.push({ role: 'assistant', content: reply });
       appendBubble('bot', renderText(reply));

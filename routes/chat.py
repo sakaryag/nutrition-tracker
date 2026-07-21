@@ -332,10 +332,18 @@ def _call_ollama(messages, system_prompt):
         raise RuntimeError(f'Ollama error: {e}')
 
 
-def _call_anthropic(messages, system_prompt, api_key: str = ''):
+_ALLOWED_MODELS = {
+    'claude-haiku-4-5-20251001',
+    'claude-sonnet-4-5',
+}
+
+
+def _call_anthropic(messages, system_prompt, api_key: str = '', model: str = ''):
     import urllib.request
     import urllib.error
     key = api_key or _anthropic_key()
+    if not model or model not in _ALLOWED_MODELS:
+        model = 'claude-haiku-4-5-20251001'
     # Anthropic requires strictly alternating user/assistant roles.
     # Merge consecutive same-role messages to avoid 400 errors.
     formatted = []
@@ -353,7 +361,7 @@ def _call_anthropic(messages, system_prompt, api_key: str = ''):
     if not formatted:
         raise RuntimeError('No valid messages to send')
     payload = json.dumps({
-        'model': 'claude-haiku-4-5-20251001',
+        'model': model,
         'max_tokens': 1024,
         'system': system_prompt,
         'messages': formatted,
@@ -371,7 +379,13 @@ def _call_anthropic(messages, system_prompt, api_key: str = ''):
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             data = json.loads(resp.read())
-            return data['content'][0]['text']
+            usage = data.get('usage', {})
+            return {
+                'text': data['content'][0]['text'],
+                'input_tokens': usage.get('input_tokens', 0),
+                'output_tokens': usage.get('output_tokens', 0),
+                'model': model,
+            }
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='replace')
         try:
@@ -383,10 +397,10 @@ def _call_anthropic(messages, system_prompt, api_key: str = ''):
         raise RuntimeError(f'Anthropic error: {e}')
 
 
-def _get_reply(messages, system_prompt, user_key: str = ''):
+def _get_reply(messages, system_prompt, user_key: str = '', model: str = ''):
     key = user_key.strip() or _anthropic_key()
     if key:
-        return _call_anthropic(messages, system_prompt, api_key=key)
+        return _call_anthropic(messages, system_prompt, api_key=key, model=model)
     # Ollama is optional — try only if explicitly configured
     if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
         return _call_ollama(messages, system_prompt)
@@ -610,6 +624,7 @@ def chat():
     lang       = data.get('lang', 'en')
     uid        = current_user_id()
     user_key   = data.get('api_key', '').strip()
+    model      = data.get('model', '').strip()
 
     if not messages:
         return jsonify({'error': 'messages required'}), 400
@@ -618,8 +633,14 @@ def chat():
     food_tokens   = _extract_food_tokens(last_user_msg)
     system_prompt = _build_system(uid, lang, food_tokens)
 
+    usage = {}
     try:
-        raw_reply = _get_reply(messages, system_prompt, user_key=user_key)
+        result = _get_reply(messages, system_prompt, user_key=user_key, model=model)
+        if isinstance(result, dict):
+            raw_reply = result['text']
+            usage = {'input_tokens': result['input_tokens'], 'output_tokens': result['output_tokens'], 'model': result['model']}
+        else:
+            raw_reply = result
     except RuntimeError as e:
         return jsonify({'error': str(e), 'reply': str(e), 'logged': []}), 502
 
@@ -644,6 +665,7 @@ def chat():
         'reply': display_reply,
         'logged': logged,
         'raw': raw_reply,
+        'usage': usage,
     })
 
 

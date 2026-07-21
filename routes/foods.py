@@ -79,6 +79,10 @@ def image_lookup():
     if len(img_bytes) > 10 * 1024 * 1024:
         return jsonify({'found': False, 'message': 'Image too large (max 10 MB)'}), 400
     lang = request.form.get('lang', 'en').strip()
+    _vision_models = {'claude-haiku-4-5-20251001', 'claude-sonnet-4-5'}
+    model = request.form.get('model', '').strip()
+    if model not in _vision_models:
+        model = 'claude-haiku-4-5-20251001'
     b64 = base64.b64encode(img_bytes).decode('utf-8')
     if lang == 'tr':
         prompt = (
@@ -106,7 +110,7 @@ def image_lookup():
         )
     try:
         payload = json.dumps({
-            'model': 'claude-haiku-4-5-20251001',
+            'model': model,
             'max_tokens': 1024,
             'messages': [{
                 'role': 'user',
@@ -160,7 +164,16 @@ def image_lookup():
                 continue
         if not clean:
             return jsonify({'found': False, 'message': 'No food items recognised'})
-        return jsonify({'found': True, 'items': clean})
+        usage = data.get('usage', {})
+        return jsonify({
+            'found': True,
+            'items': clean,
+            'usage': {
+                'input_tokens': usage.get('input_tokens', 0),
+                'output_tokens': usage.get('output_tokens', 0),
+                'model': model,
+            },
+        })
     except Exception:
         return jsonify({'found': False, 'message': 'Recognition failed'})
 

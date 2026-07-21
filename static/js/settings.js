@@ -184,7 +184,7 @@
         keyInput.value = '';
         keyInput.placeholder = '••••••••••••••••••••';
       } else {
-        keyStatus.textContent = 'No key saved — using server key or smart search mode.';
+        keyStatus.textContent = 'No key saved — AI features (chat upgrade, photo recognition) require a key.';
         keyStatus.style.color = 'var(--color-text-muted)';
         keyInput.placeholder = 'sk-ant-api03-...';
       }
@@ -196,13 +196,68 @@
       if (!val.startsWith('sk-ant-')) { keyStatus.textContent = 'Key should start with sk-ant-'; keyStatus.style.color = 'var(--color-danger)'; return; }
       localStorage.setItem('nt_anthropic_key', val);
       updateKeyStatus();
+      updateUsage();
     });
 
     clearKeyBtn.addEventListener('click', function () {
       localStorage.removeItem('nt_anthropic_key');
       updateKeyStatus();
+      updateUsage();
     });
 
     updateKeyStatus();
+  })();
+
+  // ----------------------------------------------------------------
+  // Model selector
+  // ----------------------------------------------------------------
+  (function () {
+    const sel = document.getElementById('ai-model-select');
+    if (!sel) return;
+    sel.value = ApiUsage.getModel();
+    sel.addEventListener('change', function () {
+      ApiUsage.setModel(sel.value);
+      showToast('Model updated', 'success');
+    });
+  })();
+
+  // ----------------------------------------------------------------
+  // Monthly budget
+  // ----------------------------------------------------------------
+  function updateUsage() {
+    const spent  = ApiUsage.getSpent();
+    const budget = ApiUsage.getBudget();
+    const hasKey = !!(localStorage.getItem('nt_anthropic_key') || '');
+
+    document.getElementById('usage-cost').textContent = '$' + spent.toFixed(3);
+
+    const ofEl  = document.getElementById('usage-budget-of');
+    const barWr = document.getElementById('usage-bar-wrap');
+    const bar   = document.getElementById('usage-bar');
+
+    if (budget > 0) {
+      const pct = Math.min(100, (spent / budget) * 100);
+      ofEl.textContent = ' of $' + budget.toFixed(2) + ' limit';
+      barWr.style.display = 'block';
+      bar.style.width = pct + '%';
+      bar.style.background = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : 'var(--color-primary,#3b82f6)';
+    } else {
+      ofEl.textContent = hasKey ? ' (no limit set)' : ' (no key)';
+      barWr.style.display = 'none';
+    }
+  }
+
+  (function () {
+    const budgetInput = document.getElementById('monthly-budget');
+    const saveBudgetBtn = document.getElementById('save-budget-btn');
+    if (!budgetInput) return;
+    budgetInput.value = ApiUsage.getBudget() || '';
+    saveBudgetBtn.addEventListener('click', function () {
+      const v = parseFloat(budgetInput.value) || 0;
+      ApiUsage.setBudget(v);
+      showToast(v > 0 ? 'Budget set to $' + v.toFixed(2) + '/month' : 'Budget limit removed', 'success');
+      updateUsage();
+    });
+    updateUsage();
   })();
 })();

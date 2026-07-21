@@ -147,6 +147,22 @@
   }
 
   window.openFoodImageScanner = function (onResult) {
+    var apiKey = (typeof localStorage !== 'undefined') ? (localStorage.getItem('nt_anthropic_key') || '') : '';
+    if (!apiKey) {
+      if (typeof showToast === 'function') {
+        showToast('Add your Anthropic API key in Settings to use photo recognition.', 'error', 5000);
+      }
+      return;
+    }
+    if (typeof ApiUsage !== 'undefined') {
+      var budgetState = ApiUsage.checkBudget();
+      if (!budgetState.ok) {
+        if (typeof showToast === 'function') {
+          showToast('Monthly budget of $' + budgetState.budget.toFixed(2) + ' reached. Update limit in Settings.', 'error', 5000);
+        }
+        return;
+      }
+    }
     injectStyles();
     var els = buildModal();
     document.body.appendChild(els.overlay);
@@ -264,13 +280,14 @@
       setError('');
       els.itemsList.hidden = true;
 
-      var apiKey = (typeof localStorage !== 'undefined') ? (localStorage.getItem('nt_anthropic_key') || '') : '';
       var lang = (typeof Lang !== 'undefined' && Lang.get) ? Lang.get() : 'en';
+      var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'claude-haiku-4-5-20251001';
 
       var fd = new FormData();
       fd.append('image', capturedBlob, 'food.jpg');
       fd.append('api_key', apiKey);
       fd.append('lang', lang);
+      fd.append('model', model);
 
       fetch('/api/foods/image', { method: 'POST', body: fd })
         .then(function (r) { return r.json(); })
@@ -283,6 +300,9 @@
             return;
           }
           setStatus('');
+          if (data.usage && data.usage.input_tokens && typeof ApiUsage !== 'undefined') {
+            ApiUsage.addCost(data.usage.input_tokens, data.usage.output_tokens, data.usage.model || model);
+          }
           var items = data.items || [];
           if (items.length === 1) {
             var it = items[0];

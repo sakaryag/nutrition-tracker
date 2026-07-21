@@ -121,7 +121,8 @@
 
   <article class="settings-card" style="margin-bottom:1.5rem;">
     <h2 data-i18n="settings.chatTitle">Chat / AI Assistant</h2>
-    <p class="settings-description" data-i18n="settings.chatDesc">Add your own Anthropic API key to enable the AI chat assistant. Your key is stored only in this browser and never sent to our servers except to make chat requests.</p>
+    <p class="settings-description" data-i18n="settings.chatDesc">Add your own Anthropic API key to enable the AI chat assistant and photo food recognition. Your key is stored only in this browser and never sent to our servers except to make AI requests.</p>
+
     <div class="form-group" style="max-width:480px;">
       <label for="anthropic-api-key" data-i18n="settings.apiKey">Anthropic API Key</label>
       <div style="display:flex;gap:0.5rem;">
@@ -130,6 +131,34 @@
         <button type="button" class="btn btn-secondary" id="clear-api-key-btn" data-i18n="settings.clearKey">Clear</button>
       </div>
       <p class="form-hint" id="api-key-status" style="margin-top:0.4rem;"></p>
+    </div>
+
+    <div class="form-group" style="max-width:480px;margin-top:1rem;">
+      <label for="ai-model-select">AI Model</label>
+      <select id="ai-model-select" class="form-control">
+        <option value="claude-haiku-4-5-20251001">Haiku (fast, cheapest — ~$0.001/message)</option>
+        <option value="claude-sonnet-4-5">Sonnet (smarter — ~$0.004/message)</option>
+      </select>
+      <p class="form-hint">Haiku is recommended for daily food logging. Use Sonnet for complex questions.</p>
+    </div>
+
+    <div class="form-group" style="max-width:480px;margin-top:1rem;">
+      <label for="monthly-budget">Monthly Budget Limit (USD)</label>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <span style="font-size:1rem;">$</span>
+        <input type="number" id="monthly-budget" class="form-control" min="0" step="0.50" placeholder="0 = no limit" style="max-width:140px;" />
+        <button type="button" class="btn btn-primary" id="save-budget-btn">Save</button>
+      </div>
+      <p class="form-hint">When reached, AI features are paused until next month. Resets on the 1st.</p>
+    </div>
+
+    <div id="usage-summary" style="margin-top:1rem;padding:.75rem;background:var(--color-bg-subtle,#f8f9fa);border-radius:.375rem;max-width:480px;">
+      <strong>This month's usage:</strong>
+      <span id="usage-cost">$0.000</span>
+      <span id="usage-budget-of"></span>
+      <div id="usage-bar-wrap" style="margin-top:.4rem;background:#e2e8f0;border-radius:99px;height:6px;display:none;">
+        <div id="usage-bar" style="height:6px;border-radius:99px;background:var(--color-primary,#3b82f6);width:0%;transition:width .3s;"></div>
+      </div>
     </div>
   </article>
 

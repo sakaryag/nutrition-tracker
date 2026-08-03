@@ -14,3 +14,7 @@ from models.user_plan_assignment import UserPlanAssignment
 from models.plan_task_completion import PlanTaskCompletion
 from models.daily_note import DailyNote
 from models.water_log import WaterLog
+from models.friend_connection import FriendConnection
+from models.shared_entry import SharedEntry
+from models.feed_visibility import FeedVisibility
+from models.user_badge import UserBadge

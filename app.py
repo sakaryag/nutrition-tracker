@@ -134,7 +134,7 @@ def _migrate_add_columns(app):
     This is critical for PostgreSQL which aborts the whole transaction on error."""
     is_pg = 'postgresql' in app.config.get('SQLALCHEMY_DATABASE_URI', '')
     if is_pg:
-        # PostgreSQL: IF NOT EXISTS is a no-op — no error, no log noise
+        # PostgreSQL: IF NOT EXISTS is a no-op -- no error, no log noise
         migrations = [
             "ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS name_tr VARCHAR(300)',
@@ -166,9 +166,49 @@ def _migrate_add_columns(app):
             )''',
             'CREATE INDEX IF NOT EXISTS ix_water_log_user_id ON water_log (user_id)',
             'CREATE INDEX IF NOT EXISTS ix_water_log_log_date ON water_log (log_date)',
+            # --- Family Mode / Social tables ---
+            '''CREATE TABLE IF NOT EXISTS friend_connection (
+                id SERIAL PRIMARY KEY,
+                requester_id INTEGER NOT NULL REFERENCES "user"(id),
+                recipient_id INTEGER NOT NULL REFERENCES "user"(id),
+                status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP,
+                CONSTRAINT uq_friend_connection UNIQUE (requester_id, recipient_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_friend_connection_requester_id ON friend_connection (requester_id)',
+            'CREATE INDEX IF NOT EXISTS ix_friend_connection_recipient_id ON friend_connection (recipient_id)',
+            '''CREATE TABLE IF NOT EXISTS shared_entry (
+                id SERIAL PRIMARY KEY,
+                entry_id INTEGER REFERENCES food_entry(id) ON DELETE SET NULL,
+                shared_by_id INTEGER NOT NULL REFERENCES "user"(id),
+                shared_to_id INTEGER NOT NULL REFERENCES "user"(id),
+                cloned_entry_id INTEGER REFERENCES food_entry(id),
+                shared_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_entry_id ON shared_entry (entry_id)',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_shared_by_id ON shared_entry (shared_by_id)',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_shared_to_id ON shared_entry (shared_to_id)',
+            '''CREATE TABLE IF NOT EXISTS feed_visibility (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL UNIQUE REFERENCES "user"(id),
+                show_in_feed BOOLEAN NOT NULL DEFAULT FALSE,
+                show_calories BOOLEAN NOT NULL DEFAULT TRUE,
+                show_macros BOOLEAN NOT NULL DEFAULT TRUE,
+                updated_at TIMESTAMP
+            )''',
+            '''CREATE TABLE IF NOT EXISTS user_badge (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES "user"(id),
+                badge_key VARCHAR(50) NOT NULL,
+                earned_at TIMESTAMP,
+                badge_meta TEXT,
+                CONSTRAINT uq_user_badge UNIQUE (user_id, badge_key)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_user_badge_user_id ON user_badge (user_id)',
         ]
     else:
-        # SQLite does not support IF NOT EXISTS on ALTER TABLE — use try/except
+        # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
         migrations = [
             "ALTER TABLE saved_food ADD COLUMN food_type VARCHAR(20) NOT NULL DEFAULT 'ingredient'",
             'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
@@ -200,6 +240,46 @@ def _migrate_add_columns(app):
             )''',
             'CREATE INDEX IF NOT EXISTS ix_water_log_user_id ON water_log (user_id)',
             'CREATE INDEX IF NOT EXISTS ix_water_log_log_date ON water_log (log_date)',
+            # --- Family Mode / Social tables ---
+            '''CREATE TABLE IF NOT EXISTS friend_connection (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                requester_id INTEGER NOT NULL REFERENCES "user"(id),
+                recipient_id INTEGER NOT NULL REFERENCES "user"(id),
+                status VARCHAR(20) NOT NULL DEFAULT "pending",
+                created_at DATETIME,
+                updated_at DATETIME,
+                CONSTRAINT uq_friend_connection UNIQUE (requester_id, recipient_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_friend_connection_requester_id ON friend_connection (requester_id)',
+            'CREATE INDEX IF NOT EXISTS ix_friend_connection_recipient_id ON friend_connection (recipient_id)',
+            '''CREATE TABLE IF NOT EXISTS shared_entry (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                entry_id INTEGER REFERENCES food_entry(id) ON DELETE SET NULL,
+                shared_by_id INTEGER NOT NULL REFERENCES "user"(id),
+                shared_to_id INTEGER NOT NULL REFERENCES "user"(id),
+                cloned_entry_id INTEGER REFERENCES food_entry(id),
+                shared_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_entry_id ON shared_entry (entry_id)',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_shared_by_id ON shared_entry (shared_by_id)',
+            'CREATE INDEX IF NOT EXISTS ix_shared_entry_shared_to_id ON shared_entry (shared_to_id)',
+            '''CREATE TABLE IF NOT EXISTS feed_visibility (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL UNIQUE REFERENCES "user"(id),
+                show_in_feed INTEGER NOT NULL DEFAULT 0,
+                show_calories INTEGER NOT NULL DEFAULT 1,
+                show_macros INTEGER NOT NULL DEFAULT 1,
+                updated_at DATETIME
+            )''',
+            '''CREATE TABLE IF NOT EXISTS user_badge (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES "user"(id),
+                badge_key VARCHAR(50) NOT NULL,
+                earned_at DATETIME,
+                badge_meta TEXT,
+                CONSTRAINT uq_user_badge UNIQUE (user_id, badge_key)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_user_badge_user_id ON user_badge (user_id)',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:
@@ -225,6 +305,10 @@ def _register_blueprints(app):
         from routes.water import water_bp
         from routes.plans import plans_bp
         from routes.admin import admin_bp
+        from routes.friends import friends_bp
+        from routes.shared import shared_bp
+        from routes.social import social_bp
+        from routes.game import game_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -238,6 +322,10 @@ def _register_blueprints(app):
         app.register_blueprint(water_bp)
         app.register_blueprint(plans_bp)
         app.register_blueprint(admin_bp)
+        app.register_blueprint(friends_bp)
+        app.register_blueprint(shared_bp)
+        app.register_blueprint(social_bp)
+        app.register_blueprint(game_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

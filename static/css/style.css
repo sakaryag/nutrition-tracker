@@ -2954,3 +2954,39 @@ textarea:focus {
   .social-tab { padding: 0.5rem 0.7rem; font-size: 0.82rem; }
   .race-day-bars { gap: 0.25rem; }
 }
+
+/* ── How-it-works info box ──────────────────────────────── */
+.how-it-works-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+.how-it-works-summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  list-style: none;
+  user-select: none;
+}
+.how-it-works-summary::-webkit-details-marker { display: none; }
+.how-it-works-body { font-size: 0.88rem; }
+.how-it-works-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.how-it-works-table th,
+.how-it-works-table td {
+  text-align: left;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.how-it-works-table thead th {
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+.how-it-works-table tbody tr:last-child td { border-bottom: none; }

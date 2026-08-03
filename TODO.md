@@ -66,26 +66,40 @@
 - [ ] **Daily summary insights** — end-of-day Claude review of macros vs targets (paragraph insight)
 
 ## Dashboard (enhancements)
-- [ ] **Water intake tracker** — daily water log widget
-- [ ] **Notes / mood field per day** — freetext note per date
+- [x] **Water intake tracker** — `WaterLog` model + `GET/POST /api/water` route exist; dashboard widget UI pending
+- [x] **Notes / mood field per day** — `DailyNote` model + `GET/POST /api/notes` route exist; dashboard widget UI pending
 - [ ] **Copy yesterday's entries to today** — one-tap copy
 
-## Dietitian Plan Feature (NEW — 2026-08)
-- [ ] **Admin/dietitian role** — admin flag on User model; admin UI to create nutrition plans
-- [ ] **Plan model** — NutritionPlan (name, description, duration_days, created_by_admin)
-- [ ] **Plan task model** — PlanTask (plan_id, day_offset, food_name/description, quantity, unit, repeat pattern)
-- [ ] **User plan assignment** — assign a plan to a specific user with a start_date
-- [ ] **Plan tracking UI** — calendar/table view showing tasks per day, checkmark completion
-- [ ] **Settings toggle** — plan feature hidden by default, enabled per-user by admin
-- [ ] **Task completion tracking** — UserPlanTaskCompletion model (user_id, task_id, date, completed)
+## Dietitian Plan Feature
+- [x] **Admin/dietitian role** — `is_admin` + `plan_feature_enabled` on User model
+- [x] **Plan model** — `NutritionPlan` (name, description, duration_days, created_by_admin_id)
+- [x] **Plan task model** — `PlanTask` (plan_id, day_offset, food_name, quantity, unit, repeat pattern)
+- [x] **User plan assignment** — `UserPlanAssignment` (user_id, plan_id, start_date)
+- [x] **Task completion tracking** — `PlanTaskCompletion` model (user_id, task_id, date, completed)
+- [x] **Backend routes** — `routes/plans.py` + `routes/admin.py` present
+- [x] **Settings toggle** — plan nav link gated by `plan_feature_enabled` in `base.html`
+- [ ] **Plan tracking UI** — `templates/plans.html` + `templates/admin.html` exist but need full implementation review
+
+## Family Mode / Social (NEW — 2026-08)
+- [x] **Friend connections** — `FriendConnection` model, `routes/friends.py`: send/accept/decline/remove
+- [x] **Feed visibility** — `FeedVisibility` model, `GET/PUT /api/social/feed/visibility`
+- [x] **Social feed** — `GET /api/social/feed` returns friends' daily summaries (respects privacy settings)
+- [x] **Shared entries** — `SharedEntry` model, `routes/shared.py`: POST /api/shared, GET /api/shared/incoming
+- [x] **Game engine** — `utils/game_engine.py`: `calculate_daily_score()`, `calculate_weekly_score()`, `get_user_streak()`, `check_and_award_badges()`
+- [x] **Score/leaderboard API** — `routes/game.py`: `GET /api/game/score`, `GET /api/game/leaderboard`
+- [x] **Badges** — `UserBadge` model, `GET /api/social/badges`; 6 badge types: 7_day_streak, perfect_week, protein_king, hydration_hero, early_bird, consistent_30
+- [x] **Social frontend** — `templates/social.html` + `static/js/social.js`: 4-tab UI (Friends, Feed, Race, Badges)
+- [x] **Friends nav link** — added to `base.html`
+- [x] **20 tests** — `tests/test_family_mode.py` all passing
 
 ## Quality / Production Readiness
 - [ ] **OpenFoodFacts fallback search** — live API fallback in food search
 - [ ] **Turkish food dataset** — 50–100 common Turkish dishes seeded
-- [ ] **Reports page** — weekly/monthly compliance charts (MyFitnessPal-style)
+- [ ] **Reports page** — `/api/summary/range` exists; no chart UI yet
 - [ ] **PWA manifest + service worker** — installable on mobile home screen
 - [ ] **Copy yesterday** — dashboard quick action
-- [ ] **Daily notes** — per-day freetext notes field
-- [ ] **Water tracker** — daily water intake widget
+- [ ] **Water/notes dashboard widgets** — models + API routes exist, no dashboard UI
 - [ ] **Duplicate meal template** — clone button
-- [ ] **Migrate tests to cover new routes** — keep >80% route coverage
+- [ ] **Audit food corrections** — workflow wf_b988d1f7 found calorie errors (peanut butter 2x, Medjool dates 14x, jams 2x, English muffin, avocado, most fruits); corrections not yet applied to foods.csv / DB
+- [ ] **valid_units filtering** — column exists on saved_food but food search unit dropdown not filtered by it
+- [ ] **Test coverage for new routes** — friends/game/social/shared/notes/water routes not yet in test_api.py

@@ -43,9 +43,19 @@ models/
   food_entry.py         → FoodEntry (per-day log rows)
   daily_target.py       → DailyTarget (effective_from date, macro goals)
   saved_food.py         → SavedFood (USDA seed + custom foods + meals)
-  user.py               → User (bcrypt password hashing)
+  user.py               → User (bcrypt password hashing, is_admin, plan_feature_enabled)
   meal_template.py      → MealTemplate (saved meal combos)
   meal_template_item.py → MealTemplateItem (FK to template, cascade delete)
+  water_log.py          → WaterLog (daily water intake, log_date, amount_ml)
+  daily_note.py         → DailyNote (freetext note per day, note_date, content)
+  friend_connection.py  → FriendConnection (requester_id, recipient_id, status: pending/accepted/declined/blocked)
+  feed_visibility.py    → FeedVisibility (show_in_feed, show_calories, show_macros per user)
+  user_badge.py         → UserBadge (user_id, badge_key, earned_at) — UNIQUE(user_id, badge_key)
+  shared_entry.py       → SharedEntry (entry_id shared to friend_id)
+  nutrition_plan.py     → NutritionPlan (admin-created plans)
+  plan_task.py          → PlanTask (day_offset tasks within a plan)
+  plan_task_completion.py → PlanTaskCompletion (user completion tracking)
+  user_plan_assignment.py → UserPlanAssignment (user_id, plan_id, start_date)
 routes/
   auth.py               → login_required decorator, /login /register /logout
   entries.py            → /api/entries CRUD
@@ -55,7 +65,15 @@ routes/
   export.py             → /api/export/csv
   meal_templates.py     → /api/meal-templates CRUD + /<id>/log
   chat.py               → /api/chat, /api/chat/status — NLP pipeline, Anthropic fallback
-  pages.py              → HTML page routes (/, /history, /foods, /meals, /meals, /chat, /settings)
+  water.py              → /api/water GET/POST (daily water logging)
+  notes.py              → /api/notes GET/POST (daily notes)
+  friends.py            → /api/friends CRUD + /api/friends/requests + accept/decline
+  social.py             → /api/social/feed, /api/social/feed/visibility, /api/social/badges
+  game.py               → /api/game/score, /api/game/leaderboard (weekly race)
+  shared.py             → /api/shared POST + /api/shared/incoming GET
+  plans.py              → /api/plans (dietitian plan CRUD)
+  admin.py              → /api/admin/* (admin user management)
+  pages.py              → HTML page routes (/, /history, /foods, /meals, /chat, /settings, /social, /plans, /admin)
 seed_data/
   seed.py               → USDA food CSV seeder (flask seed or auto on first run)
   meals.py              → Meal/dish seeder (seed_meals(), runs if no meal rows exist)
@@ -69,18 +87,26 @@ static/
   js/chat.js            → Chat page (history, send, error recovery, user API key)
   js/settings.js        → Settings (targets, TDEE calculator, Anthropic API key management)
   js/i18n.js            → EN/TR translation dictionary + Lang.get()/t() helpers
+  js/social.js          → Social/Family page: friends, feed, race (weekly leaderboard), badges
+utils/
+  game_engine.py        → Pure game scoring helpers: calculate_daily_score(), calculate_weekly_score(), get_user_streak(), check_and_award_badges()
 templates/
-  base.html             → Layout, nav (Dashboard/History/My Foods/Meals/Settings), Chart.js CDN
+  base.html             → Layout, nav (Dashboard/History/My Foods/Meals/Chat/Friends/Reports/Settings), Chart.js CDN
   dashboard.html        → Summary cards, macro donut, quick-add recents, template chips, entry list
   history.html          → Date range picker, trend charts
   foods.html            → Custom food list + create/edit modal
   meal_templates.html   → Template list + create/edit modal with food search
-  settings.html         → Target goals
+  settings.html         → Target goals + TDEE calculator + API key management
+  social.html           → 4-tab social page: Friends | Feed | Race | Badges
+  plans.html            → Dietitian plan tracking UI (stub)
+  admin.html            → Admin user management UI (stub)
+  reports.html          → Weekly/monthly reports (stub)
   login.html            → Login form
   register.html         → Register form
 tests/
   conftest.py           → TestConfig (in-memory SQLite), app/db_session/client fixtures
-  test_api.py           → 38 tests across all blueprints
+  test_api.py           → 61 tests across all original blueprints
+  test_family_mode.py   → 20 tests: friends API, feed visibility, game engine, badges
 .env                    → Local secrets (not committed)
 .env.example            → Template for .env
 Dockerfile              → Python 3.12-slim, gunicorn, port 5000
@@ -153,6 +179,26 @@ docker-compose.yml      → SQLite volume mount; commented PostgreSQL config
 - User API key stored in `localStorage` as `nt_anthropic_key`, sent as `api_key` in POST body, never persisted server-side
 - spaCy model (`en_core_web_sm`) downloaded at Docker build time — adds ~50MB to image
 
+### Family Mode / Social
+
+- `GET /api/friends` — list accepted friends (returns `[{user_id, username, weekly_score}]`)
+- `POST /api/friends/request` — body `{username}` — send friend request
+- `GET /api/friends/requests` — list incoming pending requests
+- `PUT /api/friends/requests/<id>/accept|decline` — respond to request
+- `DELETE /api/friends/<id>` — remove friend
+- `GET/PUT /api/social/feed/visibility` — privacy settings `{show_in_feed, show_calories, show_macros}`
+- `GET /api/social/feed` — friend daily summaries (filtered by their visibility settings)
+- `POST /api/shared` — body `{entry_id, friend_ids}` — share a food entry
+- `GET /api/game/score` — today's game score `{score, breakdown}`
+- `GET /api/game/leaderboard?week=YYYY-WNN` — weekly leaderboard `{scores: [{username, weekly_score, daily_scores, badges, is_me}]}`
+- `GET /api/social/badges` — earned badges for current user
+
+**Game scoring**: 25 pts per macro within 90–110% of target (4 macros = 100 pts base), +5 water, +3 note, +5 early bird, capped at 115.
+
+**Badges** (6 types): `7_day_streak`, `perfect_week`, `protein_king`, `hydration_hero`, `early_bird`, `consistent_30`
+
+**Critical**: `_upsert_badge()` in `game_engine.py` uses raw SQL with column name `earned_at` (NOT `awarded_at`) to match the `UserBadge` ORM model. Must stay in sync.
+
 ### Meal Templates
 - Parent: `MealTemplate` (name, meal_type)
 - Children: `MealTemplateItem` (food_name, macros, serving_size, serving_unit) — cascade delete
@@ -180,7 +226,7 @@ venv\Scripts\activate
 pytest tests/ -v
 ```
 
-Tests use in-memory SQLite and a fresh DB per test class. 38 tests total.
+Tests use in-memory SQLite and a fresh DB per test class. 81 tests total (61 in test_api.py + 20 in test_family_mode.py).
 
 ## Windows-specific Notes
 
@@ -214,7 +260,8 @@ For production:
 
 ## Known Bugs / Pending (see TODO.md)
 
-- Unit dropdown in meal template items does not correctly scale macros on unit change
-- Meal dataset not yet seeded — Meals filter in template search returns sparse results
 - `valid_units` column exists on `saved_food` but unit dropdown in food search not yet filtered by it
 - `parser.py` in project root — scratch file from a background agent, not integrated
+- Food calorie data has known errors (peanut butters 2x, Medjool dates 14x, jams 2x, English muffin per-100g stored as per-piece, avocado whole-fruit vs per-100g, most fruits) — audit workflow wf_b988d1f7 found corrections, not yet applied
+- Water and notes dashboard widgets: models (`WaterLog`, `DailyNote`) and API routes (`/api/water`, `/api/notes`) exist but no dashboard UI yet
+- `templates/plans.html`, `templates/admin.html`, `templates/reports.html` are stubs — need full UI implementation

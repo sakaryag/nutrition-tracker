@@ -18,71 +18,86 @@
 <!-- Create / Edit Template Modal -->
 <div class="modal-overlay" id="template-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-modal-title" hidden>
   <div class="modal modal--wide">
+
+    <!-- Sticky header -->
     <div class="modal-header">
       <h2 class="modal-title" id="tpl-modal-title" data-i18n="meals.newTitle">New Template</h2>
       <button class="btn btn-icon modal-close" id="close-template-modal" aria-label="Close">&times;</button>
     </div>
-    <form id="template-form" novalidate>
-      <input type="hidden" id="tpl-id" />
 
-      <div class="form-row">
-        <div class="form-group" style="flex:2">
-          <label for="tpl-name" data-i18n="meals.templateName">Template Name <span aria-hidden="true">*</span></label>
-          <input type="text" id="tpl-name" class="form-control" data-i18n-placeholder="meals.namePlaceholder" placeholder="e.g. My usual breakfast" required />
-        </div>
-        <div class="form-group">
-          <label for="tpl-meal-type" data-i18n="meals.mealType">Meal Type</label>
-          <select id="tpl-meal-type" class="form-control">
-            <option value="Breakfast" data-i18n="meals.breakfast">Breakfast</option>
-            <option value="Lunch" data-i18n="meals.lunch">Lunch</option>
-            <option value="Dinner" data-i18n="meals.dinner">Dinner</option>
-            <option value="Snack" data-i18n="meals.snack">Snack</option>
-          </select>
-        </div>
-      </div>
+    <!-- Scrollable body -->
+    <div class="modal-body">
+      <form id="template-form" novalidate>
+        <input type="hidden" id="tpl-id" />
 
-      <!-- Items list -->
-      <div class="tpl-items-section">
-        <h3 class="section-title" data-i18n="meals.items">Items</h3>
-        <div id="tpl-items-list"></div>
-
-        <!-- Add item row -->
-        <div class="tpl-add-item">
-          <div class="tpl-search-filter">
-            <button type="button" class="btn btn-sm btn-outline active" data-filter="ingredient" data-i18n="meals.ingredients">Ingredients</button>
-            <button type="button" class="btn btn-sm btn-outline" data-filter="meal" data-i18n="meals.meals">Meals</button>
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label for="tpl-name" data-i18n="meals.templateName">Template Name <span aria-hidden="true">*</span></label>
+            <input type="text" id="tpl-name" class="form-control" data-i18n-placeholder="meals.namePlaceholder" placeholder="e.g. My usual breakfast" required />
           </div>
-          <div class="form-group autocomplete-wrap" style="flex:2">
-            <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="meals.searchPlaceholder" placeholder="Search food to add..." autocomplete="off" />
-            <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
-          </div>
-          <button type="button" class="btn btn-secondary" id="tpl-add-custom-item" data-i18n="meals.customItem">+ Custom Item</button>
-          <button type="button" class="btn btn-outline" id="tpl-from-log-btn">+ From Log</button>
-        </div>
-
-        <!-- From Log panel -->
-        <div id="tpl-from-log-panel" class="tpl-from-log-panel" hidden>
-          <div class="tpl-from-log-header">
-            <label for="tpl-log-date">Pick a date:</label>
-            <input type="date" id="tpl-log-date" class="form-control" style="width:auto" />
-            <button type="button" class="btn btn-sm btn-primary" id="tpl-log-load-btn">Load</button>
-            <button type="button" class="btn btn-icon btn-sm" id="tpl-from-log-close" aria-label="Close">&times;</button>
-          </div>
-          <div id="tpl-log-entries" class="tpl-log-entries">
-            <p class="empty-msg">Pick a date and press Load.</p>
-          </div>
-          <div class="tpl-from-log-actions" id="tpl-from-log-actions" hidden>
-            <button type="button" class="btn btn-primary btn-sm" id="tpl-log-add-selected">Add Selected</button>
-            <button type="button" class="btn btn-outline btn-sm" id="tpl-log-select-all">Select All</button>
+          <div class="form-group">
+            <label for="tpl-meal-type" data-i18n="meals.mealType">Meal Type</label>
+            <select id="tpl-meal-type" class="form-control">
+              <option value="Breakfast" data-i18n="meals.breakfast">Breakfast</option>
+              <option value="Lunch" data-i18n="meals.lunch">Lunch</option>
+              <option value="Dinner" data-i18n="meals.dinner">Dinner</option>
+              <option value="Snack" data-i18n="meals.snack">Snack</option>
+            </select>
           </div>
         </div>
-      </div>
 
-      <div class="form-actions">
+        <!-- Items list -->
+        <div class="tpl-items-section">
+          <h3 class="section-title" data-i18n="meals.items">Items</h3>
+          <div id="tpl-items-list"></div>
+
+          <!-- Add item toolbar -->
+          <div class="tpl-add-item">
+            <div class="tpl-add-item__search-row">
+              <div class="tpl-search-filter">
+                <button type="button" class="btn btn-sm btn-outline active" data-filter="ingredient" data-i18n="meals.ingredients">Ingredients</button>
+                <button type="button" class="btn btn-sm btn-outline" data-filter="meal" data-i18n="meals.meals">Meals</button>
+              </div>
+              <div class="form-group autocomplete-wrap tpl-search-input-wrap">
+                <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="meals.searchPlaceholder" placeholder="Search food to add..." autocomplete="off" />
+                <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
+              </div>
+            </div>
+            <div class="tpl-add-item__action-row">
+              <button type="button" class="btn btn-sm btn-secondary" id="tpl-add-custom-item" data-i18n="meals.customItem">+ Custom Item</button>
+              <button type="button" class="btn btn-sm btn-outline" id="tpl-from-log-btn">+ From Log</button>
+            </div>
+          </div>
+
+          <!-- From Log panel -->
+          <div id="tpl-from-log-panel" class="tpl-from-log-panel" hidden>
+            <div class="tpl-from-log-header">
+              <label for="tpl-log-date">Pick a date:</label>
+              <input type="date" id="tpl-log-date" class="form-control" style="width:auto" />
+              <button type="button" class="btn btn-sm btn-primary" id="tpl-log-load-btn">Load</button>
+              <button type="button" class="btn btn-icon btn-sm" id="tpl-from-log-close" aria-label="Close">&times;</button>
+            </div>
+            <div id="tpl-log-entries" class="tpl-log-entries">
+              <p class="empty-msg">Pick a date and press Load.</p>
+            </div>
+            <div class="tpl-from-log-actions" id="tpl-from-log-actions" hidden>
+              <button type="button" class="btn btn-primary btn-sm" id="tpl-log-add-selected">Add Selected</button>
+              <button type="button" class="btn btn-outline btn-sm" id="tpl-log-select-all">Select All</button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div><!-- /modal-body -->
+
+    <!-- Sticky footer -->
+    <div class="modal-footer">
+      <div class="form-actions" style="margin:0">
         <button type="button" class="btn btn-secondary" id="cancel-template" data-i18n="meals.cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="save-template-btn" data-i18n="meals.save">Save Template</button>
+        <button type="submit" form="template-form" class="btn btn-primary" id="save-template-btn" data-i18n="meals.save">Save Template</button>
       </div>
-    </form>
+    </div>
+
   </div>
 </div>
 {% endblock %}

@@ -44,6 +44,18 @@ def create_app(config_name=None, test_config=None):
     _register_blueprints(app)
     _register_cli(app)
 
+    @app.context_processor
+    def inject_current_user():
+        from flask import session as _session
+        uid = _session.get('user_id')
+        if uid is None:
+            return {'current_user': None}
+        try:
+            from models.user import User as _User
+            return {'current_user': db.session.get(_User, uid)}
+        except Exception:
+            return {'current_user': None}
+
     with app.app_context():
         _create_all_if_needed(app)
         _migrate_add_columns(app)
@@ -132,6 +144,27 @@ def _migrate_add_columns(app):
             'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE',
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS plan_feature_enabled BOOLEAN DEFAULT FALSE',
+            # daily_note table creation handled by create_all; ensure it exists via migration too
+            '''CREATE TABLE IF NOT EXISTS daily_note (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER,
+                note_date DATE NOT NULL,
+                content TEXT NOT NULL DEFAULT \'\',
+                updated_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_daily_note_user_id ON daily_note (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_daily_note_note_date ON daily_note (note_date)',
+            '''CREATE TABLE IF NOT EXISTS water_log (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER,
+                log_date DATE NOT NULL,
+                amount_ml FLOAT NOT NULL,
+                logged_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_water_log_user_id ON water_log (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_water_log_log_date ON water_log (log_date)',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE — use try/except
@@ -144,6 +177,27 @@ def _migrate_add_columns(app):
             'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
+            'ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT 0',
+            'ALTER TABLE "user" ADD COLUMN plan_feature_enabled BOOLEAN DEFAULT 0',
+            # SQLite: create daily_note if it doesn't exist yet (idempotent)
+            '''CREATE TABLE IF NOT EXISTS daily_note (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                note_date DATE NOT NULL,
+                content TEXT NOT NULL DEFAULT \'\',
+                updated_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_daily_note_user_id ON daily_note (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_daily_note_note_date ON daily_note (note_date)',
+            '''CREATE TABLE IF NOT EXISTS water_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                log_date DATE NOT NULL,
+                amount_ml FLOAT NOT NULL,
+                logged_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_water_log_user_id ON water_log (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_water_log_log_date ON water_log (log_date)',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:
@@ -165,6 +219,10 @@ def _register_blueprints(app):
         from routes.meal_templates import meal_templates_bp
         from routes.chat import chat_bp
         from routes.pages import pages_bp
+        from routes.notes import notes_bp
+        from routes.water import water_bp
+        from routes.plans import plans_bp
+        from routes.admin import admin_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -174,6 +232,10 @@ def _register_blueprints(app):
         app.register_blueprint(meal_templates_bp)
         app.register_blueprint(chat_bp)
         app.register_blueprint(pages_bp)
+        app.register_blueprint(notes_bp)
+        app.register_blueprint(water_bp)
+        app.register_blueprint(plans_bp)
+        app.register_blueprint(admin_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

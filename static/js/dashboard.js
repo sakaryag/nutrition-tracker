@@ -96,6 +96,19 @@
   var unitSelect       = document.getElementById('entry-serving-unit');
   var unitHintEl       = document.getElementById('unit-equiv-hint');
   var clearRecentsBtn  = document.getElementById('clear-recents-btn');
+  var copyYesterdayBtn  = document.getElementById('copy-yesterday-btn');
+  var copyConfirmModal  = document.getElementById('copy-confirm-modal');
+  var closeCopyModal    = document.getElementById('close-copy-modal');
+  var cancelCopyBtn     = document.getElementById('cancel-copy-btn');
+  var confirmCopyBtn    = document.getElementById('confirm-copy-btn');
+  var copyPreviewList   = document.getElementById('copy-preview-list');
+
+  var notesSection      = document.getElementById('notes-section');
+  var notesToggle       = document.getElementById('notes-toggle');
+  var notesPanel        = document.getElementById('notes-panel');
+  var notesTextarea     = document.getElementById('notes-textarea');
+  var notesSaveStatus   = document.getElementById('notes-save-status');
+
   var tplAdjustModal  = document.getElementById('tpl-adjust-modal');
   var tplAdjustTitle  = document.getElementById('tpl-adjust-title');
   var tplAdjustItems  = document.getElementById('tpl-adjust-items');
@@ -115,6 +128,8 @@
     await loadPage();
     await Promise.all([loadRecents(), loadTemplateChips()]);
     setRemainingLabels();
+    initCopyYesterday();
+    initNotes();
   }
 
   function setRemainingLabels() {
@@ -141,6 +156,8 @@
   async function loadPage() {
     updateDateHeading();
     await Promise.all([loadSummary(), loadEntries()]);
+    updateCopyYesterdayVisibility();
+    loadNote();
   }
   async function loadSummary() {
     try { var data = await api('/api/summary?date=' + currentDate); renderSummary(data); renderDonut(data); }
@@ -160,7 +177,18 @@
       var sumEl = document.getElementById('summary-' + m); if (sumEl) sumEl.textContent = consumed;
       var tgtEl = document.getElementById('target-' + m);  if (tgtEl) tgtEl.textContent = target;
       var remEl = document.getElementById('remaining-' + m);
-      if (remEl) { remEl.textContent = over ? '+' + Math.abs(remaining) : remaining; remEl.classList.toggle('over-target', over); }
+      if (remEl) {
+        remEl.textContent = over ? '+' + Math.abs(remaining) : remaining;
+        remEl.classList.toggle('over-target', over);
+        /* color-code the entire remaining paragraph */
+        var remP = remEl.closest('.summary-card__remaining');
+        if (remP) {
+          remP.classList.remove('remaining--under','remaining--close','remaining--over');
+          if (over) { remP.classList.add('remaining--over'); }
+          else if (target > 0 && remaining / target <= 0.10) { remP.classList.add('remaining--close'); }
+          else if (!over) { remP.classList.add('remaining--under'); }
+        }
+      }
       var lbl = document.getElementById('lbl-remaining-' + m);
       if (lbl) lbl.textContent = over ? overTxt : remainingTxt;
       var barEl = document.getElementById('bar-' + m);
@@ -182,7 +210,10 @@
   var donutChart = null;
   function renderDonut(data) {
     var p=Math.round(data.totals?.protein??0), f=Math.round(data.totals?.fat??0), c=Math.round(data.totals?.carbs??0);
-    var lbl=document.getElementById('donut-center-label'); if(lbl) lbl.textContent=Math.round(data.totals?.calories??0)+' kcal';
+    var consumed=Math.round(data.totals?.calories??0);
+    var targetCal=Math.round(data.target?.calories??0);
+    var lbl=document.getElementById('donut-center-label');
+    if(lbl){lbl.innerHTML=consumed+'<br><span style="font-size:0.7rem;font-weight:400;color:#718096">/ '+targetCal+' kcal</span>';}
     var ctx=document.getElementById('macro-donut'); if(!ctx) return;
     var pK=p*4,fK=f*9,cK=c*4,tot=pK+fK+cK;
     var pP=tot>0?Math.round(pK/tot*100):0, fP=tot>0?Math.round(fK/tot*100):0, cP=tot>0?100-pP-fP:0;
@@ -190,7 +221,7 @@
     if(donutChart) donutChart.destroy();
     donutChart=new Chart(ctx,{type:'doughnut',data:{
       labels:hasData?[t('macro.protein')+' '+p+'g ('+pP+'%)',t('macro.fat')+' '+f+'g ('+fP+'%)',t('macro.carbs')+' '+c+'g ('+cP+'%)']:['No data'],
-      datasets:[{data:hasData?[pK,fK,cK]:[1],backgroundColor:hasData?['#4A90D9','#E8913A','#5CB85C']:['#e2e8f0'],borderWidth:2,borderColor:'#fff'}]
+      datasets:[{data:hasData?[pK,fK,cK]:[1],backgroundColor:hasData?['#4A90D9','#E8913A','#5CB85C']:['#e2e8f0'],borderWidth:2,borderColor:'#fff',hoverBorderColor:'#fff'}]
     },options:{responsive:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:10,font:{size:12}}},tooltip:{enabled:hasData}}}});
   }
 
@@ -246,7 +277,12 @@
   function renderRecents(recents) {
     if(!recents||recents.length===0){quickAddList.innerHTML='<p class="empty-msg">No recent foods yet.</p>';return;}
     quickAddList.innerHTML=recents.map(function(r){
-      return '<button class="quick-add-chip" data-food=\''+JSON.stringify(r).replace(/'/g,"&#39;")+'\'>'+escHtml(r.food_name)+'</button>';
+      var kcal=Math.round(r.calories??((r.protein||0)*4+(r.fat||0)*9+(r.carbs||0)*4));
+      var hint='P:'+round1(r.protein)+'g F:'+round1(r.fat)+'g · '+kcal+' kcal';
+      return '<button class="quick-add-chip" data-food=\''+JSON.stringify(r).replace(/'/g,"&#39;")+'\'>'
+        +'<span class="chip-name">'+escHtml(r.food_name)+'</span>'
+        +'<span class="chip-macro-hint">'+hint+'</span>'
+        +'</button>';
     }).join('');
   }
   quickAddList.addEventListener('click',function(e){
@@ -705,10 +741,288 @@
     finally{confirmTplLog.disabled=false;}
   });
 
+  /* ============================================================
+     Copy Yesterday
+     ============================================================ */
+  function initCopyYesterday() {
+    if (!copyYesterdayBtn) return;
+    copyYesterdayBtn.addEventListener('click', handleCopyYesterdayClick);
+    if (closeCopyModal) closeCopyModal.addEventListener('click', closeCopyConfirmModal);
+    if (cancelCopyBtn) cancelCopyBtn.addEventListener('click', closeCopyConfirmModal);
+    if (confirmCopyBtn) confirmCopyBtn.addEventListener('click', confirmCopyYesterday);
+  }
+
+  function updateCopyYesterdayVisibility() {
+    if (!copyYesterdayBtn) return;
+    var isToday = currentDate === formatDate(new Date());
+    copyYesterdayBtn.hidden = !isToday;
+  }
+
+  async function handleCopyYesterdayClick() {
+    copyYesterdayBtn.disabled = true;
+    try {
+      var data = await api('/api/entries/copy-yesterday', {
+        method: 'POST',
+        body: JSON.stringify({target_date: currentDate}),
+      });
+      if (!data.count || data.count === 0) {
+        showToast(t('dash.copyYesterdayEmpty'), 'info');
+        return;
+      }
+      renderCopyPreview(data.preview);
+      copyConfirmModal.hidden = false;
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    } finally {
+      copyYesterdayBtn.disabled = false;
+    }
+  }
+
+  function renderCopyPreview(items) {
+    if (!copyPreviewList) return;
+    var MEAL_ORDER_LOCAL = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+    var groups = {};
+    MEAL_ORDER_LOCAL.forEach(function(m) { groups[m] = []; });
+    items.forEach(function(item) {
+      var key = item.meal_type in groups ? item.meal_type : 'Snack';
+      groups[key].push(item);
+    });
+    var html = '';
+    MEAL_ORDER_LOCAL.forEach(function(meal) {
+      if (groups[meal].length === 0) return;
+      var lbl = t(MEAL_I18N[meal]) || meal;
+      html += '<li class="copy-preview-meal"><strong>' + escHtml(lbl) + '</strong><ul>';
+      groups[meal].forEach(function(item) {
+        html += '<li>' + escHtml(item.food_name)
+          + ' <span class="copy-preview-macros">P:' + round1(item.protein)
+          + 'g F:' + round1(item.fat)
+          + 'g C:' + round1(item.carbs)
+          + 'g ' + Math.round(item.calories || 0) + 'kcal</span></li>';
+      });
+      html += '</ul></li>';
+    });
+    copyPreviewList.innerHTML = html;
+  }
+
+  function closeCopyConfirmModal() {
+    if (copyConfirmModal) copyConfirmModal.hidden = true;
+  }
+
+  async function confirmCopyYesterday() {
+    confirmCopyBtn.disabled = true;
+    try {
+      var result = await api('/api/entries/copy-yesterday/confirm', {
+        method: 'POST',
+        body: JSON.stringify({target_date: currentDate}),
+      });
+      closeCopyConfirmModal();
+      showToast(t('dash.copyYesterdayDone').replace('{n}', result.copied), 'success');
+      await loadPage();
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    } finally {
+      confirmCopyBtn.disabled = false;
+    }
+  }
+
+  /* ============================================================
+     Daily Notes
+     ============================================================ */
+  var _notesSaveTimer = null;
+  var _notesExpanded = false;
+
+  function initNotes() {
+    if (!notesToggle) return;
+    notesToggle.addEventListener('click', function() {
+      _notesExpanded = !_notesExpanded;
+      notesPanel.hidden = !_notesExpanded;
+      notesToggle.setAttribute('aria-expanded', String(_notesExpanded));
+      notesToggle.querySelector('.notes-chevron').textContent = _notesExpanded ? '▲' : '▼';
+    });
+    if (notesTextarea) {
+      notesTextarea.addEventListener('input', function() {
+        autoResizeTextarea(notesTextarea);
+        if (_notesSaveTimer) clearTimeout(_notesSaveTimer);
+        _notesSaveTimer = setTimeout(saveNote, 500);
+      });
+    }
+  }
+
+  function autoResizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  async function loadNote() {
+    if (!notesSection) return;
+    try {
+      var data = await api('/api/notes?date=' + currentDate);
+      var content = data.content || '';
+      if (notesTextarea) {
+        notesTextarea.value = content;
+        autoResizeTextarea(notesTextarea);
+      }
+      /* Show preview in toggle button if there's content */
+      var preview = notesSection.querySelector('.notes-preview');
+      if (preview) {
+        if (content) {
+          preview.textContent = content.length > 60 ? content.slice(0, 60) + '…' : content;
+          preview.hidden = false;
+        } else {
+          preview.hidden = true;
+        }
+      }
+    } catch (_) {
+      /* Notes failing silently is acceptable */
+    }
+  }
+
+  async function saveNote() {
+    if (!notesTextarea) return;
+    var content = notesTextarea.value;
+    try {
+      await api('/api/notes', {
+        method: 'POST',
+        body: JSON.stringify({date: currentDate, content: content}),
+      });
+      if (notesSaveStatus) {
+        notesSaveStatus.textContent = t('dash.notesSaved');
+        notesSaveStatus.hidden = false;
+        setTimeout(function() { notesSaveStatus.hidden = true; }, 2000);
+      }
+      /* Update preview */
+      var preview = notesSection ? notesSection.querySelector('.notes-preview') : null;
+      if (preview) {
+        if (content) {
+          preview.textContent = content.length > 60 ? content.slice(0, 60) + '…' : content;
+          preview.hidden = false;
+        } else {
+          preview.hidden = true;
+        }
+      }
+    } catch (_) { /* Silent fail — user can retry by typing again */ }
+  }
+
   function escHtml(str){
     return String(str??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function round1(n){return Math.round((n??0)*10)/10;}
 
+  /* ============================================================
+     Water Tracker
+     ============================================================ */
+  var waterGoal = 2000;
+  var waterLogs = [];
+
+  async function loadWater() {
+    try {
+      var data = await api('/api/water?date=' + currentDate);
+      waterGoal = data.goal_ml || 2000;
+      waterLogs = data.logs || [];
+      renderWater(data.total_ml || 0);
+    } catch (_) { /* non-fatal */ }
+  }
+
+  function renderWater(totalMl) {
+    var totalEl = document.getElementById('water-total');
+    var goalEl  = document.getElementById('water-goal');
+    var barEl   = document.getElementById('water-bar');
+    var logsRow = document.getElementById('water-logs-row');
+    if (!totalEl) return;
+
+    totalEl.textContent = Math.round(totalMl);
+    if (goalEl) goalEl.textContent = waterGoal;
+
+    var pct = waterGoal > 0 ? Math.min(100, Math.round((totalMl / waterGoal) * 100)) : 0;
+    if (barEl) barEl.style.width = pct + '%';
+
+    if (logsRow) {
+      if (waterLogs.length === 0) {
+        logsRow.innerHTML = '';
+      } else {
+        logsRow.innerHTML = waterLogs.map(function (log) {
+          var time = log.logged_at ? new Date(log.logged_at + 'Z').toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+          return '<span class="water-log-chip">'
+            + Math.round(log.amount_ml) + ' ml'
+            + (time ? ' <span style="opacity:.6">' + time + '</span>' : '')
+            + '<button class="water-log-chip__del" data-water-id="' + log.id + '" title="' + t('common.delete') + '">&times;</button>'
+            + '</span>';
+        }).join('');
+      }
+    }
+  }
+
+  async function addWater(ml) {
+    try {
+      await api('/api/water', {method:'POST', body: JSON.stringify({date: currentDate, amount_ml: ml})});
+      await loadWater();
+      showToast('+' + Math.round(ml) + ' ml ' + t('water.added'), 'success');
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    }
+  }
+
+  async function deleteWater(id) {
+    try {
+      await api('/api/water/' + id, {method:'DELETE'});
+      await loadWater();
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    }
+  }
+
+  /* Quick-add buttons */
+  var waterBtnsEl = document.getElementById('water-btns');
+  if (waterBtnsEl) {
+    waterBtnsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-ml]');
+      if (btn) { addWater(parseFloat(btn.dataset.ml)); return; }
+
+      if (e.target.id === 'water-custom-toggle') {
+        var row = document.getElementById('water-custom-row');
+        if (row) row.classList.toggle('hidden');
+        var inp = document.getElementById('water-custom-input');
+        if (inp && !document.getElementById('water-custom-row').classList.contains('hidden')) inp.focus();
+      }
+    });
+  }
+
+  var waterCustomAdd = document.getElementById('water-custom-add');
+  if (waterCustomAdd) {
+    waterCustomAdd.addEventListener('click', function () {
+      var inp = document.getElementById('water-custom-input');
+      var ml = inp ? parseFloat(inp.value) : NaN;
+      if (!ml || ml <= 0) { showToast(t('water.invalidAmount'), 'error'); return; }
+      addWater(ml);
+      if (inp) inp.value = '';
+      var row = document.getElementById('water-custom-row');
+      if (row) row.classList.add('hidden');
+    });
+  }
+
+  var waterCustomInput = document.getElementById('water-custom-input');
+  if (waterCustomInput) {
+    waterCustomInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); if (waterCustomAdd) waterCustomAdd.click(); }
+    });
+  }
+
+  /* Delete individual log entries */
+  var waterLogsRow = document.getElementById('water-logs-row');
+  if (waterLogsRow) {
+    waterLogsRow.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-water-id]');
+      if (btn) deleteWater(btn.dataset.waterId);
+    });
+  }
+
+  /* Extend loadPage to also refresh water */
+  var _origLoadPage = loadPage;
+  loadPage = async function () {
+    await _origLoadPage();
+    await loadWater();
+  };
+
   init();
+  loadWater();
 })();

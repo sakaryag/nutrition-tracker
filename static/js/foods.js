@@ -119,9 +119,11 @@
 
   function renderFoodCard(f, isCustom) {
     const brand = f.brand ? ` &mdash; ${escHtml(f.brand)}` : '';
-    const macros = `P: ${r1(f.protein)}g &nbsp; F: ${r1(f.fat)}g &nbsp; C: ${r1(f.carbs)}g &nbsp; ${Math.round(f.calories ?? 0)} kcal`;
     const serving = `${f.default_serving} ${escHtml(f.serving_unit)}`;
     const mealBadge = (f.food_type === 'meal') ? ' <span class="badge badge--meal">' + escHtml(t('foods.mealBadge')) + '</span>' : '';
+    const sourceBadge = isCustom
+      ? '<span class="badge badge--custom">Custom</span>'
+      : (f.source === 'off' ? '<span class="badge badge--off">OpenFoodFacts</span>' : '<span class="badge badge--usda">USDA</span>');
 
     let actions = '';
     if (isCustom) {
@@ -135,9 +137,14 @@
 
     return `<article class="food-card" data-id="${f.id}">
       <div class="food-card__info">
-        <p class="food-card__name">${escHtml(f.name)}${mealBadge}${brand}</p>
+        <p class="food-card__name">${escHtml(f.name)}${sourceBadge}${mealBadge}${brand}</p>
         <p class="food-card__meta">${escHtml(t('foods.serving'))}: ${escHtml(serving)}</p>
-        <div class="food-card__macros">${macros}</div>
+        <div class="food-card__macros">
+          <span class="macro-tag macro-tag--protein">P: ${r1(f.protein)}g</span>
+          <span class="macro-tag macro-tag--fat">F: ${r1(f.fat)}g</span>
+          <span class="macro-tag macro-tag--carbs">C: ${r1(f.carbs)}g</span>
+          <span class="macro-tag macro-tag--cal">${Math.round(f.calories ?? 0)} kcal</span>
+        </div>
       </div>
       <div class="food-card__actions">${actions}</div>
     </article>`;

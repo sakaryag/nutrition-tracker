@@ -59,13 +59,30 @@
     }
     templatesList.innerHTML = templates.map(function (tpl) {
       var n = tpl.items ? tpl.items.length : 0;
-      var m = 'P:' + r1(tpl.total_protein) + 'g F:' + r1(tpl.total_fat) + 'g C:' + r1(tpl.total_carbs) + 'g ' + Math.round(tpl.total_calories) + 'kcal';
       var itemLabel = t('meals.itemCount').replace('{n}', n);
+      var pK = (tpl.total_protein || 0) * 4;
+      var fK = (tpl.total_fat || 0) * 9;
+      var cK = (tpl.total_carbs || 0) * 4;
+      var tot = pK + fK + cK;
+      var pPct = tot > 0 ? Math.round(pK / tot * 100) : 33;
+      var fPct = tot > 0 ? Math.round(fK / tot * 100) : 33;
+      var cPct = tot > 0 ? (100 - pPct - fPct) : 34;
+      var miniBar = '<div class="mini-macro-bar">' +
+        '<div class="mini-macro-bar__segment mini-macro-bar__segment--protein" style="width:' + pPct + '%"></div>' +
+        '<div class="mini-macro-bar__segment mini-macro-bar__segment--fat" style="width:' + fPct + '%"></div>' +
+        '<div class="mini-macro-bar__segment mini-macro-bar__segment--carbs" style="width:' + cPct + '%"></div>' +
+        '</div>';
       return '<article class="food-card" data-id="' + tpl.id + '">' +
         '<div class="food-card__info">' +
           '<p class="food-card__name">' + esc(tpl.name) + '</p>' +
           '<p class="food-card__meta">' + esc(tpl.meal_type) + ' &mdash; ' + esc(itemLabel) + '</p>' +
-          '<div class="food-card__macros">' + m + '</div>' +
+          '<div class="food-card__macros">' +
+            '<span class="macro-tag macro-tag--protein">P: ' + r1(tpl.total_protein) + 'g</span>' +
+            '<span class="macro-tag macro-tag--fat">F: ' + r1(tpl.total_fat) + 'g</span>' +
+            '<span class="macro-tag macro-tag--carbs">C: ' + r1(tpl.total_carbs) + 'g</span>' +
+            '<span class="macro-tag macro-tag--cal">' + Math.round(tpl.total_calories) + ' kcal</span>' +
+          '</div>' +
+          miniBar +
         '</div>' +
         '<div class="food-card__actions">' +
           '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + tpl.id + '">' + esc(t('meals.edit')) + '</button>' +

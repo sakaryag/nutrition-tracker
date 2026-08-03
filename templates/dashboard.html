@@ -10,6 +10,9 @@
     <h1 class="date-heading" id="date-heading"></h1>
     <button class="btn btn-icon" id="next-day" aria-label="Next day">&#8594;</button>
   </div>
+  <div class="date-nav-actions">
+    <button class="btn copy-yesterday-btn" id="copy-yesterday-btn" hidden data-i18n="dash.copyYesterday">Copy Yesterday</button>
+  </div>
 
   <!-- Summary Cards -->
   <section class="summary-cards" aria-label="Daily nutrient totals">
@@ -85,11 +88,50 @@
     </div>
   </section>
 
+  <!-- Water Tracker -->
+  <section class="water-widget" aria-label="Water intake tracker" id="water-widget">
+    <div class="water-widget__header">
+      <span class="water-widget__icon" aria-hidden="true">&#x1F4A7;</span>
+      <span class="water-widget__title" data-i18n="water.title">Water Intake</span>
+    </div>
+    <div class="water-amount">
+      <span id="water-total">0</span> ml
+      <span class="water-goal">/ <span id="water-goal">2000</span> ml</span>
+    </div>
+    <div class="water-progress" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100">
+      <div class="water-progress__bar" id="water-bar" style="width:0%"></div>
+    </div>
+    <div class="water-btns" id="water-btns">
+      <button class="water-btn" data-ml="200">+200 ml</button>
+      <button class="water-btn" data-ml="330">+330 ml</button>
+      <button class="water-btn" data-ml="500">+500 ml</button>
+      <button class="water-btn water-btn--custom" id="water-custom-toggle" data-i18n="water.custom">+Custom</button>
+    </div>
+    <div class="water-custom-row hidden" id="water-custom-row">
+      <input type="number" id="water-custom-input" min="1" max="5000" step="1" placeholder="ml" aria-label="Custom water amount in ml" />
+      <button class="btn btn-primary btn-sm" id="water-custom-add" data-i18n="water.add">Add</button>
+    </div>
+    <div class="water-logs-row" id="water-logs-row"></div>
+  </section>
+
   <!-- Today's Entries -->
   <section class="entries-section" aria-label="Today's food entries">
     <h2 class="section-title" data-i18n="dash.todaysEntries">Today's Entries</h2>
     <div id="entries-list">
       <p class="empty-msg" data-i18n="dash.noEntries">No entries yet. Add a food to get started.</p>
+    </div>
+  </section>
+
+  <!-- Daily Notes -->
+  <section class="notes-section" id="notes-section" aria-label="Daily notes">
+    <button class="notes-toggle" id="notes-toggle" aria-expanded="false">
+      <span data-i18n="dash.notes">Daily Notes</span>
+      <span class="notes-preview" hidden></span>
+      <span class="notes-chevron">&#9660;</span>
+    </button>
+    <div class="notes-panel" id="notes-panel" hidden>
+      <textarea class="notes-textarea" id="notes-textarea" data-i18n-placeholder="dash.notesPlaceholder" placeholder="Add a note for today… (auto-saved)" rows="3"></textarea>
+      <span class="notes-save-status" id="notes-save-status" hidden data-i18n="dash.notesSaved">Note saved</span>
     </div>
   </section>
 
@@ -170,6 +212,22 @@
         <button type="submit" class="btn btn-primary" id="save-entry-btn" data-i18n="entry.save">Save Entry</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Copy Yesterday Confirm Modal -->
+<div class="modal-overlay" id="copy-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="copy-confirm-title" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="copy-confirm-title" data-i18n="dash.copyYesterdayTitle">Copy Yesterday's Entries</h2>
+      <button class="btn btn-icon modal-close" id="close-copy-modal" aria-label="Close">&times;</button>
+    </div>
+    <p class="form-hint" data-i18n="dash.copyYesterdayHint">The following entries from yesterday will be copied to today:</p>
+    <ul class="copy-preview-list" id="copy-preview-list"></ul>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button type="button" class="btn btn-secondary" id="cancel-copy-btn" data-i18n="entry.cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirm-copy-btn" data-i18n="dash.copyYesterdayConfirm">Copy All</button>
+    </div>
   </div>
 </div>
 

@@ -10,6 +10,8 @@ class User(db.Model):
     username = db.Column(db.String(80), nullable=False, unique=True)
     pw_hash = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
+    plan_feature_enabled = db.Column(db.Boolean, default=False, nullable=False)
 
     def set_pw(self, plaintext):
         self.pw_hash = generate_password_hash(plaintext)

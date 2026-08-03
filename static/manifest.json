@@ -1,0 +1,17 @@
+{
+  "name": "NutriTrack",
+  "short_name": "NutriTrack",
+  "description": "Daily nutrition & macro tracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#4A90D9",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

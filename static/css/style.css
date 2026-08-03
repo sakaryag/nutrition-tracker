@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    NutriTrack — Mobile-first CSS
    ============================================================ */
 
@@ -11,6 +11,7 @@
 
   --color-bg:          #f5f6fa;
   --color-surface:     #ffffff;
+  --color-surface-elevated: #ffffff;
   --color-border:      #e2e8f0;
   --color-text:        #1a202c;
   --color-text-muted:  #718096;
@@ -19,12 +20,18 @@
   --color-danger:      #D9534F;
   --color-success:     #5CB85C;
   --color-warning:     #E8913A;
+  --color-accent:      #6C63FF;
+
+  --gradient-primary: linear-gradient(135deg, #4A90D9 0%, #357abd 100%);
 
   --radius:    0.5rem;
   --radius-lg: 1rem;
+  --border-radius-pill: 999px;
   --shadow:    0 1px 3px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.06);
   --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.06);
   --transition: 180ms ease;
+  --transition-bounce: 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --nav-height: 3.5rem;
 }
@@ -79,8 +86,11 @@ input, select, textarea { font: inherit; }
 .nav-brand {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-primary);
   white-space: nowrap;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .nav-links {
@@ -94,6 +104,8 @@ input, select, textarea { font: inherit; }
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   padding: 0.5rem 0;
+  transition: all 200ms ease;
+  transform-origin: top;
 }
 
 .nav-links.open { display: flex; }
@@ -138,7 +150,8 @@ input, select, textarea { font: inherit; }
     padding: 0;
     background: transparent;
   }
-  .nav-link { padding: 0.25rem 0.75rem; border-radius: var(--radius); }
+  .nav-link { padding: 0.25rem 0.75rem; border-radius: var(--radius); border-bottom: 2px solid transparent; transition: color var(--transition), border-color var(--transition); }
+  .nav-link.active { border-bottom-color: var(--color-primary); border-radius: var(--radius) var(--radius) 0 0; }
 }
 
 /* ---------- Main Layout ---------- */
@@ -191,11 +204,17 @@ input, select, textarea { font: inherit; }
 }
 
 .summary-card {
-  background: var(--color-surface);
+  background: var(--color-surface-elevated);
   border-radius: var(--radius);
   padding: 1rem;
   box-shadow: var(--shadow);
   border-top: 3px solid var(--color-border);
+  transition: transform var(--transition-bounce), box-shadow var(--transition);
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .summary-card--protein  { border-top-color: var(--color-protein); }
@@ -397,23 +416,29 @@ input, select, textarea { font: inherit; }
 .progress-bar-wrap {
   background: var(--color-border);
   border-radius: 999px;
-  height: 6px;
+  height: 10px;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
   border-radius: 999px;
-  transition: width 0.4s ease;
+  transition: width 0.5s ease;
   background: var(--color-primary);
   min-width: 0;
   max-width: 100%;
+  animation: bar-grow 0.6s ease forwards;
 }
 
-.progress-bar--protein  { background: var(--color-protein); }
-.progress-bar--fat      { background: var(--color-fat); }
-.progress-bar--carbs    { background: var(--color-carbs); }
-.progress-bar--calories { background: var(--color-calories); }
+@keyframes bar-grow {
+  from { width: 0 !important; }
+  to   { width: var(--bar-width, 100%); }
+}
+
+.progress-bar--protein  { background: linear-gradient(90deg, #4A90D9, #6aabf0); }
+.progress-bar--fat      { background: linear-gradient(90deg, #E8913A, #f0ae6a); }
+.progress-bar--carbs    { background: linear-gradient(90deg, #5CB85C, #80d480); }
+.progress-bar--calories { background: linear-gradient(90deg, #D9534F, #f07370); }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -434,11 +459,19 @@ input, select, textarea { font: inherit; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-primary {
-  background: var(--color-primary);
+  background: var(--gradient-primary);
   color: #fff;
   border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(74,144,217,0.35);
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition-bounce);
 }
-.btn-primary:hover:not(:disabled) { background: var(--color-primary-dk); border-color: var(--color-primary-dk); }
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5ba0e8 0%, #4a8fcf 100%);
+  border-color: var(--color-primary-dk);
+  box-shadow: 0 4px 14px rgba(74,144,217,0.45);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) { transform: translateY(0); box-shadow: 0 2px 6px rgba(74,144,217,0.30); }
 
 .btn-secondary {
   background: transparent;
@@ -596,7 +629,8 @@ input, select, textarea { font: inherit; }
 .entry-card__info { flex: 1; min-width: 0; }
 
 .entry-card__name {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -610,18 +644,24 @@ input, select, textarea { font: inherit; }
 
 .entry-card__macros {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
 }
 
-.macro-tag { font-weight: 600; }
-.macro-tag--protein { color: var(--color-protein); }
-.macro-tag--fat     { color: var(--color-fat); }
-.macro-tag--carbs   { color: var(--color-carbs); }
-.macro-tag--cal     { color: var(--color-calories); }
+.macro-tag {
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--border-radius-pill);
+  display: inline-block;
+}
+.macro-tag--protein { color: #1a5fa8; background: #e8f4fd; }
+.macro-tag--fat     { color: #a0521a; background: #fef0e0; }
+.macro-tag--carbs   { color: #1a6b1a; background: #e8f7e8; }
+.macro-tag--cal     { color: #8b1a1a; background: #fce8e8; }
 
 .entry-card__actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
 
@@ -629,7 +669,19 @@ input, select, textarea { font: inherit; }
 .empty-msg {
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  padding: 1rem 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  margin: 0.5rem 0;
+}
+
+.empty-msg::before {
+  content: '🍽';
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.4;
 }
 
 /* ---------- Forms ---------- */
@@ -661,10 +713,13 @@ input, select, textarea { font: inherit; }
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
-.form-control:focus {
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(74,144,217,.2);
+  box-shadow: 0 0 0 3px rgba(74,144,217,0.18);
 }
 
 .form-control::placeholder { color: var(--color-text-muted); }
@@ -818,24 +873,25 @@ input, select, textarea { font: inherit; }
 .food-card__info { flex: 1; min-width: 0; }
 
 .food-card__name {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .food-card__meta {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
   margin-top: 0.15rem;
 }
 
 .food-card__macros {
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
@@ -855,7 +911,7 @@ input, select, textarea { font: inherit; }
 /* ---------- Toast ---------- */
 #toast-container {
   position: fixed;
-  bottom: 1.25rem;
+  top: calc(var(--nav-height) + 1rem);
   right: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -871,8 +927,8 @@ input, select, textarea { font: inherit; }
   border-radius: var(--radius);
   font-size: 0.9rem;
   font-weight: 500;
-  box-shadow: var(--shadow-md);
-  animation: slideIn 0.2s ease;
+  box-shadow: var(--shadow-lg);
+  animation: toast-in 0.25s ease forwards;
   pointer-events: auto;
 }
 
@@ -880,15 +936,31 @@ input, select, textarea { font: inherit; }
 .toast--error   { background: var(--color-danger);  color: #fff; }
 .toast--info    { background: var(--color-primary);  color: #fff; }
 
-@keyframes slideIn {
-  from { transform: translateY(1rem); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+@keyframes toast-in {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
 }
 
 @keyframes fadeOut {
   from { opacity: 1; }
   to   { opacity: 0; }
 }
+
+/* ---------- Source Badges ---------- */
+.badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 2px 7px;
+  border-radius: var(--border-radius-pill);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+}
+.badge--usda    { background: #e8f4fd; color: #1a6fa8; }
+.badge--custom  { background: #e8f7ee; color: #1a7a3a; }
+.badge--off     { background: #fff3e0; color: #b35c00; }
+.badge--meal    { background: #f0ecff; color: #4a35cc; }
 
 /* ---------- Settings ---------- */
 .settings-card {
@@ -1209,11 +1281,13 @@ input, select, textarea { font: inherit; }
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -70%);
+  transform: translate(-50%, -75%);
   font-size: 1.25rem;
   font-weight: 700;
   color: var(--color-text);
   pointer-events: none;
+  text-align: center;
+  line-height: 1.3;
 }
 /* ---- Summary card percentages ---- */
 .summary-card__pct {
@@ -1902,6 +1976,136 @@ input, select, textarea { font: inherit; }
 
 /* ---- Mobile overrides ---- */
 
+/* ---------- Segmented Controls ---------- */
+/* Used in: history trend period selector, meal template filter */
+.segmented-control {
+  display: inline-flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.segmented-control .btn {
+  border-radius: var(--border-radius-pill);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  padding: 0.25rem 0.85rem;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  box-shadow: none;
+}
+
+.segmented-control .btn.active,
+.segmented-control .btn:hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
+.segmented-control .btn.active {
+  background: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(74,144,217,0.30);
+}
+
+/* Meal template filter as segmented control */
+.tpl-search-filter {
+  display: inline-flex;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.tpl-search-filter .btn {
+  border-radius: var(--border-radius-pill);
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  padding: 0.25rem 0.85rem;
+  transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+  box-shadow: none;
+}
+
+.tpl-search-filter .btn.active {
+  background: var(--gradient-primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 6px rgba(74,144,217,0.30);
+}
+
+.tpl-search-filter .btn:not(.active):hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ---------- Mini Macro Bar (template cards) ---------- */
+.mini-macro-bar {
+  display: flex;
+  height: 5px;
+  border-radius: var(--border-radius-pill);
+  overflow: hidden;
+  margin-top: 0.5rem;
+  gap: 1px;
+}
+
+.mini-macro-bar__segment {
+  height: 100%;
+  transition: width 0.4s ease;
+  border-radius: 0;
+}
+
+.mini-macro-bar__segment--protein { background: var(--color-protein); }
+.mini-macro-bar__segment--fat     { background: var(--color-fat); }
+.mini-macro-bar__segment--carbs   { background: var(--color-carbs); }
+
+/* ---------- Remaining text color coding ---------- */
+.remaining--under  { color: var(--color-success) !important; font-weight: 600; }
+.remaining--close  { color: var(--color-warning) !important; font-weight: 600; }
+.remaining--over   { color: var(--color-danger)  !important; font-weight: 700; }
+
+/* ---------- Quick-add chips enhanced ---------- */
+.quick-add-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 0.4rem 0.9rem;
+  min-width: 80px;
+}
+
+.chip-macro-hint {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* ---------- Template item rows — more breathing room ---------- */
+.tpl-item-row__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Site Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--color-border);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  margin-top: 2rem;
+}
+
 /* --- max-width: 640px --- */
 @media (max-width: 640px) {
   /* Fix .lang-toggle competing with .nav-toggle for margin-left: auto */
@@ -2038,4 +2242,462 @@ input, select, textarea { font: inherit; }
     width: 14px;
     height: 14px;
   }
+}
+
+
+/* ============================================================
+   Plans page
+   ============================================================ */
+
+.plans-empty-card {
+  padding: 2rem;
+  text-align: center;
+}
+
+.plans-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.plans-meta-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plans-plan-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.plans-plan-desc {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.plans-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.plans-days-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.plans-overall-bar {
+  flex: 1;
+}
+
+.plans-pct-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+/* Progress ring */
+.plans-ring-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.plans-ring {
+  width: 80px;
+  height: 80px;
+  transform: rotate(-90deg);
+}
+
+.plans-ring-bg {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 6;
+}
+
+.plans-ring-fg {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.plans-ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+/* Calendar legend */
+.plans-calendar-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-today   { background: var(--color-primary); }
+.legend-complete { background: var(--color-success); }
+.legend-partial  { background: var(--color-warning); }
+.legend-future   { background: var(--color-border); }
+
+/* Calendar table */
+.plans-calendar-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 1.5rem;
+}
+
+.plans-calendar {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.plans-calendar th {
+  text-align: center;
+  padding: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.plans-calendar td {
+  vertical-align: top;
+  padding: 0.4rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  min-height: 5rem;
+  transition: background var(--transition);
+}
+
+.plans-calendar td:hover:not(.cal-out) {
+  background: #f0f7ff;
+}
+
+.cal-out { background: var(--color-bg) !important; }
+
+.cal-today {
+  background: #e8f4ff !important;
+  border-color: var(--color-primary) !important;
+}
+
+.cal-complete { border-top: 3px solid var(--color-success); }
+.cal-partial  { border-top: 3px solid var(--color-warning); }
+
+.cal-day-num {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.cal-today .cal-day-num { color: var(--color-primary); }
+
+.cal-task-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.cal-task-pill {
+  font-size: 0.7rem;
+  background: var(--color-bg);
+  border-radius: 3px;
+  padding: 1px 4px;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+.cal-task-pill.cal-task-done {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.cal-task-more {
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+/* List view */
+.plans-day-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.plans-day-tab.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.plans-day-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Task rows (shared between plans + modal) */
+.plans-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.plans-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: background var(--transition);
+}
+
+.plans-task-row.plans-task-done {
+  background: #f8fff8;
+}
+
+.plans-task-cb {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.plans-task-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.plans-task-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.plans-task-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.plans-task-done .plans-task-name {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.plans-task-desc {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin-top: 0.1rem;
+}
+
+.plans-header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ============================================================
+   Admin panel
+   ============================================================ */
+
+.admin-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-tab.active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.admin-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-panel-header h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Plans list */
+.admin-plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-plan-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-plan-card-name {
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.admin-plan-card-meta {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.admin-plan-card-desc {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.admin-plan-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Admin task section */
+.admin-task-section {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-task-section .section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.admin-day-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-tasks-for-day {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-task-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+}
+
+.admin-task-icon { font-size: 1rem; flex-shrink: 0; }
+.admin-task-info { flex: 1; min-width: 0; }
+.admin-task-name { font-weight: 600; }
+.admin-task-detail { font-size: 0.78rem; color: var(--color-text-muted); }
+
+.admin-add-task-form {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Users table */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table th {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--color-bg);
+}
+
+.admin-table tr:hover td { background: #f9fafc; }
+
+.btn-danger-text {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 1.1rem;
+  padding: 0 0.25rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.btn-danger-text:hover { color: #a00; }
+
+.form-static-text {
+  font-weight: 600;
+  padding: 0.4rem 0;
+  color: var(--color-text);
 }

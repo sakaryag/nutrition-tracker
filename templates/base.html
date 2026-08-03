@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NutriTrack{% block title %}{% endblock %}</title>
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#4A90D9" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="NutriTrack" />
+  <link rel="apple-touch-icon" href="/static/icon.svg" />
   <link rel="stylesheet" href="/static/css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
@@ -22,7 +28,14 @@
         <li><a href="/foods" class="nav-link" data-i18n="nav.myFoods">My Foods</a></li>
         <li><a href="/meals" class="nav-link" data-i18n="nav.meals">Meals</a></li>
         <li><a href="/chat" class="nav-link" data-i18n="nav.chat">Chat</a></li>
+        <li><a href="/reports" class="nav-link" data-i18n="nav.reports">Reports</a></li>
         <li><a href="/settings" class="nav-link" data-i18n="nav.settings">Settings</a></li>
+        {% if current_user and (current_user.plan_feature_enabled or current_user.is_admin) %}
+        <li><a href="/plans" class="nav-link" data-i18n="nav.plans">My Plan</a></li>
+        {% endif %}
+        {% if current_user and current_user.is_admin %}
+        <li><a href="/admin" class="nav-link" data-i18n="nav.admin">Admin</a></li>
+        {% endif %}
         {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
         <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
         {% endif %}
@@ -33,6 +46,10 @@
   <main class="site-main">
     {% block content %}{% endblock %}
   </main>
+
+  <footer class="site-footer">
+    NutriTrack &copy; 2026
+  </footer>
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -59,6 +76,28 @@
     });
 
     updateLangUI();
+  })();
+  </script>
+
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/static/sw.js')
+        .catch(function (err) { console.warn('SW registration failed:', err); });
+    });
+  }
+  </script>
+
+  <script>
+  /* Mark the active nav link based on current path */
+  (function () {
+    var path = window.location.pathname;
+    document.querySelectorAll('.nav-link').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (href === '/' ? path === '/' : (href && path.startsWith(href))) {
+        a.classList.add('active');
+      }
+    });
   })();
   </script>
 </body>

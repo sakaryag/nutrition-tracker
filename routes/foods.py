@@ -178,6 +178,91 @@ def image_lookup():
         return jsonify({'found': False, 'message': 'Recognition failed'})
 
 
+def _fetch_openfoodfacts(q: str) -> list:
+    """Search OpenFoodFacts and return a list of SavedFood-like dicts.
+    Returns [] on any error (network, timeout, bad data).
+    Saves new entries to saved_food with source='openfoodfacts'.
+    """
+    try:
+        url = (
+            f'https://search.openfoodfacts.org/search'
+            f'?q={urllib.request.quote(q)}&json=true&page_size=5'
+        )
+        req = urllib.request.Request(url, headers={'User-Agent': 'NutriTrack/1.0'})
+        with urllib.request.urlopen(req, timeout=1.5) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+    except Exception:
+        return []
+
+    results = []
+    for product in (data.get('products') or data.get('hits') or []):
+        name = (product.get('product_name') or '').strip()
+        if not name:
+            continue
+        nutriments = product.get('nutriments') or {}
+        protein = nutriments.get('proteins_100g')
+        fat = nutriments.get('fat_100g')
+        carbs = nutriments.get('carbohydrates_100g')
+        # Skip entries with missing macros
+        if protein is None or fat is None or carbs is None:
+            continue
+        try:
+            protein = round(float(protein), 1)
+            fat = round(float(fat), 1)
+            carbs = round(float(carbs), 1)
+        except (TypeError, ValueError):
+            continue
+        # Skip entries with zero macros (bad data)
+        if protein + fat + carbs == 0:
+            continue
+        kcal_raw = nutriments.get('energy-kcal_100g')
+        if kcal_raw is not None:
+            try:
+                kcal = round(float(kcal_raw), 1)
+            except (TypeError, ValueError):
+                kcal = round(protein * 4 + fat * 9 + carbs * 4, 1)
+        else:
+            kcal = round(protein * 4 + fat * 9 + carbs * 4, 1)
+        fiber_raw = nutriments.get('fiber_100g')
+        fiber = round(float(fiber_raw), 1) if fiber_raw is not None else None
+
+        # Check for existing record (case-insensitive) before inserting
+        existing = (
+            SavedFood.query
+            .filter(SavedFood.name.ilike(name))
+            .filter_by(is_archived=False)
+            .first()
+        )
+        if existing:
+            d = existing.to_dict()
+            d['source'] = existing.source
+            results.append(d)
+        else:
+            food = SavedFood(
+                name=name,
+                protein=protein,
+                fat=fat,
+                carbs=carbs,
+                calories=kcal,
+                fiber=fiber,
+                default_serving=100.0,
+                serving_unit='g',
+                food_type='ingredient',
+                source='openfoodfacts',
+                is_archived=False,
+            )
+            db.session.add(food)
+            try:
+                db.session.commit()
+                d = food.to_dict()
+                d['source'] = 'openfoodfacts'
+                results.append(d)
+            except Exception:
+                db.session.rollback()
+
+    return results
+
+
 @foods_bp.route('', methods=['GET'])
 def search_foods():
     q = request.args.get('q', '').strip()
@@ -210,7 +295,19 @@ def search_foods():
         type_order = case((SavedFood.food_type == 'ingredient', 0), else_=1)
         foods = query.order_by(type_order, name_col).limit(50).all()
 
-    return jsonify([f.to_dict() for f in foods])
+    local_results = [f.to_dict() for f in foods]
+
+    # OpenFoodFacts fallback: only when local results are sparse and query is meaningful
+    if q and len(q) >= 3 and len(local_results) < 3 and not source and not current_app.testing:
+        off_results = _fetch_openfoodfacts(q)
+        # Deduplicate by name (case-insensitive), local results take priority
+        local_names = {r['name'].lower() for r in local_results}
+        for r in off_results:
+            if r['name'].lower() not in local_names:
+                local_results.append(r)
+                local_names.add(r['name'].lower())
+
+    return jsonify(local_results)
 
 
 @foods_bp.route('', methods=['POST'])

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from models import db
 from models.food_entry import FoodEntry
 from models.saved_food import SavedFood
@@ -207,6 +207,86 @@ def recent_entries():
         .all()
     )
     return jsonify([e.to_dict() for e in rows])
+
+
+@entries_bp.route('/copy-yesterday', methods=['POST'])
+def copy_yesterday_preview():
+    """POST /api/entries/copy-yesterday
+    Returns a preview of yesterday's entries for the given target_date.
+    Body: {target_date?: YYYY-MM-DD}
+    """
+    data = request.get_json(silent=True) or {}
+    raw_date = data.get('target_date')
+    try:
+        target_date = date.fromisoformat(raw_date) if raw_date else date.today()
+    except ValueError:
+        return jsonify({'error': 'Invalid date format, use YYYY-MM-DD'}), 400
+
+    yesterday = target_date - timedelta(days=1)
+    uid = current_user_id()
+    q = FoodEntry.query.filter_by(entry_date=yesterday)
+    if uid is not None:
+        q = q.filter_by(user_id=uid)
+    entries = q.order_by(FoodEntry.entry_time).all()
+
+    preview = [
+        {
+            'food_name': e.food_name,
+            'protein': e.protein,
+            'fat': e.fat,
+            'carbs': e.carbs,
+            'calories': e.calories,
+            'meal_type': e.meal_type,
+            'serving_size': e.serving_size,
+            'serving_unit': e.serving_unit,
+            'saved_food_id': e.saved_food_id,
+        }
+        for e in entries
+    ]
+    return jsonify({'preview': preview, 'count': len(preview), 'from_date': yesterday.isoformat()})
+
+
+@entries_bp.route('/copy-yesterday/confirm', methods=['POST'])
+def copy_yesterday_confirm():
+    """POST /api/entries/copy-yesterday/confirm
+    Actually copies yesterday's entries to target_date.
+    Body: {target_date?: YYYY-MM-DD}
+    """
+    data = request.get_json(silent=True) or {}
+    raw_date = data.get('target_date')
+    try:
+        target_date = date.fromisoformat(raw_date) if raw_date else date.today()
+    except ValueError:
+        return jsonify({'error': 'Invalid date format, use YYYY-MM-DD'}), 400
+
+    yesterday = target_date - timedelta(days=1)
+    uid = current_user_id()
+    q = FoodEntry.query.filter_by(entry_date=yesterday)
+    if uid is not None:
+        q = q.filter_by(user_id=uid)
+    source_entries = q.all()
+
+    now = datetime.utcnow()
+    for src in source_entries:
+        new_entry = FoodEntry(
+            food_name=src.food_name,
+            protein=src.protein,
+            fat=src.fat,
+            carbs=src.carbs,
+            calories=src.calories,
+            meal_type=src.meal_type,
+            serving_size=src.serving_size,
+            serving_unit=src.serving_unit,
+            saved_food_id=src.saved_food_id,
+            template_id=None,
+            user_id=uid,
+            entry_date=target_date,
+            entry_time=now.time(),
+        )
+        db.session.add(new_entry)
+
+    db.session.commit()
+    return jsonify({'copied': len(source_entries), 'target_date': target_date.isoformat()})
 
 
 @entries_bp.route('/clear-meal', methods=['DELETE'])

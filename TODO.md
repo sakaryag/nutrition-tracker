@@ -1,76 +1,91 @@
 # NutriTrack — TODO & Future Features
 
 ## Bugs (known)
-- [ ] **Unit dropdown not scaling macros correctly** — changing unit in meal template items does not proportionally rescale macros. The serving number updates but macro values stay stale. Needs proper base-macro tracking per item row. (Added 2026-07)
-- [ ] **Meal dataset missing** — the Meals filter in template search returns empty; no whole-dish entries are seeded yet. Needs a real nutritional dataset for meals. (Added 2026-07)
+- [x] **Unit dropdown not scaling macros correctly** — FIXED 2026-08: base macro tracking added to meal template item rows
+- [x] **Meal dataset missing** — seed_data/meals.py exists and seeds meal rows on first run
+- [x] **Food macro data wrong (per-100g stored as per-serving)** — FIXED 2026-08: fix_food_data.py corrected 69 foods (eggs, butter, condiments, etc.)
 
 ## Language Support
-- [ ] **Turkish UI translation** — add i18n support so all labels, buttons, toasts, and placeholders can be shown in Turkish. Suggested approach: a `static/js/i18n.js` module with `tr` and `en` dictionaries, a language toggle in Settings, and `data-i18n="key"` attributes on all translatable HTML elements.
-- [ ] **Turkish meal dataset** — curate or source a dataset of common Turkish dishes (mercimek çorbası, manti, iskender, döner, karnıyarık, börek, menemen, pilav, köfte, dolma…) with accurate per-100g macros. Consider OpenFoodFacts Turkey data or USDA SR Legacy as a base.
-- [ ] **Country-specific meal datasets** — extend the meal seeding infrastructure to support per-country datasets (e.g. Italian, Turkish, Mexican) selectable in Settings.
+- [x] **Turkish UI translation** — DONE: i18n.js module with EN/TR dictionaries, lang toggle in nav, data-i18n attributes throughout
+- [ ] **Turkish meal dataset** — curate common Turkish dishes (mercimek çorbası, mantı, iskender, döner, karnıyarık, börek, menemen, pilav, köfte, dolma…) with per-serving macros
+- [ ] **Country-specific meal datasets** — extend seeding infrastructure for per-country datasets selectable in Settings
 
 ## Dataset & Food Library
-
-> **Top recommendation:** Use a two-layer strategy: (1) Bundle a small curated CSV (<2 MB) of the 3,000-5,000 most common foods sourced from USDA public-domain data directly in the repository under data/foods.csv — this gives zero-setup, offline, instant lookup for the majority of tracking needs. (2) Integrate the OpenFoodFacts API as a live fallback for foods not found in the local dataset — no API key needed, just a User-Agent header, with 3M+ product coverage. For recipe data specifically, add optional Hugging Face Datasets Hub queries against `datahiveai/recipes-with-nutrition` (no auth, REST API) for users who want recipe import. This combination covers 95%+ of use cases with zero user-facing setup, no account required, and no bundled secrets.
-
-- [ ] **Data layer: bundle seed foods CSV** — Download USDA FoodData Central Foundation Foods dataset (public domain, fdc.nal.usda.gov/download-datasets), filter to top ~3,000-5,000 common foods, export as `data/foods.csv` (~1-2 MB). Fields: food_name, calories_kcal, protein_g, fat_g, carbs_g, fiber_g, sugar_g, sodium_mg per 100 g serving.
-- [ ] **Data layer: OpenFoodFacts API fallback** — Implement `search_openfoodfacts(query: str)` using `GET https://search.openfoodfacts.org/search?q={query}&json=true` with `User-Agent: NutritionTracker/1.0 (contact@example.com)` header. Map response `nutriments` fields to internal NutritionInfo model. Use as fallback when food not found in bundled CSV.
-- [ ] **Data layer: HuggingFace recipe lookup (optional)** — Implement recipe search against `datahiveai/recipes-with-nutrition` via `GET https://datasets-server.huggingface.co/search?dataset=datahiveai/recipes-with-nutrition&config=default&split=train&query={name}`. No auth needed. Note CC BY-NC 4.0 license — ensure app's license is compatible.
-- [ ] **USDA FoodData Central API (optional/advanced)** — Document in README that users can optionally supply a free USDA API key (api.data.gov/signup) as `USDA_API_KEY` env var to enable higher-quality USDA lookups via `https://api.nal.usda.gov/fdc/v1/foods/search`. Implement as an opt-in provider, not required for basic use.
-- [ ] **Data update script** — Add `scripts/update_foods_csv.py` to periodically regenerate `data/foods.csv` from the latest USDA public download, so the bundled data can be refreshed with a single command before cutting a new release.
-- [ ] Integrate OpenFoodFacts API for real-time food search (no auth, free, 3M+ products)
-- [ ] Integrate USDA FoodData Central API for authoritative ingredient data
-- [ ] Explore Hugging Face Datasets Hub for hosting cleaned meal CSVs
+- [x] **Bundle seed foods CSV** — 751 USDA foods in seed_data/foods.csv, auto-seeded on first run
+- [ ] **OpenFoodFacts API fallback** — `GET https://search.openfoodfacts.org/search?q={query}` fallback when food not in local DB
+- [ ] **USDA FoodData Central API (optional)** — opt-in via `USDA_API_KEY` env var
 
 ## Deploy
-- [ ] Push to GitHub repo `https://github.com/sakaryag/nutrition-tracker`
-- [ ] Deploy to Railway / Render / Fly.io
-- [ ] Set `DATABASE_URL` to a PostgreSQL instance
-- [ ] Set `AUTH_ENABLED=true` and `SECRET_KEY` to a secure random value in production
-- [ ] Docker setup is ready: `docker compose up --build`
+- [x] **GitHub repo** — pushed to https://github.com/sakaryag/nutrition-tracker
+- [ ] **Deploy to Railway / Render / Fly.io** — Docker setup ready, needs env vars set
+- [ ] **PostgreSQL in production** — `DATABASE_URL` swap works, needs provisioning
+- [x] **Docker setup** — Dockerfile + docker-compose.yml present and working
 
 ## Multi-user data isolation
-- [ ] Add `user_id` FK to `food_entry`, `daily_target`, `saved_food` (custom only)
-- [ ] Filter all queries by `session['user_id']` when auth is enabled
-- [ ] Migrate existing data to a default user
+- [x] **user_id FK on food_entry** — present and filtered when AUTH_ENABLED
+- [x] **daily_target user scoping** — filtered by user_id when auth enabled
+- [ ] **saved_food custom foods per-user** — currently all custom foods are shared across users; add user_id FK to saved_food for source='custom'
 
 ## Barcode scanner
-- [ ] Add barcode input field (camera or manual entry)
-- [ ] Look up via OpenFoodFacts API (`https://world.openfoodfacts.org/api/v2/product/{barcode}.json`)
-- [ ] Auto-fill name, macros, serving from API response
-- [ ] Option to save scanned food to custom library
+- [x] **Barcode input / camera scan** — ZXing-based camera barcode scanner implemented (barcode.js, integrated in dashboard)
+- [x] **OpenFoodFacts lookup** — barcode scans look up via OFF API and auto-fill macros
+- [x] **Save scanned food to library** — auto-saves new foods on entry creation
+
+## Food photo recognition
+- [x] **Claude vision food recognition** — photo capture → Claude Haiku identifies food and fills macros (food_image.js)
 
 ## Weekly / monthly reports
-- [ ] Average daily intake over a period
-- [ ] Compliance rate: % of days hitting each macro target
-- [ ] Streaks: consecutive days of logging
-- [ ] Visual charts: weekly bar chart, monthly heatmap
+- [ ] **Average daily intake over a period** — /api/summary/range exists but no UI report page
+- [ ] **Compliance rate** — % of days hitting each macro target
+- [ ] **Streaks** — consecutive days of logging
+- [ ] **Visual charts** — weekly bar chart, monthly calendar heatmap
 
 ## PWA support
-- [ ] Add `manifest.json` with app name, icons, theme color
-- [ ] Add service worker for offline caching of static assets
-- [ ] Cache API responses for offline viewing of recent data
-- [ ] "Add to Home Screen" prompt on mobile
+- [ ] **manifest.json** — app name, icons, theme color
+- [ ] **Service worker** — offline caching of static assets
+- [ ] **"Add to Home Screen" prompt** — mobile install prompt
 
 ## Meal templates (enhancements)
-- [ ] Log a template to a specific past date (currently only logs to today)
-- [ ] Duplicate a template
-- [ ] Sort/reorder template items via drag and drop
-- [ ] Template categories / tags
+- [x] **Log template to today** — template chips on dashboard log immediately
+- [x] **Create template from existing log entries** — "From Log" panel added 2026-08
+- [ ] **Log template to a specific past date** — currently only logs to today
+- [ ] **Duplicate a template** — clone button
+- [ ] **Sort/reorder template items** — drag and drop
+- [ ] **Template categories / tags**
 
 ## Food library (enhancements)
-- [ ] Clone a USDA food to edit its macros/serving
-- [ ] Import foods from CSV
-- [ ] Fuzzy search (handle typos)
-- [ ] Recent search history
+- [x] **Clone a USDA food** — clone button on My Foods page
+- [ ] **Import foods from CSV** — bulk import UI
+- [ ] **Fuzzy search** — handle typos in food search
+- [ ] **Recent search history**
 
 ## AI / Claude Integration
-- [ ] **Natural language food logging chatbot** — text input where user types e.g. "I had 2 eggs, a slice of toast and a cup of milk for breakfast" and the app parses it into food entries. Approach: send the text to Claude API with a system prompt that returns structured JSON `[{name, quantity, unit}]`, match each item against the food library, and log them. Show a confirmation step before writing entries.
-- [ ] **User-provided Claude API key** — add an "AI Settings" section to the Settings page where users paste their own Anthropic API key. Store it in the browser's `localStorage` (never sent to the server) and use it client-side for the chatbot feature. Show a "Get API key" link to console.anthropic.com. Fallback gracefully when no key is set.
-- [ ] **Smart portion estimation** — when Claude extracts a food but quantity is ambiguous ("a bowl of oatmeal"), use Claude to suggest a reasonable gram estimate based on typical serving sizes.
-- [ ] **Daily summary insights** — optional end-of-day prompt: Claude reviews the day's macros vs targets and gives a one-paragraph insight (e.g. "You hit protein but went over fat — consider leaner protein sources tomorrow").
+- [x] **Natural language food logging chatbot** — chat page with spaCy + Claude Haiku pipeline
+- [x] **User-provided Claude API key** — stored in localStorage, sent per-request, never server-side
+- [x] **Smart portion estimation** — Claude extracts quantities and suggests gram estimates
+- [ ] **Daily summary insights** — end-of-day Claude review of macros vs targets (paragraph insight)
 
 ## Dashboard (enhancements)
-- [ ] Water intake tracker
-- [ ] Notes / mood field per day
-- [ ] Copy yesterday's entries to today
+- [ ] **Water intake tracker** — daily water log widget
+- [ ] **Notes / mood field per day** — freetext note per date
+- [ ] **Copy yesterday's entries to today** — one-tap copy
+
+## Dietitian Plan Feature (NEW — 2026-08)
+- [ ] **Admin/dietitian role** — admin flag on User model; admin UI to create nutrition plans
+- [ ] **Plan model** — NutritionPlan (name, description, duration_days, created_by_admin)
+- [ ] **Plan task model** — PlanTask (plan_id, day_offset, food_name/description, quantity, unit, repeat pattern)
+- [ ] **User plan assignment** — assign a plan to a specific user with a start_date
+- [ ] **Plan tracking UI** — calendar/table view showing tasks per day, checkmark completion
+- [ ] **Settings toggle** — plan feature hidden by default, enabled per-user by admin
+- [ ] **Task completion tracking** — UserPlanTaskCompletion model (user_id, task_id, date, completed)
+
+## Quality / Production Readiness
+- [ ] **OpenFoodFacts fallback search** — live API fallback in food search
+- [ ] **Turkish food dataset** — 50–100 common Turkish dishes seeded
+- [ ] **Reports page** — weekly/monthly compliance charts (MyFitnessPal-style)
+- [ ] **PWA manifest + service worker** — installable on mobile home screen
+- [ ] **Copy yesterday** — dashboard quick action
+- [ ] **Daily notes** — per-day freetext notes field
+- [ ] **Water tracker** — daily water intake widget
+- [ ] **Duplicate meal template** — clone button
+- [ ] **Migrate tests to cover new routes** — keep >80% route coverage

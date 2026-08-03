@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block title %} — Admin{% endblock %}
+
+{% block content %}
+<section class="page-admin">
+
+  <div class="page-header">
+    <h1 data-i18n="admin.title">Admin Panel</h1>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="btn btn-outline admin-tab active" data-tab="plans" data-i18n="admin.tabPlans">Plans</button>
+    <button class="btn btn-outline admin-tab" data-tab="users" data-i18n="admin.tabUsers">Users</button>
+  </div>
+
+  <!-- Plans tab -->
+  <div class="admin-panel" id="admin-tab-plans">
+    <div class="admin-panel-header">
+      <h2 data-i18n="admin.plansTitle">Nutrition Plans</h2>
+      <button class="btn btn-primary btn-sm" id="admin-create-plan-btn" data-i18n="admin.createPlan">+ Create Plan</button>
+    </div>
+    <div id="admin-plans-list" class="admin-plans-list">
+      <p class="empty-msg" data-i18n="common.loading">Loading…</p>
+    </div>
+  </div>
+
+  <!-- Users tab -->
+  <div class="admin-panel" id="admin-tab-users" hidden>
+    <div class="admin-panel-header">
+      <h2 data-i18n="admin.usersTitle">Users</h2>
+    </div>
+    <div class="table-wrap">
+      <table class="admin-table" id="admin-users-table">
+        <thead>
+          <tr>
+            <th data-i18n="admin.colUsername">Username</th>
+            <th data-i18n="admin.colAdmin">Admin</th>
+            <th data-i18n="admin.colPlanFeature">Plan Feature</th>
+            <th data-i18n="admin.colActivePlan">Active Plan</th>
+            <th data-i18n="admin.colActions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="admin-users-body">
+          <tr><td colspan="5" class="empty-msg" data-i18n="common.loading">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</section>
+
+<!-- Plan create/edit modal -->
+<div class="modal-overlay" id="admin-plan-modal" role="dialog" aria-modal="true" hidden>
+  <div class="modal modal--wide">
+    <div class="modal-header">
+      <h2 class="modal-title" id="admin-plan-modal-title" data-i18n="admin.createPlan">Create Plan</h2>
+      <button class="btn btn-icon modal-close" id="admin-plan-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <form id="admin-plan-form" novalidate>
+      <input type="hidden" id="admin-plan-id" />
+
+      <div class="form-group">
+        <label for="admin-plan-name" data-i18n="admin.planName">Plan Name <span aria-hidden="true">*</span></label>
+        <input type="text" id="admin-plan-name" class="form-control" required />
+      </div>
+      <div class="form-group">
+        <label for="admin-plan-desc" data-i18n="admin.planDesc">Description</label>
+        <textarea id="admin-plan-desc" class="form-control" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="admin-plan-duration" data-i18n="admin.planDuration">Duration (days)</label>
+        <input type="number" id="admin-plan-duration" class="form-control" value="7" min="1" max="365" />
+      </div>
+
+      <!-- Task editor -->
+      <div class="admin-task-section">
+        <h3 class="section-title" data-i18n="admin.tasks">Tasks</h3>
+        <div class="admin-day-selector">
+          <label data-i18n="admin.editDay">Edit Day:</label>
+          <select id="admin-task-day-select" class="form-control" style="width:auto"></select>
+        </div>
+        <div id="admin-tasks-for-day" class="admin-tasks-for-day">
+          <p class="empty-msg" data-i18n="admin.savePlanFirst">Save the plan first to add tasks.</p>
+        </div>
+        <div id="admin-add-task-form" class="admin-add-task-form" hidden>
+          <div class="form-row">
+            <div class="form-group">
+              <label data-i18n="admin.taskType">Type</label>
+              <select id="admin-task-type" class="form-control">
+                <option value="food">Food</option>
+                <option value="habit">Habit</option>
+                <option value="note">Note</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex:2">
+              <label data-i18n="admin.taskDesc">Description <span aria-hidden="true">*</span></label>
+              <input type="text" id="admin-task-desc" class="form-control" />
+            </div>
+          </div>
+          <div class="form-row" id="admin-food-fields">
+            <div class="form-group" style="flex:2">
+              <label data-i18n="admin.foodName">Food Name</label>
+              <input type="text" id="admin-task-food-name" class="form-control" />
+            </div>
+            <div class="form-group">
+              <label data-i18n="admin.quantity">Quantity</label>
+              <input type="number" id="admin-task-quantity" class="form-control" min="0" step="0.1" />
+            </div>
+            <div class="form-group">
+              <label data-i18n="admin.unit">Unit</label>
+              <select id="admin-task-unit" class="form-control">
+                <option value="g">g</option>
+                <option value="ml">ml</option>
+                <option value="piece">piece</option>
+                <option value="slice">slice</option>
+                <option value="serving">serving</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="admin-cancel-task" data-i18n="common.cancel">Cancel</button>
+            <button type="button" class="btn btn-primary btn-sm" id="admin-save-task-btn" data-i18n="admin.addTask">Add Task</button>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="admin-show-add-task" data-i18n="admin.addTask">+ Add Task</button>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="admin-plan-cancel" data-i18n="common.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="admin-plan-save-btn" data-i18n="common.save">Save Plan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Assign plan modal -->
+<div class="modal-overlay" id="admin-assign-modal" role="dialog" aria-modal="true" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <h2 class="modal-title" data-i18n="admin.assignPlan">Assign Plan</h2>
+      <button class="btn btn-icon modal-close" id="admin-assign-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <form id="admin-assign-form" novalidate>
+      <input type="hidden" id="admin-assign-user-id" />
+      <div class="form-group">
+        <label data-i18n="admin.assignToUser">User</label>
+        <p id="admin-assign-username" class="form-static-text"></p>
+      </div>
+      <div class="form-group">
+        <label for="admin-assign-plan-select" data-i18n="admin.selectPlan">Plan</label>
+        <select id="admin-assign-plan-select" class="form-control"></select>
+      </div>
+      <div class="form-group">
+        <label for="admin-assign-start" data-i18n="admin.startDate">Start Date</label>
+        <input type="date" id="admin-assign-start" class="form-control" />
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="admin-assign-cancel" data-i18n="common.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" data-i18n="admin.assignPlan">Assign</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %} — Reports{% endblock %}
+
+{% block content %}
+<section class="page-reports">
+
+  <div class="page-header">
+    <h1 data-i18n="rep.title">Reports</h1>
+    <div class="reports-period-row btn-group" role="group" aria-label="Report period">
+      <button class="btn btn-sm btn-outline" data-days="7"  data-i18n="rep.days7">7 Days</button>
+      <button class="btn btn-sm btn-outline" data-days="14" data-i18n="rep.days14">14 Days</button>
+      <button class="btn btn-sm btn-outline active" data-days="30" data-i18n="rep.days30">30 Days</button>
+      <button class="btn btn-sm btn-outline" data-days="90" data-i18n="rep.days90">90 Days</button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="reports-stat-cards" id="rep-stat-cards">
+    <article class="reports-stat-card reports-stat-card--protein">
+      <span class="reports-stat-label" data-i18n="rep.avgProtein">Avg Protein</span>
+      <div>
+        <span class="reports-stat-value" id="rep-avg-protein">—</span>
+        <span class="reports-stat-unit">g</span>
+      </div>
+      <span class="reports-stat-sub" id="rep-sub-protein" data-i18n="rep.perDay">per logged day</span>
+    </article>
+    <article class="reports-stat-card reports-stat-card--fat">
+      <span class="reports-stat-label" data-i18n="rep.avgFat">Avg Fat</span>
+      <div>
+        <span class="reports-stat-value" id="rep-avg-fat">—</span>
+        <span class="reports-stat-unit">g</span>
+      </div>
+      <span class="reports-stat-sub" id="rep-sub-fat" data-i18n="rep.perDay">per logged day</span>
+    </article>
+    <article class="reports-stat-card reports-stat-card--carbs">
+      <span class="reports-stat-label" data-i18n="rep.avgCarbs">Avg Carbs</span>
+      <div>
+        <span class="reports-stat-value" id="rep-avg-carbs">—</span>
+        <span class="reports-stat-unit">g</span>
+      </div>
+      <span class="reports-stat-sub" id="rep-sub-carbs" data-i18n="rep.perDay">per logged day</span>
+    </article>
+    <article class="reports-stat-card reports-stat-card--calories">
+      <span class="reports-stat-label" data-i18n="rep.avgCalories">Avg Calories</span>
+      <div>
+        <span class="reports-stat-value" id="rep-avg-calories">—</span>
+        <span class="reports-stat-unit">kcal</span>
+      </div>
+      <span class="reports-stat-sub" id="rep-sub-calories" data-i18n="rep.perDay">per logged day</span>
+    </article>
+  </div>
+
+  <!-- Streaks & Logging -->
+  <div class="reports-section">
+    <h2 class="reports-section-title" data-i18n="rep.streaks">Streaks &amp; Logging</h2>
+    <div class="streak-row">
+      <div class="streak-badge streak-badge--fire">
+        <span class="streak-badge__number" id="rep-current-streak">—</span>
+        <span class="streak-badge__label" data-i18n="rep.currentStreak">Current Streak</span>
+        <span class="streak-badge__unit" data-i18n="rep.days">days</span>
+      </div>
+      <div class="streak-badge">
+        <span class="streak-badge__number" id="rep-longest-streak">—</span>
+        <span class="streak-badge__label" data-i18n="rep.longestStreak">Longest Streak</span>
+        <span class="streak-badge__unit" data-i18n="rep.days">days</span>
+      </div>
+      <div class="streak-badge">
+        <span class="streak-badge__number" id="rep-days-logged">—</span>
+        <span class="streak-badge__label" data-i18n="rep.daysLogged">Days Logged</span>
+        <span class="streak-badge__unit" id="rep-days-logged-denom">/ —</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance Bars -->
+  <div class="reports-section">
+    <h2 class="reports-section-title" data-i18n="rep.compliance">Days Hitting Target</h2>
+    <div class="compliance-section">
+      <p class="compliance-hint" data-i18n="rep.complianceHint">Percentage of logged days where you reached ≥90% of your target</p>
+      <div class="compliance-bar-row">
+        <span class="compliance-bar-label" data-i18n="rep.protein">Protein</span>
+        <div class="compliance-bar-track">
+          <div class="compliance-bar-fill compliance-bar-fill--protein" id="rep-bar-protein" style="width:0%"></div>
+        </div>
+        <span class="compliance-bar-pct" id="rep-pct-protein">0%</span>
+      </div>
+      <div class="compliance-bar-row">
+        <span class="compliance-bar-label" data-i18n="rep.fat">Fat</span>
+        <div class="compliance-bar-track">
+          <div class="compliance-bar-fill compliance-bar-fill--fat" id="rep-bar-fat" style="width:0%"></div>
+        </div>
+        <span class="compliance-bar-pct" id="rep-pct-fat">0%</span>
+      </div>
+      <div class="compliance-bar-row">
+        <span class="compliance-bar-label" data-i18n="rep.carbs">Carbs</span>
+        <div class="compliance-bar-track">
+          <div class="compliance-bar-fill compliance-bar-fill--carbs" id="rep-bar-carbs" style="width:0%"></div>
+        </div>
+        <span class="compliance-bar-pct" id="rep-pct-carbs">0%</span>
+      </div>
+      <div class="compliance-bar-row">
+        <span class="compliance-bar-label" data-i18n="rep.calories">Calories</span>
+        <div class="compliance-bar-track">
+          <div class="compliance-bar-fill compliance-bar-fill--calories" id="rep-bar-calories" style="width:0%"></div>
+        </div>
+        <span class="compliance-bar-pct" id="rep-pct-calories">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="reports-section">
+    <h2 class="reports-section-title" data-i18n="rep.trendTitle">Daily Macro Trend</h2>
+    <div class="reports-chart-section">
+      <div class="reports-chart-wrap">
+        <canvas id="rep-trend-chart" aria-label="Daily macro trend chart" role="img"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Heatmap -->
+  <div class="reports-section">
+    <h2 class="reports-section-title" data-i18n="rep.heatmapTitle">Calorie Heatmap (Last 30 Days)</h2>
+    <div class="heatmap-section">
+      <div class="heatmap-legend">
+        <div class="heatmap-legend-item">
+          <span class="heatmap-legend-dot heatmap-legend-dot--over"></span>
+          <span data-i18n="rep.heatmapOver90">≥90% target</span>
+        </div>
+        <div class="heatmap-legend-item">
+          <span class="heatmap-legend-dot heatmap-legend-dot--mid"></span>
+          <span data-i18n="rep.heatmap50to90">50–90%</span>
+        </div>
+        <div class="heatmap-legend-item">
+          <span class="heatmap-legend-dot heatmap-legend-dot--under"></span>
+          <span data-i18n="rep.heatmapUnder50">&lt;50%</span>
+        </div>
+        <div class="heatmap-legend-item">
+          <span class="heatmap-legend-dot heatmap-legend-dot--none"></span>
+          <span data-i18n="rep.heatmapNoData">No data</span>
+        </div>
+      </div>
+      <div class="heatmap-week-labels" id="rep-heatmap-week-labels" aria-hidden="true"></div>
+      <div class="heatmap-grid" id="rep-heatmap" role="img" aria-label="Calorie heatmap"></div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/reports.js"></script>
+{% endblock %}

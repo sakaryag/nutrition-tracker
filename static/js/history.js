@@ -180,8 +180,8 @@
           legend: { position: 'top', labels: { boxWidth: 12, padding: 12 } },
         },
         scales: {
-          x: { grid: { color: '#e2e8f0' } },
-          y: { beginAtZero: true, grid: { color: '#e2e8f0' } },
+          x: { grid: { color: 'rgba(0,0,0,0.05)' } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
         },
       },
     });

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
-from datetime import date
+from datetime import date, timedelta
 from models import db
 from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
@@ -122,3 +122,150 @@ def range_summary():
         }
         for row in rows
     ])
+
+
+@summary_bp.route('/stats', methods=['GET'])
+def stats_summary():
+    """GET /api/summary/stats?start=YYYY-MM-DD&end=YYYY-MM-DD
+
+    Returns aggregated statistics for a date range including averages,
+    compliance percentages, streaks, and per-day detail.
+    """
+    start_str = request.args.get('start')
+    end_str = request.args.get('end')
+
+    if not start_str or not end_str:
+        return jsonify({'error': 'start and end query params are required'}), 400
+
+    try:
+        start_date = date.fromisoformat(start_str)
+        end_date = date.fromisoformat(end_str)
+    except ValueError:
+        return jsonify({'error': 'Invalid date format, use YYYY-MM-DD'}), 400
+
+    if start_date > end_date:
+        return jsonify({'error': 'start must be on or before end'}), 400
+
+    uid = current_user_id()
+
+    # --- Fetch all entries in range grouped by date ---
+    q = db.session.query(
+        FoodEntry.entry_date,
+        func.coalesce(func.sum(FoodEntry.protein), 0.0).label('protein'),
+        func.coalesce(func.sum(FoodEntry.fat), 0.0).label('fat'),
+        func.coalesce(func.sum(FoodEntry.carbs), 0.0).label('carbs'),
+        func.coalesce(func.sum(FoodEntry.calories), 0.0).label('calories'),
+    ).filter(FoodEntry.entry_date >= start_date, FoodEntry.entry_date <= end_date)
+    if uid is not None:
+        q = q.filter(FoodEntry.user_id == uid)
+    rows = q.group_by(FoodEntry.entry_date).order_by(FoodEntry.entry_date).all()
+
+    # Build lookup: date_str -> totals
+    by_date = {}
+    for row in rows:
+        by_date[row.entry_date.isoformat()] = {
+            'protein': round(row.protein, 2),
+            'fat': round(row.fat, 2),
+            'carbs': round(row.carbs, 2),
+            'calories': round(row.calories, 2),
+        }
+
+    # --- Build daily list covering every calendar day in range ---
+    total_days = (end_date - start_date).days + 1
+    daily = []
+    d = start_date
+    while d <= end_date:
+        ds = d.isoformat()
+        target = _get_target(d, uid)
+        totals = by_date.get(ds, {'protein': 0.0, 'fat': 0.0, 'carbs': 0.0, 'calories': 0.0})
+        daily.append({
+            'date': ds,
+            'protein': totals['protein'],
+            'fat': totals['fat'],
+            'carbs': totals['carbs'],
+            'calories': totals['calories'],
+            'target_protein': target['protein'],
+            'target_fat': target['fat'],
+            'target_carbs': target['carbs'],
+            'target_calories': target['calories'],
+        })
+        d += timedelta(days=1)
+
+    # --- Days logged ---
+    days_logged = len(by_date)
+
+    # --- Averages (only over logged days to avoid pulling down averages by empty days) ---
+    if days_logged > 0:
+        avg_protein  = round(sum(v['protein']  for v in by_date.values()) / days_logged, 1)
+        avg_fat      = round(sum(v['fat']      for v in by_date.values()) / days_logged, 1)
+        avg_carbs    = round(sum(v['carbs']    for v in by_date.values()) / days_logged, 1)
+        avg_calories = round(sum(v['calories'] for v in by_date.values()) / days_logged, 1)
+    else:
+        avg_protein = avg_fat = avg_carbs = avg_calories = 0.0
+
+    # --- Compliance: % of logged days where macro >= 90% of target ---
+    COMPLIANCE_THRESHOLD = 0.90
+    compliance_hits = {'protein': 0, 'fat': 0, 'carbs': 0, 'calories': 0}
+    for day in daily:
+        if day['date'] not in by_date:
+            continue  # un-logged days don't count toward compliance
+        for macro in ('protein', 'fat', 'carbs', 'calories'):
+            target_val = day[f'target_{macro}']
+            if target_val > 0 and day[macro] >= target_val * COMPLIANCE_THRESHOLD:
+                compliance_hits[macro] += 1
+
+    def _pct(hits):
+        return round((hits / days_logged * 100)) if days_logged > 0 else 0
+
+    compliance = {
+        'protein_pct':  _pct(compliance_hits['protein']),
+        'fat_pct':      _pct(compliance_hits['fat']),
+        'carbs_pct':    _pct(compliance_hits['carbs']),
+        'calories_pct': _pct(compliance_hits['calories']),
+    }
+
+    # --- Streak calculation: consecutive days going backward from today with >= 1 entry ---
+    # Fetch ALL dated entries for this user (not just the query range) for accurate streaks
+    all_q = db.session.query(FoodEntry.entry_date).distinct()
+    if uid is not None:
+        all_q = all_q.filter(FoodEntry.user_id == uid)
+    all_logged = set(r.entry_date for r in all_q.all())
+
+    today = date.today()
+    current_streak = 0
+    check = today
+    while check in all_logged:
+        current_streak += 1
+        check -= timedelta(days=1)
+    # If today has no entry, also check if yesterday started a streak
+    if current_streak == 0:
+        check = today - timedelta(days=1)
+        while check in all_logged:
+            current_streak += 1
+            check -= timedelta(days=1)
+
+    # Longest streak across all history
+    longest_streak = 0
+    if all_logged:
+        sorted_days = sorted(all_logged)
+        run = 1
+        for i in range(1, len(sorted_days)):
+            if (sorted_days[i] - sorted_days[i - 1]).days == 1:
+                run += 1
+                longest_streak = max(longest_streak, run)
+            else:
+                run = 1
+        longest_streak = max(longest_streak, run)
+
+    return jsonify({
+        'avg_protein':  avg_protein,
+        'avg_fat':      avg_fat,
+        'avg_carbs':    avg_carbs,
+        'avg_calories': avg_calories,
+        'days_logged':  days_logged,
+        'total_days_in_range': total_days,
+        'compliance':   compliance,
+        'current_streak':  current_streak,
+        'longest_streak':  longest_streak,
+        'daily': daily,
+    })

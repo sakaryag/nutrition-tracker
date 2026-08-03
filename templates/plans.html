@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %} — My Plan{% endblock %}
+
+{% block content %}
+<section class="page-plans">
+
+  <div class="page-header">
+    <h1 data-i18n="plans.title">My Nutrition Plan</h1>
+    <div class="plans-header-actions">
+      <button class="btn btn-outline btn-sm" id="plans-view-toggle" data-view="calendar">
+        <span data-i18n="plans.listView">List View</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- No plan assigned -->
+  <div id="plans-no-assignment" hidden>
+    <div class="card plans-empty-card">
+      <p class="empty-msg" data-i18n="plans.noAssignment">You have no active nutrition plan assigned. Contact your dietitian.</p>
+    </div>
+  </div>
+
+  <!-- Plan overview -->
+  <div id="plans-overview" hidden>
+    <div class="plans-meta card">
+      <div class="plans-meta-info">
+        <h2 id="plan-name" class="plans-plan-name"></h2>
+        <p id="plan-description" class="plans-plan-desc"></p>
+        <div class="plans-progress-row">
+          <span id="plan-days-elapsed" class="plans-days-label"></span>
+          <div class="progress-bar-wrap plans-overall-bar">
+            <div class="progress-bar" id="plan-overall-bar" style="width:0%"></div>
+          </div>
+          <span id="plan-overall-pct" class="plans-pct-label">0%</span>
+        </div>
+      </div>
+      <div class="plans-ring-wrap">
+        <svg class="plans-ring" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="plans-ring-bg" cx="30" cy="30" r="26" />
+          <circle class="plans-ring-fg" id="plan-ring-fg" cx="30" cy="30" r="26"
+            stroke-dasharray="163.36" stroke-dashoffset="163.36" />
+        </svg>
+        <span class="plans-ring-text" id="plan-ring-pct">0%</span>
+      </div>
+    </div>
+
+    <!-- Calendar view -->
+    <div id="plans-calendar-view">
+      <div class="plans-calendar-legend">
+        <span class="legend-dot legend-today"></span><span data-i18n="plans.today">Today</span>
+        <span class="legend-dot legend-complete"></span><span data-i18n="plans.complete">Complete</span>
+        <span class="legend-dot legend-partial"></span><span data-i18n="plans.partial">Partial</span>
+        <span class="legend-dot legend-future"></span><span data-i18n="plans.upcoming">Upcoming</span>
+      </div>
+      <div class="plans-calendar-scroll">
+        <table class="plans-calendar" id="plans-calendar-table">
+          <thead>
+            <tr>
+              <th data-i18n="plans.mon">Mon</th>
+              <th data-i18n="plans.tue">Tue</th>
+              <th data-i18n="plans.wed">Wed</th>
+              <th data-i18n="plans.thu">Thu</th>
+              <th data-i18n="plans.fri">Fri</th>
+              <th data-i18n="plans.sat">Sat</th>
+              <th data-i18n="plans.sun">Sun</th>
+            </tr>
+          </thead>
+          <tbody id="plans-calendar-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- List view -->
+    <div id="plans-list-view" hidden>
+      <div class="plans-day-tabs" id="plans-day-tabs"></div>
+      <div class="plans-day-tasks" id="plans-day-tasks"></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Task detail panel (slide-in) -->
+<div class="modal-overlay" id="plans-task-modal" role="dialog" aria-modal="true" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="plans-task-modal-title" data-i18n="plans.dayTasks">Day Tasks</h2>
+      <button class="btn btn-icon modal-close" id="plans-task-modal-close" aria-label="Close">&times;</button>
+    </div>
+    <div id="plans-task-modal-body" class="plans-task-list"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/plans.js"></script>
+{% endblock %}

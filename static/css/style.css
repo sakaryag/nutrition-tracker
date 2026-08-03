@@ -2998,3 +2998,115 @@ textarea:focus {
   text-transform: uppercase;
 }
 .how-it-works-table tbody tr:last-child td { border-bottom: none; }
+
+/* ============================================================
+   Dietitian / Role / Notification CSS
+   ============================================================ */
+
+/* Role picker (registration) */
+.auth-card--wide { max-width: 560px; }
+.role-picker { display: flex; gap: 1rem; margin-top: .25rem; }
+.role-card {
+  flex: 1; display: flex; align-items: flex-start; gap: .75rem;
+  padding: 1rem; border: 2px solid var(--color-border);
+  border-radius: var(--radius); cursor: pointer;
+  background: var(--color-surface); transition: border-color .2s, background .2s;
+}
+.role-card--selected { border-color: var(--color-primary); background: rgba(74,144,217,.06); }
+.role-card__icon { font-size: 1.8rem; line-height: 1; flex-shrink: 0; }
+.role-card__title { font-weight: 700; font-size: 1rem; margin-bottom: .2rem; }
+.role-card__desc { font-size: .82rem; color: var(--color-text-muted); line-height: 1.4; }
+@media (max-width: 480px) {
+  .role-picker { flex-direction: column; }
+}
+
+/* Role status (settings) */
+.role-status-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.role-status-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted); margin-bottom: .15rem; }
+.role-status-value { font-size: 1.1rem; font-weight: 700; }
+.role-status-desc { font-size: .85rem; color: var(--color-text-muted); margin-top: .2rem; max-width: 400px; }
+
+/* Toggle switch */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+.toggle-input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: #cbd5e0; border-radius: 999px; cursor: pointer;
+  transition: background .2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: transform .2s;
+}
+.toggle-input:checked + .toggle-slider { background: var(--color-primary); }
+.toggle-input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+/* Dietitian access row (settings) */
+.dietitian-access-row {
+  display: flex; align-items: center; gap: 1rem; padding: .75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.dietitian-access-row:last-child { border-bottom: none; }
+.dietitian-access-name { flex: 1; font-weight: 600; }
+
+/* Badge variants */
+.badge { display: inline-block; padding: .2rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 600; }
+.badge--success { background: #d1fae5; color: #065f46; }
+.badge--muted   { background: #f1f5f9; color: #64748b; }
+.badge--info    { background: #dbeafe; color: #1e40af; }
+
+/* Notification bell */
+.nav-notif-btn { position: relative; }
+.notif-badge {
+  position: absolute; top: -4px; right: -6px; min-width: 16px; height: 16px;
+  background: var(--color-danger); color: #fff; font-size: .65rem; font-weight: 700;
+  border-radius: 999px; display: flex; align-items: center; justify-content: center;
+  padding: 0 3px; pointer-events: none;
+}
+.notif-dropdown {
+  position: fixed; z-index: 1200; width: 320px; max-height: 420px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.notif-dropdown-header { display: flex; align-items: center; justify-content: space-between; padding: .6rem .9rem; border-bottom: 1px solid var(--color-border); }
+.notif-row { display: flex; align-items: flex-start; gap: .6rem; padding: .65rem .9rem; border-bottom: 1px solid var(--color-border); font-size: .88rem; }
+.notif-row:last-child { border-bottom: none; }
+.notif-row--unread { background: rgba(74,144,217,.06); }
+.notif-icon { font-size: 1.1rem; margin-top: .1rem; flex-shrink: 0; }
+.notif-msg { line-height: 1.4; }
+.notif-time { font-size: .75rem; color: var(--color-text-muted); margin-top: .15rem; }
+#notif-list { overflow-y: auto; }
+
+/* Dietitian panel page */
+.page-dietitian { max-width: 900px; margin: 0 auto; }
+.page-subtitle { color: var(--color-text-muted); margin-top: .25rem; }
+.dietitian-clients-wrap { margin-top: 2rem; }
+.dietitian-clients-list { display: flex; flex-direction: column; gap: .75rem; margin-top: 1rem; }
+.dietitian-client-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem; gap: 1rem; flex-wrap: wrap;
+}
+.dietitian-client-name { font-weight: 700; font-size: 1rem; }
+.dietitian-client-meta { font-size: .82rem; color: var(--color-text-muted); margin-top: .15rem; }
+.dietitian-client-actions { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+
+/* Client data modal */
+.dietitian-client-body { padding: 1rem; overflow-y: auto; max-height: 70vh; }
+.dietitian-visit-note { margin-bottom: 1rem; }
+.dietitian-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+@media (max-width: 600px) { .dietitian-summary-grid { grid-template-columns: repeat(2, 1fr); } }
+.dietitian-macro-card { background: var(--color-bg); border-radius: var(--radius); padding: .75rem; }
+.dietitian-macro-label { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted); }
+.dietitian-macro-val { font-size: 1.5rem; font-weight: 700; line-height: 1.2; margin: .2rem 0; }
+.dietitian-macro-unit { font-size: .8rem; font-weight: 400; color: var(--color-text-muted); }
+.dietitian-macro-goal { font-size: .78rem; color: var(--color-text-muted); }
+.modal--wide .modal-subtitle { font-size: .85rem; color: var(--color-text-muted); margin-top: .15rem; }
+
+/* Dashboard role banners */
+.role-banner {
+  padding: .75rem 1rem; border-radius: var(--radius); margin-bottom: 1rem;
+  display: flex; align-items: flex-start; gap: .6rem; font-size: .9rem;
+}
+.role-banner--dietitian { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.role-banner--member    { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
+.role-banner__icon { font-size: 1.2rem; flex-shrink: 0; }

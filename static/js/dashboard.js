@@ -1026,3 +1026,22 @@
   init();
   loadWater();
 })();
+
+
+// Member banner: show last dietitian visit
+(function () {
+  var banner = document.getElementById('member-banner');
+  var bannerText = document.getElementById('member-banner-text');
+  if (!banner || !bannerText) return;
+
+  fetch('/api/dietitian/notifications?limit=1')
+    .then(function (r) { return r.json(); })
+    .then(function (items) {
+      if (!items.length) return;
+      var latest = items[0];
+      var d = latest.visited_at ? new Date(latest.visited_at) : null;
+      var timeStr = d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      bannerText.innerHTML = 'Your dietitian <strong>' + latest.dietitian_name + '</strong> viewed your data' + (timeStr ? ' on ' + timeStr : '') + '.';
+      banner.hidden = false;
+    }).catch(function () {});
+})();

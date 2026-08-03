@@ -63,8 +63,12 @@ def register():
         return render_template('register.html', error='Passwords do not match.')
     if User.query.filter_by(username=username).first():
         return render_template('register.html', error='Username already taken.')
+    role = data.get('role', 'member')
     user = User(username=username)
     user.set_pw(password)
+    if role == 'dietitian':
+        user.is_admin = True
+        user.plan_feature_enabled = True
     db.session.add(user)
     db.session.commit()
     session.permanent = True

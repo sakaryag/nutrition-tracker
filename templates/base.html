@@ -35,9 +35,16 @@
         <li><a href="/plans" class="nav-link" data-i18n="nav.plans">My Plan</a></li>
         {% endif %}
         {% if current_user and current_user.is_admin %}
+        <li><a href="/dietitian" class="nav-link">Dietitian</a></li>
         <li><a href="/admin" class="nav-link" data-i18n="nav.admin">Admin</a></li>
         {% endif %}
         {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
+        <li>
+          <a href="#" class="nav-link nav-notif-btn" id="notif-bell" title="Notifications">
+            <span id="notif-icon">&#128276;</span>
+            <span class="notif-badge" id="notif-count" hidden>0</span>
+          </a>
+        </li>
         <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
         {% endif %}
       </ul>
@@ -89,6 +96,15 @@
   }
   </script>
 
+  <!-- Notification bell dropdown -->
+  <div class="notif-dropdown" id="notif-dropdown" hidden aria-live="polite">
+    <div class="notif-dropdown-header">
+      <strong>Notifications</strong>
+      <button class="btn btn-sm btn-outline" id="notif-mark-seen">Mark all seen</button>
+    </div>
+    <div id="notif-list"><p class="empty-msg" style="padding:.75rem;">Loading…</p></div>
+  </div>
+
   <script>
   /* Mark the active nav link based on current path */
   (function () {
@@ -99,6 +115,83 @@
         a.classList.add('active');
       }
     });
+  })();
+  </script>
+
+  <script>
+  /* Notification bell */
+  (function () {
+    var bell = document.getElementById('notif-bell');
+    var badge = document.getElementById('notif-count');
+    var dropdown = document.getElementById('notif-dropdown');
+    var markBtn = document.getElementById('notif-mark-seen');
+    var list = document.getElementById('notif-list');
+    if (!bell) return;
+
+    function loadCount() {
+      fetch('/api/dietitian/notifications/unread-count')
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.count > 0) {
+            badge.textContent = d.count;
+            badge.hidden = false;
+          } else {
+            badge.hidden = true;
+          }
+        }).catch(function () {});
+    }
+
+    function loadNotifications() {
+      list.innerHTML = '<p class="empty-msg" style="padding:.75rem;">Loading…</p>';
+      fetch('/api/dietitian/notifications')
+        .then(function (r) { return r.json(); })
+        .then(function (items) {
+          if (!items.length) {
+            list.innerHTML = '<p class="empty-msg" style="padding:.75rem;">No notifications yet.</p>';
+            return;
+          }
+          list.innerHTML = '';
+          items.forEach(function (n) {
+            var row = document.createElement('div');
+            row.className = 'notif-row' + (n.seen ? '' : ' notif-row--unread');
+            var d = n.visited_at ? new Date(n.visited_at).toLocaleString() : '';
+            row.innerHTML = '<span class="notif-icon">&#128276;</span><div><div class="notif-msg">Your dietitian <strong>' + n.dietitian_name + '</strong> viewed your data.</div><div class="notif-time">' + d + '</div></div>';
+            list.appendChild(row);
+          });
+        }).catch(function () {
+          list.innerHTML = '<p class="empty-msg" style="padding:.75rem;">Could not load notifications.</p>';
+        });
+    }
+
+    bell.addEventListener('click', function (e) {
+      e.preventDefault();
+      var isOpen = !dropdown.hidden;
+      dropdown.hidden = isOpen;
+      if (!isOpen) {
+        loadNotifications();
+        // position below the bell
+        var rect = bell.getBoundingClientRect();
+        dropdown.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+        dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+      }
+    });
+
+    markBtn.addEventListener('click', function () {
+      fetch('/api/dietitian/notifications/mark-seen', { method: 'POST' })
+        .then(function () {
+          badge.hidden = true;
+          loadNotifications();
+        });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!dropdown.hidden && !dropdown.contains(e.target) && e.target !== bell) {
+        dropdown.hidden = true;
+      }
+    });
+
+    loadCount();
+    setInterval(loadCount, 60000);
   })();
   </script>
 </body>

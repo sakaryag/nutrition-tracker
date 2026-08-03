@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    settings.js — Settings page logic
    ============================================================ */
 
@@ -355,3 +355,106 @@
     updateUsage();
   })();
 })();
+
+
+  // ----------------------------------------------------------------
+  // Account / Role card
+  // ----------------------------------------------------------------
+  (function () {
+    var roleDisplay = document.getElementById('current-role-display');
+    var roleDesc    = document.getElementById('current-role-desc');
+    var switchBtn   = document.getElementById('switch-role-btn');
+    if (!roleDisplay) return;
+
+    var currentRole = null;
+
+    api('/api/dietitian/stats').then(function () {
+      currentRole = 'dietitian';
+      showRoleUI();
+    }).catch(function () {
+      currentRole = 'member';
+      showRoleUI();
+    });
+
+    function showRoleUI() {
+      if (currentRole === 'dietitian') {
+        roleDisplay.textContent = 'Dietitian / Coach';
+        roleDesc.textContent = 'You can create nutrition plans, assign them to clients, and view their progress from the Dietitian panel.';
+        switchBtn.textContent = 'Switch to Member';
+      } else {
+        roleDisplay.textContent = 'Member';
+        roleDesc.textContent = 'You are tracking your own nutrition. You can switch to Dietitian role to manage client plans.';
+        switchBtn.textContent = 'Switch to Dietitian / Coach';
+      }
+      switchBtn.style.display = 'inline-flex';
+    }
+
+    switchBtn.addEventListener('click', function () {
+      var newRole = currentRole === 'dietitian' ? 'member' : 'dietitian';
+      var msg = newRole === 'dietitian'
+        ? 'Switch to Dietitian / Coach role? You will gain access to the Dietitian panel and plan management.'
+        : 'Switch to Member role? You will lose access to the Dietitian panel.';
+      if (!confirm(msg)) return;
+      switchBtn.disabled = true;
+      api('/api/dietitian/role', { method: 'PUT', body: JSON.stringify({ role: newRole }) })
+        .then(function (res) {
+          currentRole = res.role;
+          showRoleUI();
+          showToast('Role updated to ' + (currentRole === 'dietitian' ? 'Dietitian' : 'Member'), 'success');
+          setTimeout(function () { location.reload(); }, 1200);
+        })
+        .catch(function (err) {
+          showToast(err.message || 'Could not update role', 'error');
+          switchBtn.disabled = false;
+        });
+    });
+  })();
+
+  // ----------------------------------------------------------------
+  // Dietitian consent card (for members who have a dietitian assigned)
+  // ----------------------------------------------------------------
+  (function () {
+    var card = document.getElementById('dietitian-consent-card');
+    var list = document.getElementById('dietitian-access-list');
+    if (!card || !list) return;
+
+    api('/api/dietitian/access').then(function (rows) {
+      if (!rows.length) return;
+      card.hidden = false;
+      renderAccessList(rows);
+    }).catch(function () {});
+
+    function renderAccessList(rows) {
+      list.innerHTML = '';
+      rows.forEach(function (row) {
+        var item = document.createElement('div');
+        item.className = 'dietitian-access-row';
+        item.innerHTML =
+          '<div class="dietitian-access-name">' + escHtml(row.dietitian_name) + '</div>' +
+          '<label class="toggle-switch">' +
+            '<input type="checkbox" class="toggle-input"' + (row.allowed ? ' checked' : '') + ' data-did="' + row.dietitian_id + '" />' +
+            '<span class="toggle-slider"></span>' +
+          '</label>' +
+          '<span class="toggle-label" style="margin-left:.5rem;">' + (row.allowed ? 'Access granted' : 'Access denied') + '</span>';
+        var cb = item.querySelector('input[type=checkbox]');
+        var lbl = item.querySelector('.toggle-label');
+        cb.addEventListener('change', function () {
+          api('/api/dietitian/access/' + row.dietitian_id, {
+            method: 'PUT',
+            body: JSON.stringify({ allowed: cb.checked }),
+          }).then(function (res) {
+            lbl.textContent = res.allowed ? 'Access granted' : 'Access denied';
+            showToast(res.allowed ? 'Dietitian can now view your data' : 'Access revoked', 'success');
+          }).catch(function (err) {
+            cb.checked = !cb.checked;
+            showToast(err.message || 'Error', 'error');
+          });
+        });
+        list.appendChild(item);
+      });
+    }
+
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  })();

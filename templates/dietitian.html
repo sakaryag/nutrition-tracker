@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %} — Dietitian Panel{% endblock %}
+
+{% block content %}
+<section class="page-dietitian">
+
+  <div class="page-header">
+    <h1>Dietitian Panel</h1>
+    <p class="page-subtitle" id="dietitian-stats-line">Loading…</p>
+  </div>
+
+  <!-- Client list -->
+  <div class="dietitian-clients-wrap">
+    <h2 class="section-title">My Clients</h2>
+    <p class="settings-description">Click a client to view their daily food log. Clients control whether you can access their data.</p>
+    <div id="dietitian-clients-list" class="dietitian-clients-list">
+      <p class="empty-msg">Loading…</p>
+    </div>
+  </div>
+
+  <!-- Client data panel (slide-in) -->
+  <div class="modal-overlay" id="dietitian-client-modal" role="dialog" aria-modal="true" hidden>
+    <div class="modal modal--wide">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title" id="client-modal-title">Client Data</h2>
+          <p class="modal-subtitle" id="client-modal-date"></p>
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;">
+          <input type="date" id="client-date-picker" class="form-control form-control--sm" style="width:auto;" />
+          <button class="btn btn-icon modal-close" id="dietitian-modal-close" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div id="client-modal-body" class="dietitian-client-body">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/dietitian.js"></script>
+{% endblock %}

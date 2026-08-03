@@ -206,6 +206,26 @@ def _migrate_add_columns(app):
                 CONSTRAINT uq_user_badge UNIQUE (user_id, badge_key)
             )''',
             'CREATE INDEX IF NOT EXISTS ix_user_badge_user_id ON user_badge (user_id)',
+            # --- Dietitian access & notifications ---
+            '''CREATE TABLE IF NOT EXISTS dietitian_access (
+                id SERIAL PRIMARY KEY,
+                dietitian_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                client_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                allowed BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP,
+                CONSTRAINT uq_dietitian_access UNIQUE (dietitian_id, client_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_access_dietitian_id ON dietitian_access (dietitian_id)',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_access_client_id ON dietitian_access (client_id)',
+            '''CREATE TABLE IF NOT EXISTS dietitian_visit (
+                id SERIAL PRIMARY KEY,
+                dietitian_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                client_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                visited_at TIMESTAMP,
+                seen BOOLEAN NOT NULL DEFAULT FALSE
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_visit_client_id ON dietitian_visit (client_id)',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
@@ -280,6 +300,26 @@ def _migrate_add_columns(app):
                 CONSTRAINT uq_user_badge UNIQUE (user_id, badge_key)
             )''',
             'CREATE INDEX IF NOT EXISTS ix_user_badge_user_id ON user_badge (user_id)',
+            # --- Dietitian access & notifications ---
+            '''CREATE TABLE IF NOT EXISTS dietitian_access (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                dietitian_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                client_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                allowed INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME,
+                updated_at DATETIME,
+                CONSTRAINT uq_dietitian_access UNIQUE (dietitian_id, client_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_access_dietitian_id ON dietitian_access (dietitian_id)',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_access_client_id ON dietitian_access (client_id)',
+            '''CREATE TABLE IF NOT EXISTS dietitian_visit (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                dietitian_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                client_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+                visited_at DATETIME,
+                seen INTEGER NOT NULL DEFAULT 0
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_dietitian_visit_client_id ON dietitian_visit (client_id)',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:
@@ -309,6 +349,7 @@ def _register_blueprints(app):
         from routes.shared import shared_bp
         from routes.social import social_bp
         from routes.game import game_bp
+        from routes.dietitian import dietitian_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -326,6 +367,7 @@ def _register_blueprints(app):
         app.register_blueprint(shared_bp)
         app.register_blueprint(social_bp)
         app.register_blueprint(game_bp)
+        app.register_blueprint(dietitian_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

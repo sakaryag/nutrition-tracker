@@ -3,7 +3,7 @@
 
 {% block content %}
 <section class="auth-page">
-  <div class="auth-card">
+  <div class="auth-card auth-card--wide">
     <h1 class="auth-card__title" data-i18n="auth.register">Create Account</h1>
     {% if error %}
     <p class="auth-card__error">{{ error }}</p>
@@ -21,9 +21,45 @@
         <label for="confirm" data-i18n="auth.confirmPassword">Confirm Password</label>
         <input type="password" id="confirm" name="confirm" class="form-control" minlength="6" required />
       </div>
+
+      <!-- Role picker -->
+      <div class="form-group">
+        <label>I am joining as…</label>
+        <div class="role-picker">
+          <label class="role-card role-card--selected" id="role-member-label">
+            <input type="radio" name="role" value="member" checked hidden />
+            <div class="role-card__icon">🥗</div>
+            <div class="role-card__body">
+              <div class="role-card__title">Member</div>
+              <div class="role-card__desc">Track my own nutrition, log meals, monitor macros and calories.</div>
+            </div>
+          </label>
+          <label class="role-card" id="role-dietitian-label">
+            <input type="radio" name="role" value="dietitian" hidden />
+            <div class="role-card__icon">🩺</div>
+            <div class="role-card__body">
+              <div class="role-card__title">Dietitian / Coach</div>
+              <div class="role-card__desc">Create nutrition plans, assign them to clients, and review their progress.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
       <button type="submit" class="btn btn-primary btn-block" data-i18n="auth.createAccount">Register</button>
     </form>
     <p class="auth-card__footer"><span data-i18n="auth.haveAccount">Already have an account?</span> <a href="/login" data-i18n="auth.loginLink">Log in</a></p>
   </div>
 </section>
+
+<script>
+(function () {
+  var cards = document.querySelectorAll('.role-card');
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      cards.forEach(function (c) { c.classList.remove('role-card--selected'); });
+      card.classList.add('role-card--selected');
+    });
+  });
+})();
+</script>
 {% endblock %}

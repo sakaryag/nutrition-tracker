@@ -100,3 +100,12 @@ def admin():
 @login_required
 def social():
     return render_template('social.html')
+
+
+@pages_bp.route('/dietitian')
+@login_required
+def dietitian():
+    user = _get_current_user()
+    if current_app.config.get('AUTH_ENABLED') and (user is None or not user.is_admin):
+        return redirect(url_for('pages.dashboard'))
+    return render_template('dietitian.html')

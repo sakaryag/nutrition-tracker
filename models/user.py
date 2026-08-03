@@ -1,4 +1,4 @@
-﻿from models import db
+from models import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
@@ -12,6 +12,10 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     plan_feature_enabled = db.Column(db.Boolean, default=False, nullable=False)
+
+    @property
+    def role(self):
+        return 'dietitian' if self.is_admin else 'member'
 
     def set_pw(self, plaintext):
         self.pw_hash = generate_password_hash(plaintext)

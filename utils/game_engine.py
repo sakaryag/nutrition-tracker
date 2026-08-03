@@ -182,7 +182,7 @@ def _upsert_badge(user_id: int, badge_key: str) -> bool:
     if _is_postgresql():
         sql = text(
             """
-            INSERT INTO user_badge (user_id, badge_key, awarded_at)
+            INSERT INTO user_badge (user_id, badge_key, earned_at)
             VALUES (:uid, :bk, NOW())
             ON CONFLICT (user_id, badge_key) DO NOTHING
             """
@@ -190,7 +190,7 @@ def _upsert_badge(user_id: int, badge_key: str) -> bool:
     else:
         sql = text(
             """
-            INSERT OR IGNORE INTO user_badge (user_id, badge_key, awarded_at)
+            INSERT OR IGNORE INTO user_badge (user_id, badge_key, earned_at)
             VALUES (:uid, :bk, datetime('now'))
             """
         )
@@ -213,7 +213,7 @@ def _ensure_user_badge_table() -> None:
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 badge_key VARCHAR(64) NOT NULL,
-                awarded_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                earned_at TIMESTAMP NOT NULL DEFAULT NOW(),
                 UNIQUE (user_id, badge_key)
             )
             """
@@ -225,7 +225,7 @@ def _ensure_user_badge_table() -> None:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 badge_key TEXT NOT NULL,
-                awarded_at TEXT NOT NULL DEFAULT (datetime('now')),
+                earned_at TEXT NOT NULL DEFAULT (datetime('now')),
                 UNIQUE (user_id, badge_key)
             )
             """

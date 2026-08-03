@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %} — Friends &amp; Racing{% endblock %}
+
+{% block content %}
+<section class="page-social">
+
+  <div class="page-header">
+    <h1>Friends &amp; Racing</h1>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="social-tabs" role="tablist">
+    <button class="social-tab active" role="tab" data-tab="friends">Friends</button>
+    <button class="social-tab" role="tab" data-tab="feed">Feed</button>
+    <button class="social-tab" role="tab" data-tab="race">Race</button>
+    <button class="social-tab" role="tab" data-tab="badges">Badges</button>
+  </div>
+
+  <!-- ── FRIENDS tab ──────────────────────────────────────────── -->
+  <div class="social-panel" id="tab-friends">
+
+    <!-- Add Friend -->
+    <article class="settings-card" style="margin-bottom:1rem">
+      <h2 class="section-title" style="margin-top:0">Add Friend</h2>
+      <div class="add-friend-row">
+        <input type="text" id="friend-username-input" class="form-control"
+               placeholder="Enter username…" autocomplete="off" />
+        <button class="btn btn-primary" id="send-request-btn">Send Request</button>
+      </div>
+      <p class="form-hint" id="friend-request-hint"></p>
+    </article>
+
+    <!-- Incoming requests -->
+    <article class="settings-card" style="margin-bottom:1rem" id="incoming-card">
+      <h2 class="section-title" style="margin-top:0">Incoming Requests</h2>
+      <div id="requests-incoming">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </article>
+
+    <!-- Friends list -->
+    <article class="settings-card">
+      <h2 class="section-title" style="margin-top:0">My Friends</h2>
+      <div id="friends-list">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── FEED tab ─────────────────────────────────────────────── -->
+  <div class="social-panel" id="tab-feed" hidden>
+
+    <!-- My visibility settings -->
+    <article class="settings-card" style="margin-bottom:1rem">
+      <h2 class="section-title" style="margin-top:0">My Sharing Settings</h2>
+      <label class="toggle-label">
+        <span class="toggle-label__text">Share my daily summary in friends' feeds</span>
+        <span class="toggle-wrap">
+          <input type="checkbox" id="toggle-feed-share" class="toggle-input" />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </span>
+      </label>
+      <label class="toggle-label" style="margin-top:0.5rem">
+        <span class="toggle-label__text">Show calories</span>
+        <span class="toggle-wrap">
+          <input type="checkbox" id="toggle-show-calories" class="toggle-input" checked />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </span>
+      </label>
+      <label class="toggle-label" style="margin-top:0.5rem">
+        <span class="toggle-label__text">Show macros</span>
+        <span class="toggle-wrap">
+          <input type="checkbox" id="toggle-show-macros" class="toggle-input" checked />
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </span>
+      </label>
+      <button class="btn btn-sm btn-primary" id="save-visibility-btn" style="margin-top:0.75rem">Save</button>
+    </article>
+
+    <!-- Share a food entry -->
+    <article class="settings-card" style="margin-bottom:1rem">
+      <h2 class="section-title" style="margin-top:0">Share a Food Entry</h2>
+      <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap">
+        <div class="form-group" style="margin:0">
+          <label>Date</label>
+          <input type="date" id="share-date-picker" class="form-control" style="width:auto" />
+        </div>
+        <button class="btn btn-sm btn-outline" id="load-share-entries-btn">Load</button>
+      </div>
+      <div id="share-entries-list" style="margin-top:0.75rem" hidden></div>
+      <div id="share-friends-panel" hidden style="margin-top:0.75rem">
+        <p class="form-label">Share with:</p>
+        <div id="share-friends-checkboxes" class="share-friends-checkboxes"></div>
+        <button class="btn btn-sm btn-primary" id="share-submit-btn" style="margin-top:0.5rem">Share Selected</button>
+      </div>
+    </article>
+
+    <!-- Friend feed -->
+    <article class="settings-card">
+      <h2 class="section-title" style="margin-top:0">Friends' Daily Summary</h2>
+      <div id="friend-feed-list">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── RACE tab ─────────────────────────────────────────────── -->
+  <div class="social-panel" id="tab-race" hidden>
+
+    <!-- Week nav -->
+    <div class="race-week-nav">
+      <button class="btn btn-sm btn-outline" id="race-prev-week">&lsaquo; Prev</button>
+      <span class="race-week-label" id="race-week-label">This Week</span>
+      <button class="btn btn-sm btn-outline" id="race-next-week">Next &rsaquo;</button>
+    </div>
+
+    <!-- My score card -->
+    <article class="settings-card race-my-score-card" style="margin-bottom:1rem">
+      <div class="race-my-score-header">
+        <span class="race-my-score-title">My Score Today</span>
+        <span class="race-score-badge" id="race-today-score">–</span>
+      </div>
+      <div class="race-breakdown" id="race-today-breakdown"></div>
+      <div class="race-day-bar-wrap">
+        <div class="race-day-bars" id="race-day-bars"></div>
+      </div>
+    </article>
+
+    <!-- Leaderboard -->
+    <article class="settings-card">
+      <h2 class="section-title" style="margin-top:0">Leaderboard</h2>
+      <div id="leaderboard-list">
+        <p class="empty-msg">Loading…</p>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- ── BADGES tab ───────────────────────────────────────────── -->
+  <div class="social-panel" id="tab-badges" hidden>
+    <div id="badges-grid" class="badges-grid">
+      <p class="empty-msg">Loading…</p>
+    </div>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/social.js"></script>
+{% endblock %}

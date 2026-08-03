@@ -94,3 +94,9 @@ def plans():
 @require_admin_page
 def admin():
     return render_template('admin.html')
+
+
+@pages_bp.route('/social')
+@login_required
+def social():
+    return render_template('social.html')

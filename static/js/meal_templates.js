@@ -128,6 +128,10 @@
     editingTemplateId = null;
     templateItems = [];
     itemAutocomplete.hidden = true;
+    fromLogPanel.hidden = true;
+    logEntriesDiv.innerHTML = '<p class="empty-msg">Pick a date and press Load.</p>';
+    logActionsDiv.hidden = true;
+    logDateInput.value = '';
   }
 
   openFormBtn.addEventListener('click', function () { openModal(null); });
@@ -262,6 +266,92 @@
     if (!e.target.closest('.autocomplete-wrap') && !e.target.closest('.tpl-add-item')) {
       itemAutocomplete.hidden = true;
     }
+  });
+
+  /* ---- From Log ---- */
+  var fromLogPanel   = document.getElementById('tpl-from-log-panel');
+  var fromLogBtn     = document.getElementById('tpl-from-log-btn');
+  var fromLogClose   = document.getElementById('tpl-from-log-close');
+  var logDateInput   = document.getElementById('tpl-log-date');
+  var logLoadBtn     = document.getElementById('tpl-log-load-btn');
+  var logEntriesDiv  = document.getElementById('tpl-log-entries');
+  var logActionsDiv  = document.getElementById('tpl-from-log-actions');
+  var logAddSelected = document.getElementById('tpl-log-add-selected');
+  var logSelectAll   = document.getElementById('tpl-log-select-all');
+
+  fromLogBtn.addEventListener('click', function () {
+    fromLogPanel.hidden = !fromLogPanel.hidden;
+    if (!fromLogPanel.hidden && !logDateInput.value) {
+      var today = new Date();
+      logDateInput.value = today.toISOString().slice(0, 10);
+    }
+  });
+
+  fromLogClose.addEventListener('click', function () {
+    fromLogPanel.hidden = true;
+  });
+
+  logLoadBtn.addEventListener('click', async function () {
+    var d = logDateInput.value;
+    if (!d) { showToast('Pick a date first.', 'error'); return; }
+    logEntriesDiv.innerHTML = '<p class="empty-msg">Loading…</p>';
+    logActionsDiv.hidden = true;
+    try {
+      var entries = await api('/api/entries?date=' + encodeURIComponent(d));
+      if (!entries || entries.length === 0) {
+        logEntriesDiv.innerHTML = '<p class="empty-msg">No entries for this date.</p>';
+        return;
+      }
+      logEntriesDiv.innerHTML = entries.map(function (e, idx) {
+        var cal = e.calories || (e.protein * 4 + e.fat * 9 + e.carbs * 4);
+        return '<label class="tpl-log-entry-row">' +
+          '<input type="checkbox" class="tpl-log-cb" data-idx="' + idx + '" ' +
+            'data-entry=\'' + JSON.stringify({
+              food_name: e.food_name,
+              saved_food_id: e.saved_food_id || null,
+              protein: e.protein,
+              fat: e.fat,
+              carbs: e.carbs,
+              calories: cal,
+              serving_size: e.serving_size || 100,
+              serving_unit: e.serving_unit || 'g'
+            }).replace(/'/g, '&#39;') + '\' />' +
+          '<span class="tpl-log-entry-name">' + esc(e.food_name) + '</span>' +
+          '<span class="tpl-log-entry-meta">P:' + r1(e.protein) + ' F:' + r1(e.fat) + ' C:' + r1(e.carbs) + 'g ' + Math.round(cal) + 'kcal' +
+            (e.serving_size ? ' · ' + r1(e.serving_size) + (e.serving_unit || 'g') : '') + '</span>' +
+        '</label>';
+      }).join('');
+      logActionsDiv.hidden = false;
+    } catch (err) {
+      logEntriesDiv.innerHTML = '<p class="empty-msg">Error loading entries.</p>';
+    }
+  });
+
+  logSelectAll.addEventListener('click', function () {
+    var cbs = logEntriesDiv.querySelectorAll('.tpl-log-cb');
+    var allChecked = Array.from(cbs).every(function (cb) { return cb.checked; });
+    cbs.forEach(function (cb) { cb.checked = !allChecked; });
+    logSelectAll.textContent = allChecked ? 'Select All' : 'Deselect All';
+  });
+
+  logAddSelected.addEventListener('click', function () {
+    var cbs = logEntriesDiv.querySelectorAll('.tpl-log-cb:checked');
+    if (cbs.length === 0) { showToast('Select at least one entry.', 'error'); return; }
+    cbs.forEach(function (cb) {
+      try {
+        var e = JSON.parse(cb.dataset.entry);
+        templateItems.push({
+          food_name: e.food_name, saved_food_id: e.saved_food_id,
+          protein: e.protein, fat: e.fat, carbs: e.carbs, calories: e.calories,
+          serving_size: e.serving_size, serving_unit: e.serving_unit,
+          valid_units: null,
+          _bp: e.protein, _bf: e.fat, _bc: e.carbs, _bk: e.calories, _bs: e.serving_size
+        });
+      } catch (_) {}
+    });
+    renderItemsList();
+    fromLogPanel.hidden = true;
+    showToast(cbs.length + ' item(s) added.', 'success');
   });
 
   /* ---- custom item ---- */

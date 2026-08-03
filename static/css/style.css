@@ -1033,6 +1033,66 @@ input, select, textarea { font: inherit; }
   margin-top: 0.75rem;
 }
 
+/* ---------- From Log panel (inside template modal) ---------- */
+.tpl-from-log-panel {
+  margin-top: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.75rem;
+  background: var(--color-bg);
+}
+
+.tpl-from-log-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+
+.tpl-log-entries {
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.tpl-log-entry-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+
+.tpl-log-entry-row:last-child { border-bottom: none; }
+
+.tpl-log-entry-row input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.tpl-log-entry-name {
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.tpl-log-entry-meta {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.tpl-from-log-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
 .chip-name {
   display: block;
   font-weight: 600;

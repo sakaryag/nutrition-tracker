@@ -57,6 +57,24 @@
             <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
           </div>
           <button type="button" class="btn btn-secondary" id="tpl-add-custom-item" data-i18n="meals.customItem">+ Custom Item</button>
+          <button type="button" class="btn btn-outline" id="tpl-from-log-btn">+ From Log</button>
+        </div>
+
+        <!-- From Log panel -->
+        <div id="tpl-from-log-panel" class="tpl-from-log-panel" hidden>
+          <div class="tpl-from-log-header">
+            <label for="tpl-log-date">Pick a date:</label>
+            <input type="date" id="tpl-log-date" class="form-control" style="width:auto" />
+            <button type="button" class="btn btn-sm btn-primary" id="tpl-log-load-btn">Load</button>
+            <button type="button" class="btn btn-icon btn-sm" id="tpl-from-log-close" aria-label="Close">&times;</button>
+          </div>
+          <div id="tpl-log-entries" class="tpl-log-entries">
+            <p class="empty-msg">Pick a date and press Load.</p>
+          </div>
+          <div class="tpl-from-log-actions" id="tpl-from-log-actions" hidden>
+            <button type="button" class="btn btn-primary btn-sm" id="tpl-log-add-selected">Add Selected</button>
+            <button type="button" class="btn btn-outline btn-sm" id="tpl-log-select-all">Select All</button>
+          </div>
         </div>
       </div>
 

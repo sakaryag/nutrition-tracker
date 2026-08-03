@@ -39,12 +39,14 @@
         <li><a href="/admin" class="nav-link" data-i18n="nav.admin">Admin</a></li>
         {% endif %}
         {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
+        {% if current_user and not current_user.is_admin %}
         <li>
           <a href="#" class="nav-link nav-notif-btn" id="notif-bell" title="Notifications">
             <span id="notif-icon">&#128276;</span>
             <span class="notif-badge" id="notif-count" hidden>0</span>
           </a>
         </li>
+        {% endif %}
         <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
         {% endif %}
       </ul>
@@ -63,6 +65,10 @@
 
   <script src="/static/js/i18n.js"></script>
   <script src="/static/js/app.js"></script>
+  <script>
+  window.NT_USER_ROLE = "{{ current_user.role if current_user else 'guest' }}";
+  window.NT_USER_IS_ADMIN = {{ "true" if current_user and current_user.is_admin else "false" }};
+  </script>
   {% block scripts %}{% endblock %}
 
   <script>
@@ -102,7 +108,7 @@
       <strong>Notifications</strong>
       <button class="btn btn-sm btn-outline" id="notif-mark-seen">Mark all seen</button>
     </div>
-    <div id="notif-list"><p class="empty-msg" style="padding:.75rem;">Loading…</p></div>
+    <div id="notif-list"><p class="empty-msg" style="padding:.75rem;">Loadingâ€¦</p></div>
   </div>
 
   <script>
@@ -142,7 +148,7 @@
     }
 
     function loadNotifications() {
-      list.innerHTML = '<p class="empty-msg" style="padding:.75rem;">Loading…</p>';
+      list.innerHTML = '<p class="empty-msg" style="padding:.75rem;">Loadingâ€¦</p>';
       fetch('/api/dietitian/notifications')
         .then(function (r) { return r.json(); })
         .then(function (items) {

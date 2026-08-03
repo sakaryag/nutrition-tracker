@@ -358,7 +358,7 @@
 
 
   // ----------------------------------------------------------------
-  // Account / Role card
+  // Account / Role card — role read from server-injected NT_USER_ROLE global
   // ----------------------------------------------------------------
   (function () {
     var roleDisplay = document.getElementById('current-role-display');
@@ -366,15 +366,9 @@
     var switchBtn   = document.getElementById('switch-role-btn');
     if (!roleDisplay) return;
 
-    var currentRole = null;
-
-    api('/api/dietitian/stats').then(function () {
-      currentRole = 'dietitian';
-      showRoleUI();
-    }).catch(function () {
-      currentRole = 'member';
-      showRoleUI();
-    });
+    // NT_USER_ROLE is injected by base.html from server session — no API call needed
+    var currentRole = window.NT_USER_ROLE || 'member';
+    showRoleUI();
 
     function showRoleUI() {
       if (currentRole === 'dietitian') {
@@ -383,7 +377,7 @@
         switchBtn.textContent = 'Switch to Member';
       } else {
         roleDisplay.textContent = 'Member';
-        roleDesc.textContent = 'You are tracking your own nutrition. You can switch to Dietitian role to manage client plans.';
+        roleDesc.textContent = 'You are tracking your own nutrition. You can switch to Dietitian / Coach role to manage client plans.';
         switchBtn.textContent = 'Switch to Dietitian / Coach';
       }
       switchBtn.style.display = 'inline-flex';
@@ -398,10 +392,8 @@
       switchBtn.disabled = true;
       api('/api/dietitian/role', { method: 'PUT', body: JSON.stringify({ role: newRole }) })
         .then(function (res) {
-          currentRole = res.role;
-          showRoleUI();
-          showToast('Role updated to ' + (currentRole === 'dietitian' ? 'Dietitian' : 'Member'), 'success');
-          setTimeout(function () { location.reload(); }, 1200);
+          showToast('Role updated to ' + (res.role === 'dietitian' ? 'Dietitian' : 'Member') + '. Reloading…', 'success');
+          setTimeout(function () { location.reload(); }, 1000);
         })
         .catch(function (err) {
           showToast(err.message || 'Could not update role', 'error');

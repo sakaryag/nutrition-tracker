@@ -137,7 +137,10 @@
   openFormBtn.addEventListener('click', function () { openModal(null); });
   closeModalBtn.addEventListener('click', closeModal);
   cancelBtn.addEventListener('click', closeModal);
-  modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+  modal.addEventListener('click', function (e) {
+    /* Only close when clicking the backdrop itself, never a child element */
+    if (!e.target.closest('.modal')) closeModal();
+  });
 
   /* ---- render items ---- */
   function unitOpts(sel, validUnitsJson) {

@@ -119,6 +119,25 @@
     </div>
   </article>
 
+  <article class="settings-card" style="margin-bottom:1.5rem;" id="water-goal-card">
+    <h2 data-i18n="settings.waterGoalTitle">Daily Water Goal</h2>
+    <p class="settings-description" data-i18n="settings.waterGoalDesc">Set your daily water intake target. We can suggest a goal based on your body weight and activity level from the TDEE calculator above.</p>
+
+    <div class="form-row" style="align-items:flex-end;gap:1rem;flex-wrap:wrap;">
+      <div class="form-group" style="flex:1;min-width:160px;">
+        <label for="water-goal-input" data-i18n="settings.waterGoalLabel">Daily Goal (ml)</label>
+        <input type="number" id="water-goal-input" class="form-control" min="500" max="6000" step="50" placeholder="2000" />
+      </div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button type="button" class="btn btn-outline" id="water-goal-suggest-btn" data-i18n="settings.waterGoalSuggest">Suggest for me</button>
+      </div>
+      <div class="form-group" style="flex:0 0 auto;">
+        <button type="button" class="btn btn-primary" id="water-goal-save-btn" data-i18n="settings.waterGoalSave">Save Goal</button>
+      </div>
+    </div>
+    <p class="form-hint" id="water-goal-hint" style="margin-top:0.25rem;"></p>
+  </article>
+
   <article class="settings-card" style="margin-bottom:1.5rem;">
     <h2 data-i18n="settings.chatTitle">Chat / AI Assistant</h2>
     <p class="settings-description" data-i18n="settings.chatDesc">Add your own Anthropic API key to enable the AI chat assistant and photo food recognition. Your key is stored only in this browser and never sent to our servers except to make AI requests.</p>

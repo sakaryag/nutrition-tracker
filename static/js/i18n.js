@@ -173,6 +173,19 @@ const i18n = {
     'settings.saveTargets':   'Save Targets',
     'settings.targetsSaved':  'Targets saved!',
 
+    /* Water goal settings */
+    'settings.waterGoalTitle':    'Daily Water Goal',
+    'settings.waterGoalDesc':     'Set your daily water intake target. We can suggest a goal based on your body weight and activity level from the TDEE calculator above.',
+    'settings.waterGoalLabel':    'Daily Goal (ml)',
+    'settings.waterGoalSuggest':  'Suggest for me',
+    'settings.waterGoalSave':     'Save Goal',
+    'settings.waterGoalSaved':    'Water goal saved!',
+    'settings.waterGoalInvalid':  'Please enter a goal between 500 and 6000 ml.',
+    'settings.waterGoalNeedWeight': 'Run the TDEE calculator above first so we know your weight and activity level.',
+    'settings.waterGoalCurrent':  'Current goal: {ml} ml ({L} L)',
+    'settings.waterGoalNoTarget': 'No goal saved yet. Based on your stats, try {ml} ml.',
+    'settings.waterGoalSuggested':'Suggested: {ml} ml ({L} L) — based on {kg} kg body weight, {activity} activity.',
+
     /* Auth */
     'auth.login':           'Log In',
     'auth.register':        'Create Account',
@@ -536,6 +549,19 @@ const i18n = {
     'settings.caloriesKcal':  'Kalori (kcal)',
     'settings.saveTargets':   'Hedefleri Kaydet',
     'settings.targetsSaved':  'Hedefler kaydedildi!',
+
+    /* Water goal settings */
+    'settings.waterGoalTitle':    'Günlük Su Hedefi',
+    'settings.waterGoalDesc':     'Günlük su tüketimi hedefinizi belirleyin. Yukarıdaki TDEE hesaplayıcısından vücut ağırlığınıza ve aktivite seviyenize göre öneri alabiliriz.',
+    'settings.waterGoalLabel':    'Günlük Hedef (ml)',
+    'settings.waterGoalSuggest':  'Öneri al',
+    'settings.waterGoalSave':     'Hedefi Kaydet',
+    'settings.waterGoalSaved':    'Su hedefi kaydedildi!',
+    'settings.waterGoalInvalid':  'Lütfen 500 ile 6000 ml arasında bir değer girin.',
+    'settings.waterGoalNeedWeight': 'Önce yukarıdaki TDEE hesaplayıcısını çalıştırın; ağırlık ve aktivite bilgileriniz gerekli.',
+    'settings.waterGoalCurrent':  'Mevcut hedef: {ml} ml ({L} L)',
+    'settings.waterGoalNoTarget': 'Henüz hedef ayarlanmamış. İstatistiklerinize göre {ml} ml önerilir.',
+    'settings.waterGoalSuggested':'Öneri: {ml} ml ({L} L) — {kg} kg vücut ağırlığı, {activity} aktivite seviyesine göre.',
 
     /* Auth */
     'auth.login':           'Giriş Yap',

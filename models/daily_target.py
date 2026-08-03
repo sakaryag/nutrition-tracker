@@ -12,6 +12,7 @@ class DailyTarget(db.Model):
     carbs = db.Column(db.Float, nullable=False)
     calories = db.Column(db.Float, nullable=False)
     effective_from = db.Column(db.Date, nullable=False)
+    water_goal_ml = db.Column(db.Float, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
@@ -22,4 +23,5 @@ class DailyTarget(db.Model):
             'carbs': self.carbs,
             'calories': self.calories,
             'effective_from': self.effective_from.isoformat(),
+            'water_goal_ml': self.water_goal_ml,
         }

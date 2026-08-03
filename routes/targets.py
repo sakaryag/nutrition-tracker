@@ -30,6 +30,7 @@ def get_target():
         'fat': current_app.config.get('DEFAULT_FAT_TARGET', 65),
         'carbs': current_app.config.get('DEFAULT_CARBS_TARGET', 250),
         'calories': current_app.config.get('DEFAULT_CALORIES_TARGET', 2200),
+        'water_goal_ml': None,
         'effective_from': None,
     })
 
@@ -46,11 +47,19 @@ def create_target():
     except (KeyError, TypeError, ValueError):
         return jsonify({'error': 'protein, fat, carbs, and calories are required numeric fields'}), 400
 
+    water_goal_ml = data.get('water_goal_ml')
+    if water_goal_ml is not None:
+        try:
+            water_goal_ml = float(water_goal_ml)
+        except (TypeError, ValueError):
+            water_goal_ml = None
+
     target = DailyTarget(
         protein=protein,
         fat=fat,
         carbs=carbs,
         calories=calories,
+        water_goal_ml=water_goal_ml,
         effective_from=date.today(),
         user_id=current_user_id(),
     )

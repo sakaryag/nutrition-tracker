@@ -146,6 +146,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE',
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS plan_feature_enabled BOOLEAN DEFAULT FALSE',
+            'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS water_goal_ml FLOAT',
             # daily_note table creation handled by create_all; ensure it exists via migration too
             '''CREATE TABLE IF NOT EXISTS daily_note (
                 id SERIAL PRIMARY KEY,
@@ -179,6 +180,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT 0',
             'ALTER TABLE "user" ADD COLUMN plan_feature_enabled BOOLEAN DEFAULT 0',
+            'ALTER TABLE daily_target ADD COLUMN water_goal_ml FLOAT',
             # SQLite: create daily_note if it doesn't exist yet (idempotent)
             '''CREATE TABLE IF NOT EXISTS daily_note (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

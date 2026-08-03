@@ -135,6 +135,10 @@
           body: JSON.stringify(body),
         });
 
+        // Cache body stats for water suggestion
+        localStorage.setItem('nt_tdee_weight', body.weight_kg);
+        localStorage.setItem('nt_tdee_activity', body.activity_level);
+
         // Populate result display
         document.getElementById('result-bmr').textContent      = result.bmr;
         document.getElementById('result-tdee').textContent     = result.tdee;
@@ -166,6 +170,96 @@
   })();
 
   init();
+
+  // ----------------------------------------------------------------
+  // Water Goal
+  // ----------------------------------------------------------------
+  (function () {
+    var waterInput    = document.getElementById('water-goal-input');
+    var waterSaveBtn  = document.getElementById('water-goal-save-btn');
+    var waterSuggest  = document.getElementById('water-goal-suggest-btn');
+    var waterHint     = document.getElementById('water-goal-hint');
+    if (!waterInput) return;
+
+    // Suggestion formula: 35ml × weight_kg, +500ml if active/very_active, rounded to nearest 250ml
+    // We pull {weight_kg, activity_level} from localStorage (stored when TDEE form is used)
+    function suggestedGoal() {
+      var w = parseFloat(localStorage.getItem('nt_tdee_weight') || '0');
+      var a = localStorage.getItem('nt_tdee_activity') || 'moderate';
+      if (!w) return null;
+      var base = 35 * w;
+      if (a === 'active' || a === 'very_active') base += 500;
+      // round to nearest 250
+      return Math.round(base / 250) * 250;
+    }
+
+    // Load current goal from targets API
+    api('/api/targets').then(function (t) {
+      if (t && t.water_goal_ml) {
+        waterInput.value = Math.round(t.water_goal_ml);
+        waterHint.textContent = t('settings.waterGoalCurrent')
+          .replace('{ml}', Math.round(t.water_goal_ml))
+          .replace('{L}', (t.water_goal_ml / 1000).toFixed(1));
+      } else {
+        waterInput.placeholder = '2000';
+        var suggested = suggestedGoal();
+        if (suggested) {
+          waterHint.textContent = t('settings.waterGoalNoTarget').replace('{ml}', suggested);
+        }
+      }
+    }).catch(function () {});
+
+    waterSuggest.addEventListener('click', function () {
+      var w = parseFloat(localStorage.getItem('nt_tdee_weight') || '0');
+      var a = localStorage.getItem('nt_tdee_activity') || '';
+      if (!w) {
+        waterHint.textContent = t('settings.waterGoalNeedWeight');
+        waterHint.style.color = 'var(--color-danger)';
+        return;
+      }
+      var goal = suggestedGoal();
+      waterInput.value = goal;
+      var actLabel = { sedentary: 'sedentary', light: 'light', moderate: 'moderate', active: 'active', very_active: 'very active' }[a] || a;
+      waterHint.textContent = t('settings.waterGoalSuggested')
+        .replace('{ml}', goal)
+        .replace('{L}', (goal / 1000).toFixed(1))
+        .replace('{kg}', w)
+        .replace('{activity}', actLabel);
+      waterHint.style.color = 'var(--color-success)';
+    });
+
+    waterSaveBtn.addEventListener('click', async function () {
+      var goal = parseFloat(waterInput.value);
+      if (!goal || goal < 500 || goal > 6000) {
+        showToast(t('settings.waterGoalInvalid'), 'error');
+        return;
+      }
+      waterSaveBtn.disabled = true;
+      try {
+        // Load current macro targets, then POST with water_goal_ml added
+        var current = await api('/api/targets');
+        await api('/api/targets', {
+          method: 'POST',
+          body: JSON.stringify({
+            protein:      current.protein,
+            fat:          current.fat,
+            carbs:        current.carbs,
+            calories:     current.calories,
+            water_goal_ml: goal,
+          }),
+        });
+        waterHint.textContent = t('settings.waterGoalCurrent')
+          .replace('{ml}', goal)
+          .replace('{L}', (goal / 1000).toFixed(1));
+        waterHint.style.color = 'var(--color-success)';
+        showToast(t('settings.waterGoalSaved'), 'success');
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        waterSaveBtn.disabled = false;
+      }
+    });
+  })();
 
   // ----------------------------------------------------------------
   // API Key management

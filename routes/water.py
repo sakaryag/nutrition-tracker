@@ -2,11 +2,24 @@ from flask import Blueprint, jsonify, request, current_app, session
 from datetime import date, datetime
 from models import db
 from models.water_log import WaterLog
+from models.daily_target import DailyTarget
 from routes.auth import current_user_id
 
 water_bp = Blueprint('water', __name__, url_prefix='/api/water')
 
-DAILY_GOAL_ML = 2000
+DEFAULT_GOAL_ML = 2000
+
+
+def _water_goal_ml(uid):
+    """Return the user's saved water goal, or DEFAULT_GOAL_ML if not set."""
+    today = date.today()
+    q = DailyTarget.query.filter(DailyTarget.effective_from <= today)
+    if uid is not None:
+        q = q.filter(DailyTarget.user_id == uid)
+    target = q.order_by(DailyTarget.effective_from.desc()).first()
+    if target and target.water_goal_ml:
+        return target.water_goal_ml
+    return DEFAULT_GOAL_ML
 
 
 @water_bp.before_request
@@ -37,7 +50,7 @@ def get_water():
     total_ml = sum(log.amount_ml for log in logs)
     return jsonify({
         'total_ml': total_ml,
-        'goal_ml': DAILY_GOAL_ML,
+        'goal_ml': _water_goal_ml(uid),
         'logs': [{'id': log.id, 'amount_ml': log.amount_ml, 'logged_at': log.logged_at.isoformat() if log.logged_at else None} for log in logs],
     })
 

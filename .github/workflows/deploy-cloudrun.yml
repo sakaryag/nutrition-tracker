@@ -1,4 +1,4 @@
-﻿name: Deploy to Cloud Run
+name: Deploy to Cloud Run
 
 on:
   push:
@@ -9,28 +9,32 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write   # required for Workload Identity Federation
+      id-token: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - name: Configure Docker to use gcloud as credential helper
+      - name: Configure Docker for GCR
         run: gcloud auth configure-docker --quiet
 
       - name: Build Docker image
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }} .
+          docker build \
+            -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }} \
+            -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:latest \
+            .
 
       - name: Push to Google Container Registry
         run: |
           docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }}
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:latest
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -39,18 +43,17 @@ jobs:
           service: nutritrack
           region: us-central1
           image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }}
+          env_vars: AUTH_ENABLED=true
           secrets: |
             DATABASE_URL=nutritrack-db-url:latest
             SECRET_KEY=nutritrack-secret:latest
-          env_vars: |
-            AUTH_ENABLED=true
           flags: >-
-            --platform=managed
             --allow-unauthenticated
             --memory=512Mi
             --cpu=1
             --min-instances=0
             --max-instances=10
 
-      - name: Print deployed service URL
-        run: echo "Deployed service URL: ${{ steps.deploy.outputs.url }}"
+      - name: Show deployed URL
+        run: |
+          echo "Service URL: ${{ steps.deploy.outputs.url }}"

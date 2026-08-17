@@ -1,8 +1,8 @@
-name: Deploy to Cloud Run
+﻿name: Deploy to Cloud Run
 
 on:
   push:
-    branches: [master]
+    branches: [ main ]
 
 jobs:
   deploy:

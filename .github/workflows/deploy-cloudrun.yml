@@ -21,20 +21,20 @@ jobs:
           workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
           service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker --quiet
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
 
       - name: Build Docker image
         run: |
           docker build \
-            -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }} \
-            -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:latest \
+            -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nutritrack/nutritrack:${{ github.sha }} \
+            -t us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nutritrack/nutritrack:latest \
             .
 
-      - name: Push to Google Container Registry
+      - name: Push to Artifact Registry
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }}
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:latest
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nutritrack/nutritrack:${{ github.sha }}
+          docker push us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nutritrack/nutritrack:latest
 
       - name: Deploy to Cloud Run
         id: deploy
@@ -42,7 +42,7 @@ jobs:
         with:
           service: nutritrack
           region: us-central1
-          image: gcr.io/${{ secrets.GCP_PROJECT_ID }}/nutritrack:${{ github.sha }}
+          image: us-central1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/nutritrack/nutritrack:${{ github.sha }}
           env_vars: AUTH_ENABLED=true
           secrets: |
             DATABASE_URL=nutritrack-db-url:latest

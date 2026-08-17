@@ -47,13 +47,13 @@ jobs:
           secrets: |
             DATABASE_URL=nutritrack-db-url:latest
             SECRET_KEY=nutritrack-secret:latest
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
           flags: >-
             --allow-unauthenticated
             --memory=512Mi
             --cpu=1
             --min-instances=0
             --max-instances=10
-            --service-account=${{ secrets.GCP_SA_EMAIL }}
 
       - name: Show deployed URL
         run: |

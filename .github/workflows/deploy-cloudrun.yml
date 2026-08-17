@@ -49,6 +49,7 @@ jobs:
             SECRET_KEY=nutritrack-secret:latest
           flags: >-
             --allow-unauthenticated
+            --service-account=${{ secrets.GCP_SA_EMAIL }}
             --memory=512Mi
             --cpu=1
             --min-instances=0

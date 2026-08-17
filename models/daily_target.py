@@ -1,4 +1,4 @@
-﻿from datetime import datetime
+﻿from datetime import datetime, timezone
 from models import db
 
 
@@ -13,7 +13,7 @@ class DailyTarget(db.Model):
     calories = db.Column(db.Float, nullable=False)
     effective_from = db.Column(db.Date, nullable=False)
     water_goal_ml = db.Column(db.Float, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {

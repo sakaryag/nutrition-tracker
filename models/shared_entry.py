@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 
@@ -25,7 +25,7 @@ class SharedEntry(db.Model):
         db.ForeignKey('food_entry.id'),
         nullable=True,
     )
-    shared_at = db.Column(db.DateTime, default=datetime.utcnow)
+    shared_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     shared_by = db.relationship('User', foreign_keys=[shared_by_id], backref='shares_sent')
     shared_to = db.relationship('User', foreign_keys=[shared_to_id], backref='shares_received')

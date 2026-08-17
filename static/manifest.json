@@ -1,17 +1,26 @@
 {
   "name": "NutriTrack",
   "short_name": "NutriTrack",
-  "description": "Daily nutrition & macro tracker",
+  "description": "Daily calorie, protein, fat and carb tracker with meal templates and family mode",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f6fa",
-  "theme_color": "#4A90D9",
+  "orientation": "portrait",
+  "theme_color": "#2D7A4F",
+  "background_color": "#ffffff",
+  "lang": "tr",
   "icons": [
-    {
-      "src": "/static/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+    {"src": "/static/icons/icon-48.png", "sizes": "48x48", "type": "image/png"},
+    {"src": "/static/icons/icon-72.png", "sizes": "72x72", "type": "image/png"},
+    {"src": "/static/icons/icon-96.png", "sizes": "96x96", "type": "image/png"},
+    {"src": "/static/icons/icon-144.png", "sizes": "144x144", "type": "image/png"},
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/static/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Log Food", "short_name": "Log", "url": "/?action=log", "icons": [{"src": "/static/icons/icon-96.png", "sizes": "96x96"}]},
+    {"name": "View History", "short_name": "History", "url": "/history", "icons": [{"src": "/static/icons/icon-96.png", "sizes": "96x96"}]}
+  ],
+  "screenshots": [],
+  "categories": ["health", "fitness", "food"]
 }

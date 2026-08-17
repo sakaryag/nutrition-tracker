@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 
@@ -13,7 +13,7 @@ class FeedVisibility(db.Model):
     show_calories = db.Column(db.Boolean, nullable=False, default=True)
     show_macros = db.Column(db.Boolean, nullable=False, default=True)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
 
     user = db.relationship('User', backref=db.backref('feed_visibility', uselist=False))

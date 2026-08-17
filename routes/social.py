@@ -1,5 +1,5 @@
 """routes/social.py — /api/social blueprint: feed, visibility, badges, leaderboard, score."""
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
 
@@ -9,7 +9,7 @@ from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
 from models.feed_visibility import FeedVisibility
 from models.user_badge import UserBadge
-from routes.auth import current_user_id
+from routes.auth import current_user_id, premium_required
 from routes.friends import _friend_ids
 from routes.game import (
     _daily_score_value, _compute_score, _evaluate_badges,
@@ -136,6 +136,7 @@ def daily_score():
 # ---------------------------------------------------------------------------
 
 @social_bp.get('/feed')
+@premium_required
 def friend_feed():
     uid = current_user_id()
     today = date.today()
@@ -254,7 +255,7 @@ def update_visibility():
         vis.show_calories = bool(data['show_calories'])
     if 'show_macros' in data:
         vis.show_macros = bool(data['show_macros'])
-    vis.updated_at = datetime.utcnow()
+    vis.updated_at = datetime.now(timezone.utc)
 
     db.session.commit()
     return jsonify(vis.to_dict())

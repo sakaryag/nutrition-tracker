@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %} — Terms of Service{% endblock %}
+
+{% block content %}
+<article class="page-legal">
+  <div class="legal-container">
+    <h1>Terms of Service</h1>
+    <p class="legal-meta">Last updated: August 17, 2026</p>
+
+    <h2>1. Acceptance of Terms</h2>
+    <p>
+      By downloading, installing, or using the NutriTrack application ("Service"), you agree to be bound by
+      these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Service.
+    </p>
+
+    <h2>2. Service Description</h2>
+    <p>
+      NutriTrack is a nutrition tracking application that allows users to log food intake, track macronutrients
+      (protein, fat, carbohydrates, calories), set daily targets, create meal templates, log water intake,
+      and track notes. The Service includes free and premium tiers with different feature limitations.
+    </p>
+
+    <h2>3. Free Tier Limitations</h2>
+    <p>The free tier of NutriTrack includes the following limitations:</p>
+    <ul>
+      <li>Food history: 7 days of visible history</li>
+      <li>Meal templates: Maximum 5 templates</li>
+      <li>Basic chat: Offline-first food parsing using local NLP</li>
+      <li>No social/family features</li>
+      <li>No CSV export</li>
+    </ul>
+
+    <h2>4. Premium Tier Benefits</h2>
+    <p>Premium subscribers gain access to:</p>
+    <ul>
+      <li>Unlimited food history</li>
+      <li>Unlimited meal templates</li>
+      <li>Social/family features: friends, shared feeds, leaderboards</li>
+      <li>CSV export of nutrition data</li>
+      <li>Advanced reports and analytics</li>
+      <li>Priority support</li>
+    </ul>
+
+    <h2>5. Medical Disclaimer</h2>
+    <p>
+      <strong>IMPORTANT:</strong> NutriTrack is a personal nutrition tracking tool and is NOT a medical device,
+      and does NOT provide medical advice, diagnosis, or treatment. The information provided by NutriTrack
+      is educational only and should not be used to replace professional medical or dietary advice.
+    </p>
+    <p>
+      Always consult with a qualified healthcare professional or registered dietitian before making
+      significant changes to your diet or health regimen. NutriTrack and its creators are not responsible
+      for any adverse health outcomes resulting from use of the Service.
+    </p>
+
+    <h2>6. User Responsibilities</h2>
+    <p>You agree to:</p>
+    <ul>
+      <li>Provide accurate information when creating your account</li>
+      <li>Maintain the confidentiality of your login credentials</li>
+      <li>Use the Service only for lawful purposes</li>
+      <li>Not attempt to hack, reverse-engineer, or abuse the Service</li>
+      <li>Not share or distribute food data without consent from affected parties</li>
+    </ul>
+
+    <h2>7. Account Termination</h2>
+    <p>
+      We reserve the right to suspend or terminate your account if you:
+    </p>
+    <ul>
+      <li>Violate these Terms of Service</li>
+      <li>Use the Service for illegal purposes</li>
+      <li>Engage in harassment or abuse of other users</li>
+      <li>Attempt to compromise the security of the Service</li>
+    </ul>
+    <p>
+      You may delete your account at any time from your account settings. Upon deletion, all your personal
+      data will be permanently removed within 30 days.
+    </p>
+
+    <h2>8. Limitation of Liability</h2>
+    <p>
+      TO THE MAXIMUM EXTENT PERMITTED BY LAW, NUTRITRACK AND ITS CREATORS SHALL NOT BE LIABLE FOR ANY
+      INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO
+      LOSS OF PROFITS, DATA, OR USE, ARISING FROM YOUR USE OF OR INABILITY TO USE THE SERVICE.
+    </p>
+
+    <h2>9. Governing Law</h2>
+    <p>
+      These Terms of Service shall be governed by and construed in accordance with the laws of Turkey,
+      without regard to its conflict of law provisions.
+    </p>
+
+    <h2>10. Changes to Terms</h2>
+    <p>
+      We may update these Terms at any time. Continued use of the Service after changes constitutes
+      your acceptance of the updated Terms.
+    </p>
+
+    <h2>11. Contact Us</h2>
+    <p>
+      If you have questions about these Terms of Service, please contact us at:
+    </p>
+    <p>
+      <strong>Email:</strong> support@nutritrack.com<br>
+      <strong>Address:</strong> Support team, NutriTrack
+    </p>
+  </div>
+</article>
+
+<style>
+  .page-legal {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  .legal-container {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+  }
+
+  .legal-meta {
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 2rem;
+  }
+
+  .page-legal h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-legal h2 {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-legal h3 {
+    font-size: 1.05rem;
+    margin-top: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .page-legal ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .page-legal li {
+    margin-bottom: 0.5rem;
+  }
+
+  .page-legal strong {
+    font-weight: 600;
+  }
+</style>
+{% endblock %}

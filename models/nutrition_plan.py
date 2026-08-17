@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 
@@ -11,7 +11,7 @@ class NutritionPlan(db.Model):
     duration_days = db.Column(db.Integer, default=7, nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     is_public = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     tasks = db.relationship(
         'PlanTask', backref='plan',

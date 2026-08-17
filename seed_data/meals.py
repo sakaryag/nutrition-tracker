@@ -104,7 +104,7 @@ def seed_meals():
                 calories=m["calories"],
                 default_serving=m.get("default_serving", 100),
                 serving_unit=m.get("serving_unit", "g"),
-                source="usda",
+                source="custom",
                 food_type="meal",
                 is_archived=False,
                 valid_units=m.get("valid_units"),

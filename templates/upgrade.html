@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+{% block title %} — Upgrade to Premium{% endblock %}
+
+{% block content %}
+<div class="upgrade-page">
+  <section class="upgrade-hero">
+    <div class="upgrade-container">
+      <h1>Unlock Premium Features</h1>
+      <p class="hero-subtitle">Take your nutrition tracking to the next level</p>
+    </div>
+  </section>
+
+  <section class="upgrade-comparison">
+    <div class="upgrade-container">
+      <h2>Feature Comparison</h2>
+
+      <div class="comparison-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="free-col">Free</th>
+              <th class="premium-col">Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Food Logging</strong></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Macro Tracking</strong></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Daily Notes</strong></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Water Logging</strong></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Basic Chat (Offline NLP)</strong></td>
+              <td><span class="check">✓</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Meal Templates</strong></td>
+              <td><span class="limit">5 templates</span></td>
+              <td><span class="check">Unlimited</span></td>
+            </tr>
+            <tr>
+              <td><strong>Food History</strong></td>
+              <td><span class="limit">7 days</span></td>
+              <td><span class="check">Unlimited</span></td>
+            </tr>
+            <tr>
+              <td><strong>Social/Family Mode</strong></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Friends & Leaderboards</strong></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Shared Nutrition Data</strong></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>CSV Export</strong></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+            <tr>
+              <td><strong>Advanced Reports</strong></td>
+              <td><span class="cross">✗</span></td>
+              <td><span class="check">✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="upgrade-cta">
+    <div class="upgrade-container">
+      <div class="cta-card">
+        <h3>🚀 Coming Soon</h3>
+        <p>Premium subscription payment integration is coming soon.</p>
+        <p>Expected pricing: <strong>$2.99/month</strong> or <strong>$19.99/year</strong></p>
+
+        <div class="waitlist-form">
+          <h4>Join the Waitlist</h4>
+          <p>Get notified when premium becomes available:</p>
+
+          <form id="waitlist-form" onsubmit="handleWaitlist(event)">
+            <div class="form-group">
+              <input
+                type="email"
+                id="waitlist-email"
+                placeholder="your@email.com"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">Join Waitlist</button>
+          </form>
+
+          <p class="form-note" id="form-message" style="display:none;"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .upgrade-page {
+    background: linear-gradient(135deg, var(--bg-light, #f9fafb) 0%, var(--bg-primary, #ffffff) 100%);
+    min-height: 100vh;
+  }
+
+  .upgrade-hero {
+    background: linear-gradient(135deg, var(--primary-color, #2D7A4F) 0%, var(--accent-color, #1a4d30) 100%);
+    color: white;
+    padding: 4rem 1rem;
+    text-align: center;
+  }
+
+  .upgrade-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+
+  .upgrade-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .upgrade-comparison {
+    padding: 3rem 1rem;
+  }
+
+  .upgrade-comparison h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--text-primary);
+  }
+
+  .comparison-table {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #e5e7eb);
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: var(--bg-secondary, #f3f4f6);
+    border-bottom: 2px solid var(--border-color, #e5e7eb);
+  }
+
+  th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+
+  th.free-col,
+  th.premium-col {
+    text-align: center;
+  }
+
+  td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    color: var(--text-secondary);
+  }
+
+  tbody tr:hover {
+    background: var(--bg-light, #f9fafb);
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .free-col,
+  .premium-col {
+    text-align: center;
+  }
+
+  .check {
+    color: var(--success-color, #22c55e);
+    font-weight: bold;
+  }
+
+  .cross {
+    color: var(--border-color, #d1d5db);
+  }
+
+  .limit {
+    background: var(--bg-light, #f3f4f6);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .upgrade-cta {
+    padding: 3rem 1rem;
+    background: white;
+  }
+
+  .cta-card {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 2rem;
+    border: 2px solid var(--primary-color, #2D7A4F);
+    border-radius: 12px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(45, 122, 79, 0.05) 0%, rgba(45, 122, 79, 0) 100%);
+  }
+
+  .cta-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color, #2D7A4F);
+  }
+
+  .cta-card p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+
+  .cta-card strong {
+    color: var(--primary-color, #2D7A4F);
+    font-weight: 600;
+  }
+
+  .waitlist-form {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+  }
+
+  .waitlist-form h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .waitlist-form p {
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  input[type="email"] {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  input[type="email"]:focus {
+    outline: none;
+    border-color: var(--primary-color, #2D7A4F);
+    box-shadow: 0 0 0 3px rgba(45, 122, 79, 0.1);
+  }
+
+  .form-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .form-note.success {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--success-color, #22c55e);
+  }
+
+  .form-note.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+  }
+
+  @media (max-width: 768px) {
+    .upgrade-hero h1 {
+      font-size: 1.75rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+
+    .upgrade-comparison h2 {
+      font-size: 1.5rem;
+    }
+
+    th,
+    td {
+      padding: 0.75rem 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .cta-card {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+function handleWaitlist(event) {
+  event.preventDefault();
+
+  var emailInput = document.getElementById('waitlist-email');
+  var email = emailInput.value.trim();
+  var msgEl = document.getElementById('form-message');
+
+  if (!email) {
+    msgEl.className = 'form-note error';
+    msgEl.textContent = 'Please enter a valid email address.';
+    msgEl.style.display = 'block';
+    return;
+  }
+
+  // Log to console (placeholder for future Stripe/email API)
+  console.log('Waitlist signup:', { email: email, timestamp: new Date().toISOString() });
+
+  // Show success message
+  msgEl.className = 'form-note success';
+  msgEl.textContent = '✓ Thanks for signing up! We\'ll notify you when premium launches.';
+  msgEl.style.display = 'block';
+
+  // Clear input
+  emailInput.value = '';
+
+  // Optional: hide message after 5 seconds
+  setTimeout(function() {
+    msgEl.style.display = 'none';
+  }, 5000);
+}
+</script>
+{% endblock %}

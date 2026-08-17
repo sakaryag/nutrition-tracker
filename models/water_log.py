@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 
@@ -6,10 +6,10 @@ class WaterLog(db.Model):
     __tablename__ = 'water_log'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
     log_date = db.Column(db.Date, nullable=False, index=True)
     amount_ml = db.Column(db.Float, nullable=False)
-    logged_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    logged_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         return {

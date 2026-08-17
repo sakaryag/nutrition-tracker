@@ -1,0 +1,52 @@
+# Cloud Run service manifest for NutriTrack
+# Usage: gcloud run services replace cloudrun-service.yaml --region us-central1
+#
+# Replace PROJECT_ID with your actual GCP project ID before running.
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: nutritrack
+  labels:
+    cloud.googleapis.com/location: us-central1
+spec:
+  template:
+    metadata:
+      annotations:
+        # Scale-to-zero: min 0 instances, max 10
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+        # Use second-generation execution environment
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      # Max concurrent requests per instance
+      containerConcurrency: 80
+      # Request timeout in seconds (15 minutes max on Cloud Run)
+      timeoutSeconds: 300
+      containers:
+        - image: gcr.io/PROJECT_ID/nutritrack:latest
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: "1000m"
+          env:
+            - name: AUTH_ENABLED
+              value: "true"
+            # DATABASE_URL injected from Secret Manager
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: nutritrack-db-url
+                  key: latest
+            # SECRET_KEY injected from Secret Manager
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nutritrack-secret
+                  key: latest
+          ports:
+            - name: http1
+              containerPort: 8080
+  traffic:
+    - percent: 100
+      latestRevision: true

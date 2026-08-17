@@ -1,5 +1,5 @@
 """routes/friends.py — /api/friends blueprint (friend requests & management)."""
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
 
@@ -125,8 +125,8 @@ def send_request():
         requester_id=uid,
         recipient_id=target.id,
         status='pending',
-        created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
     )
     db.session.add(conn)
     db.session.commit()
@@ -164,7 +164,7 @@ def accept_request(connection_id):
     if conn.status != 'pending':
         return jsonify({'error': f'Cannot accept a request with status {conn.status}'}), 409
     conn.status = 'accepted'
-    conn.updated_at = datetime.utcnow()
+    conn.updated_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({'status': 'accepted'})
 
@@ -180,7 +180,7 @@ def decline_request(connection_id):
     if conn.status not in ('pending', 'accepted'):
         return jsonify({'error': f'Cannot decline a request with status {conn.status}'}), 409
     conn.status = 'declined'
-    conn.updated_at = datetime.utcnow()
+    conn.updated_at = datetime.now(timezone.utc)
     db.session.commit()
     return jsonify({'status': 'declined'})
 
@@ -197,7 +197,7 @@ def remove_friend(friend_id):
 
     if block:
         conn.status = 'blocked'
-        conn.updated_at = datetime.utcnow()
+        conn.updated_at = datetime.now(timezone.utc)
         # Ensure current user is the requester for consistency
         if conn.recipient_id == uid:
             conn.requester_id, conn.recipient_id = uid, friend_id

@@ -25,6 +25,22 @@ def login_required(f):
     return decorated
 
 
+def premium_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_app.config.get('AUTH_ENABLED'):
+            return f(*args, **kwargs)
+        user_id = session.get('user_id')
+        if not user_id:
+            return jsonify({'error': 'Authentication required'}), 401
+        from models.user import User
+        user = User.query.get(user_id)
+        if not user or not user.plan_feature_enabled:
+            return jsonify({'error': 'Premium subscription required', 'upgrade_url': '/upgrade'}), 402
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if not current_app.config.get('AUTH_ENABLED'):

@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import Blueprint, render_template, redirect, url_for, current_app, session
+from flask import Blueprint, render_template, redirect, url_for, current_app, session, jsonify, send_from_directory
 from routes.auth import login_required
 from models import db
 from models.user import User
@@ -109,3 +109,42 @@ def dietitian():
     if current_app.config.get('AUTH_ENABLED') and (user is None or not user.is_admin):
         return redirect(url_for('pages.dashboard'))
     return render_template('dietitian.html')
+
+
+@pages_bp.route('/health')
+def health_check():
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({'status': 'ok', 'db': 'connected'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'db': str(e)}), 500
+
+
+@pages_bp.route('/manifest.json')
+def pwa_manifest():
+    return send_from_directory('static', 'manifest.json', mimetype='application/manifest+json')
+
+
+@pages_bp.route('/.well-known/assetlinks.json')
+def assetlinks():
+    return send_from_directory('static/.well-known', 'assetlinks.json', mimetype='application/json')
+
+
+@pages_bp.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+
+@pages_bp.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+
+@pages_bp.route('/upgrade')
+def upgrade():
+    return render_template('upgrade.html')
+
+
+@pages_bp.route('/offline')
+def offline():
+    return render_template('offline.html')

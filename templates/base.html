@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NutriTrack{% block title %}{% endblock %}</title>
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
-  <link rel="manifest" href="/static/manifest.json" />
-  <meta name="theme-color" content="#4A90D9" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#2D7A4F" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="NutriTrack" />
@@ -123,6 +123,22 @@
     });
   })();
   </script>
+
+  <!-- AdMob: replace ca-pub-XXXXXXXXXXXXXXXX and slot YYYYYYYYYY with real values from AdMob account -->
+  <!-- Uncomment after creating AdMob account and getting approved:
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+  <div id="admob-banner" style="display:none">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+      data-ad-slot="YYYYYYYYYY" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+  <script>
+    // Show ad banner only inside TWA (Android app wrapper)
+    if (document.referrer.startsWith('android-app://')) {
+      document.getElementById('admob-banner').style.display = 'block';
+    }
+  </script>
+  -->
 
   <script>
   /* Notification bell */

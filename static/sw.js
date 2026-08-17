@@ -10,6 +10,8 @@
 var CACHE_NAME = 'nutritrack-v1';
 
 var STATIC_SHELL = [
+  '/',
+  '/offline',
   '/static/css/style.css',
   '/static/js/i18n.js',
   '/static/js/app.js',
@@ -95,7 +97,22 @@ function networkFirst(request) {
       }
       return response;
     }).catch(function () {
-      return cache.match(request);
+      var cached = cache.match(request);
+      if (cached) return cached;
+
+      /* For navigation requests (HTML pages), fall back to offline page */
+      if (request.mode === 'navigate') {
+        return cache.match('/offline');
+      }
+
+      /* For other requests, return a basic offline response */
+      return new Response('Offline - resource not available', {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: new Headers({
+          'Content-Type': 'text/plain'
+        })
+      });
     });
   });
 }

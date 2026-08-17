@@ -17,24 +17,7 @@ def create_app(config_name=None, test_config=None):
     if test_config is not None:
         app.config.from_object(test_config)
 
-    # pool_size/max_overflow only work with PostgreSQL, not SQLite StaticPool used in tests
-    if 'postgresql' in app.config.get('SQLALCHEMY_DATABASE_URI', ''):
-        opts = app.config.setdefault('SQLALCHEMY_ENGINE_OPTIONS', {})
-        opts.update({
-            'pool_size': 5,
-            'max_overflow': 2,
-            'connect_args': {
-                'connect_timeout': 10,
-                # TCP keepalives prevent Railway from killing idle connections mid-pool.
-                # keepalives_idle=60: start probes after 60s idle
-                # keepalives_interval=10: probe every 10s
-                # keepalives_count=5: give up after 5 missed probes
-                'keepalives': 1,
-                'keepalives_idle': 60,
-                'keepalives_interval': 10,
-                'keepalives_count': 5,
-            },
-        })
+    # Pool settings are configured in config.py per DB type (postgresql vs sqlite).
 
     db.init_app(app)
     Migrate(app, db)
@@ -140,6 +123,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS name_tr VARCHAR(300)',
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS g_per_unit FLOAT',
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS valid_units VARCHAR(500)',
+            'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT FALSE',
             'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS template_id INTEGER',
             'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
@@ -234,6 +218,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE saved_food ADD COLUMN name_tr VARCHAR(300)',
             'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
             'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
+            'ALTER TABLE saved_food ADD COLUMN is_archived BOOLEAN DEFAULT 0',
             'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
             'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',

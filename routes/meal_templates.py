@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from models import db
 from models.meal_template import MealTemplate
 from models.meal_template_item import MealTemplateItem
@@ -30,6 +30,20 @@ def create_template():
     name = data.get('name', '').strip()
     if not name:
         return jsonify({'error': 'name is required'}), 400
+
+    # Premium gate: free plan allows max 5 templates
+    if current_app.config.get('AUTH_ENABLED'):
+        uid = current_user_id()
+        if uid is not None:
+            from models.user import User
+            user = User.query.get(uid)
+            existing_count = MealTemplate.query.filter_by(user_id=uid).count()
+            if existing_count >= 5 and (not user or not user.plan_feature_enabled):
+                return jsonify({
+                    'error': 'Premium subscription required',
+                    'upgrade_url': '/upgrade',
+                    'detail': 'Free plan limit: 5 meal templates.',
+                }), 402
 
     template = MealTemplate(
         name=name,
@@ -155,7 +169,7 @@ def log_template(template_id):
         entry_date = date.today()
 
     uid = current_user_id()
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     entries = []
     for item in template.items:
         entry = FoodEntry(
@@ -205,7 +219,7 @@ def log_template_single(template_id):
     total_calories = sum(i.calories for i in template.items)
     total_serving = sum((i.serving_size or 0) for i in template.items)
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     entry = FoodEntry(
         food_name=template.name,
         protein=round(total_protein, 1),

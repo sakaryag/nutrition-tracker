@@ -3,6 +3,7 @@ import csv
 from flask import Blueprint, request, Response, current_app, session, jsonify
 from datetime import date
 from models.food_entry import FoodEntry
+from routes.auth import premium_required
 
 export_bp = Blueprint('export', __name__, url_prefix='/api/export')
 
@@ -14,6 +15,7 @@ def check_auth():
 
 
 @export_bp.route('', methods=['GET'])
+@premium_required
 def export_entries():
     """GET /api/export?start=YYYY-MM-DD&end=YYYY-MM-DD"""
     start_str = request.args.get('start')

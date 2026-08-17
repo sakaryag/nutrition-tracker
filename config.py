@@ -14,11 +14,20 @@ class Config:
         _db_url = 'postgresql://' + _db_url[len('postgres://'):]
     SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # pool_size/max_overflow only valid for PostgreSQL — set dynamically in create_app
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'pool_pre_ping': True,
-        'pool_recycle': 240,
-    }
+    # Pool settings differ between SQLite (no pool) and PostgreSQL (Neon / Cloud Run free tier).
+    if _db_url.startswith('postgresql'):
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+            'pool_recycle': 300,
+            'pool_size': 2,
+            'max_overflow': 3,
+            'connect_args': {'sslmode': 'require', 'connect_timeout': 10},
+        }
+    else:
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'pool_pre_ping': True,
+            'pool_recycle': 300,
+        }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     DEFAULT_PROTEIN_TARGET = float(os.getenv('DEFAULT_PROTEIN_TARGET', '150'))

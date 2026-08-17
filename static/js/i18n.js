@@ -378,6 +378,15 @@ const i18n = {
     'admin.startDate':         'Start Date',
     'admin.planAssigned':      'Plan assigned.',
     'admin.userUpdated':       'User updated.',
+
+    /* Premium / upgrade */
+    'premium_required':              'Premium subscription required',
+    'upgrade_cta':                   'Upgrade to Premium',
+    'upgrade_benefit_history':       'Unlimited history',
+    'upgrade_benefit_social':        'Social & family features',
+    'upgrade_benefit_export':        'CSV export',
+    'upgrade_benefit_templates':     'Unlimited meal templates',
+    'template_limit_reached':        'Free plan limit: 5 meal templates. Upgrade for unlimited.',
   },
 
   tr: {
@@ -755,6 +764,15 @@ const i18n = {
     'admin.startDate':         'Başlangıç Tarihi',
     'admin.planAssigned':      'Plan atandı.',
     'admin.userUpdated':       'Kullanıcı güncellendi.',
+
+    /* Premium / upgrade */
+    'premium_required':              'Premium abonelik gerekli',
+    'upgrade_cta':                   "Premium'a Geç",
+    'upgrade_benefit_history':       'Sınırsız geçmiş',
+    'upgrade_benefit_social':        'Sosyal ve aile özellikleri',
+    'upgrade_benefit_export':        'CSV dışa aktarma',
+    'upgrade_benefit_templates':     'Sınırsız yemek şablonları',
+    'template_limit_reached':        'Ücretsiz plan sınırı: 5 yemek şablonu. Sınırsız için yükseltin.',
   },
 };
 

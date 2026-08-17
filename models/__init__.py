@@ -18,3 +18,5 @@ from models.friend_connection import FriendConnection
 from models.shared_entry import SharedEntry
 from models.feed_visibility import FeedVisibility
 from models.user_badge import UserBadge
+from models.dietitian_access import DietitianAccess
+from models.dietitian_visit import DietitianVisit

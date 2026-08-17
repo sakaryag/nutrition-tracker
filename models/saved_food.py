@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from models import db
 
 
@@ -24,9 +24,9 @@ class SavedFood(db.Model):
     g_per_unit = db.Column(db.Float, nullable=True)  # grams per 1 piece/slice/serving (enables cross-unit conversion)
     valid_units = db.Column(db.String(500), nullable=True)  # JSON array of allowed unit keys; NULL = use default group logic
     is_archived = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
 
     __table_args__ = (

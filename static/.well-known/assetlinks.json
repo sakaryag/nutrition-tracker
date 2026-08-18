@@ -2,7 +2,7 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.nutritrack.app",
+    "package_name": "app.run.us_central1.nutritrack_892497149888.twa",
     "sha256_cert_fingerprints": ["45:70:8A:E7:1A:6B:D7:8A:19:37:27:01:12:27:25:75:BE:D5:57:BE:7A:9B:18:4E:DF:52:FB:1C:D7:79:DC:ED"]
   }
 }]

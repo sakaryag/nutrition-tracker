@@ -8,7 +8,9 @@ load_dotenv(Path(__file__).resolve().parent / '.env', override=True)
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-only-replace-in-production').strip()
-    _db_url = os.getenv('DATABASE_URL', 'sqlite:///nutritrack.db').strip()
+    _raw = os.getenv('DATABASE_URL', '')
+    import sys; print(f"[DEBUG] DATABASE_URL len={len(_raw)} repr_start={repr(_raw[:15])} repr_end={repr(_raw[-5:])}", file=sys.stderr, flush=True)
+    _db_url = _raw.strip() if _raw else 'sqlite:///nutritrack.db'
     # Railway (and Heroku) provide postgres:// but SQLAlchemy requires postgresql://
     if _db_url.startswith('postgres://'):
         _db_url = 'postgresql://' + _db_url[len('postgres://'):]

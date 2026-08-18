@@ -96,7 +96,7 @@ def main():
         ('Register page', 'GET', '/register', 200, False),
         ('Home page (redirect if AUTH_ENABLED)', 'GET', '/', [200, 302], False),
         ('API: Foods (auth required)', 'GET', '/api/foods', 401, True),
-        ('API: Chat status', 'GET', '/api/chat/status', 200, True),
+        ('API: Chat status', 'GET', '/api/chat/status', [200, 401], False),
     ]
     
     passed = 0

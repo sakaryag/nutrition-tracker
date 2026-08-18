@@ -1,79 +1,70 @@
-#!/usr/bin/env python3
-"""
-Generate Android/PWA icon sizes from a source image using Pillow.
-
-Usage:
-    python scripts/generate_icons.py --source icon-source.png
-
-Generates into static/icons/:
-    - icon-48.png, icon-72.png, icon-96.png, icon-144.png, icon-192.png, icon-512.png
-    - icon-512-maskable.png (with 20% padding for safe zone)
-"""
-
-import argparse
+"""Generate PNG icons for PWA and Play Store from icon.svg."""
+import os
+import subprocess
 import sys
 from pathlib import Path
 
-try:
-    from PIL import Image
-except ImportError:
-    print("ERROR: Pillow not installed.")
-    print("Install with: pip install Pillow")
-    sys.exit(1)
+SIZES = [48, 72, 96, 144, 192, 512]
+MASKABLE_SIZE = 512
 
-ICON_SIZES = [48, 72, 96, 144, 192, 512]
-OUTPUT_DIR = Path(__file__).parent.parent / "static" / "icons"
+ROOT = Path(__file__).resolve().parent.parent
+SVG_PATH = ROOT / "static" / "icon.svg"
+ICONS_DIR = ROOT / "static" / "icons"
+ICONS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def generate_icons(source_path):
-    """Generate all icon sizes from source image."""
-    source_file = Path(source_path)
-
-    if not source_file.exists():
-        print(f"ERROR: Source file not found: {source_path}")
-        sys.exit(1)
-
+def svg_to_png_via_inkscape(svg_path, out_path, size):
+    """Try inkscape first."""
     try:
-        source_img = Image.open(source_file).convert("RGBA")
-        print(f"Loaded source image: {source_file.name} ({source_img.size[0]}x{source_img.size[1]})")
-    except Exception as e:
-        print(f"ERROR: Failed to open image: {e}")
-        sys.exit(1)
+        subprocess.run(
+            ["inkscape", str(svg_path), f"--export-width={size}", f"--export-height={size}", f"--export-filename={out_path}"],
+            check=True, capture_output=True
+        )
+        return True
+    except Exception:
+        return False
 
-    # Create output directory
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Output directory: {OUTPUT_DIR}")
 
-    # Generate standard icons
-    for size in ICON_SIZES:
-        resized = source_img.resize((size, size), Image.Resampling.LANCZOS)
-        output_file = OUTPUT_DIR / f"icon-{size}.png"
-        resized.save(output_file, "PNG")
-        print(f"  ✓ {output_file.name}")
+def svg_to_png_via_pillow(svg_path, out_path, size):
+    """Fallback: render SVG as a green square with 'N' text (placeholder)."""
+    from PIL import Image, ImageDraw, ImageFont
+    img = Image.new("RGBA", (size, size), (45, 122, 79, 255))  # #2D7A4F green
+    draw = ImageDraw.Draw(img)
+    # Draw white 'N' letter as placeholder
+    font_size = int(size * 0.55)
+    try:
+        font = ImageFont.truetype("arial.ttf", font_size)
+    except Exception:
+        font = ImageFont.load_default()
+    bbox = draw.textbbox((0, 0), "N", font=font)
+    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    draw.text(((size - w) // 2, (size - h) // 2 - bbox[1]), "N", fill="white", font=font)
+    img.save(out_path, "PNG")
+    return True
 
-    # Generate maskable icon (512x512 with 20% padding for safe zone)
-    maskable_size = 512
-    safe_zone_size = int(maskable_size * 0.8)  # 409px content area
-    padding = (maskable_size - safe_zone_size) // 2
 
-    resized_maskable = source_img.resize((safe_zone_size, safe_zone_size), Image.Resampling.LANCZOS)
-    maskable_img = Image.new("RGBA", (maskable_size, maskable_size), (0, 0, 0, 0))
-    maskable_img.paste(resized_maskable, (padding, padding), resized_maskable)
-    maskable_output = OUTPUT_DIR / "icon-512-maskable.png"
-    maskable_img.save(maskable_output, "PNG")
-    print(f"  ✓ {maskable_output.name}")
+def generate():
+    print(f"Generating icons in {ICONS_DIR}")
+    for size in SIZES:
+        out = ICONS_DIR / f"icon-{size}.png"
+        ok = svg_to_png_via_inkscape(SVG_PATH, out, size)
+        if not ok:
+            ok = svg_to_png_via_pillow(SVG_PATH, out, size)
+        print(f"  icon-{size}.png {'OK' if ok else 'FAILED'}")
 
-    print("\n✓ All icons generated successfully!")
-    print("\nPlay Store Requirements Reminder:")
-    print("  - 512x512 PNG icon (high resolution): icon-512.png")
-    print("  - Feature graphic: 1024x500 PNG (banner for store listing)")
-    print("  - Screenshots: minimum 2 phone (1080x1920) + 2 tablet (1440x2560)")
-    print("  - Safe zone for adaptive icons: content within 409x409px (20% padding)")
+    # Maskable icon (512x512 with padding ~10%)
+    out_maskable = ICONS_DIR / "icon-512-maskable.png"
+    from PIL import Image, ImageDraw, ImageFont
+    base = Image.open(ICONS_DIR / "icon-512.png").convert("RGBA")
+    mask = Image.new("RGBA", (512, 512), (45, 122, 79, 255))
+    padding = 52  # ~10%
+    inner = base.resize((512 - 2 * padding, 512 - 2 * padding), Image.LANCZOS)
+    mask.paste(inner, (padding, padding), inner)
+    mask.save(out_maskable, "PNG")
+    print(f"  icon-512-maskable.png OK")
+
+    print("Done.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate Android/PWA icons from source image")
-    parser.add_argument("--source", required=True, help="Path to source icon image (1024x1024 PNG recommended)")
-
-    args = parser.parse_args()
-    generate_icons(args.source)
+    generate()

@@ -12,6 +12,8 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     plan_feature_enabled = db.Column(db.Boolean, default=False, nullable=False)
+    google_id = db.Column(db.String(255), nullable=True, unique=True)
+    avatar_url = db.Column(db.String(500), nullable=True)
 
     @property
     def role(self):

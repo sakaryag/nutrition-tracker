@@ -29,6 +29,8 @@ class Config:
             'pool_recycle': 300,
         }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+    GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     DEFAULT_PROTEIN_TARGET = float(os.getenv('DEFAULT_PROTEIN_TARGET', '150'))
     DEFAULT_FAT_TARGET = float(os.getenv('DEFAULT_FAT_TARGET', '65'))

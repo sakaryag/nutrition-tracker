@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from sqlalchemy import event, text
 from models import db
 from config import config
+from oauth_client import oauth
 
 
 def create_app(config_name=None, test_config=None):
@@ -21,6 +22,16 @@ def create_app(config_name=None, test_config=None):
 
     db.init_app(app)
     Migrate(app, db)
+
+    if oauth is not None:
+        oauth.init_app(app)
+        oauth.register(
+            name='google',
+            client_id=app.config.get('GOOGLE_CLIENT_ID'),
+            client_secret=app.config.get('GOOGLE_CLIENT_SECRET'),
+            server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+            client_kwargs={'scope': 'openid email profile'},
+        )
 
     os.makedirs(app.instance_path, exist_ok=True)
 
@@ -130,6 +141,9 @@ def _migrate_add_columns(app):
             'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE',
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS plan_feature_enabled BOOLEAN DEFAULT FALSE',
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS google_id VARCHAR(255)',
+            'CREATE UNIQUE INDEX IF NOT EXISTS uq_user_google_id ON "user" (google_id) WHERE google_id IS NOT NULL',
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500)',
             'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS water_goal_ml FLOAT',
             # daily_note table creation handled by create_all; ensure it exists via migration too
             '''CREATE TABLE IF NOT EXISTS daily_note (
@@ -225,6 +239,9 @@ def _migrate_add_columns(app):
             'ALTER TABLE meal_template ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE "user" ADD COLUMN is_admin BOOLEAN DEFAULT 0',
             'ALTER TABLE "user" ADD COLUMN plan_feature_enabled BOOLEAN DEFAULT 0',
+            'ALTER TABLE "user" ADD COLUMN google_id VARCHAR(255)',
+            'CREATE UNIQUE INDEX IF NOT EXISTS uq_user_google_id ON "user" (google_id)',
+            'ALTER TABLE "user" ADD COLUMN avatar_url VARCHAR(500)',
             'ALTER TABLE daily_target ADD COLUMN water_goal_ml FLOAT',
             # SQLite: create daily_note if it doesn't exist yet (idempotent)
             '''CREATE TABLE IF NOT EXISTS daily_note (

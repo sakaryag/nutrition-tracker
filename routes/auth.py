@@ -1,8 +1,10 @@
+import secrets
 from datetime import timedelta
 from functools import wraps
 from flask import Blueprint, request, redirect, url_for, render_template, session, jsonify, current_app
 from models import db
 from models.user import User
+from oauth_client import oauth
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -46,7 +48,8 @@ def login():
     if not current_app.config.get('AUTH_ENABLED'):
         return redirect(url_for('pages.dashboard'))
     if request.method == 'GET':
-        return render_template('login.html')
+        google_enabled = bool(current_app.config.get('GOOGLE_CLIENT_ID'))
+        return render_template('login.html', google_oauth_enabled=google_enabled)
     data = request.form
     username = data.get('username', '').strip()
     password = data.get('password', '')
@@ -66,7 +69,8 @@ def register():
     if not current_app.config.get('AUTH_ENABLED'):
         return redirect(url_for('pages.dashboard'))
     if request.method == 'GET':
-        return render_template('register.html')
+        google_enabled = bool(current_app.config.get('GOOGLE_CLIENT_ID'))
+        return render_template('register.html', google_oauth_enabled=google_enabled)
     data = request.form
     username = data.get('username', '').strip()
     password = data.get('password', '')
@@ -97,3 +101,59 @@ def register():
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))
+
+
+@auth_bp.route('/auth/google')
+def google_login():
+    if not current_app.config.get('AUTH_ENABLED'):
+        return redirect(url_for('pages.dashboard'))
+    if oauth is None:
+        return render_template('login.html', error='Google sign-in is not available.', google_oauth_enabled=False)
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@auth_bp.route('/auth/google/callback')
+def google_callback():
+    if not current_app.config.get('AUTH_ENABLED'):
+        return redirect(url_for('pages.dashboard'))
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception:
+        return render_template('login.html', error='Google sign-in was cancelled or failed.', google_oauth_enabled=True)
+
+    userinfo = token.get('userinfo') or {}
+    google_id = userinfo.get('sub', '')
+    email = userinfo.get('email', '')
+    picture = userinfo.get('picture', '')
+
+    if not google_id:
+        return render_template('login.html', error='Could not retrieve Google account info.', google_oauth_enabled=True)
+
+    user = User.query.filter_by(google_id=google_id).first()
+    if user is None:
+        user = User.query.filter_by(username=email).first() if email else None
+        if user is None:
+            base = (email.split('@')[0] if email else 'user').lower()
+            base = ''.join(c for c in base if c.isalnum() or c == '_')[:30] or 'user'
+            username = base
+            counter = 1
+            while User.query.filter_by(username=username).first():
+                username = f'{base}{counter}'
+                counter += 1
+            user = User(username=username, google_id=google_id, avatar_url=picture or None)
+            user.set_pw(secrets.token_hex(32))
+            db.session.add(user)
+        else:
+            user.google_id = google_id
+            if picture:
+                user.avatar_url = picture
+    else:
+        if picture and not user.avatar_url:
+            user.avatar_url = picture
+
+    db.session.commit()
+    session.permanent = True
+    session['user_id'] = user.id
+    session['username'] = user.username
+    return redirect(url_for('pages.dashboard'))

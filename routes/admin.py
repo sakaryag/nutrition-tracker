@@ -30,6 +30,17 @@ def require_admin(f):
     return decorated
 
 
+def require_plan_access(f):
+    """Any authenticated user can manage plans — ownership enforced by _assert_owner."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        uid = session.get('user_id')
+        if uid is None and current_app.config.get('AUTH_ENABLED'):
+            return jsonify({'error': 'Authentication required'}), 401
+        return f(*args, **kwargs)
+    return decorated
+
+
 def _assert_owner(plan):
     """403 if AUTH is enabled and the current user doesn't own the plan."""
     if not current_app.config.get('AUTH_ENABLED'):

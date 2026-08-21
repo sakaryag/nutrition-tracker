@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Flask
 from flask_migrate import Migrate
 from sqlalchemy import event, text
+from werkzeug.middleware.proxy_fix import ProxyFix
 from models import db
 from config import config
 from oauth_client import oauth
@@ -19,6 +20,8 @@ def create_app(config_name=None, test_config=None):
         app.config.from_object(test_config)
 
     # Pool settings are configured in config.py per DB type (postgresql vs sqlite).
+
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     db.init_app(app)
     Migrate(app, db)

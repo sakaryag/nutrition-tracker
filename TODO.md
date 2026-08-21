@@ -46,6 +46,7 @@
 
 ## Dietitian Mode
 - [ ] **Plans/Admin page full UI** — `templates/plans.html` + `templates/admin.html` are stubs; need full dietitian workflow UI
+- [ ] **Plan slot items without food link** — `SlotItem` rows that use `food_name_override` (free text, no `saved_food_id`) carry no macro data; the slot log modal shows 0 g for all macros. Options: (a) add manual macro fields per free-text row in the modal, (b) require selecting a real food for every slot item, or (c) show a warning and skip macro tracking for those rows. Current behaviour: item logs with 0 kcal/protein/fat/carbs.
 
 ## Quality / Production Readiness
 - [ ] **Full food data audit (strict)** — every food in the DB must have correct per-100g macros (protein/fat/carbs/calories) verified against USDA FoodData Central source values. Known errors from workflow wf_b988d1f7: peanut butters ~2× calories, Medjool dates ~14× calories, jams ~2×, English muffin stored as per-piece not per-100g, avocado whole-fruit vs per-100g, most fresh fruits wrong. Audit scope: (1) re-download USDA FDC data for all 751 seeded foods and diff against current foods.csv, (2) flag every food where stored kcal deviates >5% from calculated `(protein×4 + fat×9 + carbs×4)`, (3) apply corrections to foods.csv and re-seed. No food correction should be applied without cross-checking the FDC source; do not guess values.

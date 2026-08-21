@@ -80,6 +80,16 @@ var planForm  = document.getElementById('admin-plan-form');
 document.getElementById('admin-create-plan-btn').addEventListener('click', function () { openPlanModal(null); });
 document.getElementById('admin-plan-cancel').addEventListener('click', function () { planModal.close(); });
 
+function _fillPlanModal(p) {
+  document.getElementById('admin-plan-modal-title').textContent = 'Edit Plan';
+  document.getElementById('admin-plan-name').value = p.name || '';
+  document.getElementById('admin-plan-name-tr').value = p.name_tr || '';
+  document.getElementById('admin-plan-desc').value = p.description || '';
+  document.getElementById('admin-plan-duration').value = p.duration_days || 7;
+  document.getElementById('admin-plan-status').value = p.status || 'draft';
+  document.getElementById('admin-plan-is-template').checked = !!p.is_template;
+}
+
 function openPlanModal(id) {
   document.getElementById('admin-plan-id').value = id || '';
   if (!id) {
@@ -90,17 +100,20 @@ function openPlanModal(id) {
     document.getElementById('admin-plan-duration').value = 7;
     document.getElementById('admin-plan-status').value = 'draft';
     document.getElementById('admin-plan-is-template').checked = false;
+    planModal.showModal();
   } else {
-    var p = plans.find(function (x) { return x.id === id; }) || {};
-    document.getElementById('admin-plan-modal-title').textContent = 'Edit Plan';
-    document.getElementById('admin-plan-name').value = p.name || '';
-    document.getElementById('admin-plan-name-tr').value = p.name_tr || '';
-    document.getElementById('admin-plan-desc').value = p.description || '';
-    document.getElementById('admin-plan-duration').value = p.duration_days || 7;
-    document.getElementById('admin-plan-status').value = p.status || 'draft';
-    document.getElementById('admin-plan-is-template').checked = !!p.is_template;
+    var cached = plans.find(function (x) { return x.id === id; });
+    if (cached) {
+      _fillPlanModal(cached);
+      planModal.showModal();
+    } else {
+      api('/api/admin/plans').then(function (data) {
+        plans = data;
+        _fillPlanModal(data.find(function (x) { return x.id === id; }) || {});
+        planModal.showModal();
+      }).catch(function (e) { showToast(e.message, 'error'); });
+    }
   }
-  planModal.showModal();
 }
 
 planForm.addEventListener('submit', function (e) {
@@ -151,6 +164,10 @@ function openBuilder(planId) {
   loadDays();
   loadRecipesAndCategories();
 }
+
+document.getElementById('builder-edit-plan').addEventListener('click', function () {
+  if (activePlanId) openPlanModal(activePlanId);
+});
 
 document.getElementById('builder-clone-plan').addEventListener('click', function () {
   if (!activePlanId || !confirm('Clone this plan?')) return;

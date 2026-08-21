@@ -277,7 +277,16 @@
       <button type="button" class="btn btn-icon" id="dash-sf-cancel" aria-label="Close">&times;</button>
     </div>
     <input type="hidden" id="dash-sf-slot-id" />
-    <p id="dash-sf-desc" class="card-meta" style="margin-bottom:.65rem"></p>
+    <p id="dash-sf-desc" class="card-meta" style="margin-bottom:.5rem"></p>
+    <div style="margin-bottom:.55rem">
+      <label for="dash-sf-meal-type" style="font-size:.8rem;font-weight:600;display:block;margin-bottom:.2rem">Meal type</label>
+      <select id="dash-sf-meal-type" class="form-control form-control--sm" style="max-width:160px">
+        <option value="Breakfast">Breakfast</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+        <option value="Snack">Snack</option>
+      </select>
+    </div>
     <!-- Editable item rows (food + qty + unit + macros + delete) -->
     <div id="dash-sf-items" class="slot-log-rows"></div>
     <button type="button" id="dash-sf-add" class="btn btn-sm btn-outline" style="margin-top:.4rem">+ Add food</button>

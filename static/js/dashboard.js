@@ -1104,6 +1104,13 @@
     }
 
     renderSlotLogRows();
+
+    // Auto-select meal type based on time of day
+    var hour = new Date().getHours();
+    var autoMeal = hour < 10 ? 'Breakfast' : hour < 14 ? 'Lunch' : hour < 19 ? 'Dinner' : 'Snack';
+    var mealTypeSel = document.getElementById('dash-sf-meal-type');
+    if (mealTypeSel) mealTypeSel.value = autoMeal;
+
     dashFulfillModal.showModal();
   }
 
@@ -1288,7 +1295,7 @@
             calories:     m.k,
             serving_size: it.qty,
             serving_unit: it.unit,
-            meal_type:    'plan',
+            meal_type:    (document.getElementById('dash-sf-meal-type') || {}).value || 'plan',
             date:         currentDate,
             saved_food_id: it.foodId || null,
           }),

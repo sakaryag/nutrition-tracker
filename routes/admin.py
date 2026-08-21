@@ -43,7 +43,7 @@ def _assert_owner(plan):
 # Ã¢â€â‚¬Ã¢â€â‚¬ Plans Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @admin_bp.route('/plans', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_plans():
     uid = session.get('user_id')
     query = NutritionPlan.query
@@ -60,7 +60,7 @@ def list_plans():
 
 
 @admin_bp.route('/plans', methods=['POST'])
-@require_admin
+@require_plan_access
 def create_plan():
     data = request.get_json(silent=True) or {}
     name = data.get('name', '').strip()
@@ -83,7 +83,7 @@ def create_plan():
 
 
 @admin_bp.route('/plans/<int:plan_id>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_plan(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -110,7 +110,7 @@ def update_plan(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_plan(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -123,7 +123,7 @@ def delete_plan(plan_id):
 # Ã¢â€â‚¬Ã¢â€â‚¬ Tasks Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @admin_bp.route('/plans/<int:plan_id>/tasks', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_tasks(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -133,7 +133,7 @@ def list_tasks(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/tasks', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_task(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -161,7 +161,7 @@ def add_task(plan_id):
 
 
 @admin_bp.route('/tasks/<int:task_id>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_task(task_id):
     task = db.session.get(PlanTask, task_id)
     if task is None:
@@ -268,7 +268,7 @@ def assign_plan(user_id):
 # -- Program Day CRUD -------------------------------------------------------
 
 @admin_bp.route('/plans/<int:plan_id>/days', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_days(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -280,7 +280,7 @@ def list_days(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/days', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_day(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -309,7 +309,7 @@ def add_day(plan_id):
 
 
 @admin_bp.route('/days/<int:day_id>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_day(day_id):
     from models.program_day import ProgramDay
     day = db.session.get(ProgramDay, day_id)
@@ -330,7 +330,7 @@ def update_day(day_id):
 
 
 @admin_bp.route('/days/<int:day_id>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_day(day_id):
     from models.program_day import ProgramDay
     day = db.session.get(ProgramDay, day_id)
@@ -343,7 +343,7 @@ def delete_day(day_id):
 
 
 @admin_bp.route('/days/<int:day_id>/copy', methods=['POST'])
-@require_admin
+@require_plan_access
 def copy_day(day_id):
     """Deep-clone a day (all slots and items) to a new day in the same program."""
     from models.program_day import ProgramDay
@@ -405,7 +405,7 @@ def copy_day(day_id):
 
 
 @admin_bp.route('/days/<int:day_id>/copy-to-remaining', methods=['POST'])
-@require_admin
+@require_plan_access
 def copy_day_to_remaining(day_id):
     """Clone the source day's slots/items into every day in the same program that has no slots."""
     from models.program_day import ProgramDay
@@ -463,7 +463,7 @@ def copy_day_to_remaining(day_id):
 # -- MealSlot CRUD -----------------------------------------------------------
 
 @admin_bp.route('/days/<int:day_id>/slots', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_slots(day_id):
     from models.program_day import ProgramDay
     from models.meal_slot import MealSlot
@@ -476,7 +476,7 @@ def list_slots(day_id):
 
 
 @admin_bp.route('/days/<int:day_id>/slots', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_slot(day_id):
     from models.program_day import ProgramDay
     from models.meal_slot import MealSlot
@@ -504,7 +504,7 @@ def add_slot(day_id):
 
 
 @admin_bp.route('/slots/<int:slot_id>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_slot(slot_id):
     from models.meal_slot import MealSlot
     slot = db.session.get(MealSlot, slot_id)
@@ -527,7 +527,7 @@ def update_slot(slot_id):
 
 
 @admin_bp.route('/slots/<int:slot_id>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_slot(slot_id):
     from models.meal_slot import MealSlot
     slot = db.session.get(MealSlot, slot_id)
@@ -542,7 +542,7 @@ def delete_slot(slot_id):
 # -- SlotItem CRUD -----------------------------------------------------------
 
 @admin_bp.route('/slots/<int:slot_id>/items', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_slot_items(slot_id):
     from models.meal_slot import MealSlot
     from models.slot_item import SlotItem
@@ -555,7 +555,7 @@ def list_slot_items(slot_id):
 
 
 @admin_bp.route('/slots/<int:slot_id>/items', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_slot_item(slot_id):
     from models.meal_slot import MealSlot
     from models.slot_item import SlotItem
@@ -585,7 +585,7 @@ def add_slot_item(slot_id):
 
 
 @admin_bp.route('/slot-items/<int:item_id>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_slot_item(item_id):
     from models.slot_item import SlotItem
     item = db.session.get(SlotItem, item_id)
@@ -603,7 +603,7 @@ def update_slot_item(item_id):
 
 
 @admin_bp.route('/slot-items/<int:item_id>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_slot_item(item_id):
     from models.slot_item import SlotItem
     item = db.session.get(SlotItem, item_id)
@@ -618,7 +618,7 @@ def delete_slot_item(item_id):
 # -- Guidelines CRUD ---------------------------------------------------------
 
 @admin_bp.route('/plans/<int:plan_id>/guidelines', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_guidelines(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -630,7 +630,7 @@ def list_guidelines(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/guidelines', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_guideline(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -662,7 +662,7 @@ def add_guideline(plan_id):
 
 
 @admin_bp.route('/guidelines/<int:gid>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_guideline(gid):
     from models.program_guideline import ProgramGuideline
     g = db.session.get(ProgramGuideline, gid)
@@ -680,7 +680,7 @@ def update_guideline(gid):
 
 
 @admin_bp.route('/guidelines/<int:gid>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_guideline(gid):
     from models.program_guideline import ProgramGuideline
     g = db.session.get(ProgramGuideline, gid)
@@ -695,7 +695,7 @@ def delete_guideline(gid):
 # -- Weekly Category Quota CRUD ----------------------------------------------
 
 @admin_bp.route('/plans/<int:plan_id>/quotas', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_quotas(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -707,7 +707,7 @@ def list_quotas(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/quotas', methods=['POST'])
-@require_admin
+@require_plan_access
 def add_quota(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -730,7 +730,7 @@ def add_quota(plan_id):
 
 
 @admin_bp.route('/quotas/<int:qid>', methods=['PUT'])
-@require_admin
+@require_plan_access
 def update_quota(qid):
     from models.weekly_category_quota import WeeklyCategoryQuota
     q = db.session.get(WeeklyCategoryQuota, qid)
@@ -747,7 +747,7 @@ def update_quota(qid):
 
 
 @admin_bp.route('/quotas/<int:qid>', methods=['DELETE'])
-@require_admin
+@require_plan_access
 def delete_quota(qid):
     from models.weekly_category_quota import WeeklyCategoryQuota
     q = db.session.get(WeeklyCategoryQuota, qid)
@@ -763,7 +763,7 @@ def delete_quota(qid):
 # -- Template operations -----------------------------------------------------
 
 @admin_bp.route('/plans/<int:plan_id>/promote-to-template', methods=['POST'])
-@require_admin
+@require_plan_access
 def promote_to_template(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -775,7 +775,7 @@ def promote_to_template(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/clone-from-template', methods=['POST'])
-@require_admin
+@require_plan_access
 def clone_plan(plan_id):
     """Deep-clone a template plan into a new editable program."""
     source = db.session.get(NutritionPlan, plan_id)
@@ -860,7 +860,7 @@ def _snapshot_plan(plan):
 
 
 @admin_bp.route('/plans/<int:plan_id>/versions', methods=['GET'])
-@require_admin
+@require_plan_access
 def list_versions(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -872,7 +872,7 @@ def list_versions(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/versions', methods=['POST'])
-@require_admin
+@require_plan_access
 def save_version(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -898,7 +898,7 @@ def save_version(plan_id):
 
 
 @admin_bp.route('/plans/<int:plan_id>/versions/<int:version_num>', methods=['GET'])
-@require_admin
+@require_plan_access
 def get_version(plan_id, version_num):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
@@ -916,7 +916,7 @@ def get_version(plan_id, version_num):
 # -- Image upload (stub) -----------------------------------------------------
 
 @admin_bp.route('/plans/upload-image', methods=['POST'])
-@require_admin
+@require_plan_access
 def upload_image():
     from models.program_image_upload import ProgramImageUpload
     from datetime import datetime, timezone
@@ -947,7 +947,7 @@ def upload_image():
 
 
 @admin_bp.route('/plans/confirm-extraction/<int:upload_id>', methods=['POST'])
-@require_admin
+@require_plan_access
 def confirm_extraction(upload_id):
     from models.program_image_upload import ProgramImageUpload
     from datetime import datetime, timezone
@@ -969,7 +969,7 @@ def confirm_extraction(upload_id):
 # -- Image extraction pipeline -----------------------------------------------
 
 @admin_bp.route('/plans/process-image/<int:upload_id>', methods=['POST'])
-@require_admin
+@require_plan_access
 def process_image(upload_id):
     """Trigger async Claude Vision extraction for a previously uploaded image."""
     from models.program_image_upload import ProgramImageUpload
@@ -1026,7 +1026,7 @@ def process_image(upload_id):
 
 
 @admin_bp.route('/plans/upload-status/<int:upload_id>', methods=['GET'])
-@require_admin
+@require_plan_access
 def upload_status(upload_id):
     """Poll extraction status. Returns extracted JSON when draft_ready."""
     import json as _json
@@ -1044,7 +1044,7 @@ def upload_status(upload_id):
 
 
 @admin_bp.route('/plans/apply-extraction/<int:upload_id>', methods=['POST'])
-@require_admin
+@require_plan_access
 def apply_extraction(upload_id):
     """
     Apply a confirmed or draft_ready extraction to the plan:

@@ -1022,41 +1022,33 @@
     await _origLoadPage();
     await loadWater();
   };
-
   /* ============================================================
-     Today's Plan — inline slot cards on dashboard
-     ============================================================ */
-  var dashPlanFulfilled = {}; // slot_id -> true
+   Today's Plan - inline slot cards, adaptable per-item logging
+   ============================================================ */
+
+  var dashPlanFulfilled = {};   // slot_id -> true
+  var dashSlotItems = [];       // [{foodId,foodName,p100,f100,c100,k100,qty,unit}]
+  var dashFulfillModal = document.getElementById('dash-fulfill-modal');
+  var dashSlotCurrentId = null;
 
   function loadTodayPlan() {
     var todayStr = formatDate(new Date());
-    if (currentDate !== todayStr) {
-      document.getElementById('today-plan-section').hidden = true;
-      return;
-    }
+    var sec = document.getElementById('today-plan-section');
+    if (currentDate !== todayStr) { if (sec) sec.hidden = true; return; }
     api('/api/plans/my-assignment/rich').then(function (data) {
-      if (!data || !data.assignment) {
-        document.getElementById('today-plan-section').hidden = true;
-        return;
-      }
+      if (!data || !data.assignment) { if (sec) sec.hidden = true; return; }
       var todayDay = (data.days || []).find(function (d) { return d.is_today; });
-      if (!todayDay || !(todayDay.slots || []).length) {
-        document.getElementById('today-plan-section').hidden = true;
-        return;
-      }
+      if (!todayDay || !(todayDay.slots || []).length) { if (sec) sec.hidden = true; return; }
       dashPlanFulfilled = {};
-      (data.today_fulfillments || []).forEach(function (f) {
-        dashPlanFulfilled[f.slot_id] = true;
-      });
-      document.getElementById('today-plan-section').hidden = false;
+      (data.today_fulfillments || []).forEach(function (f) { dashPlanFulfilled[f.slot_id] = true; });
+      if (sec) sec.hidden = false;
       renderTodayPlanSlots(todayDay.slots);
-    }).catch(function () {
-      document.getElementById('today-plan-section').hidden = true;
-    });
+    }).catch(function () { if (sec) sec.hidden = true; });
   }
 
   function renderTodayPlanSlots(slots) {
     var container = document.getElementById('today-plan-slots');
+    if (!container) return;
     container.innerHTML = slots.map(function (s) {
       var done = !!dashPlanFulfilled[s.id];
       var hint = (s.items || []).slice(0, 2).map(function (it) {
@@ -1080,98 +1072,252 @@
     });
   }
 
-  /* Dash fulfill dialog */
-  var dashFulfillModal = document.getElementById('dash-fulfill-modal');
-  if (dashFulfillModal) {
-    document.getElementById('dash-sf-cancel').addEventListener('click', function () { dashFulfillModal.close(); });
+  /* ---- Slot fulfillment modal ------------------------------------------- */
 
-    function openDashFulfillModal(slot) {
-      document.getElementById('dash-sf-slot-id').value = slot.id;
-      document.getElementById('dash-sf-title').textContent = slot.slot_name;
-      document.getElementById('dash-sf-desc').textContent =
-        (slot.content_pattern ? 'Pattern ' + slot.content_pattern + ' — ' : '') +
-        (slot.is_optional ? 'Optional' : 'Required');
-      document.getElementById('dash-sf-food-id').value = '';
-      document.getElementById('dash-sf-search').value = '';
-      document.getElementById('dash-sf-ac').hidden = true;
-      document.getElementById('dash-sf-qty').value = '';
-      document.getElementById('dash-sf-unit').value = 'g';
+  function openDashFulfillModal(slot) {
+    if (!dashFulfillModal) return;
+    dashSlotCurrentId = slot.id;
+    document.getElementById('dash-sf-slot-id').value = slot.id;
+    document.getElementById('dash-sf-title').textContent = slot.slot_name;
+    document.getElementById('dash-sf-desc').textContent =
+      (slot.content_pattern ? 'Pattern ' + slot.content_pattern + (slot.is_optional ? ' · Optional' : ' · Required') : (slot.is_optional ? 'Optional' : ''));
 
-      var items = slot.items || [];
-      var sugg = document.getElementById('dash-sf-suggestions');
-      if (items.length) {
-        sugg.innerHTML = '<p style="font-size:.83rem;margin-bottom:.4rem;color:var(--color-text-muted)">Suggested:</p>' +
-          items.map(function (it) {
-            var label = it.food_name_override || (it.saved_food && it.saved_food.name) || '—';
-            return '<button type="button" class="btn btn-sm btn-outline dash-sf-quick" style="margin:.2rem" ' +
-              'data-food-id="' + escHtml(String(it.saved_food_id || '')) + '" ' +
-              'data-food-name="' + escHtml(label) + '" ' +
-              'data-qty="' + (it.quantity || 100) + '" ' +
-              'data-unit="' + escHtml(it.unit || 'g') + '">' +
-              escHtml(label) + (it.quantity ? ' (' + it.quantity + ' ' + (it.unit || 'g') + ')' : '') +
-            '</button>';
-          }).join('');
-        sugg.querySelectorAll('.dash-sf-quick').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            document.getElementById('dash-sf-food-id').value = btn.dataset.foodId || '';
-            document.getElementById('dash-sf-search').value = btn.dataset.foodName;
-            document.getElementById('dash-sf-qty').value = btn.dataset.qty;
-            document.getElementById('dash-sf-unit').value = btn.dataset.unit;
-          });
+    // Build rows from slot template items; empty row if none
+    dashSlotItems = [];
+    var items = slot.items || [];
+    if (items.length) {
+      items.forEach(function (it) {
+        var sf = it.saved_food || {};
+        dashSlotItems.push({
+          foodId:   it.saved_food_id || null,
+          foodName: it.food_name_override || sf.name || '',
+          p100: parseFloat(sf.protein) || 0,
+          f100: parseFloat(sf.fat)     || 0,
+          c100: parseFloat(sf.carbs)   || 0,
+          k100: parseFloat(sf.calories) || (sf.protein*4 + sf.fat*9 + sf.carbs*4) || 0,
+          qty:  parseFloat(it.quantity) || 100,
+          unit: it.unit || 'g',
         });
-      } else {
-        sugg.innerHTML = '';
-      }
-      dashFulfillModal.showModal();
+      });
+    } else {
+      dashSlotItems.push(blankItem());
     }
 
-    var dashSFAC = document.getElementById('dash-sf-ac');
-    var dashSFTimer;
-    document.getElementById('dash-sf-search').addEventListener('input', function () {
-      clearTimeout(dashSFTimer);
+    renderSlotLogRows();
+    dashFulfillModal.showModal();
+  }
+
+  function blankItem() {
+    return { foodId: null, foodName: '', p100: 0, f100: 0, c100: 0, k100: 0, qty: 100, unit: 'g' };
+  }
+
+  function slotItemMacros(it) {
+    var scale = (parseFloat(it.qty) || 0) / 100;
+    return {
+      p: Math.round(it.p100 * scale * 10) / 10,
+      f: Math.round(it.f100 * scale * 10) / 10,
+      c: Math.round(it.c100 * scale * 10) / 10,
+      k: Math.round(it.k100 * scale),
+    };
+  }
+
+  function macroLabel(m) {
+    return 'P\u2009' + m.p + 'g\u2009·\u2009F\u2009' + m.f + 'g\u2009·\u2009C\u2009' + m.c + 'g\u2009·\u2009' + m.k + '\u2009kcal';
+  }
+
+  function renderSlotLogRows() {
+    var container = document.getElementById('dash-sf-items');
+    if (!container) return;
+    container.innerHTML = '';
+    dashSlotItems.forEach(function (item, idx) {
+      container.appendChild(buildSlotRow(item, idx));
+    });
+    recalcSlotTotals();
+  }
+
+  function buildSlotRow(item, idx) {
+    var m = slotItemMacros(item);
+    var div = document.createElement('div');
+    div.className = 'slot-log-row';
+    div.dataset.idx = idx;
+
+    var unitOpts = ['g','ml','piece','slice','serving'].map(function(u) {
+      return '<option' + (u === item.unit ? ' selected' : '') + '>' + escHtml(u) + '</option>';
+    }).join('');
+
+    div.innerHTML =
+      '<div class="slot-log-food">' +
+        '<button type="button" class="slot-log-food-name btn btn-ghost" title="Click to change food">' +
+          escHtml(item.foodName || '— select food') + '</button>' +
+        '<div class="slot-log-search-wrap" hidden style="position:relative;flex:1">' +
+          '<input type="text" class="form-control form-control--sm slot-log-search" placeholder="Search food\u2026" autocomplete="off" />' +
+          '<ul class="autocomplete-list slot-log-ac" role="listbox" hidden></ul>' +
+        '</div>' +
+      '</div>' +
+      '<div class="slot-log-qty-wrap">' +
+        '<input type="number" class="form-control form-control--sm slot-log-qty" value="' + escHtml(String(item.qty)) + '" min="0" step="0.1" style="width:62px" />' +
+        '<select class="form-control form-control--sm slot-log-unit" style="width:72px">' + unitOpts + '</select>' +
+      '</div>' +
+      '<span class="slot-log-macros">' + macroLabel(m) + '</span>' +
+      '<button type="button" class="btn btn-icon slot-log-del" title="Remove" style="flex-shrink:0">&times;</button>';
+
+    var foodNameBtn = div.querySelector('.slot-log-food-name');
+    var searchWrap  = div.querySelector('.slot-log-search-wrap');
+    var searchInput = div.querySelector('.slot-log-search');
+    var acList      = div.querySelector('.slot-log-ac');
+
+    function showSearch() {
+      foodNameBtn.hidden = true;
+      searchWrap.hidden = false;
+      searchInput.value = dashSlotItems[idx].foodName || '';
+      searchInput.focus();
+    }
+    function hideSearch() {
+      searchWrap.hidden = true;
+      foodNameBtn.hidden = false;
+      acList.hidden = true;
+    }
+
+    foodNameBtn.addEventListener('click', showSearch);
+
+    var srTimer;
+    searchInput.addEventListener('input', function () {
+      clearTimeout(srTimer);
       var q = this.value.trim();
-      if (q.length < 2) { dashSFAC.hidden = true; return; }
-      var self = this;
-      dashSFTimer = setTimeout(function () {
-        api('/api/foods?q=' + encodeURIComponent(q) + '&limit=10').then(function (foods) {
-          dashSFAC.innerHTML = '';
-          foods.forEach(function (f) {
+      if (q.length < 2) { acList.hidden = true; return; }
+      srTimer = setTimeout(function () {
+        api('/api/foods?q=' + encodeURIComponent(q) + '&limit=12').then(function (foods) {
+          acList.innerHTML = '';
+          foods.forEach(function (fd) {
             var li = document.createElement('li');
             li.role = 'option';
-            li.textContent = f.name;
-            li.addEventListener('click', function () {
-              document.getElementById('dash-sf-food-id').value = f.id;
-              document.getElementById('dash-sf-search').value = f.name;
-              dashSFAC.hidden = true;
+            li.textContent = fd.name;
+            li.addEventListener('mousedown', function (e) {
+              e.preventDefault();
+              dashSlotItems[idx].foodId   = fd.id;
+              dashSlotItems[idx].foodName = fd.name;
+              dashSlotItems[idx].p100 = parseFloat(fd.protein) || 0;
+              dashSlotItems[idx].f100 = parseFloat(fd.fat)     || 0;
+              dashSlotItems[idx].c100 = parseFloat(fd.carbs)   || 0;
+              dashSlotItems[idx].k100 = parseFloat(fd.calories) || (fd.protein*4+fd.fat*9+fd.carbs*4) || 0;
+              dashSlotItems[idx].qty  = parseFloat(div.querySelector('.slot-log-qty').value) || 100;
+              dashSlotItems[idx].unit = div.querySelector('.slot-log-unit').value;
+              hideSearch();
+              foodNameBtn.textContent = fd.name;
+              updateRowMacros(div, idx);
+              recalcSlotTotals();
             });
-            dashSFAC.appendChild(li);
+            acList.appendChild(li);
           });
-          dashSFAC.hidden = !foods.length;
+          acList.hidden = !foods.length;
         });
-      }, 250);
+      }, 220);
     });
-    document.addEventListener('click', function (e) {
-      if (dashSFAC && !dashSFAC.contains(e.target)) dashSFAC.hidden = true;
+    searchInput.addEventListener('blur', function () { setTimeout(hideSearch, 200); });
+
+    div.querySelector('.slot-log-qty').addEventListener('input', function () {
+      dashSlotItems[idx].qty = parseFloat(this.value) || 0;
+      updateRowMacros(div, idx);
+      recalcSlotTotals();
+    });
+    div.querySelector('.slot-log-unit').addEventListener('change', function () {
+      dashSlotItems[idx].unit = this.value;
+      updateRowMacros(div, idx);
+      recalcSlotTotals();
+    });
+    div.querySelector('.slot-log-del').addEventListener('click', function () {
+      dashSlotItems.splice(idx, 1);
+      renderSlotLogRows();
+    });
+
+    return div;
+  }
+
+  function updateRowMacros(div, idx) {
+    var m = slotItemMacros(dashSlotItems[idx]);
+    var el = div.querySelector('.slot-log-macros');
+    if (el) el.textContent = macroLabel(m);
+  }
+
+  function recalcSlotTotals() {
+    var totals = { p: 0, f: 0, c: 0, k: 0 };
+    dashSlotItems.forEach(function (it) {
+      var m = slotItemMacros(it);
+      totals.p += m.p; totals.f += m.f; totals.c += m.c; totals.k += m.k;
+    });
+    var el = document.getElementById('dash-sf-totals');
+    if (el) el.innerHTML = '<strong>Total: </strong>' + macroLabel({
+      p: Math.round(totals.p*10)/10, f: Math.round(totals.f*10)/10,
+      c: Math.round(totals.c*10)/10, k: Math.round(totals.k),
+    });
+  }
+
+  /* ---- Modal wire-up ------------------------------------------------------- */
+
+  if (dashFulfillModal) {
+    document.getElementById('dash-sf-cancel').addEventListener('click',  function () { dashFulfillModal.close(); });
+    document.getElementById('dash-sf-cancel2').addEventListener('click', function () { dashFulfillModal.close(); });
+
+    document.getElementById('dash-sf-add').addEventListener('click', function () {
+      dashSlotItems.push(blankItem());
+      renderSlotLogRows();
+      var rows = document.querySelectorAll('#dash-sf-items .slot-log-row');
+      var last = rows[rows.length - 1];
+      if (last) last.querySelector('.slot-log-food-name').click();
     });
 
     document.getElementById('dash-fulfill-form').addEventListener('submit', function (e) {
       e.preventDefault();
       var slotId = parseInt(document.getElementById('dash-sf-slot-id').value, 10);
-      var foodId = parseInt(document.getElementById('dash-sf-food-id').value, 10) || null;
-      var qty = parseFloat(document.getElementById('dash-sf-qty').value) || null;
-      var unit = document.getElementById('dash-sf-unit').value;
-      api('/api/plans/fulfill-slot', {
-        method: 'POST',
-        body: JSON.stringify({ slot_id: slotId, date: currentDate, saved_food_id: foodId, quantity: qty, unit: unit }),
-      }).then(function () {
-        dashFulfillModal.close();
-        showToast('Slot logged!', 'success');
-        loadPage().then(loadTodayPlan);
-      }).catch(function (err) { showToast(err.message, 'error'); });
+      var valid  = dashSlotItems.filter(function (it) { return it.foodName || it.foodId; });
+      if (!valid.length) { showToast('Add at least one food', 'error'); return; }
+
+      var submitBtn = document.getElementById('dash-sf-submit');
+      if (submitBtn) submitBtn.disabled = true;
+
+      // Create one FoodEntry per item so macros count toward daily totals
+      var promises = valid.map(function (it) {
+        var m = slotItemMacros(it);
+        return api('/api/entries', {
+          method: 'POST',
+          body: JSON.stringify({
+            food_name:    it.foodName || 'Plan food',
+            protein:      m.p,
+            fat:          m.f,
+            carbs:        m.c,
+            calories:     m.k,
+            serving_size: it.qty,
+            serving_unit: it.unit,
+            meal_type:    'plan',
+            date:         currentDate,
+            saved_food_id: it.foodId || null,
+          }),
+        });
+      });
+
+      Promise.all(promises)
+        .then(function () {
+          return api('/api/plans/fulfill-slot', {
+            method: 'POST',
+            body: JSON.stringify({
+              slot_id: slotId,
+              date: currentDate,
+              saved_food_id: valid[0].foodId || null,
+            }),
+          });
+        })
+        .then(function () {
+          dashFulfillModal.close();
+          showToast('Slot logged!', 'success');
+          return loadPage();
+        })
+        .then(function () { loadTodayPlan(); })
+        .catch(function (err) { showToast(err.message, 'error'); })
+        .finally(function () { if (submitBtn) submitBtn.disabled = false; });
     });
   }
 
-  /* Extend loadPage to also call loadTodayPlan when viewing today */
+  /* ---- Hook into loadPage so plan slots refresh with the page -------------- */
   var _origLoadPage2 = loadPage;
   loadPage = async function () {
     await _origLoadPage2();
@@ -1181,23 +1327,5 @@
   init();
   loadWater();
   loadTodayPlan();
-})();
 
-
-// Member banner: show last dietitian visit
-(function () {
-  var banner = document.getElementById('member-banner');
-  var bannerText = document.getElementById('member-banner-text');
-  if (!banner || !bannerText) return;
-
-  fetch('/api/dietitian/notifications?limit=1')
-    .then(function (r) { return r.json(); })
-    .then(function (items) {
-      if (!items.length) return;
-      var latest = items[0];
-      var d = latest.visited_at ? new Date(latest.visited_at) : null;
-      var timeStr = d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-      bannerText.innerHTML = 'Your dietitian <strong>' + latest.dietitian_name + '</strong> viewed your data' + (timeStr ? ' on ' + timeStr : '') + '.';
-      banner.hidden = false;
-    }).catch(function () {});
 })();

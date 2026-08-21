@@ -3372,3 +3372,35 @@ textarea:focus {
 
 /* Item type row visibility helper */
 .item-row-hidden { display: none !important; }
+
+/* ── Dashboard: slot log modal rows ────────────────────────────────────────── */
+.modal-dialog--wide { max-width: min(95vw, 660px); width: 100%; }
+.slot-log-rows { display: flex; flex-direction: column; gap: .35rem; }
+.slot-log-row {
+  display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+  padding: .4rem .6rem;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+.slot-log-food {
+  flex: 1 1 160px; display: flex; align-items: center; gap: .25rem;
+  min-width: 0; overflow: hidden;
+}
+.slot-log-food-name {
+  font-size: .88rem; font-weight: 500; color: var(--color-primary);
+  text-decoration: underline dotted; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+  padding: 0; background: none; border: none; cursor: pointer;
+  text-align: left;
+}
+.slot-log-food-name:hover { opacity: .8; }
+.slot-log-search-wrap input { font-size: .85rem; }
+.slot-log-qty-wrap { display: flex; gap: .25rem; align-items: center; flex-shrink: 0; }
+.slot-log-macros {
+  font-size: .76rem; color: var(--color-text-muted);
+  white-space: nowrap; flex: 1 1 180px;
+}
+.slot-log-totals {
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius); padding: .45rem .7rem; font-size: .9rem;
+}

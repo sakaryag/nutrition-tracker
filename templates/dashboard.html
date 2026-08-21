@@ -270,30 +270,22 @@
   </div>
 </div>
 <!-- Dashboard Slot Fulfillment Dialog -->
-<dialog id="dash-fulfill-modal" class="modal-dialog">
-  <form id="dash-fulfill-form" class="modal-form" method="dialog">
-    <h2 id="dash-sf-title" style="font-size:1.1rem;font-weight:700;margin-bottom:.5rem">Log Slot</h2>
-    <input type="hidden" id="dash-sf-slot-id" />
-    <p id="dash-sf-desc" class="card-meta" style="margin-bottom:.75rem"></p>
-    <div id="dash-sf-suggestions" style="margin-bottom:.75rem"></div>
-    <div class="form-row" style="gap:.5rem;flex-wrap:nowrap;align-items:flex-start">
-      <div class="form-group" style="flex:2;position:relative">
-        <input type="text" id="dash-sf-search" class="form-control" placeholder="Search food&hellip;" autocomplete="off" />
-        <ul id="dash-sf-ac" class="autocomplete-list" hidden role="listbox"></ul>
-        <input type="hidden" id="dash-sf-food-id" />
-      </div>
-      <div class="form-group" style="flex-shrink:0">
-        <input type="number" id="dash-sf-qty" class="form-control" min="0" step="0.1" placeholder="qty" style="width:70px" />
-      </div>
-      <div class="form-group" style="flex-shrink:0">
-        <select id="dash-sf-unit" class="form-control" style="width:85px">
-          <option>g</option><option>ml</option><option>piece</option><option>slice</option><option>serving</option>
-        </select>
-      </div>
+<dialog id="dash-fulfill-modal" class="modal-dialog modal-dialog--wide">
+  <form id="dash-fulfill-form" class="modal-form" novalidate>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
+      <h2 id="dash-sf-title" style="font-size:1.05rem;font-weight:700;flex:1;margin:0">Log Slot</h2>
+      <button type="button" class="btn btn-icon" id="dash-sf-cancel" aria-label="Close">&times;</button>
     </div>
-    <div class="modal-actions" style="margin-top:.75rem">
-      <button type="button" class="btn btn-outline" id="dash-sf-cancel">Cancel</button>
-      <button type="submit" class="btn btn-primary">Log</button>
+    <input type="hidden" id="dash-sf-slot-id" />
+    <p id="dash-sf-desc" class="card-meta" style="margin-bottom:.65rem"></p>
+    <!-- Editable item rows (food + qty + unit + macros + delete) -->
+    <div id="dash-sf-items" class="slot-log-rows"></div>
+    <button type="button" id="dash-sf-add" class="btn btn-sm btn-outline" style="margin-top:.4rem">+ Add food</button>
+    <!-- Running totals -->
+    <div id="dash-sf-totals" class="slot-log-totals" style="margin-top:.6rem"></div>
+    <div class="modal-actions" style="margin-top:.85rem">
+      <button type="button" class="btn btn-outline" id="dash-sf-cancel2">Cancel</button>
+      <button type="submit" class="btn btn-primary" id="dash-sf-submit">Log</button>
     </div>
   </form>
 </dialog>

@@ -59,6 +59,7 @@ def create_app(config_name=None, test_config=None):
         _auto_seed(app)
         _patch_name_tr(app)
         _patch_program_days(app)
+        _seed_starter_templates(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
         _backup_db(app)
@@ -765,6 +766,15 @@ def _auto_seed(app):
             app.logger.info('Database seeded with initial food data.')
         except ImportError:
             pass
+
+
+def _seed_starter_templates(app):
+    try:
+        from seed_data.seed_templates import seed_starter_templates
+    except ImportError:
+        return
+    seed_starter_templates()
+    app.logger.info('Starter templates seeded (or already present).')
 
 
 def _patch_name_tr(app):

@@ -16,13 +16,55 @@ function loadRichAssignment() {
   api('/api/plans/my-assignment/rich').then(function (data) {
     if (!data.assignment) {
       document.getElementById('plans-no-assignment').hidden = false;
+      document.getElementById('plans-overview').hidden = true;
+      loadTemplates();
       return;
     }
+    document.getElementById('plans-no-assignment').hidden = true;
     planData = data;
     document.getElementById('plans-overview').hidden = false;
     renderOverview(data);
     loadFulfillmentStatus(today);
     loadCategoryProgress();
+  }).catch(function (e) { showToast(e.message, 'error'); });
+}
+
+/* ── Template browser ─────────────────────────────────────── */
+function loadTemplates() {
+  var list = document.getElementById('plans-template-list');
+  list.innerHTML = '<p class="empty-msg" style="padding:1rem">Loading templates…</p>';
+  api('/api/plans/templates').then(function (plans) {
+    if (!plans.length) {
+      list.innerHTML = '<p class="empty-msg" style="padding:1rem">No templates available.</p>';
+      return;
+    }
+    list.innerHTML = plans.map(function (p) {
+      return '<div class="card" style="padding:1.25rem 1.5rem">' +
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">' +
+          '<div>' +
+            '<h3 style="font-size:1rem;font-weight:700;margin-bottom:.25rem">' + esc(p.name) + '</h3>' +
+            (p.description ? '<p class="card-meta">' + esc(p.description) + '</p>' : '') +
+          '</div>' +
+          '<span class="badge">' + (p.duration_days || 7) + ' days</span>' +
+        '</div>' +
+        '<button class="btn btn-primary tpl-start-btn" data-plan-id="' + p.id + '">Start this plan</button>' +
+      '</div>';
+    }).join('');
+    list.querySelectorAll('.tpl-start-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        selfAssign(parseInt(btn.dataset.planId, 10));
+      });
+    });
+  }).catch(function (e) { showToast(e.message, 'error'); });
+}
+
+function selfAssign(planId) {
+  api('/api/plans/self-assign', {
+    method: 'POST',
+    body: JSON.stringify({ plan_id: planId, start_date: today }),
+  }).then(function () {
+    showToast('Plan started!', 'success');
+    loadRichAssignment();
   }).catch(function (e) { showToast(e.message, 'error'); });
 }
 
@@ -291,6 +333,13 @@ function getISOWeek(d) {
   var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
   return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 }
+
+/* ── Change Plan button ──────────────────────────────────── */
+document.getElementById('plans-change-btn').addEventListener('click', function () {
+  document.getElementById('plans-overview').hidden = true;
+  document.getElementById('plans-no-assignment').hidden = false;
+  loadTemplates();
+});
 
 /* ── View toggle ─────────────────────────────────────────── */
 document.getElementById('plans-view-toggle').addEventListener('click', function () {

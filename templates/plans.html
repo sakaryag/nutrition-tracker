@@ -16,11 +16,13 @@
     </div>
   </div>
 
-  <!-- No plan state -->
+  <!-- No plan state / Template picker -->
   <div id="plans-no-assignment" hidden>
-    <div class="card plans-empty-card">
-      <p class="empty-msg">You have no active nutrition plan assigned. Contact your dietitian.</p>
+    <div class="card" style="padding:1.25rem 1.5rem;margin-bottom:1rem">
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">Choose a Starter Plan</h2>
+      <p class="card-meta">Pick a 7-day template to begin tracking your nutrition plan.</p>
     </div>
+    <div id="plans-template-list" class="card-grid"></div>
   </div>
 
   <!-- Plan overview bar -->
@@ -30,6 +32,7 @@
       <div class="plans-meta-info">
         <h2 id="plan-name" class="plans-plan-name"></h2>
         <p id="plan-description" class="plans-plan-desc"></p>
+        <button class="btn btn-outline btn-sm" id="plans-change-btn" style="margin-bottom:.75rem">Change Plan</button>
         <div class="plans-progress-row">
           <span id="plan-days-elapsed" class="plans-days-label"></span>
           <div class="progress-bar-wrap plans-overall-bar">

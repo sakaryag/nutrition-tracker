@@ -452,3 +452,44 @@ def category_progress():
         })
 
     return jsonify({'quotas': result, 'period': {'start': start_dt.isoformat(), 'end': end_dt.isoformat()}})
+
+
+# -- Public template listing -------------------------------------------------
+
+@plans_bp.route('/templates', methods=['GET'])
+def list_public_templates():
+    """List all is_template=True plans — callable by any authenticated user."""
+    plans = NutritionPlan.query.filter_by(is_template=True).order_by(NutritionPlan.name).all()
+    return jsonify([p.to_dict() for p in plans])
+
+
+# -- Self-assignment ---------------------------------------------------------
+
+@plans_bp.route('/self-assign', methods=['POST'])
+def self_assign():
+    """Assign a template plan to the current user, starting today (or given date)."""
+    uid = current_user_id()
+    if uid is None:
+        return jsonify({'error': 'Not authenticated'}), 401
+    data = request.get_json(silent=True) or {}
+    plan_id = data.get('plan_id')
+    if not plan_id:
+        return jsonify({'error': 'plan_id is required'}), 400
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    try:
+        start_date = date.fromisoformat(data['start_date']) if data.get('start_date') else date.today()
+    except ValueError:
+        start_date = date.today()
+    UserPlanAssignment.query.filter_by(user_id=uid, is_active=True).update({'is_active': False})
+    assignment = UserPlanAssignment(
+        user_id=uid,
+        plan_id=plan_id,
+        start_date=start_date,
+        is_active=True,
+        assigned_by=uid,
+    )
+    db.session.add(assignment)
+    db.session.commit()
+    return jsonify(assignment.to_dict()), 201

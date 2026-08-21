@@ -6,15 +6,20 @@
 
   <div class="page-header">
     <h1>Dietitian Panel</h1>
-    <p class="page-subtitle" id="dietitian-stats-line">Loading…</p>
+    <p class="page-subtitle" id="dietitian-stats-line">Loading&hellip;</p>
   </div>
 
-  <!-- Client list -->
-  <div class="dietitian-clients-wrap">
-    <h2 class="section-title">My Clients</h2>
+  <!-- Tab bar -->
+  <div class="dietitian-tabs">
+    <button class="dietitian-tab active" data-dtab="clients">My Clients</button>
+    <button class="dietitian-tab" data-dtab="builder">Plan Builder</button>
+  </div>
+
+  <!-- ── Clients panel ────────────────────────────────────── -->
+  <div class="dietitian-panel active" id="dietitian-panel-clients">
     <p class="settings-description">Click a client to view their daily food log. Clients control whether you can access their data.</p>
     <div id="dietitian-clients-list" class="dietitian-clients-list">
-      <p class="empty-msg">Loading…</p>
+      <p class="empty-msg">Loading&hellip;</p>
     </div>
   </div>
 
@@ -32,12 +37,217 @@
         </div>
       </div>
       <div id="client-modal-body" class="dietitian-client-body">
-        <p class="empty-msg">Loading…</p>
+        <p class="empty-msg">Loading&hellip;</p>
       </div>
     </div>
   </div>
 
+  <!-- ── Plan Builder panel ───────────────────────────────── -->
+  <div class="dietitian-panel" id="dietitian-panel-builder">
+
+    <!-- Plan list view -->
+    <div id="dt-plan-list-view">
+      <div class="admin-panel-header">
+        <h2>Nutrition Plans</h2>
+        <button class="btn btn-primary btn-sm" id="dt-create-plan-btn">+ New Plan</button>
+      </div>
+      <div id="dt-plans-list" class="dt-plans-list">
+        <p class="empty-msg">Loading&hellip;</p>
+      </div>
+    </div>
+
+    <!-- Builder workspace (shown when plan selected) -->
+    <div id="dt-builder-workspace" hidden>
+      <div class="builder-header">
+        <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+          <button class="btn btn-sm btn-outline" id="dt-back-btn">&#8592; Plans</button>
+          <h2 id="dt-builder-plan-name" style="margin:0;font-size:1.1rem"></h2>
+          <span class="badge" id="dt-builder-plan-status"></span>
+        </div>
+        <div class="builder-header-actions">
+          <button class="btn btn-sm btn-outline" id="dt-add-day-btn">+ Add Day</button>
+          <button class="btn btn-sm btn-outline" id="dt-copy-remaining-btn" title="Copy this day&apos;s slots to all empty days">Copy Day &#8594;</button>
+          <button class="btn btn-sm btn-outline" id="dt-promote-tpl-btn">Promote to Template</button>
+          <button class="btn btn-sm btn-outline" id="dt-clone-plan-btn">Clone Plan</button>
+        </div>
+      </div>
+
+      <!-- Day navigation -->
+      <div class="dt-day-nav" id="dt-day-nav"></div>
+
+      <!-- Day editor (slots + items) -->
+      <div class="dt-day-editor" id="dt-day-editor">
+        <p class="empty-msg">Select or add a day to begin.</p>
+      </div>
+    </div>
+
+  </div><!-- /plan builder panel -->
+
 </section>
+
+<!-- ── Plan modal ─────────────────────────────────────────── -->
+<dialog id="dt-plan-modal" class="modal-dialog">
+  <form id="dt-plan-form" class="modal-form" method="dialog">
+    <h2 id="dt-plan-modal-title" style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">Create Plan</h2>
+    <input type="hidden" id="dt-plan-id" />
+    <div class="form-group">
+      <label>Plan Name</label>
+      <input type="text" id="dt-plan-name" class="form-control" required />
+    </div>
+    <div class="form-group">
+      <label>Name (Turkish, optional)</label>
+      <input type="text" id="dt-plan-name-tr" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="dt-plan-desc" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Duration (days)</label>
+        <input type="number" id="dt-plan-duration" class="form-control" min="1" max="365" value="7" />
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="dt-plan-status" class="form-control">
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:.5rem">
+      <input type="checkbox" id="dt-plan-is-template" style="width:auto" />
+      <label for="dt-plan-is-template" style="margin:0">Mark as Template (visible to all patients)</label>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="dt-plan-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Day modal ──────────────────────────────────────────── -->
+<dialog id="dt-day-modal" class="modal-dialog">
+  <form id="dt-day-form" class="modal-form" method="dialog">
+    <h2 id="dt-day-modal-title" style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">Add Day</h2>
+    <input type="hidden" id="dt-day-id" />
+    <div class="form-group">
+      <label>Label (optional, e.g. &ldquo;High Protein&rdquo;)</label>
+      <input type="text" id="dt-day-label" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="dt-day-notes" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="dt-day-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Slot modal ─────────────────────────────────────────── -->
+<dialog id="dt-slot-modal" class="modal-dialog">
+  <form id="dt-slot-form" class="modal-form" method="dialog">
+    <h2 id="dt-slot-modal-title" style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">Add Meal Slot</h2>
+    <input type="hidden" id="dt-slot-id" />
+    <input type="hidden" id="dt-slot-day-id" />
+    <div class="form-group">
+      <label>Slot Name (e.g. Breakfast, Morning Snack)</label>
+      <input type="text" id="dt-slot-name" class="form-control" required />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Content Pattern</label>
+        <select id="dt-slot-pattern" class="form-control">
+          <option value="A">A — Fixed food</option>
+          <option value="B">B — Exchange category</option>
+          <option value="F">F — Conditional / flexible</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:.5rem;padding-top:1.5rem">
+        <input type="checkbox" id="dt-slot-optional" style="width:auto" />
+        <label for="dt-slot-optional" style="margin:0">Optional</label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="dt-slot-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Item modal ─────────────────────────────────────────── -->
+<dialog id="dt-item-modal" class="modal-dialog">
+  <form id="dt-item-form" class="modal-form" method="dialog">
+    <h2 id="dt-item-modal-title" style="font-size:1.1rem;font-weight:700;margin-bottom:1rem">Add Item</h2>
+    <input type="hidden" id="dt-item-id" />
+    <input type="hidden" id="dt-item-slot-id" />
+
+    <div class="form-group">
+      <label>Item Type</label>
+      <select id="dt-item-type" class="form-control">
+        <option value="food">Specific Food</option>
+        <option value="exchange">Exchange Category</option>
+        <option value="freetext">Free-text description</option>
+      </select>
+    </div>
+
+    <!-- Food search row -->
+    <div id="dt-item-food-row" class="form-group">
+      <label>Food</label>
+      <div style="position:relative">
+        <input type="text" id="dt-item-food-search" class="form-control" placeholder="Search food library&hellip;" autocomplete="off" />
+        <ul id="dt-item-food-ac" class="autocomplete-list" hidden role="listbox"></ul>
+        <input type="hidden" id="dt-item-food-id" />
+      </div>
+      <p id="dt-item-food-name-display" class="form-hint" style="margin-top:.25rem"></p>
+    </div>
+
+    <!-- Exchange category row -->
+    <div id="dt-item-exchange-row" class="form-group item-row-hidden">
+      <label>Exchange Category</label>
+      <select id="dt-item-exchange-select" class="form-control">
+        <option value="">&#8212; select &#8212;</option>
+      </select>
+    </div>
+
+    <!-- Free-text row -->
+    <div id="dt-item-freetext-row" class="form-group item-row-hidden">
+      <label>Description</label>
+      <input type="text" id="dt-item-freetext" class="form-control" placeholder="e.g. Any seasonal fruit" />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="dt-item-quantity" class="form-control" min="0" step="0.1" value="100" style="width:90px" />
+      </div>
+      <div class="form-group">
+        <label>Unit</label>
+        <select id="dt-item-unit" class="form-control" style="width:100px">
+          <option>g</option><option>ml</option><option>piece</option><option>slice</option><option>serving</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Alt Group (optional)</label>
+        <input type="text" id="dt-item-alt-group" class="form-control" placeholder="e.g. 1" style="width:80px" title="Items with the same group number are alternatives" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <input type="text" id="dt-item-notes" class="form-control" placeholder="Preparation note&hellip;" />
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="dt-item-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Item</button>
+    </div>
+  </form>
+</dialog>
+
 {% endblock %}
 
 {% block scripts %}

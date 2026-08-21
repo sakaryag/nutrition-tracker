@@ -1023,8 +1023,164 @@
     await loadWater();
   };
 
+  /* ============================================================
+     Today's Plan — inline slot cards on dashboard
+     ============================================================ */
+  var dashPlanFulfilled = {}; // slot_id -> true
+
+  function loadTodayPlan() {
+    var todayStr = formatDate(new Date());
+    if (currentDate !== todayStr) {
+      document.getElementById('today-plan-section').hidden = true;
+      return;
+    }
+    api('/api/plans/my-assignment/rich').then(function (data) {
+      if (!data || !data.assignment) {
+        document.getElementById('today-plan-section').hidden = true;
+        return;
+      }
+      var todayDay = (data.days || []).find(function (d) { return d.is_today; });
+      if (!todayDay || !(todayDay.slots || []).length) {
+        document.getElementById('today-plan-section').hidden = true;
+        return;
+      }
+      dashPlanFulfilled = {};
+      (data.today_fulfillments || []).forEach(function (f) {
+        dashPlanFulfilled[f.slot_id] = true;
+      });
+      document.getElementById('today-plan-section').hidden = false;
+      renderTodayPlanSlots(todayDay.slots);
+    }).catch(function () {
+      document.getElementById('today-plan-section').hidden = true;
+    });
+  }
+
+  function renderTodayPlanSlots(slots) {
+    var container = document.getElementById('today-plan-slots');
+    container.innerHTML = slots.map(function (s) {
+      var done = !!dashPlanFulfilled[s.id];
+      var hint = (s.items || []).slice(0, 2).map(function (it) {
+        return escHtml(it.food_name_override || (it.saved_food && it.saved_food.name) || '');
+      }).filter(Boolean).join(' · ');
+      return '<div class="today-slot-card' + (done ? ' today-slot-card--done' : '') + '">' +
+        '<div class="today-slot-info">' +
+          '<strong class="today-slot-name">' + (done ? '&#10003; ' : '') + escHtml(s.slot_name) + '</strong>' +
+          (hint ? '<span class="today-slot-items">' + hint + '</span>' : '') +
+        '</div>' +
+        '<button class="btn btn-sm ' + (done ? 'btn-outline' : 'btn-primary') + ' dash-slot-log" ' +
+          'data-slot-json="' + encodeURIComponent(JSON.stringify(s)) + '">' +
+          (done ? 'Change' : 'Log') +
+        '</button>' +
+      '</div>';
+    }).join('');
+    container.querySelectorAll('.dash-slot-log').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openDashFulfillModal(JSON.parse(decodeURIComponent(btn.dataset.slotJson)));
+      });
+    });
+  }
+
+  /* Dash fulfill dialog */
+  var dashFulfillModal = document.getElementById('dash-fulfill-modal');
+  if (dashFulfillModal) {
+    document.getElementById('dash-sf-cancel').addEventListener('click', function () { dashFulfillModal.close(); });
+
+    function openDashFulfillModal(slot) {
+      document.getElementById('dash-sf-slot-id').value = slot.id;
+      document.getElementById('dash-sf-title').textContent = slot.slot_name;
+      document.getElementById('dash-sf-desc').textContent =
+        (slot.content_pattern ? 'Pattern ' + slot.content_pattern + ' — ' : '') +
+        (slot.is_optional ? 'Optional' : 'Required');
+      document.getElementById('dash-sf-food-id').value = '';
+      document.getElementById('dash-sf-search').value = '';
+      document.getElementById('dash-sf-ac').hidden = true;
+      document.getElementById('dash-sf-qty').value = '';
+      document.getElementById('dash-sf-unit').value = 'g';
+
+      var items = slot.items || [];
+      var sugg = document.getElementById('dash-sf-suggestions');
+      if (items.length) {
+        sugg.innerHTML = '<p style="font-size:.83rem;margin-bottom:.4rem;color:var(--color-text-muted)">Suggested:</p>' +
+          items.map(function (it) {
+            var label = it.food_name_override || (it.saved_food && it.saved_food.name) || '—';
+            return '<button type="button" class="btn btn-sm btn-outline dash-sf-quick" style="margin:.2rem" ' +
+              'data-food-id="' + escHtml(String(it.saved_food_id || '')) + '" ' +
+              'data-food-name="' + escHtml(label) + '" ' +
+              'data-qty="' + (it.quantity || 100) + '" ' +
+              'data-unit="' + escHtml(it.unit || 'g') + '">' +
+              escHtml(label) + (it.quantity ? ' (' + it.quantity + ' ' + (it.unit || 'g') + ')' : '') +
+            '</button>';
+          }).join('');
+        sugg.querySelectorAll('.dash-sf-quick').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            document.getElementById('dash-sf-food-id').value = btn.dataset.foodId || '';
+            document.getElementById('dash-sf-search').value = btn.dataset.foodName;
+            document.getElementById('dash-sf-qty').value = btn.dataset.qty;
+            document.getElementById('dash-sf-unit').value = btn.dataset.unit;
+          });
+        });
+      } else {
+        sugg.innerHTML = '';
+      }
+      dashFulfillModal.showModal();
+    }
+
+    var dashSFAC = document.getElementById('dash-sf-ac');
+    var dashSFTimer;
+    document.getElementById('dash-sf-search').addEventListener('input', function () {
+      clearTimeout(dashSFTimer);
+      var q = this.value.trim();
+      if (q.length < 2) { dashSFAC.hidden = true; return; }
+      var self = this;
+      dashSFTimer = setTimeout(function () {
+        api('/api/foods?q=' + encodeURIComponent(q) + '&limit=10').then(function (foods) {
+          dashSFAC.innerHTML = '';
+          foods.forEach(function (f) {
+            var li = document.createElement('li');
+            li.role = 'option';
+            li.textContent = f.name;
+            li.addEventListener('click', function () {
+              document.getElementById('dash-sf-food-id').value = f.id;
+              document.getElementById('dash-sf-search').value = f.name;
+              dashSFAC.hidden = true;
+            });
+            dashSFAC.appendChild(li);
+          });
+          dashSFAC.hidden = !foods.length;
+        });
+      }, 250);
+    });
+    document.addEventListener('click', function (e) {
+      if (dashSFAC && !dashSFAC.contains(e.target)) dashSFAC.hidden = true;
+    });
+
+    document.getElementById('dash-fulfill-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var slotId = parseInt(document.getElementById('dash-sf-slot-id').value, 10);
+      var foodId = parseInt(document.getElementById('dash-sf-food-id').value, 10) || null;
+      var qty = parseFloat(document.getElementById('dash-sf-qty').value) || null;
+      var unit = document.getElementById('dash-sf-unit').value;
+      api('/api/plans/fulfill-slot', {
+        method: 'POST',
+        body: JSON.stringify({ slot_id: slotId, date: currentDate, saved_food_id: foodId, quantity: qty, unit: unit }),
+      }).then(function () {
+        dashFulfillModal.close();
+        showToast('Slot logged!', 'success');
+        loadPage().then(loadTodayPlan);
+      }).catch(function (err) { showToast(err.message, 'error'); });
+    });
+  }
+
+  /* Extend loadPage to also call loadTodayPlan when viewing today */
+  var _origLoadPage2 = loadPage;
+  loadPage = async function () {
+    await _origLoadPage2();
+    loadTodayPlan();
+  };
+
   init();
   loadWater();
+  loadTodayPlan();
 })();
 
 

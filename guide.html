@@ -1,0 +1,1243 @@
+
+<title>NutriTrack Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ── Tokens ── */
+:root {
+  --bg:               #f5f8f6;
+  --surface:          #ffffff;
+  --surface-raised:   #f0f5f2;
+  --border:           #dce8e1;
+  --text:             #192c1f;
+  --text-muted:       #567060;
+  --primary:          #16a34a;
+  --primary-light:    #dcfce7;
+  --primary-dark:     #15803d;
+  --patient:          #2563eb;
+  --patient-light:    #eff6ff;
+  --patient-dark:     #1d4ed8;
+  --dietitian:        #7c3aed;
+  --dietitian-light:  #f5f3ff;
+  --dietitian-dark:   #6d28d9;
+  --tip-bg:           #fefce8;
+  --tip-border:       #fbbf24;
+  --note-bg:          #f0fdf4;
+  --note-border:      #86efac;
+  --warn-bg:          #fff7ed;
+  --warn-border:      #fb923c;
+  --shadow-sm:        0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow:           0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+  --radius:           10px;
+  --sidebar-w:        252px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:              #0d1710;
+    --surface:         #162018;
+    --surface-raised:  #1c2a20;
+    --border:          #253528;
+    --text:            #deeee3;
+    --text-muted:      #7a9f84;
+    --primary:         #22c55e;
+    --primary-light:   #122418;
+    --primary-dark:    #16a34a;
+    --patient:         #60a5fa;
+    --patient-light:   #162136;
+    --patient-dark:    #3b82f6;
+    --dietitian:       #a78bfa;
+    --dietitian-light: #20153a;
+    --dietitian-dark:  #8b5cf6;
+    --tip-bg:          #2a2410;
+    --tip-border:      #d97706;
+    --note-bg:         #122418;
+    --note-border:     #4ade80;
+    --warn-bg:         #291810;
+    --warn-border:     #f97316;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg:              #0d1710;
+  --surface:         #162018;
+  --surface-raised:  #1c2a20;
+  --border:          #253528;
+  --text:            #deeee3;
+  --text-muted:      #7a9f84;
+  --primary:         #22c55e;
+  --primary-light:   #122418;
+  --primary-dark:    #16a34a;
+  --patient:         #60a5fa;
+  --patient-light:   #162136;
+  --patient-dark:    #3b82f6;
+  --dietitian:       #a78bfa;
+  --dietitian-light: #20153a;
+  --dietitian-dark:  #8b5cf6;
+  --tip-bg:          #2a2410;
+  --tip-border:      #d97706;
+  --note-bg:         #122418;
+  --note-border:     #4ade80;
+  --warn-bg:         #291810;
+  --warn-border:     #f97316;
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  min-height: 100vh;
+}
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img, svg { display: block; max-width: 100%; }
+ul, ol { padding-left: 1.5rem; }
+h1,h2,h3,h4 { text-wrap: balance; line-height: 1.25; }
+
+/* ── Page header ── */
+.page-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: var(--shadow-sm);
+}
+
+.page-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.logo-dot {
+  width: 28px; height: 28px;
+  background: var(--primary);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-dot svg { color: #fff; }
+
+.page-header-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  border-left: 1px solid var(--border);
+  padding-left: 1rem;
+  margin-left: 0.25rem;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.theme-btn {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+}
+.theme-btn:hover { color: var(--text); border-color: var(--primary); }
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: calc(100vh - 60px);
+  max-width: 1160px;
+  margin: 0 auto;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  background: var(--surface);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.nav-group-label {
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 0.5rem 1.25rem 0.25rem;
+  margin-top: 0.75rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 1.25rem;
+  font-size: 0.845rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
+  text-decoration: none;
+}
+.nav-item:hover { color: var(--text); background: var(--surface-raised); text-decoration: none; }
+.nav-item.active { color: var(--text); border-left-color: var(--item-color, var(--primary)); background: var(--surface-raised); font-weight: 600; }
+.nav-item.patient { --item-color: var(--patient); }
+.nav-item.dietitian { --item-color: var(--dietitian); }
+
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--item-color, var(--primary));
+  flex-shrink: 0;
+}
+
+/* ── Content ── */
+.content {
+  padding: 2.5rem 2.5rem 5rem;
+  max-width: 760px;
+}
+
+/* ── Hero intro ── */
+.guide-hero {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.guide-hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+
+.guide-hero p {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+.audience-pills {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.audience-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.audience-pill.patient { background: var(--patient-light); color: var(--patient); }
+.audience-pill.dietitian { background: var(--dietitian-light); color: var(--dietitian); }
+.audience-pill.both { background: var(--primary-light); color: var(--primary-dark); }
+
+.pill-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ── Section ── */
+.section {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 80px;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+}
+
+.section-badge.patient { background: var(--patient-light); color: var(--patient-dark); }
+.section-badge.dietitian { background: var(--dietitian-light); color: var(--dietitian-dark); }
+.section-badge.both { background: var(--primary-light); color: var(--primary-dark); }
+
+.section h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.6rem;
+  color: var(--text);
+}
+
+.section > p, .section > .section-intro {
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+  font-size: 0.97rem;
+}
+
+.section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.6rem;
+  color: var(--text);
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+
+/* ── Steps ── */
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  counter-reset: step;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.steps > li {
+  counter-increment: step;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  font-size: 0.94rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.steps > li::before {
+  content: counter(step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--step-color, var(--primary));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.steps.patient > li::before { background: var(--patient); }
+.steps.dietitian > li::before { background: var(--dietitian); }
+
+/* ── Callout boxes ── */
+.callout {
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  margin: 1.25rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-left: 3px solid;
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.callout-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+.callout p { margin: 0; }
+.callout strong { font-weight: 700; }
+
+.callout.tip { background: var(--tip-bg); border-color: var(--tip-border); }
+.callout.note { background: var(--note-bg); border-color: var(--note-border); }
+.callout.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+
+/* ── Key term ── */
+.key-term {
+  display: inline-block;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+}
+
+/* ── Macro legend ── */
+.macro-legend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.macro-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--m-color);
+}
+
+.macro-card-name { font-weight: 700; font-size: 0.88rem; color: var(--m-color); }
+.macro-card-desc { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+/* ── Pattern table ── */
+.pattern-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  overflow-x: auto;
+}
+
+.pattern-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+}
+
+.pattern-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.pattern-table tr:last-child td { border-bottom: none; }
+
+.pattern-label {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--dietitian);
+}
+
+/* ── Badge score table ── */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1rem 0;
+}
+.score-table th {
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
+}
+.score-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.score-table tr:last-child td { border-bottom: none; }
+.pts { font-weight: 700; color: var(--primary); font-variant-numeric: tabular-nums; }
+
+/* ── Shortcut chips ── */
+.path {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+}
+.path-sep { color: var(--text-muted); }
+.path-seg {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* ── TOC mobile toggle ── */
+.toc-mobile {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+.toc-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 0.9rem 1.1rem;
+  background: none;
+  border: none;
+  font: 600 0.9rem/1 "Inter", sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.toc-toggle-icon { transition: transform 0.2s; }
+.toc-toggle[aria-expanded="true"] .toc-toggle-icon { transform: rotate(180deg); }
+.toc-list-mobile { display: none; padding: 0.5rem 0 0.75rem; }
+.toc-list-mobile.open { display: block; }
+.toc-list-mobile a {
+  display: block;
+  padding: 0.35rem 1.1rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.toc-list-mobile a:hover { color: var(--primary); }
+
+/* ── Mobile layout ── */
+@media (max-width: 820px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar { display: none; }
+  .content { padding: 1.5rem 1.25rem 4rem; max-width: 100%; }
+  .toc-mobile { display: block; }
+  .guide-hero h1 { font-size: 1.55rem; }
+  .macro-legend { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<!-- ── Page Header ── -->
+<header class="page-header">
+  <a class="page-header-logo" href="#">
+    <span class="logo-dot">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 1.5C7 1.5 2.5 4.5 2.5 8C2.5 10.5 4.5 12.5 7 12.5C9.5 12.5 11.5 10.5 11.5 8C11.5 4.5 7 1.5 7 1.5Z" fill="white" opacity="0.9"/>
+        <path d="M5 8C5 8 6 9 7 9C8 9 9 8 9 8" stroke="white" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      </svg>
+    </span>
+    NutriTrack
+  </a>
+  <span class="page-header-title">User Guide</span>
+  <div class="header-right">
+    <button class="theme-btn" id="theme-btn" aria-label="Toggle dark mode">Dark</button>
+  </div>
+</header>
+
+<!-- ── Layout ── -->
+<div class="layout">
+
+  <!-- Sidebar nav -->
+  <nav class="sidebar" aria-label="Guide navigation">
+
+    <div class="nav-group-label">Getting Started</div>
+    <a class="nav-item active" href="#intro" data-section="intro">
+      <span class="nav-dot" style="background:var(--primary)"></span>Introduction
+    </a>
+    <a class="nav-item" href="#account" data-section="account">
+      <span class="nav-dot" style="background:var(--primary)"></span>Creating an Account
+    </a>
+
+    <div class="nav-group-label" style="margin-top:1rem">Patient Guide</div>
+    <a class="nav-item patient" href="#dashboard" data-section="dashboard">
+      <span class="nav-dot"></span>Dashboard &amp; Logging
+    </a>
+    <a class="nav-item patient" href="#targets" data-section="targets">
+      <span class="nav-dot"></span>Setting Your Targets
+    </a>
+    <a class="nav-item patient" href="#plan" data-section="plan">
+      <span class="nav-dot"></span>Your Nutrition Plan
+    </a>
+    <a class="nav-item patient" href="#foods" data-section="foods">
+      <span class="nav-dot"></span>My Foods
+    </a>
+    <a class="nav-item patient" href="#templates" data-section="templates">
+      <span class="nav-dot"></span>Meal Templates
+    </a>
+    <a class="nav-item patient" href="#chat" data-section="chat">
+      <span class="nav-dot"></span>Chat &amp; AI Logging
+    </a>
+    <a class="nav-item patient" href="#history" data-section="history">
+      <span class="nav-dot"></span>History &amp; Trends
+    </a>
+    <a class="nav-item patient" href="#social" data-section="social">
+      <span class="nav-dot"></span>Social &amp; Badges
+    </a>
+    <a class="nav-item patient" href="#settings" data-section="settings">
+      <span class="nav-dot"></span>Settings
+    </a>
+
+    <div class="nav-group-label" style="margin-top:1rem">Dietitian Guide</div>
+    <a class="nav-item dietitian" href="#admin-access" data-section="admin-access">
+      <span class="nav-dot"></span>Admin Access
+    </a>
+    <a class="nav-item dietitian" href="#manage-users" data-section="manage-users">
+      <span class="nav-dot"></span>Managing Patients
+    </a>
+    <a class="nav-item dietitian" href="#create-plans" data-section="create-plans">
+      <span class="nav-dot"></span>Creating Plans
+    </a>
+    <a class="nav-item dietitian" href="#exchanges" data-section="exchanges">
+      <span class="nav-dot"></span>Exchange Categories
+    </a>
+    <a class="nav-item dietitian" href="#assign" data-section="assign">
+      <span class="nav-dot"></span>Assigning Plans
+    </a>
+    <a class="nav-item dietitian" href="#monitoring" data-section="monitoring">
+      <span class="nav-dot"></span>Monitoring Progress
+    </a>
+  </nav>
+
+  <!-- Main content -->
+  <main class="content">
+
+    <!-- Mobile TOC -->
+    <div class="toc-mobile">
+      <button class="toc-toggle" id="toc-toggle" aria-expanded="false">
+        Jump to section <span class="toc-toggle-icon">&#8964;</span>
+      </button>
+      <div class="toc-list-mobile" id="toc-list-mobile">
+        <a href="#intro">Introduction</a>
+        <a href="#account">Creating an Account</a>
+        <strong style="display:block;padding:.4rem 1.1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--patient)">Patient</strong>
+        <a href="#dashboard">Dashboard &amp; Logging</a>
+        <a href="#targets">Setting Targets</a>
+        <a href="#plan">Your Nutrition Plan</a>
+        <a href="#foods">My Foods</a>
+        <a href="#templates">Meal Templates</a>
+        <a href="#chat">Chat &amp; AI Logging</a>
+        <a href="#history">History &amp; Trends</a>
+        <a href="#social">Social &amp; Badges</a>
+        <a href="#settings">Settings</a>
+        <strong style="display:block;padding:.4rem 1.1rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dietitian)">Dietitian</strong>
+        <a href="#admin-access">Admin Access</a>
+        <a href="#manage-users">Managing Patients</a>
+        <a href="#create-plans">Creating Plans</a>
+        <a href="#exchanges">Exchange Categories</a>
+        <a href="#assign">Assigning Plans</a>
+        <a href="#monitoring">Monitoring Progress</a>
+      </div>
+    </div>
+
+    <!-- ─── INTRO ─── -->
+    <div class="guide-hero" id="intro">
+      <h1>NutriTrack User Guide</h1>
+      <p>Everything you need to track your daily nutrition, follow a personalised meal plan, and work with your dietitian — all in one place. No technical experience required.</p>
+      <div class="audience-pills">
+        <span class="audience-pill patient"><span class="pill-dot"></span>Patient sections in blue</span>
+        <span class="audience-pill dietitian"><span class="pill-dot"></span>Dietitian sections in purple</span>
+        <span class="audience-pill both"><span class="pill-dot"></span>Shared</span>
+      </div>
+    </div>
+
+    <!-- ─── ACCOUNT ─── -->
+    <section class="section" id="account">
+      <span class="section-badge both"><span class="pill-dot"></span>Getting Started</span>
+      <h2>Creating an Account</h2>
+      <p class="section-intro">Anyone can register for a NutriTrack account. If your dietitian has already set up an account for you, skip to step 4.</p>
+
+      <ol class="steps">
+        <li>Open NutriTrack in your browser and click <strong>Register</strong> on the login page.</li>
+        <li>Choose a username (this is what your friends and dietitian will see) and a password. You do not need an email address.</li>
+        <li>Click <strong>Create Account</strong>. You will be logged in automatically.</li>
+        <li>On your first visit you will land on the <strong>Dashboard</strong>. The app is ready to use straight away with default targets.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>No email needed.</strong> NutriTrack uses a username and password only. Write your password down — there is no password-reset feature yet.</p>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ─────────────── PATIENT GUIDE ─────────────── -->
+
+    <!-- ─── DASHBOARD ─── -->
+    <section class="section" id="dashboard">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Dashboard &amp; Logging Food</h2>
+      <p class="section-intro">The Dashboard is your home base. Every time you eat something, you log it here. The app adds up your nutrients throughout the day so you can see how close you are to your targets.</p>
+
+      <h3>Understanding your macro cards</h3>
+      <p>At the top of the Dashboard you will see four coloured cards — one for each macro and calories.</p>
+
+      <div class="macro-legend">
+        <div class="macro-card" style="--m-color:#3b82f6">
+          <div class="macro-card-name">Protein</div>
+          <div class="macro-card-desc">Builds and repairs muscle. Measured in grams (g). Most people need 100–200 g per day depending on body weight and goals.</div>
+        </div>
+        <div class="macro-card" style="--m-color:#f59e0b">
+          <div class="macro-card-name">Fat</div>
+          <div class="macro-card-desc">Provides energy, supports hormones and absorbs vitamins. Measured in grams (g). Healthy fats come from nuts, oils, fish and avocado.</div>
+        </div>
+        <div class="macro-card" style="--m-color:#8b5cf6">
+          <div class="macro-card-name">Carbohydrates</div>
+          <div class="macro-card-desc">Your body's main fuel source. Measured in grams (g). Found in bread, rice, pasta, fruit and vegetables.</div>
+        </div>
+        <div class="macro-card" style="--m-color:#16a34a">
+          <div class="macro-card-name">Calories</div>
+          <div class="macro-card-desc">Total energy from everything you eat. Automatically calculated from your macros. Typical targets are 1,800–2,500 kcal per day.</div>
+        </div>
+      </div>
+
+      <p>Each card shows: <strong>consumed / target</strong> and how many grams remain. When a number turns red, you have gone over your target for the day.</p>
+
+      <h3>Logging a food entry</h3>
+      <ol class="steps patient">
+        <li>On the Dashboard, find the food entry form (below the macro cards).</li>
+        <li>Start typing a food name in the search box — for example <em>"chicken breast"</em>. A dropdown list will appear with matching foods.</li>
+        <li>Click the food you want. The macro values fill in automatically.</li>
+        <li>Enter the <strong>serving size</strong> (how many grams you ate) and select the <strong>unit</strong> (g, ml, piece, slice, or serving).</li>
+        <li>Choose a <strong>meal type</strong> if you want (Breakfast, Lunch, Dinner, or Snack).</li>
+        <li>Click <strong>Add</strong>. The food appears in your log below, and the macro cards update immediately.</li>
+      </ol>
+
+      <div class="callout note">
+        <span class="callout-icon">✅</span>
+        <p><strong>750+ foods included.</strong> NutriTrack has the full USDA nutrition database built in — search by name in English or Turkish.</p>
+      </div>
+
+      <h3>Editing or deleting an entry</h3>
+      <p>Find the entry in your log, click the pencil icon to edit the serving size or food name, or the trash icon to remove it entirely. Changes update your macro totals instantly.</p>
+
+      <h3>Navigating dates</h3>
+      <p>Use the <strong>◀</strong> and <strong>▶</strong> arrows next to today's date at the top of the Dashboard to view or log food for a different day. The <strong>Copy Yesterday</strong> button copies all of yesterday's entries to today — useful if you eat the same things regularly.</p>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Logging water.</strong> Below your macro cards you will find a water tracking widget. Tap the <strong>+200 ml</strong>, <strong>+250 ml</strong>, or <strong>+500 ml</strong> buttons after each glass or bottle you drink. Your daily water goal is set in Settings.</p>
+      </div>
+    </section>
+
+    <!-- ─── TARGETS ─── -->
+    <section class="section" id="targets">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Setting Your Daily Targets</h2>
+      <p class="section-intro">Your targets tell NutriTrack how much protein, fat, carbs and calories you are aiming for each day. The app ships with sensible defaults, but you should set them to match your personal goals.</p>
+
+      <ol class="steps patient">
+        <li>Click <strong>Settings</strong> in the top navigation bar.</li>
+        <li>In the <strong>Macro Targets</strong> section, enter your daily goal for each macro in grams.</li>
+        <li>The <strong>Calories</strong> field is optional — if you leave it blank the app calculates it automatically from your macros (protein × 4 + fat × 9 + carbs × 4).</li>
+        <li>Click <strong>Save Targets</strong>.</li>
+      </ol>
+
+      <h3>Using the TDEE calculator</h3>
+      <p>If you are not sure what your targets should be, use the built-in calculator. TDEE stands for <em>Total Daily Energy Expenditure</em> — the number of calories your body burns in a day.</p>
+
+      <ol class="steps patient">
+        <li>In Settings, scroll down to the <strong>TDEE Calculator</strong>.</li>
+        <li>Enter your age, weight (kg), height (cm), and biological sex.</li>
+        <li>Select your <strong>activity level</strong> — how active you are on a typical day, from sedentary (desk job, little exercise) to very active (hard training most days).</li>
+        <li>Choose a <strong>goal</strong>: lose weight, maintain, or gain muscle.</li>
+        <li>Click <strong>Calculate</strong>. Suggested macro targets appear below.</li>
+        <li>Click <strong>Apply to Targets</strong> to save them.</li>
+      </ol>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p><strong>These are estimates.</strong> The TDEE calculator uses a general formula. If your dietitian has given you specific targets, enter those instead and ignore the calculator result.</p>
+      </div>
+    </section>
+
+    <!-- ─── PLAN ─── -->
+    <section class="section" id="plan">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Your Nutrition Plan</h2>
+      <p class="section-intro">A nutrition plan is a structured weekly schedule that tells you what to eat at each meal, every day of the week. You can follow a ready-made starter template, or your dietitian may assign one directly to you.</p>
+
+      <h3>Starting a plan from a template</h3>
+      <ol class="steps patient">
+        <li>Click <strong>My Plan</strong> in the top navigation. (If you do not see this link, ask your dietitian to enable plan access for your account, or see the Admin section below.)</li>
+        <li>If you have no plan yet, the page shows a <strong>Choose a Starter Plan</strong> screen with available 7-day templates.</li>
+        <li>Read each template's name and description to find one that matches your goals.</li>
+        <li>Click <strong>Start this plan</strong>. Your plan begins today.</li>
+      </ol>
+
+      <h3>Reading your plan</h3>
+      <p>Once a plan is active, the My Plan page shows:</p>
+      <ul style="margin:.5rem 0 1rem;font-size:.94rem;display:flex;flex-direction:column;gap:.4rem">
+        <li><strong>Plan name and description</strong> — an overview bar with how many days you are through the plan.</li>
+        <li><strong>Today's meal slots</strong> — each slot represents a meal (Breakfast, Lunch, Dinner, Snack). Slots show suggested foods with quantities.</li>
+        <li><strong>All 7 day tabs</strong> — click any day to preview its slots. Today's tab is highlighted.</li>
+        <li><strong>Dietary Guidelines</strong> — rules from your dietitian, shown in a collapsible section at the bottom.</li>
+        <li><strong>Weekly Category Progress</strong> — tracks how often you're eating from each food group (e.g. protein sources, dairy) against weekly targets.</li>
+      </ul>
+
+      <h3>Logging a meal slot</h3>
+      <ol class="steps patient">
+        <li>Find the slot you have just eaten (e.g. Breakfast).</li>
+        <li>Click the green <strong>Log</strong> button on that slot.</li>
+        <li>A window opens showing <strong>Suggested</strong> foods for that slot. Click one to select it — the food and quantity fill in automatically.</li>
+        <li>If you ate something different, use the <strong>Search food</strong> box to find any food in the database and set your own quantity.</li>
+        <li>Click <strong>Log</strong> to save. The slot shows a green tick ✓ and the food is added to your daily log.</li>
+      </ol>
+
+      <div class="callout note">
+        <span class="callout-icon">✅</span>
+        <p><strong>Logging a slot also adds the food to your Dashboard.</strong> You will see the macros reflected in your daily totals straight away.</p>
+      </div>
+
+      <h3>Optional slots</h3>
+      <p>Some slots are marked <span class="key-term">optional</span>. You do not have to log these — they might be an evening snack or a second coffee. Skip them freely.</p>
+
+      <h3>Switching to a different plan</h3>
+      <p>Click the <strong>Change Plan</strong> button in your plan overview to return to the template picker. Choosing a new template starts it from today and replaces your current plan.</p>
+    </section>
+
+    <!-- ─── FOODS ─── -->
+    <section class="section" id="foods">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>My Foods</h2>
+      <p class="section-intro">My Foods is your personal food library. It shows every food in the database and lets you add custom entries for foods that are not there — your favourite protein bar, a home-cooked recipe, or a local brand.</p>
+
+      <h3>Searching the food database</h3>
+      <ol class="steps patient">
+        <li>Click <strong>My Foods</strong> in the navigation.</li>
+        <li>Type in the search box. Results appear from the 750+ USDA foods.</li>
+        <li>Click a food card to see its full macro breakdown per 100 g.</li>
+      </ol>
+
+      <h3>Creating a custom food</h3>
+      <ol class="steps patient">
+        <li>On the My Foods page, click <strong>+ New Food</strong>.</li>
+        <li>Enter the food name and its macros <strong>per 100 g</strong> (check the nutrition label on the packaging).</li>
+        <li>Optionally set a default serving size and unit.</li>
+        <li>Click <strong>Save</strong>. Your food appears in search results immediately.</li>
+      </ol>
+
+      <h3>Cloning a USDA food</h3>
+      <p>USDA foods cannot be edited directly (they are read-only reference data). If the values are wrong for your specific brand, clone the food first:</p>
+      <ol class="steps patient">
+        <li>Find the USDA food and click <strong>Clone</strong>.</li>
+        <li>A copy is created in your custom foods. Edit the name and macros to match your product's label.</li>
+        <li>Save. From now on, use the cloned version when logging.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>All macros are per 100 g.</strong> When you log a food and enter a serving size (e.g. 150 g), NutriTrack scales the macros for you automatically.</p>
+      </div>
+    </section>
+
+    <!-- ─── TEMPLATES ─── -->
+    <section class="section" id="templates">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Meal Templates</h2>
+      <p class="section-intro">Meal templates are saved combos of foods you can log with a single tap. Perfect for meals you eat regularly — your usual breakfast, a post-workout shake, or a standard lunch.</p>
+
+      <h3>Creating a template</h3>
+      <ol class="steps patient">
+        <li>Click <strong>Meals</strong> in the navigation.</li>
+        <li>Click <strong>+ New Template</strong>.</li>
+        <li>Give your template a name (e.g. <em>Morning Oats</em>) and a meal type.</li>
+        <li>Click <strong>+ Add Item</strong>, search for a food, and set the serving size. Repeat for each item in the meal.</li>
+        <li>Click <strong>Save Template</strong>.</li>
+      </ol>
+
+      <h3>Using a template on the Dashboard</h3>
+      <p>On the Dashboard, your saved templates appear as small chips just below the date navigation. Tap a chip to instantly log all its foods to the current day. A confirmation shows the total macros before you confirm.</p>
+
+      <div class="callout note">
+        <span class="callout-icon">✅</span>
+        <p><strong>Templates log to today only.</strong> If you want to log a template to a past date, navigate to that date first using the date arrows, then tap the template chip.</p>
+      </div>
+    </section>
+
+    <!-- ─── CHAT ─── -->
+    <section class="section" id="chat">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Chat &amp; AI Food Logging</h2>
+      <p class="section-intro">The Chat page lets you describe what you ate in plain, everyday language — no need to search for each food separately. Type a sentence and the app figures out the foods and portions for you.</p>
+
+      <h3>How to use it</h3>
+      <ol class="steps patient">
+        <li>Click <strong>Chat</strong> in the navigation.</li>
+        <li>Type what you ate, naturally. For example: <em>"I had two scrambled eggs and a slice of whole wheat toast with butter"</em> or <em>"200g tavuk göğsü, bir kase pirinç"</em>.</li>
+        <li>The app replies with the foods it identified and their macros.</li>
+        <li>If the matches look right, confirm to add them to today's log.</li>
+        <li>If a food is wrong, you can correct it by typing again.</li>
+      </ol>
+
+      <h3>Chat modes</h3>
+      <p>NutriTrack uses different parsing methods depending on what is available:</p>
+      <ul style="margin:.5rem 0 1rem;font-size:.92rem;display:flex;flex-direction:column;gap:.5rem">
+        <li><strong>Claude AI (best):</strong> If you or your dietitian has entered an Anthropic API key in Settings, NutriTrack uses Claude to understand your message. It handles complex sentences, regional foods, and brand names very well.</li>
+        <li><strong>Offline NLP (good):</strong> Without an API key, NutriTrack uses a built-in language model to parse your message. Works for most common foods.</li>
+        <li><strong>Simple matching (fallback):</strong> If the above fail, NutriTrack tries a basic word-match search.</li>
+      </ul>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Getting an API key.</strong> Visit <a href="https://www.anthropic.com" target="_blank" rel="noopener">anthropic.com</a>, create a free account, generate an API key, and paste it in <span class="path"><span class="path-seg">Settings</span><span class="path-sep">›</span><span class="path-seg">Anthropic API Key</span></span>. This enables the best chat experience. The key is stored only in your browser, never on the server.</p>
+      </div>
+    </section>
+
+    <!-- ─── HISTORY ─── -->
+    <section class="section" id="history">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>History &amp; Trends</h2>
+      <p class="section-intro">The History page shows how your intake has changed over time — useful for spotting patterns, reviewing past days, and checking weekly averages.</p>
+
+      <ol class="steps patient">
+        <li>Click <strong>History</strong> in the navigation.</li>
+        <li>The page loads your last 7 days by default. Use the date range picker to change the period.</li>
+        <li>The <strong>calorie trend chart</strong> shows a bar for each day. A dashed line marks your calorie target — bars above the line are over-target days.</li>
+        <li>Below the chart, each day has a summary card showing totals for protein, fat, carbs, and calories.</li>
+        <li>Click any day's card to open that date in the Dashboard and see the full food log.</li>
+      </ol>
+    </section>
+
+    <!-- ─── SOCIAL ─── -->
+    <section class="section" id="social">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Social &amp; Badges</h2>
+      <p class="section-intro">NutriTrack has an optional social layer — connect with friends and family, compare weekly progress, and earn badges for consistent healthy habits.</p>
+
+      <h3>Adding friends</h3>
+      <ol class="steps patient">
+        <li>Click <strong>Friends</strong> in the navigation.</li>
+        <li>Go to the <strong>Friends</strong> tab and enter your friend's username in the search box.</li>
+        <li>Click <strong>Send Request</strong>. They will see a pending request on their Friends page.</li>
+        <li>Once they accept, you are connected. You can see each other's daily summaries in the Feed, and compete in the weekly Race.</li>
+      </ol>
+
+      <h3>Feed &amp; privacy</h3>
+      <p>The <strong>Feed</strong> tab shows a timeline of your friends' daily nutrition summaries. Each person controls exactly what they share — they can choose to show or hide calories and specific macros from their feed. Go to <span class="path"><span class="path-seg">Friends</span><span class="path-sep">›</span><span class="path-seg">Feed</span><span class="path-sep">›</span><span class="path-seg">Privacy Settings</span></span> to control your own visibility.</p>
+
+      <h3>Weekly Race (leaderboard)</h3>
+      <p>The <strong>Race</strong> tab shows a leaderboard of you and your friends, ranked by weekly game score. Scores reset every Monday. The scoring system:</p>
+
+      <table class="score-table">
+        <thead>
+          <tr><th>Action</th><th>Points</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Each macro within 90–110% of target</td><td class="pts">+25 pts each</td></tr>
+          <tr><td>Water goal reached for the day</td><td class="pts">+5 pts</td></tr>
+          <tr><td>Daily note written</td><td class="pts">+3 pts</td></tr>
+          <tr><td>First food logged before 9 am</td><td class="pts">+5 pts (early bird)</td></tr>
+          <tr><td>Maximum daily score</td><td class="pts">115 pts</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Badges</h3>
+      <p>Badges are earned automatically and shown on the <strong>Badges</strong> tab:</p>
+      <ul style="margin:.5rem 0;font-size:.92rem;display:flex;flex-direction:column;gap:.35rem">
+        <li><strong>7-Day Streak</strong> — log food 7 days in a row</li>
+        <li><strong>Perfect Week</strong> — hit all macro targets every day for a week</li>
+        <li><strong>Protein King</strong> — consistently hit your protein target</li>
+        <li><strong>Hydration Hero</strong> — hit your water goal every day for a week</li>
+        <li><strong>Early Bird</strong> — log before 9 am for 5 consecutive days</li>
+        <li><strong>Consistent 30</strong> — log food for 30 days in a row</li>
+      </ul>
+    </section>
+
+    <!-- ─── SETTINGS ─── -->
+    <section class="section" id="settings">
+      <span class="section-badge patient"><span class="pill-dot"></span>Patient</span>
+      <h2>Settings</h2>
+      <p class="section-intro">Settings is where you adjust your personal targets, calculator preferences, and optional integrations.</p>
+
+      <h3>Language</h3>
+      <p>Click the <strong>🌐 EN / TR</strong> button in the top navigation to switch the interface language between English and Turkish. Food names also switch language where translations are available.</p>
+
+      <h3>Macro Targets</h3>
+      <p>Enter daily goals for protein, fat, carbs, and calories. Click <strong>Save Targets</strong>. Your history is preserved — changing targets does not alter past records.</p>
+
+      <h3>Water goal</h3>
+      <p>Set your daily water target in ml (a common target is 2,000–3,000 ml). This controls the progress bar in the water widget on the Dashboard.</p>
+
+      <h3>Anthropic API Key</h3>
+      <p>Paste your personal Anthropic API key here to enable Claude-powered Chat. The key is saved in your browser only — it is never sent to or stored on the server. You can clear it at any time.</p>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- ─────────────── DIETITIAN GUIDE ─────────────── -->
+
+    <!-- ─── ADMIN ACCESS ─── -->
+    <section class="section" id="admin-access">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Admin Access</h2>
+      <p class="section-intro">Dietitian features are available to accounts with <strong>admin</strong> status. When you log in as an admin, you will see extra items in the navigation: <span class="key-term">Dietitian</span>, <span class="key-term">Recipes</span>, <span class="key-term">Exchanges</span>, and <span class="key-term">Admin</span>.</p>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p><strong>Admin accounts are set up by the system administrator.</strong> If you are a dietitian who needs admin access, contact the person who manages the NutriTrack installation for your practice.</p>
+      </div>
+
+      <h3>What admins can do</h3>
+      <ul style="margin:.5rem 0 1rem;font-size:.92rem;display:flex;flex-direction:column;gap:.4rem">
+        <li>View and manage all user accounts</li>
+        <li>Enable the <em>Plan</em> feature for specific patients</li>
+        <li>Create structured 7-day nutrition plans</li>
+        <li>Assign plans to patients with a custom start date</li>
+        <li>Create food exchange categories and recipes</li>
+        <li>Access patient fulfilment records (with patient consent)</li>
+      </ul>
+
+      <h3>Notification bell</h3>
+      <p>Admin accounts see a bell 🔔 icon in the top navigation. It shows a count of patients who have recently granted you access to view their data. Click the bell to see the full list.</p>
+    </section>
+
+    <!-- ─── MANAGE USERS ─── -->
+    <section class="section" id="manage-users">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Managing Patients</h2>
+      <p class="section-intro">The Admin panel is where you view all registered users, enable features for them, and manage their accounts.</p>
+
+      <ol class="steps dietitian">
+        <li>Click <strong>Admin</strong> in the navigation.</li>
+        <li>The Users list shows every account on the system — username, registration date, and whether the plan feature is enabled.</li>
+        <li>Find the patient you want to work with.</li>
+        <li>Toggle <strong>Plan Feature Enabled</strong> on. This makes the <em>My Plan</em> menu item appear for that patient.</li>
+        <li>To assign a plan, click <strong>Assign Plan</strong> next to the patient's name — see the <em>Assigning Plans</em> section below.</li>
+      </ol>
+
+      <div class="callout note">
+        <span class="callout-icon">✅</span>
+        <p>Patients can also self-assign starter templates from the My Plan page without dietitian involvement. Use admin assignment when you want to provide a personalised plan.</p>
+      </div>
+    </section>
+
+    <!-- ─── CREATE PLANS ─── -->
+    <section class="section" id="create-plans">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Creating Nutrition Plans</h2>
+      <p class="section-intro">A plan is built from the top down: a <strong>Plan</strong> contains <strong>Days</strong>, each day contains <strong>Meal Slots</strong>, and each slot contains <strong>Items</strong> — the specific foods or food choices for that meal.</p>
+
+      <h3>Creating a new plan</h3>
+      <ol class="steps dietitian">
+        <li>Click <strong>Dietitian</strong> in the navigation.</li>
+        <li>Click <strong>+ New Plan</strong>.</li>
+        <li>Enter a plan name, optional description, and duration (typically 7 days).</li>
+        <li>Choose whether this plan is a <strong>Template</strong> (visible to all users for self-assignment) or a private plan you will assign to specific patients only.</li>
+        <li>Click <strong>Create</strong>.</li>
+      </ol>
+
+      <h3>Adding days and slots</h3>
+      <ol class="steps dietitian">
+        <li>Open the plan you just created. You will see a list of days (Day 1 through Day 7).</li>
+        <li>Click <strong>+ Add Slot</strong> on a day to add a meal slot (e.g. Breakfast, Lunch, Afternoon Snack).</li>
+        <li>Name the slot and choose a <strong>Content Pattern</strong> (see below).</li>
+        <li>Optionally mark the slot as <strong>Optional</strong> — the patient can skip it without it affecting their progress score.</li>
+        <li>Add items to the slot (the foods or food choices for that meal).</li>
+        <li>Repeat for each day of the plan. Days can share the same structure or vary.</li>
+      </ol>
+
+      <h3>Content Patterns explained</h3>
+      <p>Each slot has a <strong>content pattern</strong> that defines how rigid or flexible the food choice is:</p>
+
+      <div style="overflow-x:auto">
+        <table class="pattern-table">
+          <thead><tr><th>Pattern</th><th>Name</th><th>What it means</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="pattern-label">A</span></td>
+              <td><strong>Fixed</strong></td>
+              <td>The exact food is specified. The patient should eat this food.</td>
+              <td>Grilled chicken breast, 130 g</td>
+            </tr>
+            <tr>
+              <td><span class="pattern-label">B</span></td>
+              <td><strong>Exchange</strong></td>
+              <td>The patient picks one food from a defined category (e.g. Protein Sources). Rotation rules can limit how often each food repeats.</td>
+              <td>Any protein source — chicken, beef, fish, or lentils</td>
+            </tr>
+            <tr>
+              <td><span class="pattern-label">F</span></td>
+              <td><strong>Conditional</strong></td>
+              <td>The slot only applies on certain conditions (e.g. training days, or if the patient is still hungry). Often combined with is_optional.</td>
+              <td>Post-workout protein shake — only on gym days</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>Two built-in templates ship with NutriTrack:</strong> <em>Balanced Weekly Plan A — Protein Rotation</em> (Pattern B dinners rotating through 7 proteins) and <em>Balanced Weekly Plan B — Fixed Main &amp; Salad Rotation</em> (fixed dinner with a rotating salad swap). Study these for examples of all patterns in practice.</p>
+      </div>
+    </section>
+
+    <!-- ─── EXCHANGES ─── -->
+    <section class="section" id="exchanges">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Exchange Categories</h2>
+      <p class="section-intro">Exchange categories group foods that are nutritionally interchangeable — for example, all protein sources a patient can choose from on a given day. They power the Pattern B (Exchange) slots in your plans.</p>
+
+      <h3>Creating a category</h3>
+      <ol class="steps dietitian">
+        <li>Click <strong>Exchanges</strong> in the navigation.</li>
+        <li>Click <strong>+ New Category</strong>.</li>
+        <li>Name the category (e.g. <em>Lean Protein Sources</em>) and add an optional description.</li>
+        <li>Add <strong>members</strong> — the foods that belong to this category. Search the food database and add them one by one.</li>
+        <li>Save the category.</li>
+      </ol>
+
+      <h3>Using categories in a plan</h3>
+      <p>When you add a Pattern B item to a slot, link it to an exchange category. The patient will then see all the foods in that category as options when logging the slot. You can also set a <strong>rotation frequency</strong> — the maximum number of times per week a given food from the category should appear, encouraging dietary variety.</p>
+
+      <div class="callout note">
+        <span class="callout-icon">✅</span>
+        <p><strong>Built-in categories (from starter templates):</strong> Lean Protein Sources, Dairy &amp; Dessert, Main Dish Salads, and Balanced Lunch Set are pre-seeded and available to use in your plans immediately.</p>
+      </div>
+    </section>
+
+    <!-- ─── ASSIGN ─── -->
+    <section class="section" id="assign">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Assigning Plans to Patients</h2>
+      <p class="section-intro">Once you have built a plan, assign it to a patient from the Admin panel. Only one plan can be active per patient at a time — assigning a new plan automatically deactivates the previous one.</p>
+
+      <ol class="steps dietitian">
+        <li>Click <strong>Admin</strong> in the navigation and find the patient.</li>
+        <li>Click <strong>Assign Plan</strong> next to their username.</li>
+        <li>A window opens. Select the plan from the dropdown list.</li>
+        <li>Set the <strong>start date</strong> — this is Day 1 of the plan for the patient. You can backdate it if the patient already started following the plan on paper.</li>
+        <li>Click <strong>Assign</strong>. The patient now sees the plan on their My Plan page.</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="callout-icon">💡</span>
+        <p><strong>The start date matters.</strong> NutriTrack calculates which day of the plan the patient is on by counting days from the start date. If today is 5 days after the start date, the patient is on Day 6.</p>
+      </div>
+    </section>
+
+    <!-- ─── MONITORING ─── -->
+    <section class="section" id="monitoring">
+      <span class="section-badge dietitian"><span class="pill-dot"></span>Dietitian</span>
+      <h2>Monitoring Patient Progress</h2>
+      <p class="section-intro">You can view how well a patient is following their assigned plan — which slots they have logged, which foods they chose, and how their weekly category quotas are tracking. Patient consent is required.</p>
+
+      <h3>Requesting data access</h3>
+      <p>Patients control whether you can see their data. When you assign a plan to a patient, a consent toggle appears on their Settings page. Until they enable it, their data remains private.</p>
+
+      <ol class="steps dietitian">
+        <li>Ask the patient to open <strong>Settings</strong> and look for the <strong>Dietitian Access</strong> section.</li>
+        <li>They click <strong>Allow access</strong> next to your name.</li>
+        <li>You will receive a notification in the bell 🔔 menu confirming access has been granted.</li>
+        <li>From the Dietitian panel, click the patient's name to open their progress view.</li>
+      </ol>
+
+      <h3>What you can see</h3>
+      <ul style="margin:.5rem 0 1rem;font-size:.92rem;display:flex;flex-direction:column;gap:.4rem">
+        <li><strong>Slot fulfilment records</strong> — which slots were logged each day, and which food they chose.</li>
+        <li><strong>Weekly Category Progress</strong> — how many portions from each exchange category were consumed vs the quota you set in the plan.</li>
+        <li><strong>Daily notes</strong> — any notes the patient wrote (hunger, energy levels, how they felt).</li>
+      </ul>
+
+      <div class="callout warn">
+        <span class="callout-icon">⚠️</span>
+        <p><strong>Macro totals are not shown in the dietitian view by default.</strong> Patients control whether their calorie and macro data is visible to you through their privacy settings in the Feed section.</p>
+      </div>
+
+      <h3>Recipes</h3>
+      <p>Click <strong>Recipes</strong> in the navigation to manage the recipe library. Recipes work like multi-ingredient foods — define the ingredients, and NutriTrack calculates the total macros per serving. Recipes can be assigned as items in plan slots, and patients see the recipe name when they log the slot.</p>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);font-size:.82rem;color:var(--text-muted)">
+      NutriTrack &copy; 2026 &nbsp;·&nbsp; <a href="/">Open App</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Theme toggle
+(function () {
+  var btn = document.getElementById('theme-btn');
+  var root = document.documentElement;
+  var stored = null;
+  try { stored = localStorage.getItem('nt-guide-theme'); } catch(_) {}
+  if (stored) {
+    root.setAttribute('data-theme', stored);
+    btn.textContent = stored === 'dark' ? 'Light' : 'Dark';
+  }
+  btn.addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    btn.textContent = next === 'dark' ? 'Light' : 'Dark';
+    try { localStorage.setItem('nt-guide-theme', next); } catch(_) {}
+  });
+})();
+
+// Mobile TOC toggle
+(function () {
+  var toggle = document.getElementById('toc-toggle');
+  var list   = document.getElementById('toc-list-mobile');
+  if (!toggle) return;
+  toggle.addEventListener('click', function () {
+    var open = list.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+  list.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      list.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+
+// Scroll spy
+(function () {
+  var sections = document.querySelectorAll('.section, .guide-hero');
+  var navItems = document.querySelectorAll('.nav-item[data-section]');
+  if (!navItems.length) return;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        var id = e.target.id;
+        navItems.forEach(function (n) {
+          n.classList.toggle('active', n.getAttribute('data-section') === id || (id === 'intro' && n.getAttribute('data-section') === 'intro'));
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(function (s) { if (s.id) io.observe(s); });
+})();
+</script>

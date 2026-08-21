@@ -3243,3 +3243,132 @@ textarea:focus {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #c8d4cc; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #a8b8af; }
+
+/* ============================================================
+   Dashboard — Today's Plan section
+   ============================================================ */
+
+.today-plan-section {
+  margin-bottom: 1rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.today-plan-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.today-slot-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.today-slot-card--done {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 6%, var(--color-surface));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .today-slot-card--done {
+    background: color-mix(in srgb, var(--color-success) 10%, var(--color-surface));
+  }
+}
+
+.today-slot-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.today-slot-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.today-slot-card--done .today-slot-name {
+  color: var(--color-success);
+}
+
+.today-slot-items {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   Dietitian — tabs + plan builder panel
+   ============================================================ */
+
+.dietitian-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.dietitian-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  margin-bottom: -2px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.dietitian-tab:hover { color: var(--color-text); }
+.dietitian-tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+.dietitian-panel { display: none; }
+.dietitian-panel.active { display: block; }
+
+/* Plan builder within dietitian page */
+.dt-plans-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dt-plan-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  flex-wrap: wrap;
+}
+
+.dt-plan-card-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+.dt-plan-card-meta { font-size: 0.8rem; color: var(--color-text-muted); }
+.dt-plan-card-actions { display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0; }
+
+/* Builder workspace in dietitian panel */
+#dt-builder-workspace .builder-header { margin-bottom: 1rem; }
+
+.dt-day-nav { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-bottom: 1rem; }
+.dt-day-nav-btn { font-size: 0.8rem; padding: 0.3rem 0.65rem; }
+.dt-day-nav-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+.dt-day-editor { min-height: 80px; }
+
+/* Item type row visibility helper */
+.item-row-hidden { display: none !important; }

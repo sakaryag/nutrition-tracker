@@ -102,6 +102,20 @@ def social():
     return render_template('social.html')
 
 
+@pages_bp.route('/recipes')
+@login_required
+@require_admin_page
+def recipes():
+    return render_template('recipes.html')
+
+
+@pages_bp.route('/exchange-categories')
+@login_required
+@require_admin_page
+def exchange_categories():
+    return render_template('exchange_categories.html')
+
+
 @pages_bp.route('/dietitian')
 @login_required
 def dietitian():

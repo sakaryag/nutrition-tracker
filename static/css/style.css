@@ -3128,3 +3128,77 @@ textarea:focus {
 .auth-divider::before, .auth-divider::after {
   content: ''; flex: 1; border-top: 1px solid var(--color-border);
 }
+
+/* ================================================================
+   Dietitian Mode — Program Builder + Patient Plan View
+   ================================================================ */
+
+/* Builder layout */
+.builder-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+.builder-header-actions { display:flex; flex-wrap:wrap; gap:.5rem; }
+.builder-tabs { display:flex; flex-wrap:wrap; gap:.25rem; margin-bottom:1rem; border-bottom:2px solid var(--border); padding-bottom:.5rem; }
+.builder-tab { background:none; border:none; padding:.4rem .9rem; cursor:pointer; border-radius:4px 4px 0 0; color:var(--text-muted); font-size:.9rem; transition:background .15s, color .15s; }
+.builder-tab:hover { background:var(--surface); }
+.builder-tab.active { background:var(--primary); color:#fff; }
+.builder-panel { padding:.75rem 0; }
+
+/* Day nav */
+.day-nav { display:flex; flex-wrap:wrap; gap:.375rem; margin-bottom:1rem; }
+.day-nav-btn { font-size:.8rem; padding:.3rem .65rem; }
+.day-nav-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* Day editor */
+.day-editor-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+.day-editor-actions { display:flex; gap:.5rem; }
+
+/* Slot cards */
+.slot-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:.75rem; overflow:hidden; }
+.slot-card--fulfilled { border-color:var(--success, #2D7A4F); }
+.slot-card-header { display:flex; align-items:center; flex-wrap:wrap; gap:.5rem; padding:.65rem .75rem; background:var(--surface-alt, var(--surface)); border-bottom:1px solid var(--border); }
+.slot-actions { margin-left:auto; display:flex; gap:.375rem; }
+.slot-items { padding:.5rem .75rem; font-size:.9rem; }
+.slot-items .slot-item-row { display:flex; justify-content:space-between; align-items:center; padding:.2rem 0; border-bottom:1px solid var(--border); }
+.slot-items .slot-item-row:last-child { border-bottom:none; }
+.slot-items-list { margin:.25rem 0 .5rem; padding-left:1.25rem; font-size:.9rem; }
+.slot-items-list li { margin:.2rem 0; color:var(--text-muted); }
+.slot-fulfilled-note { color:var(--success, #2D7A4F); font-size:.85rem; padding:.35rem .75rem; margin:0; }
+
+/* Plans day tabs */
+.plans-day-tabs { display:flex; flex-wrap:wrap; gap:.375rem; }
+.plans-day-btn { font-size:.8rem; padding:.3rem .65rem; }
+.plans-day-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* Guideline row */
+.guideline-row { padding:.5rem 0; border-bottom:1px solid var(--border); display:flex; gap:.5rem; align-items:baseline; }
+.guideline-row:last-child { border-bottom:none; }
+
+/* Quota row */
+.quota-row { display:flex; align-items:center; gap:.5rem; padding:.4rem 0; }
+.quota-row span:first-child { min-width:140px; font-size:.9rem; }
+.quota-row span:last-child { min-width:60px; text-align:right; font-size:.85rem; color:var(--text-muted); }
+
+/* Upload dropzone */
+.upload-dropzone { border:2px dashed var(--border); border-radius:8px; padding:2rem; text-align:center; cursor:pointer; position:relative; transition:border-color .2s; }
+.upload-dropzone:hover { border-color:var(--primary); }
+
+/* Plans calendar cells */
+.plans-cal-cell { text-align:center; padding:.4rem; font-size:.8rem; border-radius:4px; cursor:pointer; }
+.plans-cal-today { background:var(--primary); color:#fff; font-weight:600; }
+
+/* Badge variants */
+.badge--draft   { background:var(--text-muted, #888); color:#fff; }
+.badge--active  { background:var(--success, #2D7A4F); color:#fff; }
+.badge--archived { background:#888; color:#fff; }
+.badge--info    { background:var(--accent, #0070f3); color:#fff; }
+.badge--muted   { background:var(--border); color:var(--text-muted); }
+
+/* Card grid */
+.card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1rem; }
+
+/* Admin plan row */
+.admin-plan-row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; flex-wrap:wrap; padding:.75rem 1rem; }
+.admin-plan-row .card-body { flex:1; }
+.admin-plan-row .card-actions { display:flex; gap:.5rem; }
+
+/* Slot quick-select buttons in fulfill modal */
+.sf-quick-food { margin:.25rem; }

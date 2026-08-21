@@ -5,44 +5,126 @@
 <section class="page-admin">
 
   <div class="page-header">
-    <h1 data-i18n="admin.title">Admin Panel</h1>
+    <h1>Admin Panel</h1>
   </div>
 
-  <!-- Tabs -->
+  <!-- Top-level tabs -->
   <div class="admin-tabs">
-    <button class="btn btn-outline admin-tab active" data-tab="plans" data-i18n="admin.tabPlans">Plans</button>
-    <button class="btn btn-outline admin-tab" data-tab="users" data-i18n="admin.tabUsers">Users</button>
+    <button class="btn btn-outline admin-tab active" data-tab="plans">Plans</button>
+    <button class="btn btn-outline admin-tab" data-tab="builder">Program Builder</button>
+    <button class="btn btn-outline admin-tab" data-tab="templates">Templates</button>
+    <button class="btn btn-outline admin-tab" data-tab="users">Users</button>
   </div>
 
-  <!-- Plans tab -->
+  <!-- ── Plans tab ─────────────────────────────────────────── -->
   <div class="admin-panel" id="admin-tab-plans">
     <div class="admin-panel-header">
-      <h2 data-i18n="admin.plansTitle">Nutrition Plans</h2>
-      <button class="btn btn-primary btn-sm" id="admin-create-plan-btn" data-i18n="admin.createPlan">+ Create Plan</button>
+      <h2>Nutrition Plans</h2>
+      <button class="btn btn-primary btn-sm" id="admin-create-plan-btn">+ Create Plan</button>
     </div>
     <div id="admin-plans-list" class="admin-plans-list">
-      <p class="empty-msg" data-i18n="common.loading">Loading…</p>
+      <p class="empty-msg">Loading…</p>
     </div>
   </div>
 
-  <!-- Users tab -->
+  <!-- ── Program Builder tab ───────────────────────────────── -->
+  <div class="admin-panel" id="admin-tab-builder" hidden>
+    <div id="builder-select-prompt" class="empty-msg" style="padding:2rem">
+      Select a plan from the Plans tab to open the Program Builder.
+    </div>
+    <div id="builder-workspace" hidden>
+      <div class="builder-header">
+        <div>
+          <h2 id="builder-plan-name" style="margin:0"></h2>
+          <span class="badge" id="builder-plan-status"></span>
+        </div>
+        <div class="builder-header-actions">
+          <button class="btn btn-sm btn-outline" id="builder-add-day">+ Add Day</button>
+          <button class="btn btn-sm btn-outline" id="builder-copy-to-remaining" title="Copy selected day's slots to all empty days">Copy Day →</button>
+          <button class="btn btn-sm btn-outline" id="builder-clone-plan">Clone Plan</button>
+          <button class="btn btn-sm btn-outline" id="builder-promote-template">Promote to Template</button>
+          <button class="btn btn-sm btn-primary" id="builder-save-version">Save Version</button>
+        </div>
+      </div>
+
+      <!-- Builder sub-tabs -->
+      <div class="builder-tabs">
+        <button class="builder-tab active" data-btab="days">Days &amp; Slots</button>
+        <button class="builder-tab" data-btab="guidelines">Guidelines</button>
+        <button class="builder-tab" data-btab="quotas">Weekly Quotas</button>
+        <button class="builder-tab" data-btab="upload">Image Upload</button>
+        <button class="builder-tab" data-btab="versions">Versions</button>
+      </div>
+
+      <!-- Days & Slots panel -->
+      <div class="builder-panel" id="btab-days">
+        <div class="day-nav" id="day-nav"></div>
+        <div class="day-editor" id="day-editor">
+          <p class="empty-msg">Select a day to edit.</p>
+        </div>
+      </div>
+
+      <!-- Guidelines panel -->
+      <div class="builder-panel" id="btab-guidelines" hidden>
+        <button class="btn btn-sm btn-primary" id="gl-add-btn">+ Add Guideline</button>
+        <div id="gl-list" style="margin-top:1rem"></div>
+      </div>
+
+      <!-- Quotas panel -->
+      <div class="builder-panel" id="btab-quotas" hidden>
+        <button class="btn btn-sm btn-primary" id="quota-add-btn">+ Add Quota</button>
+        <div id="quota-list" style="margin-top:1rem"></div>
+      </div>
+
+      <!-- Image Upload panel -->
+      <div class="builder-panel" id="btab-upload" hidden>
+        <p>Upload a printed diet sheet image to extract the plan structure automatically.</p>
+        <div class="upload-dropzone" id="upload-dropzone">
+          <span>Drop image here or click to browse</span>
+          <input type="file" id="upload-file-input" accept="image/*,application/pdf" style="position:absolute;inset:0;opacity:0;cursor:pointer" />
+        </div>
+        <div id="upload-status" hidden>
+          <p id="upload-status-msg"></p>
+          <div id="upload-draft-preview" hidden>
+            <pre id="upload-draft-json" style="max-height:300px;overflow:auto;background:var(--surface);padding:1rem;border-radius:4px"></pre>
+            <div class="form-actions">
+              <button class="btn btn-primary" id="upload-confirm-btn">Confirm &amp; Apply</button>
+              <button class="btn btn-outline" id="upload-reject-btn">Reject</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Versions panel -->
+      <div class="builder-panel" id="btab-versions" hidden>
+        <div id="versions-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Templates tab ─────────────────────────────────────── -->
+  <div class="admin-panel" id="admin-tab-templates" hidden>
+    <div class="admin-panel-header">
+      <h2>Plan Templates</h2>
+    </div>
+    <p class="empty-msg" style="margin:.5rem 0">Templates can be cloned to create new plans.</p>
+    <div id="admin-templates-list" class="admin-plans-list"></div>
+  </div>
+
+  <!-- ── Users tab ─────────────────────────────────────────── -->
   <div class="admin-panel" id="admin-tab-users" hidden>
     <div class="admin-panel-header">
-      <h2 data-i18n="admin.usersTitle">Users</h2>
+      <h2>Users</h2>
     </div>
     <div class="table-wrap">
       <table class="admin-table" id="admin-users-table">
         <thead>
           <tr>
-            <th data-i18n="admin.colUsername">Username</th>
-            <th data-i18n="admin.colAdmin">Admin</th>
-            <th data-i18n="admin.colPlanFeature">Plan Feature</th>
-            <th data-i18n="admin.colActivePlan">Active Plan</th>
-            <th data-i18n="admin.colActions">Actions</th>
+            <th>Username</th><th>Admin</th><th>Plan Feature</th><th>Active Plan</th><th>Actions</th>
           </tr>
         </thead>
         <tbody id="admin-users-body">
-          <tr><td colspan="5" class="empty-msg" data-i18n="common.loading">Loading…</td></tr>
+          <tr><td colspan="5" class="empty-msg">Loading…</td></tr>
         </tbody>
       </table>
     </div>
@@ -50,118 +132,266 @@
 
 </section>
 
-<!-- Plan create/edit modal -->
-<div class="modal-overlay" id="admin-plan-modal" role="dialog" aria-modal="true" hidden>
-  <div class="modal modal--wide">
-    <div class="modal-header">
-      <h2 class="modal-title" id="admin-plan-modal-title" data-i18n="admin.createPlan">Create Plan</h2>
-      <button class="btn btn-icon modal-close" id="admin-plan-modal-close" aria-label="Close">&times;</button>
-    </div>
-    <form id="admin-plan-form" novalidate>
-      <input type="hidden" id="admin-plan-id" />
+<!-- ── Plan create/edit modal ─────────────────────────────── -->
+<dialog id="admin-plan-modal" class="modal-dialog">
+  <form id="admin-plan-form" class="modal-form" method="dialog">
+    <h2 id="admin-plan-modal-title">Create Plan</h2>
+    <input type="hidden" id="admin-plan-id" />
 
+    <div class="form-row">
       <div class="form-group">
-        <label for="admin-plan-name" data-i18n="admin.planName">Plan Name <span aria-hidden="true">*</span></label>
+        <label>Plan Name *</label>
         <input type="text" id="admin-plan-name" class="form-control" required />
       </div>
       <div class="form-group">
-        <label for="admin-plan-desc" data-i18n="admin.planDesc">Description</label>
-        <textarea id="admin-plan-desc" class="form-control" rows="2"></textarea>
+        <label>Name (TR)</label>
+        <input type="text" id="admin-plan-name-tr" class="form-control" />
       </div>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="admin-plan-desc" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="form-row">
       <div class="form-group">
-        <label for="admin-plan-duration" data-i18n="admin.planDuration">Duration (days)</label>
+        <label>Duration (days)</label>
         <input type="number" id="admin-plan-duration" class="form-control" value="7" min="1" max="365" />
       </div>
-
-      <!-- Task editor -->
-      <div class="admin-task-section">
-        <h3 class="section-title" data-i18n="admin.tasks">Tasks</h3>
-        <div class="admin-day-selector">
-          <label data-i18n="admin.editDay">Edit Day:</label>
-          <select id="admin-task-day-select" class="form-control" style="width:auto"></select>
-        </div>
-        <div id="admin-tasks-for-day" class="admin-tasks-for-day">
-          <p class="empty-msg" data-i18n="admin.savePlanFirst">Save the plan first to add tasks.</p>
-        </div>
-        <div id="admin-add-task-form" class="admin-add-task-form" hidden>
-          <div class="form-row">
-            <div class="form-group">
-              <label data-i18n="admin.taskType">Type</label>
-              <select id="admin-task-type" class="form-control">
-                <option value="food">Food</option>
-                <option value="habit">Habit</option>
-                <option value="note">Note</option>
-              </select>
-            </div>
-            <div class="form-group" style="flex:2">
-              <label data-i18n="admin.taskDesc">Description <span aria-hidden="true">*</span></label>
-              <input type="text" id="admin-task-desc" class="form-control" />
-            </div>
-          </div>
-          <div class="form-row" id="admin-food-fields">
-            <div class="form-group" style="flex:2">
-              <label data-i18n="admin.foodName">Food Name</label>
-              <input type="text" id="admin-task-food-name" class="form-control" />
-            </div>
-            <div class="form-group">
-              <label data-i18n="admin.quantity">Quantity</label>
-              <input type="number" id="admin-task-quantity" class="form-control" min="0" step="0.1" />
-            </div>
-            <div class="form-group">
-              <label data-i18n="admin.unit">Unit</label>
-              <select id="admin-task-unit" class="form-control">
-                <option value="g">g</option>
-                <option value="ml">ml</option>
-                <option value="piece">piece</option>
-                <option value="slice">slice</option>
-                <option value="serving">serving</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button type="button" class="btn btn-secondary btn-sm" id="admin-cancel-task" data-i18n="common.cancel">Cancel</button>
-            <button type="button" class="btn btn-primary btn-sm" id="admin-save-task-btn" data-i18n="admin.addTask">Add Task</button>
-          </div>
-        </div>
-        <button type="button" class="btn btn-outline btn-sm" id="admin-show-add-task" data-i18n="admin.addTask">+ Add Task</button>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="admin-plan-status" class="form-control">
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </select>
       </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="admin-plan-cancel" data-i18n="common.cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="admin-plan-save-btn" data-i18n="common.save">Save Plan</button>
+      <div class="form-group" style="align-self:flex-end">
+        <label class="checkbox-label">
+          <input type="checkbox" id="admin-plan-is-template" /> Template
+        </label>
       </div>
-    </form>
-  </div>
-</div>
-
-<!-- Assign plan modal -->
-<div class="modal-overlay" id="admin-assign-modal" role="dialog" aria-modal="true" hidden>
-  <div class="modal modal--sm">
-    <div class="modal-header">
-      <h2 class="modal-title" data-i18n="admin.assignPlan">Assign Plan</h2>
-      <button class="btn btn-icon modal-close" id="admin-assign-modal-close" aria-label="Close">&times;</button>
     </div>
-    <form id="admin-assign-form" novalidate>
-      <input type="hidden" id="admin-assign-user-id" />
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="admin-plan-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Plan</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Day edit modal ──────────────────────────────────────── -->
+<dialog id="day-modal" class="modal-dialog">
+  <form id="day-form" class="modal-form" method="dialog">
+    <h2 id="day-modal-title">Edit Day</h2>
+    <input type="hidden" id="day-id" />
+    <div class="form-row">
       <div class="form-group">
-        <label data-i18n="admin.assignToUser">User</label>
-        <p id="admin-assign-username" class="form-static-text"></p>
+        <label>Day Label</label>
+        <input type="text" id="day-label" class="form-control" placeholder="e.g. Monday / Rest Day" />
       </div>
       <div class="form-group">
-        <label for="admin-assign-plan-select" data-i18n="admin.selectPlan">Plan</label>
-        <select id="admin-assign-plan-select" class="form-control"></select>
+        <label>Label (TR)</label>
+        <input type="text" id="day-label-tr" class="form-control" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="day-notes" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="day-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Day</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Slot edit modal ─────────────────────────────────────── -->
+<dialog id="slot-modal" class="modal-dialog">
+  <form id="slot-form" class="modal-form" method="dialog">
+    <h2 id="slot-modal-title">Edit Slot</h2>
+    <input type="hidden" id="slot-id" />
+    <input type="hidden" id="slot-day-id" />
+    <div class="form-row">
+      <div class="form-group">
+        <label>Slot Name *</label>
+        <input type="text" id="slot-name" class="form-control" required placeholder="e.g. Breakfast" />
       </div>
       <div class="form-group">
-        <label for="admin-assign-start" data-i18n="admin.startDate">Start Date</label>
-        <input type="date" id="admin-assign-start" class="form-control" />
+        <label>Name (TR)</label>
+        <input type="text" id="slot-name-tr" class="form-control" />
       </div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="admin-assign-cancel" data-i18n="common.cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" data-i18n="admin.assignPlan">Assign</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Content Pattern</label>
+        <select id="slot-pattern" class="form-control">
+          <option value="">— None —</option>
+          <option value="A">A — Fixed meal</option>
+          <option value="B">B — Food exchange</option>
+          <option value="C">C — Free choice</option>
+          <option value="D">D — Recipe-based</option>
+          <option value="E">E — Portion exchange</option>
+          <option value="F">F — Conditional</option>
+        </select>
       </div>
-    </form>
-  </div>
-</div>
+      <div class="form-group" style="align-self:flex-end">
+        <label class="checkbox-label">
+          <input type="checkbox" id="slot-optional" /> Optional
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="slot-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Slot</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Slot item edit modal ────────────────────────────────── -->
+<dialog id="item-modal" class="modal-dialog">
+  <form id="item-form" class="modal-form" method="dialog">
+    <h2 id="item-modal-title">Edit Item</h2>
+    <input type="hidden" id="item-id" />
+    <input type="hidden" id="item-slot-id" />
+
+    <div class="form-group">
+      <label>Type</label>
+      <select id="item-type" class="form-control">
+        <option value="food">Specific Food</option>
+        <option value="recipe">Recipe</option>
+        <option value="exchange">Exchange Category</option>
+      </select>
+    </div>
+
+    <div id="item-food-row" class="form-group">
+      <label>Food</label>
+      <input type="text" id="item-food-search" class="form-control" placeholder="Search foods…" autocomplete="off" />
+      <ul id="item-food-ac" class="autocomplete-list" hidden role="listbox"></ul>
+      <input type="hidden" id="item-food-id" />
+      <span id="item-food-name-display" style="color:var(--text-muted);font-size:.85em"></span>
+    </div>
+
+    <div id="item-recipe-row" class="form-group" hidden>
+      <label>Recipe</label>
+      <select id="item-recipe-select" class="form-control">
+        <option value="">— select —</option>
+      </select>
+    </div>
+
+    <div id="item-exchange-row" class="form-group" hidden>
+      <label>Exchange Category</label>
+      <select id="item-exchange-select" class="form-control">
+        <option value="">— select —</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantity</label>
+        <input type="number" id="item-quantity" class="form-control" min="0" step="0.1" value="100" />
+      </div>
+      <div class="form-group">
+        <label>Unit</label>
+        <select id="item-unit" class="form-control">
+          <option>g</option><option>ml</option><option>piece</option><option>slice</option><option>serving</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Alt Group</label>
+        <input type="text" id="item-alt-group" class="form-control" placeholder="e.g. A" maxlength="10" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="item-notes" class="form-control" />
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="item-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Item</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Guideline modal ─────────────────────────────────────── -->
+<dialog id="gl-modal" class="modal-dialog">
+  <form id="gl-form" class="modal-form" method="dialog">
+    <h2>Guideline</h2>
+    <input type="hidden" id="gl-id" />
+    <div class="form-group">
+      <label>Type</label>
+      <select id="gl-type" class="form-control">
+        <option value="general">General</option>
+        <option value="frequency">Frequency</option>
+        <option value="daily_quantity">Daily Quantity</option>
+        <option value="timing">Timing</option>
+        <option value="conditional">Conditional</option>
+        <option value="cooking_method">Cooking Method</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Rule Text *</label>
+      <textarea id="gl-text" class="form-control" rows="2" required></textarea>
+    </div>
+    <div class="form-group">
+      <label>Rule Text (TR)</label>
+      <textarea id="gl-text-tr" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="gl-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Quota modal ─────────────────────────────────────────── -->
+<dialog id="quota-modal" class="modal-dialog">
+  <form id="quota-form" class="modal-form" method="dialog">
+    <h2>Weekly Quota</h2>
+    <input type="hidden" id="quota-id" />
+    <div class="form-group">
+      <label>Exchange Category</label>
+      <select id="quota-cat-select" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Quota per Week</label>
+      <input type="number" id="quota-qty" class="form-control" min="0" step="1" value="3" />
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="quota-notes" class="form-control" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="quota-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Assign plan modal ───────────────────────────────────── -->
+<dialog id="admin-assign-modal" class="modal-dialog">
+  <form id="admin-assign-form" class="modal-form" method="dialog">
+    <h2>Assign Plan</h2>
+    <input type="hidden" id="admin-assign-user-id" />
+    <div class="form-group">
+      <label>User</label>
+      <p id="admin-assign-username" class="form-static-text"></p>
+    </div>
+    <div class="form-group">
+      <label>Plan</label>
+      <select id="admin-assign-plan-select" class="form-control"></select>
+    </div>
+    <div class="form-group">
+      <label>Start Date</label>
+      <input type="date" id="admin-assign-start" class="form-control" />
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="admin-assign-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Assign</button>
+    </div>
+  </form>
+</dialog>
 {% endblock %}
 
 {% block scripts %}

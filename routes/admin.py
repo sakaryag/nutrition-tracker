@@ -964,3 +964,222 @@ def confirm_extraction(upload_id):
             plan.status = 'active'
     db.session.commit()
     return jsonify(upload.to_dict())
+
+
+# -- Image extraction pipeline -----------------------------------------------
+
+@admin_bp.route('/plans/process-image/<int:upload_id>', methods=['POST'])
+@require_admin
+def process_image(upload_id):
+    """Trigger async Claude Vision extraction for a previously uploaded image."""
+    from models.program_image_upload import ProgramImageUpload
+    from datetime import datetime, timezone
+    import threading, json as _json
+
+    upload = db.session.get(ProgramImageUpload, upload_id)
+    if upload is None:
+        return jsonify({'error': 'Upload not found'}), 404
+    if upload.extraction_status == 'processing':
+        return jsonify({'message': 'Already processing', 'upload': upload.to_dict()}), 202
+    if upload.extraction_status == 'draft_ready':
+        result = {}
+        if upload.extracted_json:
+            try:
+                result = _json.loads(upload.extracted_json)
+            except Exception:
+                pass
+        return jsonify({'message': 'Already extracted', 'upload': upload.to_dict(), 'extracted': result})
+
+    upload.extraction_status = 'processing'
+    upload.updated_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    # Run extraction in a background thread so the HTTP request returns quickly
+    app = current_app._get_current_object()
+
+    def _worker():
+        import json as _j
+        with app.app_context():
+            from models import db as _db
+            from models.program_image_upload import ProgramImageUpload as _PIU
+            from datetime import datetime as _dt, timezone as _tz
+            from utils.image_extractor import extract_diet_plan
+            rec = _db.session.get(_PIU, upload_id)
+            if rec is None:
+                return
+            try:
+                result = extract_diet_plan(rec.file_path, rec.mime_type)
+                rec.extracted_json = _j.dumps(result, ensure_ascii=False)
+                rec.extraction_status = 'draft_ready'
+            except Exception as exc:
+                import logging
+                logging.getLogger(__name__).error('Extraction failed upload_id=%d: %s', upload_id, exc)
+                rec.extraction_status = 'failed'
+                rec.error_message = str(exc)
+            rec.updated_at = _dt.now(_tz.utc)
+            _db.session.commit()
+
+    t = threading.Thread(target=_worker, daemon=True)
+    t.start()
+
+    return jsonify({'message': 'Processing started', 'upload': upload.to_dict()}), 202
+
+
+@admin_bp.route('/plans/upload-status/<int:upload_id>', methods=['GET'])
+@require_admin
+def upload_status(upload_id):
+    """Poll extraction status. Returns extracted JSON when draft_ready."""
+    import json as _json
+    from models.program_image_upload import ProgramImageUpload
+    upload = db.session.get(ProgramImageUpload, upload_id)
+    if upload is None:
+        return jsonify({'error': 'Upload not found'}), 404
+    resp = upload.to_dict()
+    if upload.extraction_status == 'draft_ready' and upload.extracted_json:
+        try:
+            resp['extracted'] = _json.loads(upload.extracted_json)
+        except Exception:
+            resp['extracted'] = None
+    return jsonify(resp)
+
+
+@admin_bp.route('/plans/apply-extraction/<int:upload_id>', methods=['POST'])
+@require_admin
+def apply_extraction(upload_id):
+    """
+    Apply a confirmed or draft_ready extraction to the plan:
+    create ProgramDay → MealSlot → SlotItem rows from extracted_json.
+    Existing days for the plan are cleared first if replace=true is passed.
+    """
+    import json as _json
+    from models.program_image_upload import ProgramImageUpload
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    from models.saved_food import SavedFood
+    from datetime import datetime, timezone
+
+    upload = db.session.get(ProgramImageUpload, upload_id)
+    if upload is None:
+        return jsonify({'error': 'Upload not found'}), 404
+    if upload.extraction_status not in ('draft_ready', 'confirmed'):
+        return jsonify({'error': 'Extraction not ready — process the image first'}), 400
+    if not upload.extracted_json:
+        return jsonify({'error': 'No extracted data found'}), 400
+    if not upload.program_id:
+        return jsonify({'error': 'Upload is not linked to a plan — set program_id first'}), 400
+
+    data = request.get_json(silent=True) or {}
+    replace = data.get('replace', True)
+
+    try:
+        extracted = _json.loads(upload.extracted_json)
+    except Exception:
+        return jsonify({'error': 'Extracted JSON is corrupt'}), 500
+
+    plan = db.session.get(NutritionPlan, upload.program_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+
+    if replace:
+        # Remove existing days (cascades to slots+items)
+        ProgramDay.query.filter_by(program_id=plan.id).delete()
+        db.session.flush()
+
+    # Update plan metadata if extraction has it
+    if extracted.get('plan_name') and not plan.name:
+        plan.name = extracted['plan_name']
+    if extracted.get('duration_days') and not plan.duration_days:
+        plan.duration_days = extracted['duration_days']
+
+    # Build food name → id map for fuzzy matching
+    all_foods = SavedFood.query.with_entities(SavedFood.id, SavedFood.name, SavedFood.name_tr).all()
+    food_lookup = {f.name.lower(): f.id for f in all_foods}
+    food_lookup_tr = {(f.name_tr or '').lower(): f.id for f in all_foods if f.name_tr}
+
+    def _match_food(name):
+        """Return SavedFood.id or None using exact → fuzzy matching."""
+        if not name:
+            return None
+        lower = name.lower()
+        if lower in food_lookup:
+            return food_lookup[lower]
+        if lower in food_lookup_tr:
+            return food_lookup_tr[lower]
+        try:
+            from rapidfuzz import process as rfp
+            best = rfp.extractOne(lower, food_lookup.keys(), score_cutoff=80)
+            if best:
+                return food_lookup[best[0]]
+            best_tr = rfp.extractOne(lower, food_lookup_tr.keys(), score_cutoff=80)
+            if best_tr:
+                return food_lookup_tr[best_tr[0]]
+        except ImportError:
+            pass
+        return None
+
+    now = datetime.now(timezone.utc)
+    days_created = 0
+    slots_created = 0
+    items_created = 0
+    unmatched_foods = []
+
+    for i, day_data in enumerate(extracted.get('days', [])):
+        day = ProgramDay(
+            program_id=plan.id,
+            day_offset=day_data.get('day_offset', i),
+            label=day_data.get('label'),
+            label_tr=day_data.get('label_tr'),
+            notes=day_data.get('notes'),
+            sort_order=i,
+            created_at=now,
+        )
+        db.session.add(day)
+        db.session.flush()
+        days_created += 1
+
+        for j, slot_data in enumerate(day_data.get('slots', [])):
+            slot = MealSlot(
+                day_id=day.id,
+                slot_name=slot_data.get('slot_name', 'Slot'),
+                slot_name_tr=slot_data.get('slot_name_tr'),
+                sort_order=j,
+                content_pattern=slot_data.get('content_pattern'),
+                is_optional=bool(slot_data.get('is_optional', False)),
+                created_at=now,
+            )
+            db.session.add(slot)
+            db.session.flush()
+            slots_created += 1
+
+            for k, item_data in enumerate(slot_data.get('items', [])):
+                fname = item_data.get('food_name') or ''
+                food_id = _match_food(fname)
+                if food_id is None and fname:
+                    unmatched_foods.append(fname)
+                item = SlotItem(
+                    slot_id=slot.id,
+                    saved_food_id=food_id,
+                    food_name_override=fname if food_id is None else None,
+                    quantity=item_data.get('quantity'),
+                    unit=item_data.get('unit') or 'g',
+                    notes=item_data.get('notes'),
+                    notes_tr=item_data.get('notes_tr'),
+                    sort_order=k,
+                    is_fallback=False,
+                )
+                db.session.add(item)
+                items_created += 1
+
+    upload.extraction_status = 'confirmed'
+    upload.updated_at = now
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Extraction applied',
+        'days_created': days_created,
+        'slots_created': slots_created,
+        'items_created': items_created,
+        'unmatched_foods': list(set(unmatched_foods)),
+    })

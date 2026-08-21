@@ -387,6 +387,38 @@ const i18n = {
     'upgrade_benefit_export':        'CSV export',
     'upgrade_benefit_templates':     'Unlimited meal templates',
     'template_limit_reached':        'Free plan limit: 5 meal templates. Upgrade for unlimited.',
+
+    /* Recipes */
+    'recipes.title':       'Recipes',
+    'recipes.new':         '+ New Recipe',
+    'recipes.name':        'Name',
+    'recipes.ingredients': 'Ingredients',
+    'recipes.prepNotes':   'Prep Notes',
+    'recipes.searchPlaceholder': 'Search recipes…',
+    'recipes.noRecipes':   'No recipes yet.',
+
+    /* Exchange Categories */
+    'exchange.title':      'Exchange Categories',
+    'exchange.new':        '+ New Category',
+    'exchange.name':       'Name',
+    'exchange.members':    'Members',
+    'exchange.equivQty':   'Equiv. Qty',
+    'exchange.noCats':     'No exchange categories yet.',
+
+    /* Plan builder */
+    'plan.builder':        'Program Builder',
+    'plan.days':           'Days & Slots',
+    'plan.guidelines':     'Guidelines',
+    'plan.quotas':         'Weekly Quotas',
+    'plan.upload':         'Image Upload',
+    'plan.versions':       'Versions',
+    'plan.addDay':         '+ Add Day',
+    'plan.addSlot':        '+ Add Slot',
+    'plan.addItem':        '+ Add Item',
+    'plan.slotFulfill':    'Log',
+    'plan.fulfilled':      'Logged',
+    'plan.guidelines.empty': 'No guidelines for this plan.',
+    'plan.quotaProgress':  'Weekly Category Progress',
   },
 
   tr: {
@@ -773,6 +805,38 @@ const i18n = {
     'upgrade_benefit_export':        'CSV dışa aktarma',
     'upgrade_benefit_templates':     'Sınırsız yemek şablonları',
     'template_limit_reached':        'Ücretsiz plan sınırı: 5 yemek şablonu. Sınırsız için yükseltin.',
+
+    /* Recipes */
+    'recipes.title':       'Tarifler',
+    'recipes.new':         '+ Yeni Tarif',
+    'recipes.name':        'Ad',
+    'recipes.ingredients': 'Malzemeler',
+    'recipes.prepNotes':   'Hazırlık Notları',
+    'recipes.searchPlaceholder': 'Tarif ara…',
+    'recipes.noRecipes':   'Henüz tarif yok.',
+
+    /* Exchange Categories */
+    'exchange.title':      'Besin Değişim Grupları',
+    'exchange.new':        '+ Yeni Grup',
+    'exchange.name':       'Ad',
+    'exchange.members':    'Üyeler',
+    'exchange.equivQty':   'Eşdeğer Miktar',
+    'exchange.noCats':     'Henüz değişim grubu yok.',
+
+    /* Plan builder */
+    'plan.builder':        'Program Oluşturucu',
+    'plan.days':           'Günler ve Öğünler',
+    'plan.guidelines':     'Yönergeler',
+    'plan.quotas':         'Haftalık Kotalar',
+    'plan.upload':         'Görsel Yükleme',
+    'plan.versions':       'Sürümler',
+    'plan.addDay':         '+ Gün Ekle',
+    'plan.addSlot':        '+ Öğün Ekle',
+    'plan.addItem':        '+ Besin Ekle',
+    'plan.slotFulfill':    'Kaydet',
+    'plan.fulfilled':      'Kaydedildi',
+    'plan.guidelines.empty': 'Bu plan için yönerge yok.',
+    'plan.quotaProgress':  'Haftalık Kategori İlerlemesi',
   },
 };
 

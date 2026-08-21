@@ -18,3 +18,14 @@ build/
 .kaggle/
 # Claude Code internal state
 .claude/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+graft/
+
+# Sensitive local files — never commit
+android.keystore
+*.keystore
+*.jks
+
+# Claude Code search helper (local only)
+.ignore

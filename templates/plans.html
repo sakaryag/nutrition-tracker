@@ -5,23 +5,27 @@
 <section class="page-plans">
 
   <div class="page-header">
-    <h1 data-i18n="plans.title">My Nutrition Plan</h1>
+    <h1>My Nutrition Plan</h1>
     <div class="plans-header-actions">
-      <button class="btn btn-outline btn-sm" id="plans-view-toggle" data-view="calendar">
-        <span data-i18n="plans.listView">List View</span>
+      <select id="plans-date-select" class="form-control" style="width:auto">
+        <option value="today">Today</option>
+      </select>
+      <button class="btn btn-outline btn-sm" id="plans-view-toggle" data-view="slots">
+        Calendar
       </button>
     </div>
   </div>
 
-  <!-- No plan assigned -->
+  <!-- No plan state -->
   <div id="plans-no-assignment" hidden>
     <div class="card plans-empty-card">
-      <p class="empty-msg" data-i18n="plans.noAssignment">You have no active nutrition plan assigned. Contact your dietitian.</p>
+      <p class="empty-msg">You have no active nutrition plan assigned. Contact your dietitian.</p>
     </div>
   </div>
 
-  <!-- Plan overview -->
+  <!-- Plan overview bar -->
   <div id="plans-overview" hidden>
+
     <div class="plans-meta card">
       <div class="plans-meta-info">
         <h2 id="plan-name" class="plans-plan-name"></h2>
@@ -44,25 +48,36 @@
       </div>
     </div>
 
-    <!-- Calendar view -->
-    <div id="plans-calendar-view">
+    <!-- Slot view (Day/Slot accordion) -->
+    <div id="plans-slot-view">
+      <!-- Today's day panel -->
+      <div id="plans-today-panel">
+        <h3 id="plans-today-label" style="margin:1rem 0 .5rem"></h3>
+        <div id="plans-slot-list"></div>
+      </div>
+
+      <!-- Day navigation -->
+      <div style="margin-top:1.5rem">
+        <h3>All Days</h3>
+        <div class="plans-day-tabs" id="plans-day-tabs"></div>
+        <div id="plans-day-detail" style="margin-top:1rem"></div>
+      </div>
+    </div>
+
+    <!-- Calendar view (toggled) -->
+    <div id="plans-calendar-view" hidden>
       <div class="plans-calendar-legend">
-        <span class="legend-dot legend-today"></span><span data-i18n="plans.today">Today</span>
-        <span class="legend-dot legend-complete"></span><span data-i18n="plans.complete">Complete</span>
-        <span class="legend-dot legend-partial"></span><span data-i18n="plans.partial">Partial</span>
-        <span class="legend-dot legend-future"></span><span data-i18n="plans.upcoming">Upcoming</span>
+        <span class="legend-dot legend-today"></span><span>Today</span>
+        <span class="legend-dot legend-complete"></span><span>Complete</span>
+        <span class="legend-dot legend-partial"></span><span>Partial</span>
+        <span class="legend-dot legend-future"></span><span>Upcoming</span>
       </div>
       <div class="plans-calendar-scroll">
         <table class="plans-calendar" id="plans-calendar-table">
           <thead>
             <tr>
-              <th data-i18n="plans.mon">Mon</th>
-              <th data-i18n="plans.tue">Tue</th>
-              <th data-i18n="plans.wed">Wed</th>
-              <th data-i18n="plans.thu">Thu</th>
-              <th data-i18n="plans.fri">Fri</th>
-              <th data-i18n="plans.sat">Sat</th>
-              <th data-i18n="plans.sun">Sun</th>
+              <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th>
+              <th>Fri</th><th>Sat</th><th>Sun</th>
             </tr>
           </thead>
           <tbody id="plans-calendar-body"></tbody>
@@ -70,25 +85,61 @@
       </div>
     </div>
 
-    <!-- List view -->
-    <div id="plans-list-view" hidden>
-      <div class="plans-day-tabs" id="plans-day-tabs"></div>
-      <div class="plans-day-tasks" id="plans-day-tasks"></div>
+    <!-- Guidelines accordion -->
+    <details id="plans-guidelines-section" style="margin-top:1.5rem" hidden>
+      <summary class="card-title" style="cursor:pointer;padding:.75rem">
+        Dietary Guidelines
+      </summary>
+      <div id="plans-guidelines-list" class="card" style="border-top:none;border-radius:0 0 8px 8px;padding:1rem"></div>
+    </details>
+
+    <!-- Category quota progress -->
+    <div id="plans-quota-section" hidden style="margin-top:1.5rem">
+      <h3>Weekly Category Progress</h3>
+      <div id="plans-quota-list" style="margin-top:.5rem"></div>
     </div>
+
   </div>
 
 </section>
 
-<!-- Task detail panel (slide-in) -->
-<div class="modal-overlay" id="plans-task-modal" role="dialog" aria-modal="true" hidden>
-  <div class="modal modal--sm">
-    <div class="modal-header">
-      <h2 class="modal-title" id="plans-task-modal-title" data-i18n="plans.dayTasks">Day Tasks</h2>
-      <button class="btn btn-icon modal-close" id="plans-task-modal-close" aria-label="Close">&times;</button>
+<!-- Slot fulfillment modal -->
+<dialog id="slot-fulfill-modal" class="modal-dialog">
+  <form id="slot-fulfill-form" class="modal-form" method="dialog">
+    <h2 id="slot-fulfill-title">Log Slot</h2>
+    <input type="hidden" id="sf-slot-id" />
+    <input type="hidden" id="sf-date" />
+
+    <p id="sf-slot-desc" class="card-meta" style="margin:.5rem 0"></p>
+
+    <div id="sf-items-list" style="margin:.75rem 0"></div>
+
+    <div id="sf-custom-row" style="margin-top:.5rem">
+      <label>Or enter custom:</label>
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <input type="text" id="sf-custom-search" class="form-control" placeholder="Search food…" autocomplete="off" />
+          <ul id="sf-custom-ac" class="autocomplete-list" hidden role="listbox"></ul>
+          <input type="hidden" id="sf-food-id" />
+        </div>
+        <div class="form-group">
+          <input type="number" id="sf-qty" class="form-control" min="0" step="0.1" placeholder="qty" style="width:80px" />
+        </div>
+        <div class="form-group">
+          <select id="sf-unit" class="form-control" style="width:90px">
+            <option>g</option><option>ml</option><option>piece</option><option>slice</option><option>serving</option>
+          </select>
+        </div>
+      </div>
     </div>
-    <div id="plans-task-modal-body" class="plans-task-list"></div>
-  </div>
-</div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="sf-cancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="sf-unfulfill" hidden>Mark Unfulfilled</button>
+      <button type="submit" class="btn btn-primary">Log</button>
+    </div>
+  </form>
+</dialog>
 {% endblock %}
 
 {% block scripts %}

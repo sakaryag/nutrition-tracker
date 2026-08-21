@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %} — Exchange Categories{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Exchange Categories</h1>
+  <button class="btn btn-primary" id="btn-new-cat">+ New Category</button>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="cat-search" class="form-control" placeholder="Search categories…" />
+</div>
+
+<div id="cat-list" class="card-grid"></div>
+
+<!-- Category modal -->
+<dialog id="cat-modal" class="modal-dialog">
+  <form id="cat-form" class="modal-form" method="dialog">
+    <h2 id="cat-modal-title">New Exchange Category</h2>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="cf-name" class="form-control" required />
+      </div>
+      <div class="form-group">
+        <label>Name (TR)</label>
+        <input type="text" id="cf-name-tr" class="form-control" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="cf-desc" class="form-control" rows="2"></textarea>
+    </div>
+
+    <h3>Members <small>(equivalent portions)</small></h3>
+    <div class="search-bar" style="margin-bottom:.5rem">
+      <input type="text" id="mem-search" class="form-control" placeholder="Search foods to add…" autocomplete="off" />
+      <ul id="mem-ac" class="autocomplete-list" hidden role="listbox"></ul>
+    </div>
+    <table class="data-table" id="mem-table">
+      <thead>
+        <tr><th>Food</th><th>Equiv. Qty</th><th>Unit</th><th></th></tr>
+      </thead>
+      <tbody id="mem-body"></tbody>
+    </table>
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-outline" id="cat-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Save Category</button>
+    </div>
+  </form>
+</dialog>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/exchange_categories.js"></script>
+{% endblock %}

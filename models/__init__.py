@@ -20,3 +20,15 @@ from models.feed_visibility import FeedVisibility
 from models.user_badge import UserBadge
 from models.dietitian_access import DietitianAccess
 from models.dietitian_visit import DietitianVisit
+from models.program_day import ProgramDay
+from models.meal_slot import MealSlot
+from models.slot_item import SlotItem
+from models.recipe import Recipe
+from models.recipe_ingredient import RecipeIngredient
+from models.food_exchange_category import FoodExchangeCategory
+from models.exchange_category_member import ExchangeCategoryMember
+from models.program_guideline import ProgramGuideline
+from models.program_version import ProgramVersion
+from models.slot_fulfillment import SlotFulfillment
+from models.weekly_category_quota import WeeklyCategoryQuota
+from models.program_image_upload import ProgramImageUpload

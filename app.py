@@ -58,6 +58,7 @@ def create_app(config_name=None, test_config=None):
         _migrate_add_columns(app)
         _auto_seed(app)
         _patch_name_tr(app)
+        _patch_program_days(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
         _backup_db(app)
@@ -227,6 +228,189 @@ def _migrate_add_columns(app):
                 seen BOOLEAN NOT NULL DEFAULT FALSE
             )''',
             'CREATE INDEX IF NOT EXISTS ix_dietitian_visit_client_id ON dietitian_visit (client_id)',
+            # --- Dietitian Mode: new columns on nutrition_plan ---
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'draft'",
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS is_template BOOLEAN NOT NULL DEFAULT FALSE",
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS parent_template_id INTEGER REFERENCES nutrition_plan(id)",
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS current_version INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS name_tr VARCHAR(200)",
+            "ALTER TABLE nutrition_plan ADD COLUMN IF NOT EXISTS locale VARCHAR(10) DEFAULT 'tr'",
+            # --- Dietitian Mode: new columns on plan_task_completion ---
+            "ALTER TABLE plan_task_completion ADD COLUMN IF NOT EXISTS saved_food_id INTEGER REFERENCES saved_food(id)",
+            "ALTER TABLE plan_task_completion ADD COLUMN IF NOT EXISTS exchange_category_id INTEGER",
+            "ALTER TABLE plan_task_completion ADD COLUMN IF NOT EXISTS quantity_consumed FLOAT",
+            "ALTER TABLE plan_task_completion ADD COLUMN IF NOT EXISTS slot_fulfillment_id INTEGER",
+            # --- Dietitian Mode: program_day ---
+            '''CREATE TABLE IF NOT EXISTS program_day (
+                id SERIAL PRIMARY KEY,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                day_offset INTEGER NOT NULL,
+                label VARCHAR(100),
+                label_tr VARCHAR(100),
+                notes TEXT,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP,
+                CONSTRAINT uq_program_day_offset UNIQUE (program_id, day_offset)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_day_program_id ON program_day (program_id)',
+            # --- Dietitian Mode: meal_slot ---
+            '''CREATE TABLE IF NOT EXISTS meal_slot (
+                id SERIAL PRIMARY KEY,
+                day_id INTEGER NOT NULL REFERENCES program_day(id) ON DELETE CASCADE,
+                slot_name VARCHAR(100) NOT NULL,
+                slot_name_tr VARCHAR(100),
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                content_pattern VARCHAR(1) NOT NULL DEFAULT 'A',
+                is_optional BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_meal_slot_day_id ON meal_slot (day_id)',
+            # --- Dietitian Mode: recipe ---
+            '''CREATE TABLE IF NOT EXISTS recipe (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(200) NOT NULL,
+                name_tr VARCHAR(200),
+                owner_id INTEGER NOT NULL REFERENCES "user"(id),
+                prep_notes TEXT,
+                prep_notes_tr TEXT,
+                category_tags TEXT,
+                total_protein FLOAT,
+                total_fat FLOAT,
+                total_carbs FLOAT,
+                total_calories FLOAT,
+                is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_recipe_owner_id ON recipe (owner_id)',
+            # --- Dietitian Mode: recipe_ingredient ---
+            '''CREATE TABLE IF NOT EXISTS recipe_ingredient (
+                id SERIAL PRIMARY KEY,
+                recipe_id INTEGER NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                food_name_override VARCHAR(200),
+                quantity FLOAT NOT NULL,
+                unit VARCHAR(20) NOT NULL DEFAULT 'g',
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                protein FLOAT,
+                fat FLOAT,
+                carbs FLOAT,
+                calories FLOAT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_recipe_ingredient_recipe_id ON recipe_ingredient (recipe_id)',
+            # --- Dietitian Mode: food_exchange_category ---
+            '''CREATE TABLE IF NOT EXISTS food_exchange_category (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(200) NOT NULL,
+                name_tr VARCHAR(200),
+                owner_id INTEGER NOT NULL REFERENCES "user"(id),
+                description TEXT,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP,
+                CONSTRAINT uq_exchange_category_name_owner UNIQUE (name, owner_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_food_exchange_category_owner_id ON food_exchange_category (owner_id)',
+            # --- Dietitian Mode: exchange_category_member ---
+            '''CREATE TABLE IF NOT EXISTS exchange_category_member (
+                id SERIAL PRIMARY KEY,
+                category_id INTEGER NOT NULL REFERENCES food_exchange_category(id) ON DELETE CASCADE,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                food_name_override VARCHAR(200),
+                equivalent_qty FLOAT NOT NULL,
+                equivalent_unit VARCHAR(20) NOT NULL DEFAULT 'g',
+                sort_order INTEGER NOT NULL DEFAULT 0
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_exchange_category_member_category_id ON exchange_category_member (category_id)',
+            # --- Dietitian Mode: slot_item ---
+            '''CREATE TABLE IF NOT EXISTS slot_item (
+                id SERIAL PRIMARY KEY,
+                slot_id INTEGER NOT NULL REFERENCES meal_slot(id) ON DELETE CASCADE,
+                alternative_group INTEGER,
+                rotation_frequency INTEGER,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                recipe_id INTEGER REFERENCES recipe(id),
+                exchange_category_id INTEGER REFERENCES food_exchange_category(id),
+                food_name_override VARCHAR(200),
+                quantity FLOAT,
+                unit VARCHAR(20),
+                is_fallback BOOLEAN NOT NULL DEFAULT FALSE,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                notes TEXT,
+                notes_tr TEXT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_slot_item_slot_id ON slot_item (slot_id)',
+            # --- Dietitian Mode: program_guideline ---
+            '''CREATE TABLE IF NOT EXISTS program_guideline (
+                id SERIAL PRIMARY KEY,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                guideline_type VARCHAR(30) NOT NULL,
+                target_category_id INTEGER REFERENCES food_exchange_category(id),
+                target_food_id INTEGER REFERENCES saved_food(id),
+                frequency_min INTEGER,
+                frequency_max INTEGER,
+                daily_qty_min FLOAT,
+                daily_qty_max FLOAT,
+                unit VARCHAR(20),
+                rule_text TEXT NOT NULL,
+                rule_text_tr TEXT,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_guideline_program_id ON program_guideline (program_id)',
+            # --- Dietitian Mode: program_version ---
+            '''CREATE TABLE IF NOT EXISTS program_version (
+                id SERIAL PRIMARY KEY,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                version_number INTEGER NOT NULL,
+                snapshot_json TEXT NOT NULL,
+                change_summary VARCHAR(500),
+                created_by INTEGER REFERENCES "user"(id),
+                created_at TIMESTAMP,
+                CONSTRAINT uq_program_version UNIQUE (program_id, version_number)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_version_program_id ON program_version (program_id)',
+            # --- Dietitian Mode: slot_fulfillment ---
+            '''CREATE TABLE IF NOT EXISTS slot_fulfillment (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES "user"(id),
+                slot_id INTEGER NOT NULL REFERENCES meal_slot(id),
+                fulfillment_date DATE NOT NULL,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                exchange_category_id INTEGER REFERENCES food_exchange_category(id),
+                recipe_id INTEGER REFERENCES recipe(id),
+                quantity FLOAT,
+                unit VARCHAR(20),
+                food_entry_id INTEGER REFERENCES food_entry(id),
+                created_at TIMESTAMP,
+                CONSTRAINT uq_slot_fulfillment_per_day UNIQUE (user_id, slot_id, fulfillment_date)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_user_id ON slot_fulfillment (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_slot_id ON slot_fulfillment (slot_id)',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_date ON slot_fulfillment (fulfillment_date)',
+            # --- Dietitian Mode: weekly_category_quota ---
+            '''CREATE TABLE IF NOT EXISTS weekly_category_quota (
+                id SERIAL PRIMARY KEY,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                exchange_category_id INTEGER NOT NULL REFERENCES food_exchange_category(id),
+                quota_per_week INTEGER NOT NULL,
+                slot_id INTEGER REFERENCES meal_slot(id),
+                notes TEXT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_weekly_category_quota_program_id ON weekly_category_quota (program_id)',
+            # --- Dietitian Mode: program_image_upload ---
+            '''CREATE TABLE IF NOT EXISTS program_image_upload (
+                id SERIAL PRIMARY KEY,
+                program_id INTEGER REFERENCES nutrition_plan(id),
+                uploaded_by INTEGER NOT NULL REFERENCES "user"(id),
+                file_path VARCHAR(500) NOT NULL,
+                original_filename VARCHAR(300) NOT NULL,
+                mime_type VARCHAR(50) NOT NULL,
+                extraction_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                extracted_json TEXT,
+                error_message TEXT,
+                created_at TIMESTAMP,
+                updated_at TIMESTAMP
+            )''',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
@@ -325,6 +509,189 @@ def _migrate_add_columns(app):
                 seen INTEGER NOT NULL DEFAULT 0
             )''',
             'CREATE INDEX IF NOT EXISTS ix_dietitian_visit_client_id ON dietitian_visit (client_id)',
+            # --- Dietitian Mode: new columns on nutrition_plan ---
+            "ALTER TABLE nutrition_plan ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'draft'",
+            "ALTER TABLE nutrition_plan ADD COLUMN is_template BOOLEAN NOT NULL DEFAULT 0",
+            "ALTER TABLE nutrition_plan ADD COLUMN parent_template_id INTEGER REFERENCES nutrition_plan(id)",
+            "ALTER TABLE nutrition_plan ADD COLUMN current_version INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE nutrition_plan ADD COLUMN name_tr VARCHAR(200)",
+            "ALTER TABLE nutrition_plan ADD COLUMN locale VARCHAR(10) DEFAULT 'tr'",
+            # --- Dietitian Mode: new columns on plan_task_completion ---
+            "ALTER TABLE plan_task_completion ADD COLUMN saved_food_id INTEGER REFERENCES saved_food(id)",
+            "ALTER TABLE plan_task_completion ADD COLUMN exchange_category_id INTEGER",
+            "ALTER TABLE plan_task_completion ADD COLUMN quantity_consumed FLOAT",
+            "ALTER TABLE plan_task_completion ADD COLUMN slot_fulfillment_id INTEGER",
+            # --- Dietitian Mode: program_day ---
+            '''CREATE TABLE IF NOT EXISTS program_day (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                day_offset INTEGER NOT NULL,
+                label VARCHAR(100),
+                label_tr VARCHAR(100),
+                notes TEXT,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME,
+                CONSTRAINT uq_program_day_offset UNIQUE (program_id, day_offset)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_day_program_id ON program_day (program_id)',
+            # --- Dietitian Mode: meal_slot ---
+            '''CREATE TABLE IF NOT EXISTS meal_slot (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day_id INTEGER NOT NULL REFERENCES program_day(id) ON DELETE CASCADE,
+                slot_name VARCHAR(100) NOT NULL,
+                slot_name_tr VARCHAR(100),
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                content_pattern VARCHAR(1) NOT NULL DEFAULT 'A',
+                is_optional INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_meal_slot_day_id ON meal_slot (day_id)',
+            # --- Dietitian Mode: recipe ---
+            '''CREATE TABLE IF NOT EXISTS recipe (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(200) NOT NULL,
+                name_tr VARCHAR(200),
+                owner_id INTEGER NOT NULL REFERENCES "user"(id),
+                prep_notes TEXT,
+                prep_notes_tr TEXT,
+                category_tags TEXT,
+                total_protein FLOAT,
+                total_fat FLOAT,
+                total_carbs FLOAT,
+                total_calories FLOAT,
+                is_archived INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME,
+                updated_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_recipe_owner_id ON recipe (owner_id)',
+            # --- Dietitian Mode: recipe_ingredient ---
+            '''CREATE TABLE IF NOT EXISTS recipe_ingredient (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                recipe_id INTEGER NOT NULL REFERENCES recipe(id) ON DELETE CASCADE,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                food_name_override VARCHAR(200),
+                quantity FLOAT NOT NULL,
+                unit VARCHAR(20) NOT NULL DEFAULT 'g',
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                protein FLOAT,
+                fat FLOAT,
+                carbs FLOAT,
+                calories FLOAT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_recipe_ingredient_recipe_id ON recipe_ingredient (recipe_id)',
+            # --- Dietitian Mode: food_exchange_category ---
+            '''CREATE TABLE IF NOT EXISTS food_exchange_category (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(200) NOT NULL,
+                name_tr VARCHAR(200),
+                owner_id INTEGER NOT NULL REFERENCES "user"(id),
+                description TEXT,
+                created_at DATETIME,
+                updated_at DATETIME,
+                CONSTRAINT uq_exchange_category_name_owner UNIQUE (name, owner_id)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_food_exchange_category_owner_id ON food_exchange_category (owner_id)',
+            # --- Dietitian Mode: exchange_category_member ---
+            '''CREATE TABLE IF NOT EXISTS exchange_category_member (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                category_id INTEGER NOT NULL REFERENCES food_exchange_category(id) ON DELETE CASCADE,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                food_name_override VARCHAR(200),
+                equivalent_qty FLOAT NOT NULL,
+                equivalent_unit VARCHAR(20) NOT NULL DEFAULT 'g',
+                sort_order INTEGER NOT NULL DEFAULT 0
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_exchange_category_member_category_id ON exchange_category_member (category_id)',
+            # --- Dietitian Mode: slot_item ---
+            '''CREATE TABLE IF NOT EXISTS slot_item (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                slot_id INTEGER NOT NULL REFERENCES meal_slot(id) ON DELETE CASCADE,
+                alternative_group INTEGER,
+                rotation_frequency INTEGER,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                recipe_id INTEGER REFERENCES recipe(id),
+                exchange_category_id INTEGER REFERENCES food_exchange_category(id),
+                food_name_override VARCHAR(200),
+                quantity FLOAT,
+                unit VARCHAR(20),
+                is_fallback INTEGER NOT NULL DEFAULT 0,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                notes TEXT,
+                notes_tr TEXT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_slot_item_slot_id ON slot_item (slot_id)',
+            # --- Dietitian Mode: program_guideline ---
+            '''CREATE TABLE IF NOT EXISTS program_guideline (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                guideline_type VARCHAR(30) NOT NULL,
+                target_category_id INTEGER REFERENCES food_exchange_category(id),
+                target_food_id INTEGER REFERENCES saved_food(id),
+                frequency_min INTEGER,
+                frequency_max INTEGER,
+                daily_qty_min FLOAT,
+                daily_qty_max FLOAT,
+                unit VARCHAR(20),
+                rule_text TEXT NOT NULL,
+                rule_text_tr TEXT,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at DATETIME
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_guideline_program_id ON program_guideline (program_id)',
+            # --- Dietitian Mode: program_version ---
+            '''CREATE TABLE IF NOT EXISTS program_version (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                version_number INTEGER NOT NULL,
+                snapshot_json TEXT NOT NULL,
+                change_summary VARCHAR(500),
+                created_by INTEGER REFERENCES "user"(id),
+                created_at DATETIME,
+                CONSTRAINT uq_program_version UNIQUE (program_id, version_number)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_program_version_program_id ON program_version (program_id)',
+            # --- Dietitian Mode: slot_fulfillment ---
+            '''CREATE TABLE IF NOT EXISTS slot_fulfillment (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES "user"(id),
+                slot_id INTEGER NOT NULL REFERENCES meal_slot(id),
+                fulfillment_date DATE NOT NULL,
+                saved_food_id INTEGER REFERENCES saved_food(id),
+                exchange_category_id INTEGER REFERENCES food_exchange_category(id),
+                recipe_id INTEGER REFERENCES recipe(id),
+                quantity FLOAT,
+                unit VARCHAR(20),
+                food_entry_id INTEGER REFERENCES food_entry(id),
+                created_at DATETIME,
+                CONSTRAINT uq_slot_fulfillment_per_day UNIQUE (user_id, slot_id, fulfillment_date)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_user_id ON slot_fulfillment (user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_slot_id ON slot_fulfillment (slot_id)',
+            'CREATE INDEX IF NOT EXISTS ix_slot_fulfillment_date ON slot_fulfillment (fulfillment_date)',
+            # --- Dietitian Mode: weekly_category_quota ---
+            '''CREATE TABLE IF NOT EXISTS weekly_category_quota (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                program_id INTEGER NOT NULL REFERENCES nutrition_plan(id) ON DELETE CASCADE,
+                exchange_category_id INTEGER NOT NULL REFERENCES food_exchange_category(id),
+                quota_per_week INTEGER NOT NULL,
+                slot_id INTEGER REFERENCES meal_slot(id),
+                notes TEXT
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_weekly_category_quota_program_id ON weekly_category_quota (program_id)',
+            # --- Dietitian Mode: program_image_upload ---
+            '''CREATE TABLE IF NOT EXISTS program_image_upload (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                program_id INTEGER REFERENCES nutrition_plan(id),
+                uploaded_by INTEGER NOT NULL REFERENCES "user"(id),
+                file_path VARCHAR(500) NOT NULL,
+                original_filename VARCHAR(300) NOT NULL,
+                mime_type VARCHAR(50) NOT NULL,
+                extraction_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                extracted_json TEXT,
+                error_message TEXT,
+                created_at DATETIME,
+                updated_at DATETIME
+            )''',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:
@@ -417,6 +784,74 @@ def _patch_name_tr(app):
         db.session.commit()
         app.logger.info(f'Patched name_tr for {updated} USDA foods.')
 
+
+def _patch_program_days(app):
+    """Idempotent backfill: migrate existing PlanTask rows into the new
+    ProgramDay -> MealSlot -> SlotItem hierarchy.
+
+    For each plan that has PlanTask rows but no ProgramDay rows yet, this creates:
+    - One ProgramDay per unique day_offset
+    - One MealSlot ("General") per day
+    - One SlotItem per PlanTask (content_pattern='A', fixed combo)
+    """
+    from models.nutrition_plan import NutritionPlan
+    from models.plan_task import PlanTask
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    from datetime import datetime, timezone
+
+    plans_with_tasks = (
+        db.session.query(NutritionPlan)
+        .join(PlanTask, PlanTask.plan_id == NutritionPlan.id)
+        .filter(~NutritionPlan.days.any())
+        .all()
+    )
+
+    if not plans_with_tasks:
+        return
+
+    now = datetime.now(timezone.utc)
+    migrated = 0
+    for plan in plans_with_tasks:
+        tasks = PlanTask.query.filter_by(plan_id=plan.id).order_by(PlanTask.day_offset, PlanTask.id).all()
+        days_seen = {}
+        for task in tasks:
+            offset = task.day_offset or 0
+            if offset not in days_seen:
+                day = ProgramDay(
+                    program_id=plan.id,
+                    day_offset=offset,
+                    label=f'Day {offset + 1}',
+                    sort_order=offset,
+                    created_at=now,
+                )
+                db.session.add(day)
+                db.session.flush()
+                slot = MealSlot(
+                    day_id=day.id,
+                    slot_name='General',
+                    sort_order=0,
+                    content_pattern='A',
+                    created_at=now,
+                )
+                db.session.add(slot)
+                db.session.flush()
+                days_seen[offset] = slot.id
+            slot_id = days_seen[offset]
+            item = SlotItem(
+                slot_id=slot_id,
+                food_name_override=task.food_name,
+                quantity=task.quantity,
+                unit=task.unit,
+                sort_order=task.id,
+            )
+            db.session.add(item)
+        migrated += 1
+
+    if migrated:
+        db.session.commit()
+        app.logger.info(f'Migrated {migrated} plans into ProgramDay/MealSlot/SlotItem structure.')
 
 
 if __name__ == '__main__':

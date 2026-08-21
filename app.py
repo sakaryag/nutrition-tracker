@@ -722,6 +722,8 @@ def _register_blueprints(app):
         from routes.social import social_bp
         from routes.game import game_bp
         from routes.dietitian import dietitian_bp
+        from routes.recipes import recipes_bp
+        from routes.exchange_categories import exchange_categories_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -740,6 +742,8 @@ def _register_blueprints(app):
         app.register_blueprint(social_bp)
         app.register_blueprint(game_bp)
         app.register_blueprint(dietitian_bp)
+        app.register_blueprint(recipes_bp)
+        app.register_blueprint(exchange_categories_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

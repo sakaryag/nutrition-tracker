@@ -30,12 +30,32 @@ def require_admin(f):
     return decorated
 
 
+def _assert_owner(plan):
+    """403 if AUTH is enabled and the current user doesn't own the plan."""
+    if not current_app.config.get('AUTH_ENABLED'):
+        return
+    uid = session.get('user_id')
+    if uid is not None and plan.created_by is not None and plan.created_by != uid:
+        from flask import abort
+        abort(403)
+
+
 # Ã¢â€â‚¬Ã¢â€â‚¬ Plans Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @admin_bp.route('/plans', methods=['GET'])
 @require_admin
 def list_plans():
-    plans = NutritionPlan.query.order_by(NutritionPlan.created_at.desc()).all()
+    uid = session.get('user_id')
+    query = NutritionPlan.query
+    # Multi-tenant: filter by creator when auth is enabled and user is set
+    if current_app.config.get('AUTH_ENABLED') and uid is not None:
+        query = query.filter(
+            (NutritionPlan.created_by == uid) | (NutritionPlan.created_by == None)
+        )
+    is_template = request.args.get('is_template')
+    if is_template is not None:
+        query = query.filter(NutritionPlan.is_template == (is_template == '1'))
+    plans = query.order_by(NutritionPlan.created_at.desc()).all()
     return jsonify([p.to_dict() for p in plans])
 
 
@@ -48,10 +68,14 @@ def create_plan():
         return jsonify({'error': 'name is required'}), 400
     plan = NutritionPlan(
         name=name,
+        name_tr=data.get('name_tr', '').strip() or None,
         description=data.get('description', '').strip() or None,
         duration_days=int(data.get('duration_days', 7)),
         created_by=session.get('user_id'),
         is_public=bool(data.get('is_public', False)),
+        status=data.get('status', 'draft'),
+        is_template=bool(data.get('is_template', False)),
+        locale=data.get('locale', 'tr'),
     )
     db.session.add(plan)
     db.session.commit()
@@ -73,6 +97,14 @@ def update_plan(plan_id):
         plan.duration_days = int(data['duration_days'])
     if 'is_public' in data:
         plan.is_public = bool(data['is_public'])
+    if 'status' in data:
+        plan.status = data['status']
+    if 'is_template' in data:
+        plan.is_template = bool(data['is_template'])
+    if 'name_tr' in data:
+        plan.name_tr = data['name_tr'].strip() or None
+    if 'locale' in data:
+        plan.locale = data['locale']
     db.session.commit()
     return jsonify(plan.to_dict())
 
@@ -232,3 +264,703 @@ def assign_plan(user_id):
                 pass
     db.session.commit()
     return jsonify(assignment.to_dict()), 201
+
+# -- Program Day CRUD -------------------------------------------------------
+
+@admin_bp.route('/plans/<int:plan_id>/days', methods=['GET'])
+@require_admin
+def list_days(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_day import ProgramDay
+    days = ProgramDay.query.filter_by(program_id=plan_id).order_by(ProgramDay.sort_order).all()
+    return jsonify([d.to_dict() for d in days])
+
+
+@admin_bp.route('/plans/<int:plan_id>/days', methods=['POST'])
+@require_admin
+def add_day(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_day import ProgramDay
+    from datetime import datetime, timezone
+    data = request.get_json(silent=True) or {}
+    # Find next available day_offset
+    existing_offsets = {d.day_offset for d in ProgramDay.query.filter_by(program_id=plan_id).all()}
+    offset = 0
+    while offset in existing_offsets:
+        offset += 1
+    day = ProgramDay(
+        program_id=plan_id,
+        day_offset=data.get('day_offset', offset),
+        label=data.get('label') or f'Day {offset + 1}',
+        label_tr=data.get('label_tr') or None,
+        notes=data.get('notes') or None,
+        sort_order=data.get('sort_order', offset),
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(day)
+    db.session.commit()
+    return jsonify(day.to_dict()), 201
+
+
+@admin_bp.route('/days/<int:day_id>', methods=['PUT'])
+@require_admin
+def update_day(day_id):
+    from models.program_day import ProgramDay
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    data = request.get_json(silent=True) or {}
+    if 'label' in data:
+        day.label = data['label']
+    if 'label_tr' in data:
+        day.label_tr = data['label_tr'] or None
+    if 'notes' in data:
+        day.notes = data['notes'] or None
+    if 'sort_order' in data:
+        day.sort_order = int(data['sort_order'])
+    db.session.commit()
+    return jsonify(day.to_dict())
+
+
+@admin_bp.route('/days/<int:day_id>', methods=['DELETE'])
+@require_admin
+def delete_day(day_id):
+    from models.program_day import ProgramDay
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    db.session.delete(day)
+    db.session.commit()
+    return jsonify({'deleted': day_id})
+
+
+@admin_bp.route('/days/<int:day_id>/copy', methods=['POST'])
+@require_admin
+def copy_day(day_id):
+    """Deep-clone a day (all slots and items) to a new day in the same program."""
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    from datetime import datetime, timezone
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    data = request.get_json(silent=True) or {}
+    existing_offsets = {d.day_offset for d in ProgramDay.query.filter_by(program_id=day.program_id).all()}
+    offset = 0
+    while offset in existing_offsets:
+        offset += 1
+    now = datetime.now(timezone.utc)
+    new_day = ProgramDay(
+        program_id=day.program_id,
+        day_offset=data.get('day_offset', offset),
+        label=data.get('label') or (day.label + ' (copy)' if day.label else f'Day {offset + 1}'),
+        label_tr=day.label_tr,
+        notes=day.notes,
+        sort_order=data.get('sort_order', offset),
+        created_at=now,
+    )
+    db.session.add(new_day)
+    db.session.flush()
+    for slot in day.slots:
+        new_slot = MealSlot(
+            day_id=new_day.id,
+            slot_name=slot.slot_name,
+            slot_name_tr=slot.slot_name_tr,
+            sort_order=slot.sort_order,
+            content_pattern=slot.content_pattern,
+            is_optional=slot.is_optional,
+            created_at=now,
+        )
+        db.session.add(new_slot)
+        db.session.flush()
+        for item in slot.items:
+            new_item = SlotItem(
+                slot_id=new_slot.id,
+                alternative_group=item.alternative_group,
+                rotation_frequency=item.rotation_frequency,
+                saved_food_id=item.saved_food_id,
+                recipe_id=item.recipe_id,
+                exchange_category_id=item.exchange_category_id,
+                food_name_override=item.food_name_override,
+                quantity=item.quantity,
+                unit=item.unit,
+                is_fallback=item.is_fallback,
+                sort_order=item.sort_order,
+                notes=item.notes,
+                notes_tr=item.notes_tr,
+            )
+            db.session.add(new_item)
+    db.session.commit()
+    return jsonify(new_day.to_dict()), 201
+
+
+@admin_bp.route('/days/<int:day_id>/copy-to-remaining', methods=['POST'])
+@require_admin
+def copy_day_to_remaining(day_id):
+    """Clone the source day's slots/items into every day in the same program that has no slots."""
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    from datetime import datetime, timezone
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    now = datetime.now(timezone.utc)
+    target_days = ProgramDay.query.filter(
+        ProgramDay.program_id == day.program_id,
+        ProgramDay.id != day_id,
+    ).all()
+    # Only copy to days that currently have no slots
+    filled = 0
+    for target in target_days:
+        if target.slots:
+            continue
+        for slot in day.slots:
+            new_slot = MealSlot(
+                day_id=target.id,
+                slot_name=slot.slot_name,
+                slot_name_tr=slot.slot_name_tr,
+                sort_order=slot.sort_order,
+                content_pattern=slot.content_pattern,
+                is_optional=slot.is_optional,
+                created_at=now,
+            )
+            db.session.add(new_slot)
+            db.session.flush()
+            for item in slot.items:
+                new_item = SlotItem(
+                    slot_id=new_slot.id,
+                    alternative_group=item.alternative_group,
+                    rotation_frequency=item.rotation_frequency,
+                    saved_food_id=item.saved_food_id,
+                    recipe_id=item.recipe_id,
+                    exchange_category_id=item.exchange_category_id,
+                    food_name_override=item.food_name_override,
+                    quantity=item.quantity,
+                    unit=item.unit,
+                    is_fallback=item.is_fallback,
+                    sort_order=item.sort_order,
+                    notes=item.notes,
+                    notes_tr=item.notes_tr,
+                )
+                db.session.add(new_item)
+        filled += 1
+    db.session.commit()
+    return jsonify({'filled_days': filled})
+
+
+# -- MealSlot CRUD -----------------------------------------------------------
+
+@admin_bp.route('/days/<int:day_id>/slots', methods=['GET'])
+@require_admin
+def list_slots(day_id):
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    slots = MealSlot.query.filter_by(day_id=day_id).order_by(MealSlot.sort_order).all()
+    return jsonify([s.to_dict() for s in slots])
+
+
+@admin_bp.route('/days/<int:day_id>/slots', methods=['POST'])
+@require_admin
+def add_slot(day_id):
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from datetime import datetime, timezone
+    day = db.session.get(ProgramDay, day_id)
+    if day is None:
+        return jsonify({'error': 'Day not found'}), 404
+    _assert_owner(day.program)
+    data = request.get_json(silent=True) or {}
+    slot_name = data.get('slot_name', '').strip()
+    if not slot_name:
+        return jsonify({'error': 'slot_name is required'}), 400
+    slot = MealSlot(
+        day_id=day_id,
+        slot_name=slot_name,
+        slot_name_tr=data.get('slot_name_tr') or None,
+        sort_order=data.get('sort_order', 0),
+        content_pattern=data.get('content_pattern', 'A'),
+        is_optional=bool(data.get('is_optional', False)),
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(slot)
+    db.session.commit()
+    return jsonify(slot.to_dict()), 201
+
+
+@admin_bp.route('/slots/<int:slot_id>', methods=['PUT'])
+@require_admin
+def update_slot(slot_id):
+    from models.meal_slot import MealSlot
+    slot = db.session.get(MealSlot, slot_id)
+    if slot is None:
+        return jsonify({'error': 'Slot not found'}), 404
+    _assert_owner(slot.day.program)
+    data = request.get_json(silent=True) or {}
+    if 'slot_name' in data:
+        slot.slot_name = data['slot_name'].strip()
+    if 'slot_name_tr' in data:
+        slot.slot_name_tr = data['slot_name_tr'] or None
+    if 'sort_order' in data:
+        slot.sort_order = int(data['sort_order'])
+    if 'content_pattern' in data:
+        slot.content_pattern = data['content_pattern']
+    if 'is_optional' in data:
+        slot.is_optional = bool(data['is_optional'])
+    db.session.commit()
+    return jsonify(slot.to_dict())
+
+
+@admin_bp.route('/slots/<int:slot_id>', methods=['DELETE'])
+@require_admin
+def delete_slot(slot_id):
+    from models.meal_slot import MealSlot
+    slot = db.session.get(MealSlot, slot_id)
+    if slot is None:
+        return jsonify({'error': 'Slot not found'}), 404
+    _assert_owner(slot.day.program)
+    db.session.delete(slot)
+    db.session.commit()
+    return jsonify({'deleted': slot_id})
+
+
+# -- SlotItem CRUD -----------------------------------------------------------
+
+@admin_bp.route('/slots/<int:slot_id>/items', methods=['GET'])
+@require_admin
+def list_slot_items(slot_id):
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    slot = db.session.get(MealSlot, slot_id)
+    if slot is None:
+        return jsonify({'error': 'Slot not found'}), 404
+    _assert_owner(slot.day.program)
+    items = SlotItem.query.filter_by(slot_id=slot_id).order_by(SlotItem.sort_order).all()
+    return jsonify([i.to_dict() for i in items])
+
+
+@admin_bp.route('/slots/<int:slot_id>/items', methods=['POST'])
+@require_admin
+def add_slot_item(slot_id):
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    slot = db.session.get(MealSlot, slot_id)
+    if slot is None:
+        return jsonify({'error': 'Slot not found'}), 404
+    _assert_owner(slot.day.program)
+    data = request.get_json(silent=True) or {}
+    item = SlotItem(
+        slot_id=slot_id,
+        alternative_group=data.get('alternative_group'),
+        rotation_frequency=data.get('rotation_frequency'),
+        saved_food_id=data.get('saved_food_id'),
+        recipe_id=data.get('recipe_id'),
+        exchange_category_id=data.get('exchange_category_id'),
+        food_name_override=data.get('food_name_override') or None,
+        quantity=float(data['quantity']) if data.get('quantity') is not None else None,
+        unit=data.get('unit') or None,
+        is_fallback=bool(data.get('is_fallback', False)),
+        sort_order=data.get('sort_order', 0),
+        notes=data.get('notes') or None,
+        notes_tr=data.get('notes_tr') or None,
+    )
+    db.session.add(item)
+    db.session.commit()
+    return jsonify(item.to_dict()), 201
+
+
+@admin_bp.route('/slot-items/<int:item_id>', methods=['PUT'])
+@require_admin
+def update_slot_item(item_id):
+    from models.slot_item import SlotItem
+    item = db.session.get(SlotItem, item_id)
+    if item is None:
+        return jsonify({'error': 'Item not found'}), 404
+    _assert_owner(item.slot.day.program)
+    data = request.get_json(silent=True) or {}
+    for field in ('alternative_group', 'rotation_frequency', 'saved_food_id',
+                  'recipe_id', 'exchange_category_id', 'food_name_override',
+                  'quantity', 'unit', 'is_fallback', 'sort_order', 'notes', 'notes_tr'):
+        if field in data:
+            setattr(item, field, data[field])
+    db.session.commit()
+    return jsonify(item.to_dict())
+
+
+@admin_bp.route('/slot-items/<int:item_id>', methods=['DELETE'])
+@require_admin
+def delete_slot_item(item_id):
+    from models.slot_item import SlotItem
+    item = db.session.get(SlotItem, item_id)
+    if item is None:
+        return jsonify({'error': 'Item not found'}), 404
+    _assert_owner(item.slot.day.program)
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({'deleted': item_id})
+
+
+# -- Guidelines CRUD ---------------------------------------------------------
+
+@admin_bp.route('/plans/<int:plan_id>/guidelines', methods=['GET'])
+@require_admin
+def list_guidelines(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_guideline import ProgramGuideline
+    gs = ProgramGuideline.query.filter_by(program_id=plan_id).order_by(ProgramGuideline.sort_order).all()
+    return jsonify([g.to_dict() for g in gs])
+
+
+@admin_bp.route('/plans/<int:plan_id>/guidelines', methods=['POST'])
+@require_admin
+def add_guideline(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_guideline import ProgramGuideline
+    from datetime import datetime, timezone
+    data = request.get_json(silent=True) or {}
+    if not data.get('rule_text', '').strip():
+        return jsonify({'error': 'rule_text is required'}), 400
+    g = ProgramGuideline(
+        program_id=plan_id,
+        guideline_type=data.get('guideline_type', 'general'),
+        target_category_id=data.get('target_category_id'),
+        target_food_id=data.get('target_food_id'),
+        frequency_min=data.get('frequency_min'),
+        frequency_max=data.get('frequency_max'),
+        daily_qty_min=data.get('daily_qty_min'),
+        daily_qty_max=data.get('daily_qty_max'),
+        unit=data.get('unit') or None,
+        rule_text=data['rule_text'].strip(),
+        rule_text_tr=data.get('rule_text_tr', '').strip() or None,
+        sort_order=data.get('sort_order', 0),
+        created_at=datetime.now(timezone.utc),
+    )
+    db.session.add(g)
+    db.session.commit()
+    return jsonify(g.to_dict()), 201
+
+
+@admin_bp.route('/guidelines/<int:gid>', methods=['PUT'])
+@require_admin
+def update_guideline(gid):
+    from models.program_guideline import ProgramGuideline
+    g = db.session.get(ProgramGuideline, gid)
+    if g is None:
+        return jsonify({'error': 'Guideline not found'}), 404
+    _assert_owner(g.program)
+    data = request.get_json(silent=True) or {}
+    for field in ('guideline_type', 'target_category_id', 'target_food_id',
+                  'frequency_min', 'frequency_max', 'daily_qty_min', 'daily_qty_max',
+                  'unit', 'rule_text', 'rule_text_tr', 'sort_order'):
+        if field in data:
+            setattr(g, field, data[field] if data[field] != '' else None)
+    db.session.commit()
+    return jsonify(g.to_dict())
+
+
+@admin_bp.route('/guidelines/<int:gid>', methods=['DELETE'])
+@require_admin
+def delete_guideline(gid):
+    from models.program_guideline import ProgramGuideline
+    g = db.session.get(ProgramGuideline, gid)
+    if g is None:
+        return jsonify({'error': 'Guideline not found'}), 404
+    _assert_owner(g.program)
+    db.session.delete(g)
+    db.session.commit()
+    return jsonify({'deleted': gid})
+
+
+# -- Weekly Category Quota CRUD ----------------------------------------------
+
+@admin_bp.route('/plans/<int:plan_id>/quotas', methods=['GET'])
+@require_admin
+def list_quotas(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.weekly_category_quota import WeeklyCategoryQuota
+    quotas = WeeklyCategoryQuota.query.filter_by(program_id=plan_id).all()
+    return jsonify([q.to_dict() for q in quotas])
+
+
+@admin_bp.route('/plans/<int:plan_id>/quotas', methods=['POST'])
+@require_admin
+def add_quota(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.weekly_category_quota import WeeklyCategoryQuota
+    data = request.get_json(silent=True) or {}
+    if not data.get('exchange_category_id') or not data.get('quota_per_week'):
+        return jsonify({'error': 'exchange_category_id and quota_per_week are required'}), 400
+    q = WeeklyCategoryQuota(
+        program_id=plan_id,
+        exchange_category_id=int(data['exchange_category_id']),
+        quota_per_week=int(data['quota_per_week']),
+        slot_id=data.get('slot_id'),
+        notes=data.get('notes') or None,
+    )
+    db.session.add(q)
+    db.session.commit()
+    return jsonify(q.to_dict()), 201
+
+
+@admin_bp.route('/quotas/<int:qid>', methods=['PUT'])
+@require_admin
+def update_quota(qid):
+    from models.weekly_category_quota import WeeklyCategoryQuota
+    q = db.session.get(WeeklyCategoryQuota, qid)
+    if q is None:
+        return jsonify({'error': 'Quota not found'}), 404
+    plan = db.session.get(NutritionPlan, q.program_id)
+    _assert_owner(plan)
+    data = request.get_json(silent=True) or {}
+    for field in ('exchange_category_id', 'quota_per_week', 'slot_id', 'notes'):
+        if field in data:
+            setattr(q, field, data[field])
+    db.session.commit()
+    return jsonify(q.to_dict())
+
+
+@admin_bp.route('/quotas/<int:qid>', methods=['DELETE'])
+@require_admin
+def delete_quota(qid):
+    from models.weekly_category_quota import WeeklyCategoryQuota
+    q = db.session.get(WeeklyCategoryQuota, qid)
+    if q is None:
+        return jsonify({'error': 'Quota not found'}), 404
+    plan = db.session.get(NutritionPlan, q.program_id)
+    _assert_owner(plan)
+    db.session.delete(q)
+    db.session.commit()
+    return jsonify({'deleted': qid})
+
+
+# -- Template operations -----------------------------------------------------
+
+@admin_bp.route('/plans/<int:plan_id>/promote-to-template', methods=['POST'])
+@require_admin
+def promote_to_template(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    plan.is_template = True
+    db.session.commit()
+    return jsonify(plan.to_dict())
+
+
+@admin_bp.route('/plans/<int:plan_id>/clone-from-template', methods=['POST'])
+@require_admin
+def clone_plan(plan_id):
+    """Deep-clone a template plan into a new editable program."""
+    source = db.session.get(NutritionPlan, plan_id)
+    if source is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    from models.program_day import ProgramDay
+    from models.meal_slot import MealSlot
+    from models.slot_item import SlotItem
+    from models.program_guideline import ProgramGuideline
+    from models.weekly_category_quota import WeeklyCategoryQuota
+    from datetime import datetime, timezone
+    data = request.get_json(silent=True) or {}
+    now = datetime.now(timezone.utc)
+    uid = session.get('user_id')
+    new_plan = NutritionPlan(
+        name=data.get('name') or (source.name + ' (copy)'),
+        name_tr=source.name_tr,
+        description=source.description,
+        duration_days=source.duration_days,
+        created_by=uid,
+        is_public=False,
+        status='draft',
+        is_template=False,
+        parent_template_id=source.id,
+        current_version=1,
+        locale=source.locale,
+    )
+    db.session.add(new_plan)
+    db.session.flush()
+    for day in source.days:
+        new_day = ProgramDay(
+            program_id=new_plan.id, day_offset=day.day_offset, label=day.label,
+            label_tr=day.label_tr, notes=day.notes, sort_order=day.sort_order, created_at=now,
+        )
+        db.session.add(new_day)
+        db.session.flush()
+        for slot in day.slots:
+            new_slot = MealSlot(
+                day_id=new_day.id, slot_name=slot.slot_name, slot_name_tr=slot.slot_name_tr,
+                sort_order=slot.sort_order, content_pattern=slot.content_pattern,
+                is_optional=slot.is_optional, created_at=now,
+            )
+            db.session.add(new_slot)
+            db.session.flush()
+            for item in slot.items:
+                db.session.add(SlotItem(
+                    slot_id=new_slot.id, alternative_group=item.alternative_group,
+                    rotation_frequency=item.rotation_frequency, saved_food_id=item.saved_food_id,
+                    recipe_id=item.recipe_id, exchange_category_id=item.exchange_category_id,
+                    food_name_override=item.food_name_override, quantity=item.quantity,
+                    unit=item.unit, is_fallback=item.is_fallback, sort_order=item.sort_order,
+                    notes=item.notes, notes_tr=item.notes_tr,
+                ))
+    for g in source.guidelines:
+        db.session.add(ProgramGuideline(
+            program_id=new_plan.id, guideline_type=g.guideline_type,
+            target_category_id=g.target_category_id, target_food_id=g.target_food_id,
+            frequency_min=g.frequency_min, frequency_max=g.frequency_max,
+            daily_qty_min=g.daily_qty_min, daily_qty_max=g.daily_qty_max,
+            unit=g.unit, rule_text=g.rule_text, rule_text_tr=g.rule_text_tr,
+            sort_order=g.sort_order, created_at=now,
+        ))
+    for q in WeeklyCategoryQuota.query.filter_by(program_id=source.id).all():
+        db.session.add(WeeklyCategoryQuota(
+            program_id=new_plan.id, exchange_category_id=q.exchange_category_id,
+            quota_per_week=q.quota_per_week, notes=q.notes,
+        ))
+    db.session.commit()
+    return jsonify(new_plan.to_dict()), 201
+
+
+# -- Program Versioning ------------------------------------------------------
+
+def _snapshot_plan(plan):
+    """Serialize the entire plan tree to JSON for versioning."""
+    import json
+    from models.program_guideline import ProgramGuideline
+    data = plan.to_dict()
+    data['days'] = [d.to_dict() for d in plan.days]
+    data['guidelines'] = [g.to_dict() for g in plan.guidelines]
+    return json.dumps(data)
+
+
+@admin_bp.route('/plans/<int:plan_id>/versions', methods=['GET'])
+@require_admin
+def list_versions(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_version import ProgramVersion
+    versions = ProgramVersion.query.filter_by(program_id=plan_id).order_by(ProgramVersion.version_number.desc()).all()
+    return jsonify([v.to_dict() for v in versions])
+
+
+@admin_bp.route('/plans/<int:plan_id>/versions', methods=['POST'])
+@require_admin
+def save_version(plan_id):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_version import ProgramVersion
+    from datetime import datetime, timezone
+    data = request.get_json(silent=True) or {}
+    latest = ProgramVersion.query.filter_by(program_id=plan_id).order_by(ProgramVersion.version_number.desc()).first()
+    next_num = (latest.version_number + 1) if latest else 1
+    v = ProgramVersion(
+        program_id=plan_id,
+        version_number=next_num,
+        snapshot_json=_snapshot_plan(plan),
+        change_summary=data.get('change_summary') or None,
+        created_by=session.get('user_id'),
+        created_at=datetime.now(timezone.utc),
+    )
+    plan.current_version = next_num
+    db.session.add(v)
+    db.session.commit()
+    return jsonify(v.to_dict()), 201
+
+
+@admin_bp.route('/plans/<int:plan_id>/versions/<int:version_num>', methods=['GET'])
+@require_admin
+def get_version(plan_id, version_num):
+    plan = db.session.get(NutritionPlan, plan_id)
+    if plan is None:
+        return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
+    from models.program_version import ProgramVersion
+    v = ProgramVersion.query.filter_by(program_id=plan_id, version_number=version_num).first()
+    if v is None:
+        return jsonify({'error': 'Version not found'}), 404
+    d = v.to_dict()
+    d['snapshot_json'] = v.snapshot_json
+    return jsonify(d)
+
+
+# -- Image upload (stub) -----------------------------------------------------
+
+@admin_bp.route('/plans/upload-image', methods=['POST'])
+@require_admin
+def upload_image():
+    from models.program_image_upload import ProgramImageUpload
+    from datetime import datetime, timezone
+    import os
+    if 'file' not in request.files:
+        return jsonify({'error': 'file is required'}), 400
+    f = request.files['file']
+    if not f.filename:
+        return jsonify({'error': 'No file selected'}), 400
+    upload_dir = os.path.join(current_app.instance_path, 'uploads')
+    os.makedirs(upload_dir, exist_ok=True)
+    now = datetime.now(timezone.utc)
+    safe_name = f'{int(now.timestamp())}_{f.filename}'
+    file_path = os.path.join(upload_dir, safe_name)
+    f.save(file_path)
+    upload = ProgramImageUpload(
+        uploaded_by=session.get('user_id'),
+        file_path=file_path,
+        original_filename=f.filename,
+        mime_type=f.content_type or 'application/octet-stream',
+        extraction_status='pending',
+        created_at=now,
+        updated_at=now,
+    )
+    db.session.add(upload)
+    db.session.commit()
+    return jsonify(upload.to_dict()), 201
+
+
+@admin_bp.route('/plans/confirm-extraction/<int:upload_id>', methods=['POST'])
+@require_admin
+def confirm_extraction(upload_id):
+    from models.program_image_upload import ProgramImageUpload
+    from datetime import datetime, timezone
+    upload = db.session.get(ProgramImageUpload, upload_id)
+    if upload is None:
+        return jsonify({'error': 'Upload not found'}), 404
+    if upload.extraction_status not in ('draft_ready',):
+        return jsonify({'error': 'Nothing to confirm — run extraction first'}), 400
+    upload.extraction_status = 'confirmed'
+    upload.updated_at = datetime.now(timezone.utc)
+    if upload.program_id:
+        plan = db.session.get(NutritionPlan, upload.program_id)
+        if plan:
+            plan.status = 'active'
+    db.session.commit()
+    return jsonify(upload.to_dict())

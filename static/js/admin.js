@@ -726,13 +726,32 @@ function loadUsers() {
 var assignModal = document.getElementById('admin-assign-modal');
 document.getElementById('admin-assign-cancel').addEventListener('click', function () { assignModal.close(); });
 
+function _populateAssignSelect() {
+  var sel = document.getElementById('admin-assign-plan-select');
+  if (!plans.length) {
+    sel.innerHTML = '<option disabled>No plans found</option>';
+  } else {
+    sel.innerHTML = plans.map(function (p) {
+      return '<option value="' + p.id + '">' + esc(p.name) + (p.is_template ? ' ★' : '') + '</option>';
+    }).join('');
+  }
+}
+
 function openAssignModal(uid, uname) {
   document.getElementById('admin-assign-user-id').value = uid;
   document.getElementById('admin-assign-username').textContent = uname;
   document.getElementById('admin-assign-start').value = new Date().toISOString().slice(0, 10);
-  var sel = document.getElementById('admin-assign-plan-select');
-  sel.innerHTML = plans.map(function (p) { return '<option value="' + p.id + '">' + esc(p.name) + '</option>'; }).join('');
-  assignModal.showModal();
+
+  if (plans.length) {
+    _populateAssignSelect();
+    assignModal.showModal();
+  } else {
+    api('/api/admin/plans').then(function (data) {
+      plans = data;
+      _populateAssignSelect();
+      assignModal.showModal();
+    }).catch(function (e) { showToast(e.message, 'error'); });
+  }
 }
 
 document.getElementById('admin-assign-form').addEventListener('submit', function (e) {

@@ -76,24 +76,17 @@ def create_app(config_name=None, test_config=None):
 
 
 def _create_all_if_needed(app):
-    """Only create tables if the database is new (no tables exist yet).
+    """Create any tables that don't exist yet.
 
-    The SQLite DB is persisted across deploys (e.g. via a Railway volume), so
-    calling db.create_all() unconditionally on every startup would raise
-    'table X already exists' once the schema has already been created.
-    Flask-Migrate (and _migrate_add_columns) handle subsequent schema changes.
+    db.create_all() is idempotent — it uses checkfirst=True by default so it
+    skips tables that already exist. Safe to call on every startup; this ensures
+    new tables added to models are created in existing DBs (Neon/PostgreSQL)
+    without requiring a full migration run.
     """
     try:
-        inspector = db.inspect(db.engine)
-        existing_tables = inspector.get_table_names()
-    except Exception:
-        existing_tables = []
-
-    if not existing_tables:
-        try:
-            db.create_all()
-        except Exception:
-            pass  # another worker already created the tables
+        db.create_all()
+    except Exception as e:
+        app.logger.warning('db.create_all() warning: %s', e)
 
 
 def _backup_db(app):
@@ -771,10 +764,10 @@ def _auto_seed(app):
 def _seed_starter_templates(app):
     try:
         from seed_data.seed_templates import seed_starter_templates
-    except ImportError:
-        return
-    seed_starter_templates()
-    app.logger.info('Starter templates seeded (or already present).')
+        seed_starter_templates()
+        app.logger.info('Starter templates seeded (or already present).')
+    except Exception as e:
+        app.logger.warning('Starter template seed skipped: %s', e)
 
 
 def _patch_name_tr(app):

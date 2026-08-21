@@ -58,11 +58,15 @@ def _assert_owner(plan):
 def list_plans():
     uid = session.get('user_id')
     query = NutritionPlan.query
-    # Multi-tenant: filter by creator when auth is enabled and user is set
     if current_app.config.get('AUTH_ENABLED') and uid is not None:
-        query = query.filter(
-            (NutritionPlan.created_by == uid) | (NutritionPlan.created_by == None)
-        )
+        user = db.session.get(User, uid)
+        is_admin = user and getattr(user, 'is_admin', False)
+        if not is_admin:
+            # Regular users only see their own plans and system-owned (NULL) plans
+            query = query.filter(
+                (NutritionPlan.created_by == uid) | (NutritionPlan.created_by == None)
+            )
+        # Admins see everything — including __system__ seeded templates
     is_template = request.args.get('is_template')
     if is_template is not None:
         query = query.filter(NutritionPlan.is_template == (is_template == '1'))

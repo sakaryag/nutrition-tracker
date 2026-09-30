@@ -1,7 +1,7 @@
 # NutriTrack — TODO & Future Features
 
 ## Language Support
-- [ ] **Turkish meal dataset** — curate common Turkish dishes (mercimek çorbası, mantı, iskender, döner, karnıyarık, börek, menemen, pilav, köfte, dolma…) with per-serving macros
+- [x] **Turkish meal dataset** — 65 authentic Turkish dishes seeded via seed_turkish_meals() in seed_data/meals.py (PR9); covers soups, kebabs, pilavs, börek, mezze, salads, desserts, drinks
 - [ ] **Country-specific meal datasets** — extend seeding infrastructure for per-country datasets selectable in Settings
 
 ## Dataset & Food Library
@@ -48,7 +48,7 @@
 - [x] **valid_units filtering** — unit dropdown in food search now filtered by saved_food.valid_units (PR6)
 - [x] **Test coverage for new routes** — 40 new tests added (PR7): water/notes/shared/friends/game/social + seed data correctness. 167 total tests.
 - [x] **OpenFoodFacts fallback search** — already implemented
-- [ ] **Turkish food dataset** — 50–100 common Turkish dishes seeded
+- [x] **Turkish food dataset** — 65 authentic Turkish dishes seeded (PR9)
 - [ ] **Duplicate meal template** — clone button
 - [ ] **datetime.utcnow() deprecation warnings** — entries.py, water.py, notes.py, shared.py use deprecated `datetime.utcnow()`. Replace with `datetime.now(timezone.utc)` (Python 3.12+).
 - [ ] **No tests for admin routes** — /api/admin/* routes have no test coverage

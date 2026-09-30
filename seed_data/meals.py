@@ -89,6 +89,139 @@ MEALS = [
     {"name": "Yogurt with Granola",   "category": "Snack",    "protein": 8.5,  "fat": 5.0,  "carbs": 30.0, "calories": 198, "default_serving": 200, "serving_unit": "g", "valid_units": '["g","oz","cup","serving"]'},
 ]
 
+# ---------------------------------------------------------------------------
+# Turkish meals v2 — proper Turkish names (with diacritics) + name_tr field
+# Macros are per serving (not per 100g). Calories = P*4 + F*9 + C*4.
+# ---------------------------------------------------------------------------
+TURKISH_MEALS_V2 = [
+    # -- Soups (Çorbalar) -------------------------------------------------------
+    {"name": "Mercimek Çorbası",       "name_tr": "Mercimek Çorbası",       "category": "Turkish", "protein": 9.0,  "fat": 4.0,  "carbs": 22.0, "calories": 160, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Domates Çorbası",        "name_tr": "Domates Çorbası",        "category": "Turkish", "protein": 4.0,  "fat": 3.0,  "carbs": 15.0, "calories": 103, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Tavuk Çorbası",          "name_tr": "Tavuk Çorbası",          "category": "Turkish", "protein": 12.0, "fat": 4.0,  "carbs": 10.0, "calories": 124, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Ezogelin Çorbası",       "name_tr": "Ezogelin Çorbası",       "category": "Turkish", "protein": 8.0,  "fat": 3.0,  "carbs": 25.0, "calories": 159, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Tarhana Çorbası",        "name_tr": "Tarhana Çorbası",        "category": "Turkish", "protein": 6.0,  "fat": 2.0,  "carbs": 20.0, "calories": 122, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Yayla Çorbası",          "name_tr": "Yayla Çorbası",          "category": "Turkish", "protein": 8.0,  "fat": 5.0,  "carbs": 18.0, "calories": 149, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Işkembe Çorbası",        "name_tr": "Işkembe Çorbası",        "category": "Turkish", "protein": 14.0, "fat": 6.0,  "carbs": 6.0,  "calories": 134, "default_serving": 250, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+
+    # -- Rice & Grains (Tahıllar) -----------------------------------------------
+    {"name": "Pilav",                  "name_tr": "Pilav",                  "category": "Turkish", "protein": 5.0,  "fat": 5.0,  "carbs": 50.0, "calories": 265, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Bulgur Pilavı",          "name_tr": "Bulgur Pilavı",          "category": "Turkish", "protein": 7.0,  "fat": 3.0,  "carbs": 45.0, "calories": 235, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Bezelye Pilavı",         "name_tr": "Bezelye Pilavı",         "category": "Turkish", "protein": 7.0,  "fat": 5.0,  "carbs": 48.0, "calories": 265, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+
+    # -- Main Dishes (Ana Yemekler) ---------------------------------------------
+    {"name": "İskender Kebap",         "name_tr": "İskender Kebap",         "category": "Turkish", "protein": 35.0, "fat": 20.0, "carbs": 30.0, "calories": 440, "default_serving": 350, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Döner Kebap",            "name_tr": "Döner Kebap",            "category": "Turkish", "protein": 28.0, "fat": 18.0, "carbs": 35.0, "calories": 414, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Adana Kebap",            "name_tr": "Adana Kebap",            "category": "Turkish", "protein": 35.0, "fat": 22.0, "carbs": 5.0,  "calories": 358, "default_serving": 250, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Şiş Kebap",              "name_tr": "Şiş Kebap",              "category": "Turkish", "protein": 38.0, "fat": 8.0,  "carbs": 4.0,  "calories": 240, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Köfte",                  "name_tr": "Köfte",                  "category": "Turkish", "protein": 30.0, "fat": 18.0, "carbs": 8.0,  "calories": 314, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Karnıyarık",             "name_tr": "Karnıyarık",             "category": "Turkish", "protein": 18.0, "fat": 15.0, "carbs": 20.0, "calories": 287, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "İmam Bayıldı",           "name_tr": "İmam Bayıldı",           "category": "Turkish", "protein": 4.0,  "fat": 18.0, "carbs": 18.0, "calories": 250, "default_serving": 250, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Hünkar Beğendi",         "name_tr": "Hünkar Beğendi",         "category": "Turkish", "protein": 30.0, "fat": 20.0, "carbs": 22.0, "calories": 388, "default_serving": 350, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Kuzu Tandır",            "name_tr": "Kuzu Tandır",            "category": "Turkish", "protein": 36.0, "fat": 22.0, "carbs": 0.0,  "calories": 342, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Fırın Tavuk",            "name_tr": "Fırın Tavuk",            "category": "Turkish", "protein": 38.0, "fat": 12.0, "carbs": 2.0,  "calories": 268, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Balık Izgara",           "name_tr": "Balık Izgara",           "category": "Turkish", "protein": 36.0, "fat": 8.0,  "carbs": 0.0,  "calories": 216, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Hamsi Tava",             "name_tr": "Hamsi Tava",             "category": "Turkish", "protein": 24.0, "fat": 12.0, "carbs": 10.0, "calories": 244, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Kalamar Tava",           "name_tr": "Kalamar Tava",           "category": "Turkish", "protein": 18.0, "fat": 14.0, "carbs": 16.0, "calories": 262, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+
+    # -- Legumes (Baklagiller) --------------------------------------------------
+    {"name": "Kuru Fasulye",           "name_tr": "Kuru Fasulye",           "category": "Turkish", "protein": 18.0, "fat": 8.0,  "carbs": 38.0, "calories": 296, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Nohut Yemeği",           "name_tr": "Nohut Yemeği",           "category": "Turkish", "protein": 14.0, "fat": 7.0,  "carbs": 40.0, "calories": 279, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Mercimek Köftesi",       "name_tr": "Mercimek Köftesi",       "category": "Turkish", "protein": 14.0, "fat": 3.0,  "carbs": 35.0, "calories": 223, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Zeytinyağlı Fasulye",    "name_tr": "Zeytinyağlı Fasulye",    "category": "Turkish", "protein": 5.0,  "fat": 8.0,  "carbs": 20.0, "calories": 172, "default_serving": 250, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+
+    # -- Vegetables (Sebze Yemekleri) ------------------------------------------
+    {"name": "Zeytinyağlı Patlıcan",   "name_tr": "Zeytinyağlı Patlıcan",   "category": "Turkish", "protein": 3.0,  "fat": 12.0, "carbs": 15.0, "calories": 180, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Türlü",                  "name_tr": "Türlü",                  "category": "Turkish", "protein": 5.0,  "fat": 8.0,  "carbs": 22.0, "calories": 180, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Patlıcan Musakka",       "name_tr": "Patlıcan Musakka",       "category": "Turkish", "protein": 18.0, "fat": 15.0, "carbs": 18.0, "calories": 279, "default_serving": 300, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+
+    # -- Breads & Pastry (Ekmek ve Hamur İşleri) --------------------------------
+    {"name": "Simit",                  "name_tr": "Simit",                  "category": "Turkish", "protein": 10.0, "fat": 4.0,  "carbs": 55.0, "calories": 296, "default_serving": 1,   "serving_unit": "piece", "g_per_unit": 120, "valid_units": '["piece","g","oz"]'},
+    {"name": "Açma",                   "name_tr": "Açma",                   "category": "Turkish", "protein": 7.0,  "fat": 12.0, "carbs": 42.0, "calories": 304, "default_serving": 1,   "serving_unit": "piece", "g_per_unit": 90,  "valid_units": '["piece","g","oz"]'},
+    {"name": "Poğaça",                 "name_tr": "Poğaça",                 "category": "Turkish", "protein": 6.0,  "fat": 10.0, "carbs": 30.0, "calories": 234, "default_serving": 1,   "serving_unit": "piece", "g_per_unit": 80,  "valid_units": '["piece","g","oz"]'},
+    {"name": "Börek",                  "name_tr": "Börek",                  "category": "Turkish", "protein": 12.0, "fat": 16.0, "carbs": 28.0, "calories": 304, "default_serving": 150, "serving_unit": "g",     "valid_units": '["g","oz","slice","piece","serving"]'},
+    {"name": "Gözleme",                "name_tr": "Gözleme",                "category": "Turkish", "protein": 14.0, "fat": 12.0, "carbs": 40.0, "calories": 324, "default_serving": 200, "serving_unit": "g",     "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Lahmacun",               "name_tr": "Lahmacun",               "category": "Turkish", "protein": 14.0, "fat": 8.0,  "carbs": 38.0, "calories": 280, "default_serving": 1,   "serving_unit": "piece", "g_per_unit": 140, "valid_units": '["piece","g","oz"]'},
+    {"name": "Pide",                   "name_tr": "Pide",                   "category": "Turkish", "protein": 20.0, "fat": 15.0, "carbs": 48.0, "calories": 407, "default_serving": 250, "serving_unit": "g",     "valid_units": '["g","oz","slice","piece","serving"]'},
+    {"name": "Katmer",                 "name_tr": "Katmer",                 "category": "Turkish", "protein": 8.0,  "fat": 22.0, "carbs": 42.0, "calories": 398, "default_serving": 150, "serving_unit": "g",     "valid_units": '["g","oz","piece","serving"]'},
+
+    # -- Mezze & Appetizers (Mezeler) -------------------------------------------
+    {"name": "Cacık",                  "name_tr": "Cacık",                  "category": "Turkish", "protein": 7.0,  "fat": 4.0,  "carbs": 8.0,  "calories": 96,  "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","tbsp","cup","serving"]'},
+    {"name": "Haydari",                "name_tr": "Haydari",                "category": "Turkish", "protein": 9.0,  "fat": 6.0,  "carbs": 6.0,  "calories": 114, "default_serving": 100, "serving_unit": "g",  "valid_units": '["g","oz","tbsp","cup","serving"]'},
+    {"name": "Humus",                  "name_tr": "Humus",                  "category": "Turkish", "protein": 8.0,  "fat": 10.0, "carbs": 18.0, "calories": 194, "default_serving": 100, "serving_unit": "g",  "valid_units": '["g","oz","tbsp","cup","serving"]'},
+    {"name": "Patates Salatası",       "name_tr": "Patates Salatası",       "category": "Turkish", "protein": 4.0,  "fat": 8.0,  "carbs": 28.0, "calories": 200, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Patlıcan Salatası",      "name_tr": "Patlıcan Salatası",      "category": "Turkish", "protein": 2.0,  "fat": 6.0,  "carbs": 10.0, "calories": 102, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Sigara Böreği",          "name_tr": "Sigara Böreği",          "category": "Turkish", "protein": 8.0,  "fat": 14.0, "carbs": 22.0, "calories": 246, "default_serving": 4,   "serving_unit": "piece", "g_per_unit": 30, "valid_units": '["piece","g","oz"]'},
+
+    # -- Salads (Salatalar) -----------------------------------------------------
+    {"name": "Çoban Salatası",         "name_tr": "Çoban Salatası",         "category": "Turkish", "protein": 3.0,  "fat": 6.0,  "carbs": 10.0, "calories": 106, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Gavurdağı Salatası",     "name_tr": "Gavurdağı Salatası",     "category": "Turkish", "protein": 4.0,  "fat": 10.0, "carbs": 12.0, "calories": 154, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Tarator",                "name_tr": "Tarator",                "category": "Turkish", "protein": 4.0,  "fat": 8.0,  "carbs": 10.0, "calories": 128, "default_serving": 100, "serving_unit": "g",  "valid_units": '["g","oz","tbsp","cup","serving"]'},
+    {"name": "Mercimek Salatası",      "name_tr": "Mercimek Salatası",      "category": "Turkish", "protein": 12.0, "fat": 5.0,  "carbs": 28.0, "calories": 205, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+
+    # -- Desserts (Tatlılar) ----------------------------------------------------
+    {"name": "Baklava",                "name_tr": "Baklava",                "category": "Turkish", "protein": 4.0,  "fat": 12.0, "carbs": 36.0, "calories": 268, "default_serving": 1,   "serving_unit": "piece", "g_per_unit": 60, "valid_units": '["piece","g","oz"]'},
+    {"name": "Kadayıf",                "name_tr": "Kadayıf",                "category": "Turkish", "protein": 5.0,  "fat": 14.0, "carbs": 40.0, "calories": 306, "default_serving": 100, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Sütlaç",                 "name_tr": "Sütlaç",                 "category": "Turkish", "protein": 6.0,  "fat": 4.0,  "carbs": 38.0, "calories": 212, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Aşure",                  "name_tr": "Aşure",                  "category": "Turkish", "protein": 6.0,  "fat": 2.0,  "carbs": 45.0, "calories": 222, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+    {"name": "Lokum",                  "name_tr": "Lokum",                  "category": "Turkish", "protein": 0.0,  "fat": 0.0,  "carbs": 36.0, "calories": 144, "default_serving": 3,   "serving_unit": "piece", "g_per_unit": 15, "valid_units": '["piece","g","oz"]'},
+    {"name": "Revani",                 "name_tr": "Revani",                 "category": "Turkish", "protein": 5.0,  "fat": 6.0,  "carbs": 48.0, "calories": 266, "default_serving": 100, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Helva",                  "name_tr": "Helva",                  "category": "Turkish", "protein": 5.0,  "fat": 12.0, "carbs": 24.0, "calories": 224, "default_serving": 50,  "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Muhallebi",              "name_tr": "Muhallebi",              "category": "Turkish", "protein": 5.0,  "fat": 4.0,  "carbs": 30.0, "calories": 176, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","cup","serving"]'},
+
+    # -- Drinks (İçecekler) -----------------------------------------------------
+    {"name": "Ayran",                  "name_tr": "Ayran",                  "category": "Turkish", "protein": 4.0,  "fat": 2.0,  "carbs": 4.0,  "calories": 50,  "default_serving": 200, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+    {"name": "Türk Çayı",              "name_tr": "Türk Çayı",              "category": "Turkish", "protein": 0.0,  "fat": 0.0,  "carbs": 0.0,  "calories": 2,   "default_serving": 200, "serving_unit": "ml", "valid_units": '["ml","cup","glass"]'},
+
+    # -- Additional Authentic Dishes --------------------------------------------
+    {"name": "Çiğ Köfte",              "name_tr": "Çiğ Köfte",              "category": "Turkish", "protein": 8.0,  "fat": 2.0,  "carbs": 35.0, "calories": 190, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Künefe",                 "name_tr": "Künefe",                 "category": "Turkish", "protein": 8.0,  "fat": 18.0, "carbs": 38.0, "calories": 346, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "İçli Köfte",             "name_tr": "İçli Köfte",             "category": "Turkish", "protein": 10.0, "fat": 14.0, "carbs": 20.0, "calories": 246, "default_serving": 4,   "serving_unit": "piece", "g_per_unit": 40, "valid_units": '["piece","g","oz"]'},
+    {"name": "Çılbır",                 "name_tr": "Çılbır",                 "category": "Turkish", "protein": 15.0, "fat": 12.0, "carbs": 6.0,  "calories": 192, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Mücver",                 "name_tr": "Mücver",                 "category": "Turkish", "protein": 8.0,  "fat": 10.0, "carbs": 18.0, "calories": 194, "default_serving": 150, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+    {"name": "Kavurma",                "name_tr": "Kavurma",                "category": "Turkish", "protein": 30.0, "fat": 20.0, "carbs": 0.0,  "calories": 300, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","serving"]'},
+    {"name": "Etli Ekmek",             "name_tr": "Etli Ekmek",             "category": "Turkish", "protein": 16.0, "fat": 10.0, "carbs": 36.0, "calories": 298, "default_serving": 200, "serving_unit": "g",  "valid_units": '["g","oz","piece","serving"]'},
+]
+
+
+def seed_turkish_meals():
+    """Seed authentic Turkish dishes with proper names and name_tr.
+
+    Idempotent: skips rows where exact name + food_type='meal' already exists.
+    Also updates name_tr on existing rows when name_tr is NULL.
+    Returns count of newly inserted rows.
+    """
+    count = 0
+    for m in TURKISH_MEALS_V2:
+        exists = SavedFood.query.filter_by(name=m["name"], food_type="meal").first()
+        if not exists:
+            db.session.add(SavedFood(
+                name=m["name"],
+                name_tr=m.get("name_tr"),
+                brand=None,
+                category=m.get("category"),
+                protein=m["protein"],
+                fat=m["fat"],
+                carbs=m["carbs"],
+                calories=m["calories"],
+                default_serving=m.get("default_serving", 100),
+                serving_unit=m.get("serving_unit", "g"),
+                g_per_unit=m.get("g_per_unit"),
+                source="custom",
+                food_type="meal",
+                is_archived=False,
+                valid_units=m.get("valid_units"),
+            ))
+            count += 1
+        else:
+            # Back-fill name_tr and valid_units on existing records
+            if m.get("name_tr") and not exists.name_tr:
+                exists.name_tr = m["name_tr"]
+            if exists.valid_units is None and m.get("valid_units"):
+                exists.valid_units = m["valid_units"]
+    db.session.commit()
+    return count
+
+
 def seed_meals():
     count = 0
     for m in MEALS:
@@ -115,6 +248,7 @@ def seed_meals():
             if exists.valid_units is None and m.get("valid_units"):
                 exists.valid_units = m["valid_units"]
     db.session.commit()
+    count += seed_turkish_meals()
     return count
 
 if __name__ == "__main__":

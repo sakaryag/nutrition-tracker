@@ -413,6 +413,10 @@ def copy_day(day_id):
                 sort_order=item.sort_order,
                 notes=item.notes,
                 notes_tr=item.notes_tr,
+                protein=item.protein or 0.0,
+                fat=item.fat or 0.0,
+                carbs=item.carbs or 0.0,
+                calories=item.calories or 0.0,
             )
             db.session.add(new_item)
     db.session.commit()
@@ -593,6 +597,10 @@ def add_slot_item(slot_id):
         sort_order=data.get('sort_order', 0),
         notes=data.get('notes') or None,
         notes_tr=data.get('notes_tr') or None,
+        protein=float(data['protein']) if data.get('protein') is not None else 0.0,
+        fat=float(data['fat']) if data.get('fat') is not None else 0.0,
+        carbs=float(data['carbs']) if data.get('carbs') is not None else 0.0,
+        calories=float(data['calories']) if data.get('calories') is not None else 0.0,
     )
     db.session.add(item)
     db.session.commit()
@@ -610,7 +618,8 @@ def update_slot_item(item_id):
     data = request.get_json(silent=True) or {}
     for field in ('alternative_group', 'rotation_frequency', 'saved_food_id',
                   'recipe_id', 'exchange_category_id', 'food_name_override',
-                  'quantity', 'unit', 'is_fallback', 'sort_order', 'notes', 'notes_tr'):
+                  'quantity', 'unit', 'is_fallback', 'sort_order', 'notes', 'notes_tr',
+                  'protein', 'fat', 'carbs', 'calories'):
         if field in data:
             setattr(item, field, data[field])
     db.session.commit()

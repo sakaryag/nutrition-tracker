@@ -27,6 +27,11 @@ class SlotItem(db.Model):
     sort_order = db.Column(db.Integer, nullable=False, default=0)
     notes = db.Column(db.Text, nullable=True)
     notes_tr = db.Column(db.Text, nullable=True)
+    # Dietitian-entered macros for free-text items (no saved_food_id)
+    protein = db.Column(db.Float, nullable=True, default=0.0)
+    fat = db.Column(db.Float, nullable=True, default=0.0)
+    carbs = db.Column(db.Float, nullable=True, default=0.0)
+    calories = db.Column(db.Float, nullable=True, default=0.0)
 
     saved_food = db.relationship('SavedFood', foreign_keys=[saved_food_id], lazy='joined', uselist=False)
 
@@ -47,4 +52,8 @@ class SlotItem(db.Model):
             'sort_order': self.sort_order,
             'notes': self.notes,
             'notes_tr': self.notes_tr,
+            'protein': self.protein or 0.0,
+            'fat': self.fat or 0.0,
+            'carbs': self.carbs or 0.0,
+            'calories': self.calories or 0.0,
         }

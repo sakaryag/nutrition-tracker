@@ -1088,15 +1088,21 @@
     if (items.length) {
       items.forEach(function (it) {
         var sf = it.saved_food || {};
+        // For free-text items (no saved_food), fall back to dietitian-entered macros on the slot item
+        var p100 = parseFloat(sf.protein) || parseFloat(it.protein) || 0;
+        var f100 = parseFloat(sf.fat)     || parseFloat(it.fat)     || 0;
+        var c100 = parseFloat(sf.carbs)   || parseFloat(it.carbs)   || 0;
+        var k100 = parseFloat(sf.calories) || parseFloat(it.calories) || (p100*4 + f100*9 + c100*4) || 0;
         dashSlotItems.push({
-          foodId:   it.saved_food_id || null,
-          foodName: it.food_name_override || sf.name || '',
-          p100: parseFloat(sf.protein) || 0,
-          f100: parseFloat(sf.fat)     || 0,
-          c100: parseFloat(sf.carbs)   || 0,
-          k100: parseFloat(sf.calories) || (sf.protein*4 + sf.fat*9 + sf.carbs*4) || 0,
-          qty:  parseFloat(it.quantity) || 100,
-          unit: it.unit || 'g',
+          foodId:     it.saved_food_id || null,
+          foodName:   it.food_name_override || sf.name || '',
+          p100:       p100,
+          f100:       f100,
+          c100:       c100,
+          k100:       k100,
+          qty:        parseFloat(it.quantity) || 100,
+          unit:       it.unit || 'g',
+          validUnits: sf.valid_units ? JSON.parse(sf.valid_units) : null,
         });
       });
     } else {
@@ -1115,7 +1121,7 @@
   }
 
   function blankItem() {
-    return { foodId: null, foodName: '', p100: 0, f100: 0, c100: 0, k100: 0, qty: 100, unit: 'g' };
+    return { foodId: null, foodName: '', p100: 0, f100: 0, c100: 0, k100: 0, qty: 100, unit: 'g', validUnits: null };
   }
 
   function slotItemMacros(it) {
@@ -1148,7 +1154,9 @@
     div.className = 'slot-log-row';
     div.dataset.idx = idx;
 
-    var unitOpts = ['g','ml','piece','slice','serving'].map(function(u) {
+    var ALL_UNITS = ['g','ml','piece','slice','serving','tbsp','tsp','cup','oz'];
+    var allowedUnits = (item.validUnits && item.validUnits.length) ? item.validUnits : ALL_UNITS;
+    var unitOpts = allowedUnits.map(function(u) {
       return '<option' + (u === item.unit ? ' selected' : '') + '>' + escHtml(u) + '</option>';
     }).join('');
 
@@ -1208,7 +1216,19 @@
               dashSlotItems[idx].c100 = parseFloat(fd.carbs)   || 0;
               dashSlotItems[idx].k100 = parseFloat(fd.calories) || (fd.protein*4+fd.fat*9+fd.carbs*4) || 0;
               dashSlotItems[idx].qty  = parseFloat(div.querySelector('.slot-log-qty').value) || 100;
-              dashSlotItems[idx].unit = div.querySelector('.slot-log-unit').value;
+              // Update valid_units on the item and refresh the unit dropdown
+              var vu = null;
+              try { vu = fd.valid_units ? JSON.parse(fd.valid_units) : null; } catch(e) {}
+              dashSlotItems[idx].validUnits = vu;
+              var unitSel = div.querySelector('.slot-log-unit');
+              var ALL_UNITS_SEL = ['g','ml','piece','slice','serving','tbsp','tsp','cup','oz'];
+              var allowed = (vu && vu.length) ? vu : ALL_UNITS_SEL;
+              var curUnit = unitSel.value;
+              unitSel.innerHTML = allowed.map(function(u) {
+                return '<option' + (u === curUnit ? ' selected' : '') + '>' + escHtml(u) + '</option>';
+              }).join('');
+              if (!allowed.includes(curUnit)) unitSel.value = allowed[0];
+              dashSlotItems[idx].unit = unitSel.value;
               hideSearch();
               foodNameBtn.textContent = fd.name;
               updateRowMacros(div, idx);

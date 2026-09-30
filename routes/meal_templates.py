@@ -48,12 +48,13 @@ def create_template():
     template = MealTemplate(
         name=name,
         meal_type=data.get('meal_type', 'Snack'),
+        category=data.get('category', '').strip() or None,
         user_id=current_user_id(),
     )
     db.session.add(template)
     db.session.flush()
 
-    for item_data in data.get('items', []):
+    for idx, item_data in enumerate(data.get('items', [])):
         food_name = item_data.get('food_name', '').strip()
         if not food_name:
             continue
@@ -75,6 +76,7 @@ def create_template():
             calories=calories,
             serving_size=float(item_data['serving_size']) if item_data.get('serving_size') is not None else None,
             serving_unit=item_data.get('serving_unit', 'g'),
+            sort_order=item_data.get('sort_order', idx),
         )
         db.session.add(item)
 
@@ -110,10 +112,12 @@ def update_template(template_id):
         template.name = data['name'].strip()
     if 'meal_type' in data:
         template.meal_type = data['meal_type']
+    if 'category' in data:
+        template.category = data['category'].strip() or None
 
     if 'items' in data:
         MealTemplateItem.query.filter_by(template_id=template.id).delete()
-        for item_data in data['items']:
+        for idx, item_data in enumerate(data['items']):
             food_name = item_data.get('food_name', '').strip()
             if not food_name:
                 continue
@@ -135,6 +139,7 @@ def update_template(template_id):
                 calories=calories,
                 serving_size=float(item_data['serving_size']) if item_data.get('serving_size') is not None else None,
                 serving_unit=item_data.get('serving_unit', 'g'),
+                sort_order=item_data.get('sort_order', idx),
             )
             db.session.add(item)
 
@@ -236,3 +241,59 @@ def log_template_single(template_id):
     db.session.add(entry)
     db.session.commit()
     return jsonify({'logged': 1, 'template': template.name, 'entry': entry.to_dict()}), 201
+
+
+@meal_templates_bp.route('/<int:template_id>/clone', methods=['POST'])
+def clone_template(template_id):
+    """Duplicate a template and all its items. New name: 'Copy of <original name>'."""
+    template, err = _own_template(template_id)
+    if err:
+        return err
+
+    new_template = MealTemplate(
+        name='Copy of ' + template.name,
+        meal_type=template.meal_type,
+        category=template.category,
+        user_id=current_user_id(),
+    )
+    db.session.add(new_template)
+    db.session.flush()
+
+    for item in template.items:
+        new_item = MealTemplateItem(
+            template_id=new_template.id,
+            food_name=item.food_name,
+            saved_food_id=item.saved_food_id,
+            protein=item.protein,
+            fat=item.fat,
+            carbs=item.carbs,
+            calories=item.calories,
+            serving_size=item.serving_size,
+            serving_unit=item.serving_unit,
+            sort_order=item.sort_order if item.sort_order is not None else 0,
+        )
+        db.session.add(new_item)
+
+    db.session.commit()
+    return jsonify(new_template.to_dict()), 201
+
+
+@meal_templates_bp.route('/<int:template_id>/reorder', methods=['PUT'])
+def reorder_items(template_id):
+    """Reorder items within a template. Body: {item_ids: [id1, id2, ...]}"""
+    template, err = _own_template(template_id)
+    if err:
+        return err
+
+    data = request.get_json(silent=True) or {}
+    item_ids = data.get('item_ids', [])
+    if not item_ids:
+        return jsonify({'error': 'item_ids is required'}), 400
+
+    id_to_order = {int(iid): idx for idx, iid in enumerate(item_ids)}
+    for item in template.items:
+        if item.id in id_to_order:
+            item.sort_order = id_to_order[item.id]
+
+    db.session.commit()
+    return jsonify(template.to_dict())

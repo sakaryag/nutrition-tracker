@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
 
@@ -62,12 +62,12 @@ def upsert_note():
             user_id=uid,
             note_date=note_date,
             content=content,
-            updated_at=datetime.utcnow(),
+            updated_at=datetime.now(timezone.utc),
         )
         db.session.add(note)
     else:
         note.content = content
-        note.updated_at = datetime.utcnow()
+        note.updated_at = datetime.now(timezone.utc)
 
     db.session.commit()
     return jsonify(note.to_dict()), 200

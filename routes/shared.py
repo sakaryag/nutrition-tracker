@@ -1,5 +1,5 @@
 """routes/shared.py — /api/shared blueprint (sharing food entries with friends)."""
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
 
@@ -74,7 +74,7 @@ def share_entry():
             shared_by_id=uid,
             shared_to_id=fid,
             cloned_entry_id=clone.id,
-            shared_at=datetime.utcnow(),
+            shared_at=datetime.now(timezone.utc),
         )
         db.session.add(se)
 

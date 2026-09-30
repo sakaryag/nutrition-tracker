@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from models import db
 from models.food_entry import FoodEntry
 from models.saved_food import SavedFood
@@ -64,7 +64,7 @@ def create_entry():
     saved_food_id = data.get('saved_food_id')
     template_id = data.get('template_id')
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     raw_date = data.get('entry_date')
     if raw_date:
         try:
@@ -266,7 +266,7 @@ def copy_yesterday_confirm():
         q = q.filter_by(user_id=uid)
     source_entries = q.all()
 
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for src in source_entries:
         new_entry = FoodEntry(
             food_name=src.food_name,

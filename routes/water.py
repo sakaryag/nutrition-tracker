@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, current_app, session
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from models import db
 from models.water_log import WaterLog
 from models.daily_target import DailyTarget
@@ -78,7 +78,7 @@ def add_water():
         user_id=uid,
         log_date=target_date,
         amount_ml=float(amount_ml),
-        logged_at=datetime.utcnow(),
+        logged_at=datetime.now(timezone.utc),
     )
     db.session.add(log)
     db.session.commit()

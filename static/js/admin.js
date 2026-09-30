@@ -22,6 +22,7 @@ document.querySelectorAll('.admin-tab').forEach(function (btn) {
     if (tab === 'plans')     loadPlansList();
     if (tab === 'users')     loadUsers();
     if (tab === 'templates') loadTemplates();
+    if (tab === 'progress')  loadClientProgress();
     if (tab === 'builder' && activePlanId) openBuilder(activePlanId);
   });
 });
@@ -171,14 +172,14 @@ document.getElementById('builder-edit-plan').addEventListener('click', function 
 
 document.getElementById('builder-clone-plan').addEventListener('click', function () {
   if (!activePlanId || !confirm('Clone this plan?')) return;
-  api('/api/admin/plans/' + activePlanId + '/clone', { method: 'POST' })
+  api('/api/admin/plans/' + activePlanId + '/clone-from-template', { method: 'POST' })
     .then(function (p) { loadPlansList(); showToast('Cloned: ' + p.name, 'success'); })
     .catch(function (e) { showToast(e.message, 'error'); });
 });
 
 document.getElementById('builder-promote-template').addEventListener('click', function () {
   if (!activePlanId) return;
-  api('/api/admin/plans/' + activePlanId + '/promote-template', { method: 'POST' })
+  api('/api/admin/plans/' + activePlanId + '/promote-to-template', { method: 'POST' })
     .then(function () { showToast('Promoted to template', 'success'); loadPlansList(); })
     .catch(function (e) { showToast(e.message, 'error'); });
 });
@@ -801,6 +802,52 @@ document.getElementById('admin-assign-form').addEventListener('submit', function
     .catch(function (e) { showToast(e.message, 'error'); });
 });
 
+/* ── Client Progress ─────────────────────────────────────── */
+function loadClientProgress() {
+  var container = document.getElementById('admin-progress-list');
+  if (!container) return;
+  container.innerHTML = '<p class="empty-msg">Loading…</p>';
+  api('/api/admin/users').then(function (users) {
+    var withPlan = users.filter(function (u) { return u.active_plan_name; });
+    if (!withPlan.length) {
+      container.innerHTML = '<p class="empty-msg">No users have an active plan assigned yet.</p>';
+      return;
+    }
+    container.innerHTML = withPlan.map(function (u) {
+      return '<div class="card admin-progress-card">' +
+        '<div>' +
+          '<div class="admin-progress-user">' + esc(u.username) + '</div>' +
+          '<div class="admin-progress-plan">Plan: ' + esc(u.active_plan_name || '—') + '</div>' +
+        '</div>' +
+        '<div class="admin-progress-stats">' +
+          '<div id="prog-bar-' + u.id + '" style="min-width:160px">' +
+            '<div class="progress-bar-wrap"><div class="progress-bar" style="width:0%"></div></div>' +
+            '<div style="font-size:.75rem;color:var(--color-text-muted);margin-top:.2rem">Loading…</div>' +
+          '</div>' +
+          '<a href="#" class="btn btn-sm btn-outline admin-view-log" data-uid="' + u.id + '" data-uname="' + esc(u.username) + '">View Log</a>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    // Fetch progress for each user — requires /api/admin/users/<id>/progress or we approximate
+    withPlan.forEach(function (u) {
+      fetchUserProgress(u);
+    });
+    container.querySelectorAll('.admin-view-log').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        showToast('User log view not yet available', 'info');
+      });
+    });
+  }).catch(function (e) { showToast(e.message, 'error'); container.innerHTML = '<p class="empty-msg">Failed to load users.</p>'; });
+}
+
+function fetchUserProgress(user) {
+  // We don't have a per-user progress endpoint accessible to admin, so show plan info only
+  var el = document.getElementById('prog-bar-' + user.id);
+  if (!el) return;
+  el.innerHTML = '<div style="font-size:.82rem;color:var(--color-text-muted)">Plan active &#10003;</div>';
+}
+
 /* ── Helpers ─────────────────────────────────────────────── */
 function loadRecipesAndCategories() {
   api('/api/recipes').then(function (data) { recipes = data; });
@@ -810,5 +857,10 @@ function loadRecipesAndCategories() {
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 loadPlansList();
+
+var progressRefreshBtn = document.getElementById('admin-progress-refresh');
+if (progressRefreshBtn) {
+  progressRefreshBtn.addEventListener('click', loadClientProgress);
+}
 
 })();

@@ -3580,3 +3580,134 @@ textarea:focus {
   background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--radius); padding: .45rem .7rem; font-size: .9rem;
 }
+
+/* ── Base .card component ───────────────────────────────────────────────────── */
+.card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.card-meta {
+  font-size: .875rem;
+  color: var(--text-muted, #64748b);
+  margin: 0;
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 .35rem;
+}
+
+/* ── Plans page — tab navigation ────────────────────────────────────────────── */
+.plans-page-tabs {
+  display: flex;
+  gap: .375rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--border, #e2e8f0);
+  padding-bottom: .5rem;
+}
+.plans-page-tab {
+  background: none;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: .5rem 1.1rem;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  transition: color .15s, background .15s;
+}
+.plans-page-tab:hover { color: var(--primary, #2D7A4F); background: var(--surface-alt, #f8fafc); }
+.plans-page-tab.active { color: var(--primary, #2D7A4F); border-bottom: 2px solid var(--primary, #2D7A4F); margin-bottom: -2px; }
+
+/* ── Plans page — today header + completion badge ───────────────────────────── */
+.plans-today-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .75rem;
+  flex-wrap: wrap;
+}
+.plans-completion-badge {
+  display: inline-block;
+  padding: .25rem .65rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  background: var(--surface-alt, #f1f5f9);
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  transition: background .2s, color .2s;
+}
+.plans-completion-badge--complete {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* ── Plans slot items — improved rows ───────────────────────────────────────── */
+.slot-item-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .15rem 0;
+}
+.slot-item-name { font-size: .88rem; }
+.slot-item-macros {
+  font-size: .75rem;
+  color: var(--text-muted, #64748b);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.slot-fulfilled-note {
+  font-size: .8rem;
+  color: var(--success, #2D7A4F);
+  padding: .35rem .75rem .5rem;
+  margin: 0;
+}
+
+/* ── Admin — Client Progress section ────────────────────────────────────────── */
+.admin-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.admin-progress-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.admin-progress-user {
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: .2rem;
+}
+.admin-progress-plan {
+  font-size: .875rem;
+  color: var(--text-muted, #64748b);
+  margin-bottom: .4rem;
+}
+.admin-progress-stats {
+  display: flex;
+  gap: .75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: .25rem;
+}
+.admin-progress-pct {
+  font-size: .8rem;
+  font-weight: 600;
+  padding: .15rem .5rem;
+  border-radius: 999px;
+  background: var(--surface-alt, #f1f5f9);
+  color: var(--text-muted, #64748b);
+}
+.admin-progress-pct--good { background: #d1fae5; color: #065f46; }

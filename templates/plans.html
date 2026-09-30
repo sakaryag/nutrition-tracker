@@ -7,22 +7,38 @@
   <div class="page-header">
     <h1>My Nutrition Plan</h1>
     <div class="plans-header-actions">
-      <select id="plans-date-select" class="form-control" style="width:auto">
-        <option value="today">Today</option>
-      </select>
       <button class="btn btn-outline btn-sm" id="plans-view-toggle" data-view="slots">
         Calendar
       </button>
     </div>
   </div>
 
-  <!-- No plan state / Template picker -->
-  <div id="plans-no-assignment" hidden>
+  <!-- Top-level tab navigation -->
+  <div class="plans-page-tabs" id="plans-page-tabs">
+    <button class="plans-page-tab active" data-ptab="myplan">My Plan</button>
+    <button class="plans-page-tab" data-ptab="browse">Browse Plans</button>
+  </div>
+
+  <!-- ─── Browse Plans panel ──────────────────────────────── -->
+  <div id="plans-browse-panel" hidden>
     <div class="card" style="padding:1.25rem 1.5rem;margin-bottom:1rem">
-      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">Choose a Starter Plan</h2>
-      <p class="card-meta">Pick a 7-day template to begin tracking your nutrition plan.</p>
+      <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:.25rem">Available Nutrition Plans</h2>
+      <p class="card-meta">Choose a plan to start tracking. Starter templates are designed by your dietitian.</p>
     </div>
     <div id="plans-template-list" class="card-grid"></div>
+  </div>
+
+  <!-- ─── My Plan panel ───────────────────────────────────── -->
+  <div id="plans-myplan-panel">
+
+  <!-- No plan state -->
+  <div id="plans-no-assignment" hidden>
+    <div class="card" style="padding:2rem;text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:3rem;margin-bottom:.75rem;opacity:.4">&#128197;</div>
+      <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:.5rem">No plan assigned yet</h2>
+      <p class="card-meta" style="margin-bottom:1.25rem">Your dietitian hasn't assigned a plan yet, or you can pick a starter template yourself.</p>
+      <button class="btn btn-primary" id="plans-go-browse-btn">Browse Available Plans</button>
+    </div>
   </div>
 
   <!-- Plan overview bar -->
@@ -55,7 +71,10 @@
     <div id="plans-slot-view">
       <!-- Today's day panel -->
       <div id="plans-today-panel">
-        <h3 id="plans-today-label" style="margin:1rem 0 .5rem"></h3>
+        <div class="plans-today-header">
+          <h3 id="plans-today-label" style="margin:0"></h3>
+          <span class="plans-completion-badge" id="plans-today-completion" hidden>0 / 0 done</span>
+        </div>
         <div id="plans-slot-list"></div>
       </div>
 
@@ -102,7 +121,9 @@
       <div id="plans-quota-list" style="margin-top:.5rem"></div>
     </div>
 
-  </div>
+  </div><!-- end #plans-overview -->
+
+  </div><!-- end #plans-myplan-panel -->
 
 </section>
 

@@ -42,6 +42,7 @@ const i18n = {
     'entry.lunch':        'Lunch',
     'entry.dinner':       'Dinner',
     'entry.snack':        'Snack',
+    'entry.other':        'Other',
     'entry.searchPlaceholder': 'Search or type a food name',
     'entry.unitPlaceholder':   'g, oz, cup…',
 
@@ -460,6 +461,7 @@ const i18n = {
     'entry.lunch':        'Öğle Yemeği',
     'entry.dinner':       'Akşam Yemeği',
     'entry.snack':        'Atıştırmalık',
+    'entry.other':        'Diğer',
     'entry.searchPlaceholder': 'Besin ara veya yazın',
     'entry.unitPlaceholder':   'g, oz, su bardağı…',
 

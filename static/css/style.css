@@ -579,6 +579,13 @@ input, select, textarea { font: inherit; }
   border-bottom: none;
 }
 
+.meal-group__subtotal {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
 .section-header-row {
   display: flex;
   align-items: center;

@@ -316,11 +316,6 @@ def _migrate_add_columns(app):
             )''',
             'CREATE INDEX IF NOT EXISTS ix_exchange_category_member_category_id ON exchange_category_member (category_id)',
             # --- Dietitian Mode: slot_item ---
-            # --- slot_item macro columns for free-text items ---
-            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS protein FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS fat FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS carbs FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS calories FLOAT DEFAULT 0',
             '''CREATE TABLE IF NOT EXISTS slot_item (
                 id SERIAL PRIMARY KEY,
                 slot_id INTEGER NOT NULL REFERENCES meal_slot(id) ON DELETE CASCADE,
@@ -338,6 +333,11 @@ def _migrate_add_columns(app):
                 notes_tr TEXT
             )''',
             'CREATE INDEX IF NOT EXISTS ix_slot_item_slot_id ON slot_item (slot_id)',
+            # --- slot_item macro columns for free-text items (after CREATE TABLE) ---
+            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS protein FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS fat FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS carbs FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN IF NOT EXISTS calories FLOAT DEFAULT 0',
             # --- Dietitian Mode: program_guideline ---
             '''CREATE TABLE IF NOT EXISTS program_guideline (
                 id SERIAL PRIMARY KEY,
@@ -602,11 +602,6 @@ def _migrate_add_columns(app):
             )''',
             'CREATE INDEX IF NOT EXISTS ix_exchange_category_member_category_id ON exchange_category_member (category_id)',
             # --- Dietitian Mode: slot_item ---
-            # --- slot_item macro columns for free-text items ---
-            'ALTER TABLE slot_item ADD COLUMN protein FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN fat FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN carbs FLOAT DEFAULT 0',
-            'ALTER TABLE slot_item ADD COLUMN calories FLOAT DEFAULT 0',
             '''CREATE TABLE IF NOT EXISTS slot_item (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 slot_id INTEGER NOT NULL REFERENCES meal_slot(id) ON DELETE CASCADE,
@@ -624,6 +619,11 @@ def _migrate_add_columns(app):
                 notes_tr TEXT
             )''',
             'CREATE INDEX IF NOT EXISTS ix_slot_item_slot_id ON slot_item (slot_id)',
+            # --- slot_item macro columns for free-text items (after CREATE TABLE) ---
+            'ALTER TABLE slot_item ADD COLUMN protein FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN fat FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN carbs FLOAT DEFAULT 0',
+            'ALTER TABLE slot_item ADD COLUMN calories FLOAT DEFAULT 0',
             # --- Dietitian Mode: program_guideline ---
             '''CREATE TABLE IF NOT EXISTS program_guideline (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

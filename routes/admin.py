@@ -616,12 +616,14 @@ def update_slot_item(item_id):
         return jsonify({'error': 'Item not found'}), 404
     _assert_owner(item.slot.day.program)
     data = request.get_json(silent=True) or {}
+    _float_fields = {'protein', 'fat', 'carbs', 'calories', 'quantity'}
     for field in ('alternative_group', 'rotation_frequency', 'saved_food_id',
                   'recipe_id', 'exchange_category_id', 'food_name_override',
                   'quantity', 'unit', 'is_fallback', 'sort_order', 'notes', 'notes_tr',
                   'protein', 'fat', 'carbs', 'calories'):
         if field in data:
-            setattr(item, field, data[field])
+            val = float(data[field]) if field in _float_fields and data[field] is not None else data[field]
+            setattr(item, field, val)
     db.session.commit()
     return jsonify(item.to_dict())
 

@@ -1088,11 +1088,12 @@
     if (items.length) {
       items.forEach(function (it) {
         var sf = it.saved_food || {};
-        // For free-text items (no saved_food), fall back to dietitian-entered macros on the slot item
-        var p100 = parseFloat(sf.protein) || parseFloat(it.protein) || 0;
-        var f100 = parseFloat(sf.fat)     || parseFloat(it.fat)     || 0;
-        var c100 = parseFloat(sf.carbs)   || parseFloat(it.carbs)   || 0;
-        var k100 = parseFloat(sf.calories) || parseFloat(it.calories) || (p100*4 + f100*9 + c100*4) || 0;
+        // For free-text items (no saved_food), fall back to dietitian-entered macros on the slot item.
+        // Use explicit null check — protein/fat/carbs can legitimately be 0 (e.g. sugar, water).
+        var p100 = sf.protein  != null ? parseFloat(sf.protein)  : (parseFloat(it.protein)  || 0);
+        var f100 = sf.fat      != null ? parseFloat(sf.fat)      : (parseFloat(it.fat)      || 0);
+        var c100 = sf.carbs    != null ? parseFloat(sf.carbs)    : (parseFloat(it.carbs)    || 0);
+        var k100 = sf.calories != null ? parseFloat(sf.calories) : (parseFloat(it.calories) || (p100*4 + f100*9 + c100*4) || 0);
         dashSlotItems.push({
           foodId:     it.saved_food_id || null,
           foodName:   it.food_name_override || sf.name || '',

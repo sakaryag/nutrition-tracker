@@ -882,3 +882,125 @@ class TestAdminTemplateOps:
     def test_clone_not_found(self, client, db_session):
         rv = client.post("/api/admin/plans/9999/clone-from-template", json={})
         assert rv.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Helper for quota tests
+# ---------------------------------------------------------------------------
+
+def _make_category(owner_id, name="Protein Foods"):
+    from models.food_exchange_category import FoodExchangeCategory
+    cat = FoodExchangeCategory(name=name, owner_id=owner_id)
+    db.session.add(cat)
+    db.session.commit()
+    return cat
+
+
+# ---------------------------------------------------------------------------
+# Weekly Category Quota CRUD
+# ---------------------------------------------------------------------------
+
+class TestQuotaCRUD:
+    """Quota CRUD via plans/<id>/quotas and quotas/<id>"""
+
+    def test_list_quotas_empty(self, client, db_session):
+        p = _make_plan()
+        rv = client.get(f"/api/admin/plans/{p.id}/quotas")
+        assert rv.status_code == 200
+        assert rv.get_json() == []
+
+    def test_list_quotas_plan_not_found(self, client, db_session):
+        rv = client.get("/api/admin/plans/9999/quotas")
+        assert rv.status_code == 404
+
+    def test_create_quota_returns_201(self, client, db_session):
+        u = _make_user("quota_owner")
+        cat = _make_category(u.id)
+        p = _make_plan()
+        rv = client.post(f"/api/admin/plans/{p.id}/quotas", json={
+            "exchange_category_id": cat.id,
+            "quota_per_week": 3,
+        })
+        assert rv.status_code == 201
+        data = rv.get_json()
+        assert data["exchange_category_id"] == cat.id
+        assert data["quota_per_week"] == 3
+        assert data["program_id"] == p.id
+
+    def test_create_quota_missing_exchange_category_id_returns_400(self, client, db_session):
+        p = _make_plan()
+        rv = client.post(f"/api/admin/plans/{p.id}/quotas", json={
+            "quota_per_week": 3,
+        })
+        assert rv.status_code == 400
+        assert "exchange_category_id" in rv.get_json()["error"]
+
+    def test_create_quota_missing_quota_per_week_returns_400(self, client, db_session):
+        p = _make_plan()
+        rv = client.post(f"/api/admin/plans/{p.id}/quotas", json={
+            "exchange_category_id": 1,
+        })
+        assert rv.status_code == 400
+        assert "quota_per_week" in rv.get_json()["error"]
+
+    def test_create_quota_plan_not_found(self, client, db_session):
+        rv = client.post("/api/admin/plans/9999/quotas", json={
+            "exchange_category_id": 1,
+            "quota_per_week": 3,
+        })
+        assert rv.status_code == 404
+
+    def test_update_quota_returns_200(self, client, db_session):
+        u = _make_user("quota_owner2")
+        cat = _make_category(u.id)
+        p = _make_plan()
+        resp = client.post(f"/api/admin/plans/{p.id}/quotas", json={
+            "exchange_category_id": cat.id,
+            "quota_per_week": 2,
+        })
+        qid = resp.get_json()["id"]
+        rv = client.put(f"/api/admin/quotas/{qid}", json={"quota_per_week": 5})
+        assert rv.status_code == 200
+        assert rv.get_json()["quota_per_week"] == 5
+
+    def test_update_quota_not_found(self, client, db_session):
+        rv = client.put("/api/admin/quotas/9999", json={"quota_per_week": 5})
+        assert rv.status_code == 404
+
+    def test_delete_quota_returns_200(self, client, db_session):
+        u = _make_user("quota_owner3")
+        cat = _make_category(u.id)
+        p = _make_plan()
+        resp = client.post(f"/api/admin/plans/{p.id}/quotas", json={
+            "exchange_category_id": cat.id,
+            "quota_per_week": 4,
+        })
+        qid = resp.get_json()["id"]
+        rv = client.delete(f"/api/admin/quotas/{qid}")
+        assert rv.status_code == 200
+        assert rv.get_json()["deleted"] == qid
+
+    def test_delete_quota_not_found(self, client, db_session):
+        rv = client.delete("/api/admin/quotas/9999")
+        assert rv.status_code == 404
+
+    # Auth guard tests (AUTH_ENABLED=True)
+
+    def test_list_quotas_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.get("/api/admin/plans/1/quotas")
+        assert rv.status_code == 401
+
+    def test_create_quota_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.post("/api/admin/plans/1/quotas", json={
+            "exchange_category_id": 1,
+            "quota_per_week": 3,
+        })
+        assert rv.status_code == 401
+
+    def test_update_quota_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.put("/api/admin/quotas/1", json={"quota_per_week": 5})
+        assert rv.status_code == 401
+
+    def test_delete_quota_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.delete("/api/admin/quotas/1")
+        assert rv.status_code == 401

@@ -427,6 +427,8 @@ def _migrate_add_columns(app):
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_reactor_id ON feed_reaction (reactor_id)',
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_user_id ON feed_reaction (target_user_id)',
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_date ON feed_reaction (target_date)',
+            # --- Recipe Builder (PR15) ---
+            'ALTER TABLE recipe ADD COLUMN IF NOT EXISTS servings INTEGER NOT NULL DEFAULT 1',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
@@ -729,6 +731,8 @@ def _migrate_add_columns(app):
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_reactor_id ON feed_reaction (reactor_id)',
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_user_id ON feed_reaction (target_user_id)',
             'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_date ON feed_reaction (target_date)',
+            # --- Recipe Builder (PR15) ---
+            'ALTER TABLE recipe ADD COLUMN servings INTEGER NOT NULL DEFAULT 1',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:

@@ -7,9 +7,74 @@ var planData = null;      // full rich response from /api/plans/my-assignment/ri
 var today = new Date().toISOString().slice(0, 10);
 var fulfillmentStatus = {}; // slot_id -> fulfillment record
 
+/* ── Page tab switching ───────────────────────────────────── */
+document.querySelectorAll('.plans-page-tab').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('.plans-page-tab').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var tab = btn.dataset.ptab;
+    var myPanel = document.getElementById('plans-myplan-panel');
+    var browsePanel = document.getElementById('plans-browse-panel');
+    if (myPanel) myPanel.hidden = (tab !== 'myplan');
+    if (browsePanel) browsePanel.hidden = (tab !== 'browse');
+    if (tab === 'browse') loadBrowsePlans();
+  });
+});
+
+var goBrowseBtn = document.getElementById('plans-go-browse-btn');
+if (goBrowseBtn) {
+  goBrowseBtn.addEventListener('click', function () {
+    var browseTab = document.querySelector('.plans-page-tab[data-ptab="browse"]');
+    if (browseTab) browseTab.click();
+  });
+}
+
 /* ── Init ─────────────────────────────────────────────────── */
 function init() {
   loadRichAssignment();
+}
+
+/* ── Browse Plans ─────────────────────────────────────────── */
+function loadBrowsePlans() {
+  var list = document.getElementById('plans-template-list');
+  if (!list) return;
+  list.innerHTML = '<p class="empty-msg" style="padding:1rem">Loading plans…</p>';
+  // Try admin plans endpoint first (shows all active), fall back to templates
+  api('/api/admin/plans').then(function (plans) {
+    var available = plans.filter(function (p) { return p.status === 'active' || p.is_template; });
+    renderBrowsePlans(available.length ? available : plans, list);
+  }).catch(function () {
+    // Fallback to public templates
+    api('/api/plans/templates').then(function (plans) {
+      renderBrowsePlans(plans, list);
+    }).catch(function (e) { list.innerHTML = '<p class="empty-msg">' + esc(e.message) + '</p>'; });
+  });
+}
+
+function renderBrowsePlans(plans, list) {
+  if (!plans.length) {
+    list.innerHTML = '<p class="empty-msg" style="padding:1rem">No plans available yet. Ask your dietitian to create one.</p>';
+    return;
+  }
+  list.innerHTML = plans.map(function (p) {
+    var statusBadge = p.status ? '<span class="badge badge--' + esc(p.status) + '">' + esc(p.status) + '</span>' : '';
+    var tplBadge = p.is_template ? '<span class="badge badge--info">template</span>' : '';
+    return '<div class="card" style="padding:1.25rem 1.5rem">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">' +
+        '<div>' +
+          '<h3 style="font-size:1rem;font-weight:700;margin-bottom:.25rem">' + esc(p.name) + ' ' + statusBadge + tplBadge + '</h3>' +
+          (p.description ? '<p class="card-meta" style="margin-bottom:.35rem">' + esc(p.description) + '</p>' : '') +
+          '<p class="card-meta"><strong>' + (p.duration_days || 7) + ' days</strong> &nbsp;&bull;&nbsp; ' + (p.task_count || 0) + ' tasks</p>' +
+        '</div>' +
+      '</div>' +
+      '<button class="btn btn-primary btn-sm browse-start-btn" data-plan-id="' + p.id + '">Start this plan</button>' +
+    '</div>';
+  }).join('');
+  list.querySelectorAll('.browse-start-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      selfAssign(parseInt(btn.dataset.planId, 10));
+    });
+  });
 }
 
 function loadRichAssignment() {
@@ -153,8 +218,28 @@ function renderSlotItems(items) {
   if (!items.length) return '';
   return '<ul class="slot-items-list">' +
     items.map(function (it) {
-      var label = it.food_name_override || (it.saved_food && it.saved_food.name) || '—';
-      return '<li>' + esc(label) + (it.quantity ? ' — ' + it.quantity + ' ' + (it.unit || 'g') : '') + '</li>';
+      var food = it.saved_food || {};
+      var label = it.food_name_override || food.name || '—';
+      var qty = it.quantity || null;
+      var unit = it.unit || 'g';
+      var macroHtml = '';
+      // Show macros if available on the item or its food
+      var p = it.protein != null ? it.protein : (food.protein != null && qty ? Math.round(food.protein * qty / 100 * 10) / 10 : null);
+      var f = it.fat != null ? it.fat : (food.fat != null && qty ? Math.round(food.fat * qty / 100 * 10) / 10 : null);
+      var c = it.carbs != null ? it.carbs : (food.carbs != null && qty ? Math.round(food.carbs * qty / 100 * 10) / 10 : null);
+      var k = it.calories != null ? it.calories : (food.calories != null && qty ? Math.round(food.calories * qty / 100) : null);
+      if (p != null || f != null || c != null) {
+        var parts = [];
+        if (p != null) parts.push('P ' + p + 'g');
+        if (f != null) parts.push('F ' + f + 'g');
+        if (c != null) parts.push('C ' + c + 'g');
+        if (k != null) parts.push(k + ' kcal');
+        macroHtml = ' <span class="slot-item-macros">' + parts.join(' &bull; ') + '</span>';
+      }
+      return '<li class="slot-item-row">' +
+        '<span class="slot-item-name">' + esc(label) + (qty ? ' — ' + qty + ' ' + esc(unit) : '') + '</span>' +
+        macroHtml +
+      '</li>';
     }).join('') + '</ul>';
 }
 
@@ -174,10 +259,19 @@ function renderTodaySlots() {
 function loadFulfillmentStatus(dateStr) {
   api('/api/plans/fulfillment-status?date=' + dateStr).then(function (data) {
     fulfillmentStatus = {};
-    (data.slots || []).forEach(function (s) {
+    var slots = data.slots || [];
+    slots.forEach(function (s) {
       if (s.is_fulfilled) fulfillmentStatus[s.id] = s.fulfillment;
     });
     renderTodaySlots();
+    // Update completion badge
+    var badge = document.getElementById('plans-today-completion');
+    if (badge && slots.length) {
+      var done = slots.filter(function (s) { return s.is_fulfilled; }).length;
+      badge.textContent = done + ' / ' + slots.length + ' done';
+      badge.hidden = false;
+      badge.classList.toggle('plans-completion-badge--complete', done === slots.length);
+    }
     // re-render day detail if today tab is active
     var activeBtn = document.querySelector('.plans-day-btn.active');
     if (activeBtn) {
@@ -336,9 +430,10 @@ function getISOWeek(d) {
 
 /* ── Change Plan button ──────────────────────────────────── */
 document.getElementById('plans-change-btn').addEventListener('click', function () {
-  document.getElementById('plans-overview').hidden = true;
-  document.getElementById('plans-no-assignment').hidden = false;
-  loadTemplates();
+  // Switch to Browse tab
+  var browseTab = document.querySelector('.plans-page-tab[data-ptab="browse"]');
+  if (browseTab) browseTab.click();
+  else loadBrowsePlans();
 });
 
 /* ── View toggle ─────────────────────────────────────────── */

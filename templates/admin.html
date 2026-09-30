@@ -14,6 +14,7 @@
     <button class="btn btn-outline admin-tab" data-tab="builder">Program Builder</button>
     <button class="btn btn-outline admin-tab" data-tab="templates">Templates</button>
     <button class="btn btn-outline admin-tab" data-tab="users">Users</button>
+    <button class="btn btn-outline admin-tab" data-tab="progress">Client Progress</button>
   </div>
 
   <!-- ── Plans tab ─────────────────────────────────────────── -->
@@ -110,6 +111,18 @@
     </div>
     <p class="empty-msg" style="margin:.5rem 0">Templates can be cloned to create new plans.</p>
     <div id="admin-templates-list" class="admin-plans-list"></div>
+  </div>
+
+  <!-- ── Client Progress tab ──────────────────────────────── -->
+  <div class="admin-panel" id="admin-tab-progress" hidden>
+    <div class="admin-panel-header">
+      <h2>Client Progress</h2>
+      <button class="btn btn-sm btn-outline" id="admin-progress-refresh">Refresh</button>
+    </div>
+    <p class="card-meta" style="margin-bottom:1rem">Users who have an active plan assigned. Shows current plan assignment status.</p>
+    <div id="admin-progress-list" class="admin-progress-list">
+      <p class="empty-msg">Click a tab to load data.</p>
+    </div>
   </div>
 
   <!-- ── Users tab ─────────────────────────────────────────── -->

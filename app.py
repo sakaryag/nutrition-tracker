@@ -884,7 +884,7 @@ def _patch_food_data(app):
     ]
     patched = 0
     for fdc_id, p, f, c, k, ds, su in fixes:
-        food = SavedFood.query.filter_by(usda_fdc_id=fdc_id, source='usda').first()
+        food = SavedFood.query.filter_by(usda_fdc_id=int(fdc_id), source='usda').first()
         if food and round(food.calories or 0) != k:
             food.protein = p; food.fat = f; food.carbs = c; food.calories = k
             food.default_serving = ds; food.serving_unit = su

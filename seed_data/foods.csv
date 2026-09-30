@@ -199,8 +199,8 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170199,Bagel,Simit (bagel), plain,Grains & Bread,9.2,1.4,54,289,,2.7,1,piece,105
 170200,Bagel,Simit (bagel), whole wheat,Grains & Bread,11,1.6,52,290,,6,1,piece,105
 170201,Bagel,Simit (bagel), everything,Grains & Bread,10,2,54,310,,3,1,piece,105
-170202,English muffin,İngiliz muffin, whole wheat,Grains & Bread,8.3,1.5,42,230,,6,1,piece,57
-170203,English muffin,İngiliz muffin, plain,Grains & Bread,8.3,1.5,42,230,,2,1,piece,57
+170202,English muffin,İngiliz muffin, whole wheat,Grains & Bread,8.3,1.5,44,223,,6,57,g,
+170203,English muffin,İngiliz muffin, plain,Grains & Bread,8.5,1.5,44,218,,2,57,g,
 170204,Croissant,Kruvasan, butter,Grains & Bread,4.8,14,27,231,,1.5,1,piece,57
 170205,Croissant,Kruvasan, chocolate,Grains & Bread,5.6,16,31,272,,2,1,piece,57
 170206,Croissant,Kruvasan, almond,Grains & Bread,5.4,16,34,292,,3,1,piece,57
@@ -257,7 +257,7 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170309,Blackberry,Böğürtlen,generic,Fruits,1.4,0.5,10,43,,5,100,g,
 170310,"Grape, red","Üzüm, kırmızı",generic,Fruits,0.6,0.4,18,81,,16,100,g,
 170311,"Grape, green","Üzüm, yeşil",generic,Fruits,0.6,0.4,18,81,,16,100,g,
-170312,Watermelon,Karpuz,generic,Fruits,0.6,0.2,12,30,,7,100,g,
+170312,Watermelon,Karpuz,generic,Fruits,0.6,0.2,7.6,30,,7,100,g,
 170313,Cantaloupe,Kavun,generic,Fruits,0.8,0.2,8,34,,8,100,g,
 170314,Honeydew,Bal kavunu,generic,Fruits,0.5,0.1,9,36,,9,100,g,
 170315,Mango,Mango,generic,Fruits,0.8,0.3,15,60,,14,1,piece,200
@@ -272,7 +272,7 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170324,"Coconut, raw","Hindistan cevizi, taze",generic,Fruits,3.3,33,9,354,,9,100,g,
 170325,"Coconut, shredded, unsweetened","Hindistan cevizi, rendelenmiş, şekersiz",generic,Fruits,3.3,33,9,354,,9,100,g,
 170326,"Coconut, shredded, sweetened","Hindistan cevizi, rendelenmiş, şekerli",generic,Fruits,2.2,19,25,268,,23,100,g,
-170327,Avocado,Avokado,generic,Fruits,2.7,15,9,160,,7,1,piece,150
+170327,Avocado,Avokado,generic,Fruits,2.0,14.7,8.5,160,,7,100,g,
 170328,Lemon,Limon,generic,Fruits,0.6,0.3,9,29,,2.5,1,piece,70
 170329,Lime,Misket limonu,generic,Fruits,0.7,0.2,11,30,,1.5,1,piece,60
 170330,"Grapefruit, pink","Greyfurt, pembe",generic,Fruits,0.8,0.1,13,52,,9,1,piece,250
@@ -280,7 +280,7 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170332,Tangerine,Mandalina,generic,Fruits,0.7,0.3,13,47,,9,1,piece,85
 170333,Pomegranate,Nar,generic,Fruits,1.7,0.3,19,83,,14,1,piece,250
 170334,"Fig, fresh","İncir, taze",generic,Fruits,0.8,0.3,19,74,,16,1,piece,50
-170335,"Date, Medjool","Hurma, Medjool",generic,Fruits,1.8,0.2,75,280,,67,1,piece,25
+170335,"Date, Medjool","Hurma, Medjool",generic,Fruits,1.8,0.2,75,277,,67,24,g,
 170336,"Date, Deglet Noor","Hurma, Deglet Noor",generic,Fruits,1.6,0.2,66,282,,55,1,piece,25
 170337,Raisin,Kuru üzüm,generic,Fruits,3.1,0.5,79,299,,47,100,g,
 170338,"Cranberry, dried","Kızılcık, kurutulmuş",generic,Fruits,0.4,0.2,77,308,,65,100,g,
@@ -437,13 +437,13 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170520,Pumpkin seeds (pepitas),Kabak çekirdeği,generic,Legumes & Nuts,18.5,45.8,20,540,,3.1,28,g,
 170521,Chia seeds,Chia tohumu,generic,Legumes & Nuts,17,31,28,486,,27.6,15,g,
 170522,Flax seeds,Keten tohumu,generic,Legumes & Nuts,18,42,29,534,,27.3,15,g,
-170523,Hemp seeds,Kenevir tohumu,generic,Legumes & Nuts,10,12,3,561,,1.1,15,g,
+170523,Hemp seeds,Kenevir tohumu,generic,Legumes & Nuts,31.6,48.8,8.7,553,,1.1,30,g,
 170524,Sesame seeds,Susam,generic,Legumes & Nuts,18,50,26,565,,11.8,15,g,
 170525,"Pumpkin seeds, white","Kabak çekirdeği, beyaz",generic,Legumes & Nuts,18.5,45.8,20,540,,3.1,28,g,
 170526,Watermelon seeds,Karpuz çekirdeği,generic,Legumes & Nuts,11.5,47.4,16,557,,0,100,g,
-170527,"Peanut butter, creamy","Fıstık ezmesi, kremali",generic,Legumes & Nuts,15.4,32.0,15.4,376,2.6,6.8,2,tbsp,
-170528,"Peanut butter, chunky","Fıstık ezmesi, parçalı",generic,Legumes & Nuts,15.4,32.0,15.4,376,2.6,6.8,2,tbsp,
-170529,"Peanut butter, natural","Fıstık ezmesi, doğal",generic,Legumes & Nuts,15.4,32.0,15.4,376,2.6,6.8,2,tbsp,
+170527,"Peanut butter, creamy","Fıstık ezmesi, kremali",generic,Legumes & Nuts,22.2,51.4,22.3,598,2.6,6.8,32,g,
+170528,"Peanut butter, chunky","Fıstık ezmesi, parçalı",generic,Legumes & Nuts,22.6,49.9,21.6,589,2.6,6.8,32,g,
+170529,"Peanut butter, natural","Fıstık ezmesi, doğal",generic,Legumes & Nuts,25.1,50.4,20.3,588,2.6,6.8,32,g,
 170530,"Peanut butter, powdered","Fıstık ezmesi, toz",generic,Legumes & Nuts,10.0,3.0,8.0,90,0.0,4.0,2,tbsp,
 170531,Almond butter,Badem ezmesi,generic,Legumes & Nuts,13.4,36.0,12.0,392,3.2,4.6,2,tbsp,
 170532,Cashew butter,Kaju ezmesi,generic,Legumes & Nuts,11.2,28.0,18.8,376,1.2,4.8,2,tbsp,
@@ -517,9 +517,9 @@ usda_fdc_id,name,name_tr,brand,category,protein,fat,carbs,calories,fiber,sugar,d
 170714,Corn syrup,Mısır şurubu,generic,Snacks & Sweets,0.0,0.0,16.1,53,0.0,0.0,1,tbsp,
 170715,Brown sugar,Esmer şeker,generic,Snacks & Sweets,0.0,0.0,4.0,15,,4.0,1,tsp,
 170716,White granulated sugar,Beyaz şeker,generic,Snacks & Sweets,0.0,0.0,4.0,16,,4.0,1,tsp,
-170717,"Jelly, grape","Jöle, üzüm",generic,Snacks & Sweets,0.4,0,28,107,,26,1,tbsp,
-170718,"Jam, strawberry","Reçel, çilek",generic,Snacks & Sweets,0.6,0.2,28,108,,23,1,tbsp,
-170719,"Jam, raspberry","Reçel, ahududu",generic,Snacks & Sweets,0.4,0,28,107,,20,1,tbsp,
+170717,"Jelly, grape","Jöle, üzüm",generic,Snacks & Sweets,0.1,0,69,250,,26,20,g,
+170718,"Jam, strawberry","Reçel, çilek",generic,Snacks & Sweets,0.1,0,69,250,,23,20,g,
+170719,"Jam, raspberry","Reçel, ahududu",generic,Snacks & Sweets,0.1,0,69,250,,20,20,g,
 170720,Peanut butter cups,Fıstık ezmeli çikolata,generic,Snacks & Sweets,5,20,30,300,,16,2,piece,21
 170721,"Granola bar, low fat","Granola bar, az yağlı",generic,Snacks & Sweets,3,2,24,130,,8,1,piece,40
 170722,"Granola bar, regular","Granola bar, normal",generic,Snacks & Sweets,4,7,25,165,,4,1,piece,40

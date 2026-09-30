@@ -58,6 +58,7 @@ def create_app(config_name=None, test_config=None):
         _migrate_add_columns(app)
         _auto_seed(app)
         _patch_name_tr(app)
+        _patch_food_data(app)
         _patch_program_days(app)
         _seed_starter_templates(app)
 
@@ -801,6 +802,35 @@ def _patch_name_tr(app):
         db.session.commit()
         app.logger.info(f'Patched name_tr for {updated} USDA foods.')
 
+
+def _patch_food_data(app):
+    """Idempotent: fix known-bad macro/serving values in USDA seed foods."""
+    from models.saved_food import SavedFood
+    fixes = [
+        # (usda_fdc_id, protein, fat, carbs, calories, default_serving, serving_unit)
+        ('170527', 22.2, 51.4, 22.3, 598, 32, 'g'),
+        ('170528', 22.6, 49.9, 21.6, 589, 32, 'g'),
+        ('170529', 25.1, 50.4, 20.3, 588, 32, 'g'),
+        ('170335', 1.8, 0.2, 75, 277, 24, 'g'),
+        ('170717', 0.1, 0, 69, 250, 20, 'g'),
+        ('170718', 0.1, 0, 69, 250, 20, 'g'),
+        ('170719', 0.1, 0, 69, 250, 20, 'g'),
+        ('170202', 8.3, 1.5, 44, 223, 57, 'g'),
+        ('170203', 8.5, 1.5, 44, 218, 57, 'g'),
+        ('170327', 2.0, 14.7, 8.5, 160, 100, 'g'),
+        ('170312', 0.6, 0.2, 7.6, 30, 100, 'g'),
+        ('170523', 31.6, 48.8, 8.7, 553, 30, 'g'),
+    ]
+    patched = 0
+    for fdc_id, p, f, c, k, ds, su in fixes:
+        food = SavedFood.query.filter_by(usda_fdc_id=fdc_id, source='usda').first()
+        if food and round(food.calories or 0) != k:
+            food.protein = p; food.fat = f; food.carbs = c; food.calories = k
+            food.default_serving = ds; food.serving_unit = su
+            patched += 1
+    if patched:
+        db.session.commit()
+        app.logger.info(f'_patch_food_data: corrected {patched} USDA food rows.')
 
 def _patch_program_days(app):
     """Idempotent backfill: migrate existing PlanTask rows into the new

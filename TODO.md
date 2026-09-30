@@ -5,26 +5,19 @@
 - [ ] **Country-specific meal datasets** — extend seeding infrastructure for per-country datasets selectable in Settings
 
 ## Dataset & Food Library
-- [ ] **OpenFoodFacts API fallback** — `GET https://search.openfoodfacts.org/search?q={query}` fallback when food not in local DB
-- [ ] **USDA FoodData Central API (optional)** — opt-in via `USDA_API_KEY` env var
-
-## Deploy
-- [ ] **Deploy to Railway / Render / Fly.io** — Docker setup ready, needs env vars set
-- [ ] **PostgreSQL in production** — `DATABASE_URL` swap works, needs provisioning
+- [x] **OpenFoodFacts API fallback** — already implemented in `routes/foods.py` (`_fetch_openfoodfacts()`)
+- [ ] **USDA FoodData Central API (optional)** — opt-in via `USDA_API_KEY` env var (deferred — 817 foods already seeded)
 
 ## Multi-user data isolation
-- [ ] **saved_food custom foods per-user** — currently all custom foods are shared across users; add user_id FK to saved_food for source='custom'
+- [ ] **saved_food custom foods per-user** — currently all custom foods are shared across users; add user_id FK to saved_food for source='custom' (deferred)
 
 ## Weekly / monthly reports
-- [ ] **Average daily intake over a period** — /api/summary/range exists but no UI report page
-- [ ] **Compliance rate** — % of days hitting each macro target
-- [ ] **Streaks** — consecutive days of logging
-- [ ] **Visual charts** — weekly bar chart, monthly calendar heatmap
+- [x] **Reports page** — fully built; nav link restored (PR4). Compliance rate, streaks, charts at `/reports`
+- [ ] **Monthly calendar heatmap** — not yet added to reports page
 
 ## PWA support
-- [ ] **manifest.json** — app name, icons, theme color
-- [ ] **Service worker** — offline caching of static assets
-- [ ] **"Add to Home Screen" prompt** — mobile install prompt
+- [x] **manifest.json + service worker** — already built; fixed manifest path bug + SW precache bug (PR5)
+- [x] **"Add to Home Screen" prompt** — enabled by fixed manifest
 
 ## Meal templates (enhancements)
 - [ ] **Log template to a specific past date** — currently only logs to today
@@ -41,19 +34,21 @@
 - [ ] **Daily summary insights** — end-of-day Claude review of macros vs targets (paragraph insight)
 
 ## Dashboard (enhancements)
-- [ ] **Water/notes dashboard widgets** — `WaterLog` + `DailyNote` models and API routes exist; no dashboard UI yet
-- [ ] **Copy yesterday's entries to today** — one-tap copy
+- [x] **Water/notes dashboard widgets** — fully built (WaterLog + DailyNote models, API routes, dashboard UI)
+- [x] **Copy yesterday's entries to today** — implemented (`POST /api/entries/copy-yesterday`)
+- [x] **Meal-type subtotals** — diary entries grouped by meal type with per-section macro subtotals (PR2)
 
 ## Dietitian Mode
-- [ ] **Plans/Admin page full UI** — `templates/plans.html` + `templates/admin.html` are stubs; need full dietitian workflow UI
-- [ ] **Plan slot items without food link** — `SlotItem` rows that use `food_name_override` (free text, no `saved_food_id`) carry no macro data; the slot log modal shows 0 g for all macros. Options: (a) add manual macro fields per free-text row in the modal, (b) require selecting a real food for every slot item, or (c) show a warning and skip macro tracking for those rows. Current behaviour: item logs with 0 kcal/protein/fat/carbs.
+- [ ] **Plans/Admin page full UI** — `templates/plans.html` + `templates/admin.html` are stubs; full dietitian workflow UI not built
+- [x] **Plan slot items without food link** — SlotItem now has protein/fat/carbs/calories columns; dashboard JS uses slot item macros when no saved_food linked (PR6)
+- [ ] **Dietitian plan builder macro input UI** — admin.html needs frontend fields for entering macros on free-text slot items
 
 ## Quality / Production Readiness
-- [ ] **Full food data audit (strict)** — every food in the DB must have correct per-100g macros (protein/fat/carbs/calories) verified against USDA FoodData Central source values. Known errors from workflow wf_b988d1f7: peanut butters ~2× calories, Medjool dates ~14× calories, jams ~2×, English muffin stored as per-piece not per-100g, avocado whole-fruit vs per-100g, most fresh fruits wrong. Audit scope: (1) re-download USDA FDC data for all 751 seeded foods and diff against current foods.csv, (2) flag every food where stored kcal deviates >5% from calculated `(protein×4 + fat×9 + carbs×4)`, (3) apply corrections to foods.csv and re-seed. No food correction should be applied without cross-checking the FDC source; do not guess values.
-- [ ] **valid_units filtering** — column exists on saved_food but food search unit dropdown not filtered by it
-- [ ] **Test coverage for new routes** — friends/game/social/shared/notes/water routes not yet in test_api.py
-- [ ] **OpenFoodFacts fallback search** — live API fallback in food search
+- [ ] **Full food data audit (strict)** — P1+P2 known errors fixed (PR1: peanut butters, Medjool dates, jams, English muffins, avocado, watermelon, hemp seeds). Full systematic diff vs USDA FDC source for all 751 foods still pending.
+- [x] **valid_units filtering** — unit dropdown in food search now filtered by saved_food.valid_units (PR6)
+- [x] **Test coverage for new routes** — 40 new tests added (PR7): water/notes/shared/friends/game/social + seed data correctness. 167 total tests.
+- [x] **OpenFoodFacts fallback search** — already implemented
 - [ ] **Turkish food dataset** — 50–100 common Turkish dishes seeded
-- [ ] **Reports page** — `/api/summary/range` exists; no chart UI yet
-- [ ] **PWA manifest + service worker** — installable on mobile home screen
 - [ ] **Duplicate meal template** — clone button
+- [ ] **datetime.utcnow() deprecation warnings** — entries.py, water.py, notes.py, shared.py use deprecated `datetime.utcnow()`. Replace with `datetime.now(timezone.utc)` (Python 3.12+).
+- [ ] **No tests for admin routes** — /api/admin/* routes have no test coverage

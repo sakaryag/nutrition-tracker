@@ -392,6 +392,14 @@ document.getElementById('item-type').addEventListener('change', function () {
   document.getElementById('item-exchange-row').hidden = v !== 'exchange';
 });
 
+function _setMacroReadonly(readonly) {
+  ['item-protein', 'item-fat', 'item-carbs', 'item-calories'].forEach(function (fid) {
+    var el = document.getElementById(fid);
+    el.readOnly = readonly;
+    el.style.opacity = readonly ? '0.6' : '';
+  });
+}
+
 function openItemModal(id, slotId, item) {
   document.getElementById('item-id').value = id || '';
   document.getElementById('item-slot-id').value = slotId;
@@ -411,6 +419,13 @@ function openItemModal(id, slotId, item) {
   document.getElementById('item-unit').value = item ? (item.unit || 'g') : 'g';
   document.getElementById('item-alt-group').value = item ? (item.alternative_group || '') : '';
   document.getElementById('item-notes').value = item ? (item.notes || '') : '';
+  var hasFoodLinked = !!(item && item.saved_food_id);
+  document.getElementById('item-protein').value = (item && item.protein != null) ? item.protein : 0;
+  document.getElementById('item-fat').value = (item && item.fat != null) ? item.fat : 0;
+  document.getElementById('item-carbs').value = (item && item.carbs != null) ? item.carbs : 0;
+  document.getElementById('item-calories').value = (item && item.calories != null) ? item.calories : 0;
+  _setMacroReadonly(hasFoodLinked);
+  document.getElementById('item-food-clear').hidden = !hasFoodLinked;
   var recSel = document.getElementById('item-recipe-select');
   recSel.innerHTML = '<option value="">— select —</option>' +
     recipes.map(function (r) { return '<option value="' + r.id + '"' + (item && item.recipe_id === r.id ? ' selected' : '') + '>' + esc(r.name) + '</option>'; }).join('');
@@ -436,6 +451,12 @@ document.getElementById('item-food-search').addEventListener('input', function (
           document.getElementById('item-food-name-display').textContent = f.name;
           document.getElementById('item-food-search').value = '';
           itemFoodAC.hidden = true;
+          document.getElementById('item-protein').value = f.protein != null ? parseFloat(f.protein).toFixed(1) : 0;
+          document.getElementById('item-fat').value = f.fat != null ? parseFloat(f.fat).toFixed(1) : 0;
+          document.getElementById('item-carbs').value = f.carbs != null ? parseFloat(f.carbs).toFixed(1) : 0;
+          document.getElementById('item-calories').value = f.calories != null ? Math.round(f.calories) : 0;
+          _setMacroReadonly(true);
+          document.getElementById('item-food-clear').hidden = false;
         });
         itemFoodAC.appendChild(li);
       });
@@ -444,6 +465,16 @@ document.getElementById('item-food-search').addEventListener('input', function (
   }, 250);
 });
 document.addEventListener('click', function (e) { if (!itemFoodAC.contains(e.target)) itemFoodAC.hidden = true; });
+document.getElementById('item-food-clear').addEventListener('click', function () {
+  document.getElementById('item-food-id').value = '';
+  document.getElementById('item-food-name-display').textContent = '';
+  document.getElementById('item-protein').value = 0;
+  document.getElementById('item-fat').value = 0;
+  document.getElementById('item-carbs').value = 0;
+  document.getElementById('item-calories').value = 0;
+  _setMacroReadonly(false);
+  this.hidden = true;
+});
 
 document.getElementById('item-form').addEventListener('submit', function (e) {
   e.preventDefault();
@@ -458,6 +489,10 @@ document.getElementById('item-form').addEventListener('submit', function (e) {
     saved_food_id: type === 'food' ? (parseInt(document.getElementById('item-food-id').value, 10) || null) : null,
     recipe_id: type === 'recipe' ? (parseInt(document.getElementById('item-recipe-select').value, 10) || null) : null,
     exchange_category_id: type === 'exchange' ? (parseInt(document.getElementById('item-exchange-select').value, 10) || null) : null,
+    protein: parseFloat(document.getElementById('item-protein').value) || 0,
+    fat: parseFloat(document.getElementById('item-fat').value) || 0,
+    carbs: parseFloat(document.getElementById('item-carbs').value) || 0,
+    calories: parseFloat(document.getElementById('item-calories').value) || 0,
   };
   var method = id ? 'PUT' : 'POST';
   var url = id ? '/api/admin/slot-items/' + id : '/api/admin/slots/' + slotId + '/items';

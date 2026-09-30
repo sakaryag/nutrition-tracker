@@ -290,7 +290,10 @@ def reorder_items(template_id):
     if not item_ids:
         return jsonify({'error': 'item_ids is required'}), 400
 
-    id_to_order = {int(iid): idx for idx, iid in enumerate(item_ids)}
+    try:
+        id_to_order = {int(iid): idx for idx, iid in enumerate(item_ids)}
+    except (ValueError, TypeError):
+        return jsonify({'error': 'item_ids must be integers'}), 400
     for item in template.items:
         if item.id in id_to_order:
             item.sort_order = id_to_order[item.id]

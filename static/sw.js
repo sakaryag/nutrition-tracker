@@ -11,7 +11,6 @@ var CACHE_NAME = 'nutritrack-v1';
 
 var STATIC_SHELL = [
   '/',
-  '/offline',
   '/static/css/style.css',
   '/static/js/i18n.js',
   '/static/js/app.js',

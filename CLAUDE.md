@@ -56,6 +56,9 @@ models/
   plan_task.py          → PlanTask (day_offset tasks within a plan)
   plan_task_completion.py → PlanTaskCompletion (user completion tracking)
   user_plan_assignment.py → UserPlanAssignment (user_id, plan_id, start_date)
+  feed_reaction.py      → FeedReaction (reactor_id, target_user_id, target_date, emoji) — social feed reactions
+  recipe.py             → Recipe (user recipe with servings, ingredients, computed macros)
+  recipe_ingredient.py  → RecipeIngredient (recipe_id, food_id/FK, quantity, unit)
 routes/
   auth.py               → login_required decorator, /login /register /logout
   entries.py            → /api/entries CRUD
@@ -73,7 +76,8 @@ routes/
   shared.py             → /api/shared POST + /api/shared/incoming GET
   plans.py              → /api/plans (dietitian plan CRUD)
   admin.py              → /api/admin/* (admin user management)
-  pages.py              → HTML page routes (/, /history, /foods, /meals, /chat, /settings, /social, /plans, /admin)
+  recipes.py            → /api/recipes CRUD + /<id>/log + /<id>/save-as-food
+  pages.py              → HTML page routes (/, /history, /foods, /meals, /recipes, /chat, /settings, /social, /plans, /admin)
 seed_data/
   seed.py               → USDA food CSV seeder (flask seed or auto on first run)
   meals.py              → Meal/dish seeder (seed_meals(), runs if no meal rows exist)
@@ -98,9 +102,10 @@ templates/
   meal_templates.html   → Template list + create/edit modal with food search
   settings.html         → Target goals + TDEE calculator + API key management
   social.html           → 4-tab social page: Friends | Feed | Race | Badges
-  plans.html            → Dietitian plan tracking UI (stub)
-  admin.html            → Admin user management UI (stub)
-  reports.html          → Weekly/monthly reports (fully built — compliance chart, streak, date range tabs)
+  plans.html            → Plan tracking UI (My Plan tab + Browse Plans tab) — fully built (PR10)
+  admin.html            → Admin UI — plan CRUD, client progress tab — fully built (PR10)
+  recipes.html          → Recipe builder page (CRUD, ingredient search, macro preview, log/save)
+  reports.html          → Weekly/monthly reports + monthly calendar heatmap — fully built (PR11)
   login.html            → Login form
   register.html         → Register form
 tests/
@@ -228,7 +233,7 @@ venv\Scripts\activate
 pytest tests/ -v
 ```
 
-Tests use in-memory SQLite and a fresh DB per test class. 174 tests total (61 in test_api.py + 20 in test_family_mode.py + 30 in test_new_routes.py + 10 in test_seed_data.py + others).
+Tests use in-memory SQLite and a fresh DB per test class. 342 tests total (61 in test_api.py + 20 in test_family_mode.py + 30 in test_new_routes.py + 10 in test_seed_data.py + 122 in test_admin_routes.py + 18 in test_recipes.py + others).
 
 ## Windows-specific Notes
 
@@ -265,6 +270,5 @@ For production:
 - `parser.py` in project root — scratch file from a background agent, not integrated
 - Food data P1/P2 errors fixed (PR1: peanut butters, dates, jams, English muffins, avocado, watermelon, hemp seeds). Full systematic audit vs USDA FDC for all 751 foods still pending.
 - `datetime.utcnow()` deprecation warnings in `entries.py`, `water.py`, `notes.py`, `shared.py` — replace with `datetime.now(timezone.utc)`
-- `templates/plans.html`, `templates/admin.html` are stubs — full dietitian workflow UI not yet built. `templates/reports.html` is fully implemented.
-- SlotItem macro columns added (PR6) — admin plan builder UI for setting macros on free-text slot items still needs frontend work in `admin.html`
-- No tests for `/api/admin/*` routes
+- `seed_meals()` / `seed_turkish_meals()` not auto-called from `app.py` startup — new deployments need `python seed_data/meals.py` manually
+- Türk Çayı calorie inconsistency in seed data (macros sum to 0 kcal but stated as 2 kcal) — cosmetic only

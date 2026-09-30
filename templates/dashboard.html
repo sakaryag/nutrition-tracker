@@ -53,6 +53,25 @@
     </article>
   </section>
 
+  <!-- What Can I Still Eat? Panel (Enhancement 1) -->
+  <section class="remaining-panel" id="remaining-panel" aria-label="Remaining macros panel">
+    <div class="remaining-panel-header" id="remaining-panel-toggle" role="button" tabindex="0"
+         aria-expanded="true" aria-controls="remaining-panel-body">
+      <span id="remaining-panel-title" data-i18n="remaining.panel.title">What Can I Still Eat?</span>
+      <span class="remaining-panel-chevron" id="remaining-panel-chevron" aria-hidden="true">&#9650;</span>
+    </div>
+    <div id="remaining-panel-body">
+      <div id="remaining-macro-rows"></div>
+      <div class="remaining-suggestions" id="remaining-suggestions" hidden></div>
+    </div>
+  </section>
+
+  <!-- Daily Insight (Enhancement 3) -->
+  <section class="insight-section" id="insight-section">
+    <button class="btn btn-secondary insight-btn" id="insight-btn" data-i18n="insight.btn">&#10024; Daily Insight</button>
+    <div class="insight-result" id="insight-result" hidden></div>
+  </section>
+
   <!-- Macro Donut Chart -->
   <section class="macro-donut-section" aria-label="Macro breakdown chart">
     <h2 class="section-title" data-i18n="dash.macroBreakdown">Macro Breakdown</h2>

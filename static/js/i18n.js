@@ -429,6 +429,19 @@ const i18n = {
     'plan.fulfilled':      'Logged',
     'plan.guidelines.empty': 'No guidelines for this plan.',
     'plan.quotaProgress':  'Weekly Category Progress',
+
+    /* Remaining macros panel (Enhancement 1) */
+    'remaining.panel.title':  'What Can I Still Eat?',
+    'remaining.protein':      'Protein remaining',
+    'remaining.fat':          'Fat remaining',
+    'remaining.carbs':        'Carbs remaining',
+    'remaining.calories':     'Calories remaining',
+    'remaining.suggestions':  'Suggestions',
+
+    /* Daily Insight (Enhancement 3) */
+    'insight.btn':     '✨ Daily Insight',
+    'insight.noKey':   'Set your Anthropic API key in Settings to enable daily insights.',
+    'insight.loading': 'Getting your daily insight…',
   },
 
   tr: {
@@ -857,6 +870,19 @@ const i18n = {
     'plan.fulfilled':      'Kaydedildi',
     'plan.guidelines.empty': 'Bu plan için yönerge yok.',
     'plan.quotaProgress':  'Haftalık Kategori İlerlemesi',
+
+    /* Remaining macros panel (Enhancement 1) */
+    'remaining.panel.title':  'Bugün Ne Yiyebilirim?',
+    'remaining.protein':      'Protein kaldı',
+    'remaining.fat':          'Yağ kaldı',
+    'remaining.carbs':        'Karbonhidrat kaldı',
+    'remaining.calories':     'Kalori kaldı',
+    'remaining.suggestions':  'Öneriler',
+
+    /* Daily Insight (Enhancement 3) */
+    'insight.btn':     '✨ Günlük Analiz',
+    'insight.noKey':   'Günlük analizi etkinleştirmek için Ayarlar bölümünden Anthropic API anahtarınızı girin.',
+    'insight.loading': 'Günlük analiziniz hazırlanıyor…',
   },
 };
 

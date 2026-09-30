@@ -160,7 +160,7 @@
     loadNote();
   }
   async function loadSummary() {
-    try { var data = await api('/api/summary?date=' + currentDate); renderSummary(data); renderDonut(data); }
+    try { var data = await api('/api/summary?date=' + currentDate); renderSummary(data); renderDonut(data); renderRemainingPanel(data); }
     catch (err) { showToast(t('common.error') + ': ' + err.message, 'error'); }
   }
 
@@ -245,8 +245,8 @@
       html+='<div class="meal-group" data-meal="'+escHtml(meal)+'">'
         +'<div class="meal-group__header"><p class="meal-group__title">'+escHtml(lbl)+'</p>'
         +'<div class="meal-group__actions">'
-        +(meal!=='Other'?'<button class="btn btn-icon btn-sm" data-action="add-to-meal" data-meal="'+escHtml(meal)+'">+</button>'
-                        +'<button class="btn-ghost meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; Clear</button>':'')
+        +'<button class="meal-add-btn" data-action="add-to-meal" data-meal="'+escHtml(meal)+'" aria-label="Add food to '+escHtml(lbl)+'">+ Add</button>'
+        +(meal!=='Other'?'<button class="btn-ghost meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; Clear</button>':'')
         +'</div></div>'
         +'<p class="meal-group__subtotal">P '+round1(sp)+'g · F '+round1(sf)+'g · C '+round1(sc)+'g · '+Math.round(sk)+' kcal</p>';
       groups[meal].forEach(function(e){html+=renderEntryCard(e);});
@@ -905,6 +905,187 @@
       }
     } catch (_) { /* Silent fail — user can retry by typing again */ }
   }
+
+  /* ============================================================
+     Enhancement 1 — Remaining Macros Panel
+     ============================================================ */
+
+  var _remainingPanelExpanded = true;
+  (function initRemainingPanel() {
+    try { _remainingPanelExpanded = localStorage.getItem('nt_remaining_panel') !== 'collapsed'; } catch(_) {}
+    var toggle = document.getElementById('remaining-panel-toggle');
+    var body   = document.getElementById('remaining-panel-body');
+    var chev   = document.getElementById('remaining-panel-chevron');
+    if (!toggle || !body) return;
+
+    function applyState() {
+      body.hidden = !_remainingPanelExpanded;
+      if (toggle) toggle.setAttribute('aria-expanded', String(_remainingPanelExpanded));
+      if (chev)   chev.textContent = _remainingPanelExpanded ? '▲' : '▼';
+    }
+    applyState();
+
+    toggle.addEventListener('click', function() {
+      _remainingPanelExpanded = !_remainingPanelExpanded;
+      try { localStorage.setItem('nt_remaining_panel', _remainingPanelExpanded ? 'expanded' : 'collapsed'); } catch(_) {}
+      applyState();
+    });
+    toggle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+    });
+  })();
+
+  var _MACRO_SUGGESTIONS = {
+    protein: {
+      en: 'eggs, chicken breast, Greek yogurt, cottage cheese, tuna',
+      tr: 'yumurta, tavuk göğsü, Yunan yoğurdu, lor peyniri, ton balığı',
+    },
+    fat: {
+      en: 'avocado, nuts, olive oil, cheese, salmon',
+      tr: 'avokado, fındık, zeytinyağı, peynir, somon',
+    },
+    carbs: {
+      en: 'oats, brown rice, banana, whole grain bread, sweet potato',
+      tr: 'yulaf, esmer pirinç, muz, tam tahıllı ekmek, tatlı patates',
+    },
+    calories: {
+      en: 'a balanced meal with protein and complex carbs',
+      tr: 'protein ve kompleks karbonhidrat içeren dengeli bir öğün',
+    },
+  };
+
+  function renderRemainingPanel(data) {
+    var rowsEl = document.getElementById('remaining-macro-rows');
+    var suggEl = document.getElementById('remaining-suggestions');
+    if (!rowsEl) return;
+
+    var isTr = Lang && Lang.isTr && Lang.isTr();
+    var lang  = isTr ? 'tr' : 'en';
+
+    var MACROS = [
+      { key: 'protein',  unit: 'g',    labelKey: 'remaining.protein'  },
+      { key: 'fat',      unit: 'g',    labelKey: 'remaining.fat'      },
+      { key: 'carbs',    unit: 'g',    labelKey: 'remaining.carbs'    },
+      { key: 'calories', unit: 'kcal', labelKey: 'remaining.calories' },
+    ];
+
+    var html = '';
+    var bestMacro = null;
+    var bestRatio  = -Infinity;
+
+    MACROS.forEach(function(m) {
+      var consumed  = data.totals   ? (data.totals[m.key]   || 0) : 0;
+      var target    = data.target   ? (data.target[m.key]   || 0) : 0;
+      var remaining = data.remaining? (data.remaining[m.key]|| 0) : 0;
+      var over      = target > 0 && consumed > target;
+      var pct       = target > 0 ? Math.min(100, Math.round((consumed / target) * 100)) : 0;
+      var remRound  = Math.abs(Math.round(remaining));
+      var remText   = (over ? '+' : '') + remRound + ' ' + m.unit;
+      var valueClass = over ? 'over' : 'good';
+
+      /* Track which macro has most room (for suggestion) */
+      if (!over && target > 0) {
+        var ratio = remaining / target;
+        if (ratio > bestRatio) { bestRatio = ratio; bestMacro = m.key; }
+      }
+
+      html += '<div class="remaining-macro-row">'
+        + '<span class="remaining-label">' + escHtml(t(m.labelKey)) + '</span>'
+        + '<div class="remaining-bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100">'
+        + '<div class="remaining-bar-fill' + (over ? ' over' : '') + '" style="width:' + pct + '%"></div>'
+        + '</div>'
+        + '<span class="remaining-value ' + valueClass + '">' + escHtml(remText) + '</span>'
+        + '</div>';
+    });
+
+    rowsEl.innerHTML = html;
+
+    /* Suggestions */
+    if (suggEl) {
+      var suggText = '';
+      if (!bestMacro) {
+        suggText = isTr ? 'Tüm hedeflerinize ulaştınız! Harika iş!' : 'You\'ve hit all your targets! Great job!';
+      } else {
+        var remVal  = Math.round(Math.abs(data.remaining[bestMacro] || 0));
+        var unit    = bestMacro === 'calories' ? ' kcal' : 'g';
+        var mLabel  = t('remaining.' + bestMacro).toLowerCase().replace(isTr ? ' kaldı' : ' remaining', '');
+        var foods   = _MACRO_SUGGESTIONS[bestMacro][lang];
+        if (isTr) {
+          suggText = 'Yaklaşık ~' + remVal + unit + ' daha ' + mLabel + ' alabilirsiniz. Önerilenler: ' + foods;
+        } else {
+          suggText = 'You have room for ~' + remVal + unit + ' more ' + mLabel + '. Consider: ' + foods;
+        }
+      }
+      suggEl.innerHTML = '<strong>' + escHtml(t('remaining.suggestions')) + '</strong>' + escHtml(suggText);
+      suggEl.hidden = false;
+    }
+  }
+
+  /* ============================================================
+     Enhancement 3 — Daily Insight Button
+     ============================================================ */
+  (function initInsight() {
+    var insightBtn    = document.getElementById('insight-btn');
+    var insightResult = document.getElementById('insight-result');
+    if (!insightBtn || !insightResult) return;
+
+    insightBtn.addEventListener('click', async function() {
+      var apiKey = '';
+      try { apiKey = localStorage.getItem('nt_anthropic_key') || ''; } catch(_) {}
+
+      if (!apiKey) {
+        insightResult.textContent = t('insight.noKey');
+        insightResult.className = 'insight-result no-key';
+        insightResult.hidden = false;
+        return;
+      }
+
+      /* Gather today's summary data from the DOM */
+      var consumed = {
+        protein:  parseFloat((document.getElementById('summary-protein')  || {}).textContent) || 0,
+        fat:      parseFloat((document.getElementById('summary-fat')      || {}).textContent) || 0,
+        carbs:    parseFloat((document.getElementById('summary-carbs')    || {}).textContent) || 0,
+        calories: parseFloat((document.getElementById('summary-calories') || {}).textContent) || 0,
+      };
+      var targets = {
+        protein:  parseFloat((document.getElementById('target-protein')   || {}).textContent) || 0,
+        fat:      parseFloat((document.getElementById('target-fat')       || {}).textContent) || 0,
+        carbs:    parseFloat((document.getElementById('target-carbs')     || {}).textContent) || 0,
+        calories: parseFloat((document.getElementById('target-calories')  || {}).textContent) || 0,
+      };
+
+      var content = 'Today I ate: ' + consumed.protein + 'g protein, '
+        + consumed.fat + 'g fat, ' + consumed.carbs + 'g carbs, '
+        + consumed.calories + ' kcal. My targets are: '
+        + targets.protein + 'g protein, ' + targets.fat + 'g fat, '
+        + targets.carbs + 'g carbs, ' + targets.calories + ' kcal. '
+        + 'Give me a brief 2-3 sentence analysis of my day and one practical suggestion.';
+
+      insightBtn.disabled = true;
+      insightResult.textContent = t('insight.loading');
+      insightResult.className = 'insight-result loading';
+      insightResult.hidden = false;
+
+      try {
+        var isTr = Lang && Lang.isTr && Lang.isTr();
+        var resp = await api('/api/chat', {
+          method: 'POST',
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: content }],
+            lang: isTr ? 'tr' : 'en',
+            api_key: apiKey,
+          }),
+        });
+        insightResult.textContent = resp.reply || '';
+        insightResult.className = 'insight-result';
+      } catch (err) {
+        insightResult.textContent = t('common.error') + ': ' + err.message;
+        insightResult.className = 'insight-result error';
+      } finally {
+        insightBtn.disabled = false;
+      }
+    });
+  })();
 
   function escHtml(str){
     return String(str??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');

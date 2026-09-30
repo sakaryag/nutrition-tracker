@@ -5,7 +5,7 @@ Coverage for routes not tested in test_api.py or test_family_mode.py:
   plus auth-guard smoke tests.
 """
 import json
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timezone
 
 import pytest
 
@@ -281,7 +281,7 @@ class TestSocialBadgesAPI:
     def test_badges_response_shape(self, client, db_session):
         from models.user_badge import UserBadge
         u = _make_user("bg_user2")
-        badge = UserBadge(user_id=u.id, badge_key="7_day_streak", earned_at=datetime.utcnow())
+        badge = UserBadge(user_id=u.id, badge_key="7_day_streak", earned_at=datetime.now(timezone.utc))
         db.session.add(badge)
         db.session.commit()
         _auth(client, u.id)

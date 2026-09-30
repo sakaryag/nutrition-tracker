@@ -39,15 +39,10 @@ function loadBrowsePlans() {
   var list = document.getElementById('plans-template-list');
   if (!list) return;
   list.innerHTML = '<p class="empty-msg" style="padding:1rem">Loading plans…</p>';
-  // Try admin plans endpoint first (shows all active), fall back to templates
-  api('/api/admin/plans').then(function (plans) {
-    var available = plans.filter(function (p) { return p.status === 'active' || p.is_template; });
-    renderBrowsePlans(available.length ? available : plans, list);
-  }).catch(function () {
-    // Fallback to public templates
-    api('/api/plans/templates').then(function (plans) {
-      renderBrowsePlans(plans, list);
-    }).catch(function (e) { list.innerHTML = '<p class="empty-msg">' + esc(e.message) + '</p>'; });
+  // Use /api/plans/templates so all users (including non-admin) see admin-created templates
+  api('/api/plans/templates').then(function (plans) {
+    renderBrowsePlans(plans, list);
+  }).catch(function (e) { list.innerHTML = '<p class="empty-msg">' + esc(e.message) + '</p>'; });
   });
 }
 

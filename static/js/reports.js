@@ -306,5 +306,250 @@
     if (el) el.textContent = val;
   }
 
+  /* ==============================================================
+     Monthly Calendar Heatmap
+     ============================================================== */
+
+  /* Calendar state */
+  let calYear  = new Date().getFullYear();
+  let calMonth = new Date().getMonth(); // 0-indexed
+  let calTargets = null; // cached targets object {protein, fat, carbs, calories}
+
+  const calGrid        = document.getElementById('cal-grid');
+  const calDayHeaders  = document.getElementById('cal-day-headers');
+  const calMonthTitle  = document.getElementById('cal-month-title');
+  const calPrevBtn     = document.getElementById('cal-prev');
+  const calNextBtn     = document.getElementById('cal-next');
+  const calTooltipEl   = document.getElementById('cal-tooltip');
+
+  const DOW_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  /* Pad a number to 2 digits */
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  /* Format a Date as YYYY-MM-DD (local time) */
+  function calFmtDate(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  /* Compute average compliance ratio for a day (0–∞, clamped display side) */
+  function dayCompliance(totals, targets) {
+    const macros = ['protein', 'fat', 'carbs', 'calories'];
+    let sum = 0;
+    let count = 0;
+    macros.forEach(function (m) {
+      const tgt = targets[m] || 0;
+      if (tgt > 0) {
+        sum += Math.min((totals[m] || 0) / tgt, 2); // cap at 200% for averaging
+        count++;
+      }
+    });
+    return count > 0 ? sum / count : 0;
+  }
+
+  /* CSS class based on compliance ratio */
+  function complianceClass(ratio) {
+    if (ratio <= 0)    return 'no-data';
+    if (ratio < 0.5)   return 'compliance-low';
+    if (ratio < 0.8)   return 'compliance-mid';
+    if (ratio < 1.001) return 'compliance-high';
+    return 'compliance-full';
+  }
+
+  /* Build the tooltip text for a day */
+  function tooltipText(dateStr, totals, targets, ratio) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const label = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    const pctStr = ratio > 0 ? Math.round(ratio * 100) + '%' : 'No data';
+    const lines = [label + ' — ' + pctStr];
+    if (ratio > 0) {
+      lines.push(
+        'P: ' + Math.round(totals.protein || 0) + 'g / ' + Math.round(targets.protein || 0) + 'g',
+        'F: ' + Math.round(totals.fat || 0) + 'g / ' + Math.round(targets.fat || 0) + 'g',
+        'C: ' + Math.round(totals.carbs || 0) + 'g / ' + Math.round(targets.carbs || 0) + 'g',
+        'kcal: ' + Math.round(totals.calories || 0) + ' / ' + Math.round(targets.calories || 0)
+      );
+    }
+    return lines.join('\n');
+  }
+
+  /* Render the calendar grid for calYear / calMonth */
+  function renderCalendar(byDate) {
+    if (!calGrid) return;
+
+    const todayStr   = calFmtDate(new Date());
+    const todayDate  = new Date();
+    todayDate.setHours(0, 0, 0, 0);
+    const targets    = calTargets || { protein: 150, fat: 65, carbs: 250, calories: 2200 };
+
+    // Update title
+    const titleDate = new Date(calYear, calMonth, 1);
+    if (calMonthTitle) {
+      calMonthTitle.textContent = titleDate.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    }
+
+    // Build day-of-week header (Mon–Sun)
+    if (calDayHeaders) {
+      calDayHeaders.innerHTML = DOW_LABELS.map(function (d) {
+        return '<span class="cal-dow-label">' + d + '</span>';
+      }).join('');
+    }
+
+    calGrid.innerHTML = '';
+
+    // First day of the month; getDay() returns 0=Sun…6=Sat; we want Mon=0
+    const firstDay = new Date(calYear, calMonth, 1);
+    const lastDay  = new Date(calYear, calMonth + 1, 0); // last day of month
+
+    // Monday-based offset: Mon=0 … Sun=6
+    const startOffset = (firstDay.getDay() + 6) % 7;
+
+    // Filler cells before day 1
+    for (let i = 0; i < startOffset; i++) {
+      const filler = document.createElement('div');
+      filler.className = 'cal-cell filler';
+      calGrid.appendChild(filler);
+    }
+
+    // Day cells
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = calYear + '-' + pad2(calMonth + 1) + '-' + pad2(day);
+      const cellDate = new Date(calYear, calMonth, day);
+
+      const cell = document.createElement('div');
+      cell.className = 'cal-cell';
+
+      const isFuture = cellDate > todayDate;
+      const isToday  = dateStr === todayStr;
+
+      // Day number
+      const numSpan = document.createElement('span');
+      numSpan.className = 'cal-day-num';
+      numSpan.textContent = day;
+      cell.appendChild(numSpan);
+
+      if (isFuture) {
+        cell.classList.add('future', 'no-data');
+      } else {
+        const entry = byDate[dateStr];
+        const hasData = entry && (entry.protein > 0 || entry.calories > 0);
+
+        if (!hasData) {
+          cell.classList.add('no-data');
+          cell.dataset.tooltip = new Date(dateStr + 'T00:00:00').toLocaleDateString(undefined, {
+            weekday: 'short', month: 'short', day: 'numeric'
+          }) + '\nNo data logged';
+        } else {
+          const ratio = dayCompliance(entry, targets);
+          cell.classList.add(complianceClass(ratio));
+
+          // Small percentage label
+          const pctSpan = document.createElement('span');
+          pctSpan.className = 'cal-pct-label';
+          pctSpan.textContent = Math.round(ratio * 100) + '%';
+          cell.appendChild(pctSpan);
+
+          cell.dataset.tooltip = tooltipText(dateStr, entry, targets, ratio);
+        }
+      }
+
+      if (isToday) cell.classList.add('today');
+
+      // Tooltip events
+      cell.addEventListener('mouseenter', function (e) { showCalTooltip(e, cell.dataset.tooltip); });
+      cell.addEventListener('mousemove',  function (e) { moveCalTooltip(e); });
+      cell.addEventListener('mouseleave', function ()  { hideCalTooltip(); });
+
+      calGrid.appendChild(cell);
+    }
+
+    // Filler cells after last day (fill to complete the 7-column row)
+    const totalCells = startOffset + lastDay.getDate();
+    const remainder  = totalCells % 7;
+    if (remainder !== 0) {
+      for (let i = 0; i < 7 - remainder; i++) {
+        const filler = document.createElement('div');
+        filler.className = 'cal-cell filler';
+        calGrid.appendChild(filler);
+      }
+    }
+  }
+
+  /* Fetch data and draw calendar for the current calYear/calMonth */
+  async function loadCalendar() {
+    const start = calYear + '-' + pad2(calMonth + 1) + '-01';
+    // end = last day of month
+    const lastDayNum = new Date(calYear, calMonth + 1, 0).getDate();
+    const end   = calYear + '-' + pad2(calMonth + 1) + '-' + pad2(lastDayNum);
+
+    // Fetch targets once
+    if (!calTargets) {
+      try {
+        const tgt = await api('/api/targets');
+        calTargets = {
+          protein:  tgt.protein  || 150,
+          fat:      tgt.fat      || 65,
+          carbs:    tgt.carbs    || 250,
+          calories: tgt.calories || 2200,
+        };
+      } catch (_) { /* use defaults */ }
+    }
+
+    // /api/summary/range returns an ARRAY of {date, protein, fat, carbs, calories}
+    // only for days that have entries — build a lookup map
+    try {
+      const rows   = await api('/api/summary/range?start=' + start + '&end=' + end);
+      const byDate = {};
+      (Array.isArray(rows) ? rows : []).forEach(function (r) { byDate[r.date] = r; });
+      renderCalendar(byDate);
+    } catch (err) {
+      // Render an empty calendar on failure
+      renderCalendar({});
+    }
+  }
+
+  /* Tooltip helpers */
+  function showCalTooltip(e, text) {
+    if (!calTooltipEl || !text) return;
+    calTooltipEl.textContent = text;
+    calTooltipEl.classList.add('visible');
+    moveCalTooltip(e);
+  }
+  function moveCalTooltip(e) {
+    if (!calTooltipEl) return;
+    const margin = 12;
+    let x = e.clientX + margin;
+    let y = e.clientY + margin;
+    // Keep within viewport
+    const tw = calTooltipEl.offsetWidth;
+    const th = calTooltipEl.offsetHeight;
+    if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - margin;
+    if (y + th > window.innerHeight - 8) y = e.clientY - th - margin;
+    calTooltipEl.style.left = x + 'px';
+    calTooltipEl.style.top  = y + 'px';
+  }
+  function hideCalTooltip() {
+    if (calTooltipEl) calTooltipEl.classList.remove('visible');
+  }
+
+  /* Wire up navigation buttons */
+  if (calPrevBtn) {
+    calPrevBtn.addEventListener('click', function () {
+      calMonth--;
+      if (calMonth < 0) { calMonth = 11; calYear--; }
+      loadCalendar();
+    });
+  }
+  if (calNextBtn) {
+    calNextBtn.addEventListener('click', function () {
+      calMonth++;
+      if (calMonth > 11) { calMonth = 0; calYear++; }
+      loadCalendar();
+    });
+  }
+
+  /* Kick off the calendar on page load */
+  loadCalendar();
+
   init();
 })();

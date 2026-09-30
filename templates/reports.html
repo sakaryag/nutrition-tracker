@@ -145,6 +145,53 @@
     </div>
   </div>
 
+  <!-- Monthly Calendar Heatmap -->
+  <div class="reports-section">
+    <h2 class="reports-section-title">Monthly Overview</h2>
+    <div class="cal-section">
+
+      <!-- Month navigation -->
+      <div class="cal-nav">
+        <button class="btn btn-sm btn-outline" id="cal-prev" aria-label="Previous month">&#8592; Prev</button>
+        <span class="cal-month-title" id="cal-month-title"></span>
+        <button class="btn btn-sm btn-outline" id="cal-next" aria-label="Next month">Next &#8594;</button>
+      </div>
+
+      <!-- Day-of-week headers Mon–Sun -->
+      <div class="cal-day-headers" id="cal-day-headers" aria-hidden="true"></div>
+
+      <!-- Calendar grid -->
+      <div class="cal-grid" id="cal-grid" role="img" aria-label="Monthly macro compliance calendar"></div>
+
+      <!-- Legend -->
+      <div class="cal-legend">
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot cal-legend-dot--none"></span>
+          <span>No data</span>
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot cal-legend-dot--low"></span>
+          <span>&lt;50%</span>
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot cal-legend-dot--mid"></span>
+          <span>50–80%</span>
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot cal-legend-dot--high"></span>
+          <span>80–100%</span>
+        </div>
+        <div class="cal-legend-item">
+          <span class="cal-legend-dot cal-legend-dot--full"></span>
+          <span>Hit it!</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- Floating tooltip -->
+    <div class="cal-tooltip" id="cal-tooltip" role="tooltip" aria-live="polite"></div>
+  </div>
+
 </section>
 {% endblock %}
 

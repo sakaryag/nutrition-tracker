@@ -1006,7 +1006,7 @@
       if (!bestMacro) {
         suggText = isTr ? 'Tüm hedeflerinize ulaştınız! Harika iş!' : 'You\'ve hit all your targets! Great job!';
       } else {
-        var remVal  = Math.round(Math.abs(data.remaining[bestMacro] || 0));
+        var remVal  = Math.round(Math.abs((data.remaining && data.remaining[bestMacro]) || 0));
         var unit    = bestMacro === 'calories' ? ' kcal' : 'g';
         var mLabel  = t('remaining.' + bestMacro).toLowerCase().replace(isTr ? ' kaldı' : ' remaining', '');
         var foods   = _MACRO_SUGGESTIONS[bestMacro][lang];

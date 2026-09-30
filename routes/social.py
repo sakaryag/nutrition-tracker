@@ -2,6 +2,7 @@
 from datetime import datetime, date, timedelta, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
+from sqlalchemy.exc import IntegrityError
 
 from models import db
 from models.user import User
@@ -9,6 +10,7 @@ from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
 from models.feed_visibility import FeedVisibility
 from models.user_badge import UserBadge
+from models.feed_reaction import FeedReaction
 from routes.auth import current_user_id, premium_required
 from routes.friends import _friend_ids
 from routes.game import (
@@ -17,6 +19,23 @@ from routes.game import (
 )
 
 social_bp = Blueprint('social', __name__, url_prefix='/api/social')
+
+VALID_EMOJIS = ['👏', '🔥', '💪']
+
+
+def _reaction_summary(target_user_id, target_date, reactor_id=None):
+    """Return counts per emoji and the reactor's current reaction (or None)."""
+    rows = FeedReaction.query.filter_by(
+        target_user_id=target_user_id, target_date=target_date
+    ).all()
+    counts = {'👏': 0, '🔥': 0, '💪': 0}
+    my_reaction = None
+    for row in rows:
+        if row.emoji in counts:
+            counts[row.emoji] += 1
+        if reactor_id is not None and row.reactor_id == reactor_id:
+            my_reaction = row.emoji
+    return counts, my_reaction
 
 
 @social_bp.before_request
@@ -190,12 +209,15 @@ def friend_feed():
             if b.earned_at and b.earned_at.date() == today
         ]
 
+        reaction_counts, my_reaction = _reaction_summary(fid, today, uid)
         card = {
             'user_id': fid,
             'username': friend.username,
             'date': today.isoformat(),
             'big_win': big_win,
             'badges_today': badges_today,
+            'reactions': reaction_counts,
+            'my_reaction': my_reaction,
         }
 
         if vis.show_calories:
@@ -282,3 +304,66 @@ def my_badges():
             'badge_meta': row.badge_meta,
         })
     return jsonify(result)
+
+
+# ---------------------------------------------------------------------------
+# Feed reactions
+# ---------------------------------------------------------------------------
+
+@social_bp.route('/feed/<int:target_user_id>/<string:target_date>/react', methods=['POST'])
+@premium_required
+def react_to_feed(target_user_id, target_date):
+    """Toggle/set/change an emoji reaction on a friend's daily feed entry.
+
+    Body: {"emoji": "👏"}
+    Valid emojis: 👏 🔥 💪
+    - Same emoji as existing: delete (toggle off)
+    - Different emoji: update to new
+    - No existing reaction: create
+    Returns: {reactions: {emoji: count}, my_reaction: emoji | null}
+    """
+    uid = current_user_id()
+    data = request.get_json(silent=True) or {}
+    emoji = data.get('emoji', '')
+
+    if emoji not in VALID_EMOJIS:
+        return jsonify({'error': 'Invalid emoji. Use one of: ' + ', '.join(VALID_EMOJIS)}), 400
+
+    try:
+        for_date = date.fromisoformat(target_date)
+    except ValueError:
+        return jsonify({'error': 'Invalid date format, use YYYY-MM-DD'}), 400
+
+    existing = FeedReaction.query.filter_by(
+        reactor_id=uid,
+        target_user_id=target_user_id,
+        target_date=for_date,
+    ).first()
+
+    if existing:
+        if existing.emoji == emoji:
+            # Toggle off — same emoji clicked again
+            db.session.delete(existing)
+        else:
+            # Change reaction
+            existing.emoji = emoji
+    else:
+        # New reaction
+        reaction = FeedReaction(
+            reactor_id=uid,
+            target_user_id=target_user_id,
+            target_date=for_date,
+            emoji=emoji,
+            created_at=datetime.now(timezone.utc),
+        )
+        db.session.add(reaction)
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        counts, my_reaction = _reaction_summary(target_user_id, for_date, uid)
+        return jsonify({'reactions': counts, 'my_reaction': my_reaction}), 409
+
+    counts, my_reaction = _reaction_summary(target_user_id, for_date, uid)
+    return jsonify({'reactions': counts, 'my_reaction': my_reaction})

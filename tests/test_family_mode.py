@@ -10,6 +10,7 @@ from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
 from models.friend_connection import FriendConnection
 from models.feed_visibility import FeedVisibility
+from models.feed_reaction import FeedReaction
 from models.user_badge import UserBadge
 from utils.game_engine import (
     calculate_daily_score,
@@ -239,3 +240,107 @@ class TestBadges:
         data = rv.get_json()
         assert 'scores' in data
         assert any(s['is_me'] for s in data['scores'])
+
+
+# ── Feed reactions ────────────────────────────────────────────────────────────
+
+class TestFeedReactions:
+    """Tests for POST /api/social/feed/<user_id>/<date>/react."""
+
+    def _react(self, client, target_user_id, date_str, emoji):
+        return client.post(
+            f'/api/social/feed/{target_user_id}/{date_str}/react',
+            data=json.dumps({'emoji': emoji}),
+            content_type='application/json',
+        )
+
+    def test_create_reaction(self, client, user_a, user_b):
+        """A user can react to another user's feed entry."""
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        rv = self._react(client, user_b.id, '2026-01-15', '👏')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['reactions']['👏'] == 1
+        assert data['my_reaction'] == '👏'
+
+    def test_toggle_off_same_emoji(self, client, user_a, user_b):
+        """Reacting with the same emoji removes the reaction (toggle off)."""
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        # First react
+        self._react(client, user_b.id, '2026-01-15', '🔥')
+        # React again with same emoji — should toggle off
+        rv = self._react(client, user_b.id, '2026-01-15', '🔥')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['reactions']['🔥'] == 0
+        assert data['my_reaction'] is None
+
+    def test_change_emoji(self, client, user_a, user_b):
+        """Reacting with a different emoji changes the reaction."""
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        self._react(client, user_b.id, '2026-01-15', '👏')
+        rv = self._react(client, user_b.id, '2026-01-15', '💪')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['reactions']['👏'] == 0
+        assert data['reactions']['💪'] == 1
+        assert data['my_reaction'] == '💪'
+
+    def test_invalid_emoji_rejected(self, client, user_a, user_b):
+        """An emoji not in the allowed set returns 400."""
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        rv = self._react(client, user_b.id, '2026-01-15', '😂')
+        assert rv.status_code == 400
+
+    def test_invalid_date_rejected(self, client, user_a, user_b):
+        """A malformed date string returns 400."""
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        rv = self._react(client, user_b.id, 'not-a-date', '👏')
+        assert rv.status_code == 400
+
+    def test_multiple_reactors_count(self, client, user_a, user_b, db_session):
+        """Reactions from multiple users are counted correctly."""
+        # user_a reacts
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        self._react(client, user_b.id, '2026-01-15', '🔥')
+
+        # Add a third user and react too
+        user_c = User(username='carol', pw_hash='x')
+        db.session.add(user_c)
+        db.session.commit()
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_c.id
+        rv = self._react(client, user_b.id, '2026-01-15', '🔥')
+        assert rv.status_code == 200
+        data = rv.get_json()
+        assert data['reactions']['🔥'] == 2
+
+    def test_feed_includes_reactions(self, client, user_a, user_b, db_session):
+        """GET /api/social/feed returns reactions and my_reaction for each card."""
+        # Make bob visible in the feed
+        vis = FeedVisibility(user_id=user_b.id, show_in_feed=True, show_calories=True, show_macros=True)
+        db.session.add(vis)
+        conn = FriendConnection(requester_id=user_a.id, recipient_id=user_b.id, status='accepted')
+        db.session.add(conn)
+        db.session.commit()
+
+        # alice reacts to bob's today feed
+        with client.session_transaction() as sess:
+            sess['user_id'] = user_a.id
+        self._react(client, user_b.id, date.today().isoformat(), '👏')
+
+        rv = client.get('/api/social/feed')
+        assert rv.status_code == 200
+        feed = rv.get_json()
+        assert isinstance(feed, list)
+        if feed:
+            card = feed[0]
+            assert 'reactions' in card
+            assert '👏' in card['reactions']
+            assert 'my_reaction' in card

@@ -180,6 +180,26 @@
     });
   }
 
+  var _reactionPending = {};
+
+  function _buildReactionButtons(userId, dateStr, reactions, myReaction) {
+    var counts = reactions || { '👏': 0, '🔥': 0, '💪': 0 };
+    var active = myReaction || null;
+    return ['👏', '🔥', '💪'].map(function (emoji) {
+      var count = counts[emoji] || 0;
+      var isActive = active === emoji;
+      return '<button class="reaction-btn' + (isActive ? ' active' : '') + '" ' +
+        'data-emoji="' + emoji + '" ' +
+        'data-user="' + userId + '" ' +
+        'data-date="' + esc(dateStr) + '" ' +
+        'aria-label="React with ' + emoji + '" ' +
+        'aria-pressed="' + isActive + '">' +
+        emoji +
+        (count > 0 ? '<span class="reaction-count">' + count + '</span>' : '') +
+      '</button>';
+    }).join('');
+  }
+
   function renderFriendFeed(list) {
     var el = document.getElementById('friend-feed-list');
     if (!list.length) {
@@ -203,7 +223,7 @@
       var badges = (card.badges_today || []).map(function (b) {
         return '<span class="feed-badge-pill">' + esc(b) + '</span>';
       }).join('');
-      return '<div class="feed-card">' +
+      return '<div class="feed-card" data-feed-user="' + card.user_id + '" data-feed-date="' + esc(card.date) + '">' +
         '<div class="feed-card__header">' +
           '<div class="friend-avatar friend-avatar--sm">' + (card.username || '?').slice(0, 2).toUpperCase() + '</div>' +
           '<strong>' + esc(card.username) + '</strong>' +
@@ -211,8 +231,49 @@
         '</div>' +
         calRow + macroRow +
         (badges ? '<div class="feed-badges">' + badges + '</div>' : '') +
+        '<div class="feed-reactions">' +
+          _buildReactionButtons(card.user_id, card.date, card.reactions, card.my_reaction) +
+        '</div>' +
       '</div>';
     }).join('');
+
+  }
+
+  /* Delegated reaction listener — wired once at boot, survives feed re-renders */
+  function _initReactionListener() {
+    var el = document.getElementById('friend-feed-list');
+    if (!el) return;
+    el.addEventListener('click', function (e) {
+      var btn = e.target.closest('.reaction-btn');
+      if (!btn) return;
+
+      var emoji = btn.dataset.emoji;
+      var userId = btn.dataset.user;
+      var dateStr = btn.dataset.date;
+      var key = userId + '_' + dateStr;
+
+      // Debounce: one in-flight request per card at a time
+      if (_reactionPending[key]) return;
+      _reactionPending[key] = true;
+
+      api('/api/social/feed/' + userId + '/' + dateStr + '/react', {
+        method: 'POST',
+        body: JSON.stringify({ emoji: emoji }),
+      }).then(function (data) {
+        // Update just this card's reaction row — no full reload
+        var feedCard = el.querySelector('[data-feed-user="' + userId + '"][data-feed-date="' + dateStr + '"]');
+        if (feedCard) {
+          var reactionsDiv = feedCard.querySelector('.feed-reactions');
+          if (reactionsDiv) {
+            reactionsDiv.innerHTML = _buildReactionButtons(userId, dateStr, data.reactions, data.my_reaction);
+          }
+        }
+      }).catch(function (err) {
+        showToast(err.message, 'error');
+      }).finally(function () {
+        delete _reactionPending[key];
+      });
+    });
   }
 
   document.getElementById('save-visibility-btn').addEventListener('click', function () {
@@ -413,4 +474,5 @@
   /* ── Boot ────────────────────────────────────────────────── */
   initTabs();
   loadFriends();
+  _initReactionListener();
 })();

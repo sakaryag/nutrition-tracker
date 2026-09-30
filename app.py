@@ -414,6 +414,19 @@ def _migrate_add_columns(app):
             # --- Meal Template enhancements (PR14) ---
             'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS category VARCHAR(50)',
             'ALTER TABLE meal_template_item ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0',
+            # --- Social feed reactions (PR16) ---
+            '''CREATE TABLE IF NOT EXISTS feed_reaction (
+                id SERIAL PRIMARY KEY,
+                reactor_id INTEGER NOT NULL REFERENCES "user"(id),
+                target_user_id INTEGER NOT NULL REFERENCES "user"(id),
+                target_date DATE NOT NULL,
+                emoji VARCHAR(10) NOT NULL,
+                created_at TIMESTAMP,
+                CONSTRAINT uq_feed_reaction UNIQUE (reactor_id, target_user_id, target_date)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_reactor_id ON feed_reaction (reactor_id)',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_user_id ON feed_reaction (target_user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_date ON feed_reaction (target_date)',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
@@ -703,6 +716,19 @@ def _migrate_add_columns(app):
             # --- Meal Template enhancements (PR14) ---
             'ALTER TABLE meal_template ADD COLUMN category VARCHAR(50)',
             'ALTER TABLE meal_template_item ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0',
+            # --- Social feed reactions (PR16) ---
+            '''CREATE TABLE IF NOT EXISTS feed_reaction (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                reactor_id INTEGER NOT NULL REFERENCES "user"(id),
+                target_user_id INTEGER NOT NULL REFERENCES "user"(id),
+                target_date DATE NOT NULL,
+                emoji VARCHAR(10) NOT NULL,
+                created_at DATETIME,
+                CONSTRAINT uq_feed_reaction UNIQUE (reactor_id, target_user_id, target_date)
+            )''',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_reactor_id ON feed_reaction (reactor_id)',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_user_id ON feed_reaction (target_user_id)',
+            'CREATE INDEX IF NOT EXISTS ix_feed_reaction_target_date ON feed_reaction (target_date)',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:

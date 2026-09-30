@@ -24,6 +24,17 @@
   const cancelCfBtn       = document.getElementById('cancel-custom-food');
   const cfForm            = document.getElementById('custom-food-form');
 
+  /* ---- Import CSV DOM ---- */
+  const openImportBtn     = document.getElementById('open-import-csv');
+  const importModal       = document.getElementById('import-csv-modal');
+  const closeImportBtn    = document.getElementById('close-import-modal');
+  const cancelImportBtn   = document.getElementById('cancel-import-csv');
+  const importForm        = document.getElementById('import-csv-form');
+  const importFileInput   = document.getElementById('import-csv-file');
+  const importSubmitBtn   = document.getElementById('import-csv-btn');
+  const importResult      = document.getElementById('import-result');
+  const importTemplateLink = document.getElementById('import-template-link');
+
   let activeTab = 'custom';
 
   /* ---- Init ---- */
@@ -51,14 +62,105 @@
     }
   }
 
+  /* ---- Recent Search History ---- */
+  const HISTORY_KEY = 'nt_food_history';
+  const HISTORY_MAX = 10;
+
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    } catch (_) { return []; }
+  }
+
+  function saveHistory(q) {
+    if (!q || q.length < 2) return;
+    try {
+      let hist = getHistory().filter(s => s !== q);
+      hist.unshift(q);
+      if (hist.length > HISTORY_MAX) hist = hist.slice(0, HISTORY_MAX);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(hist));
+    } catch (_) { /* storage may be unavailable */ }
+  }
+
+  function clearHistory() {
+    try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
+    hideHistoryDropdown();
+  }
+
+  /* ---- History Dropdown ---- */
+  let historyDropdown = null;
+
+  function showHistoryDropdown() {
+    const hist = getHistory();
+    if (!hist.length) return;
+
+    hideHistoryDropdown();
+
+    historyDropdown = document.createElement('ul');
+    historyDropdown.className = 'autocomplete-list';
+    historyDropdown.setAttribute('role', 'listbox');
+    historyDropdown.style.cssText = 'position:absolute;z-index:200;width:100%;background:var(--color-card);border:1px solid var(--color-border);border-radius:var(--radius);margin-top:2px;padding:0;list-style:none;box-shadow:0 4px 12px rgba(0,0,0,.1);';
+
+    hist.slice(0, 5).forEach(q => {
+      const li = document.createElement('li');
+      li.className = 'autocomplete-item';
+      li.style.cssText = 'padding:.5rem .75rem;cursor:pointer;display:flex;align-items:center;gap:.5rem;color:var(--color-text-muted);font-size:.9rem;';
+      li.innerHTML = '<span style="opacity:.55;font-size:.8em;">&#x1F552;</span> ' + escHtml(q);
+      li.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        searchInput.value = q;
+        hideHistoryDropdown();
+        debouncedSearch(q);
+      });
+      historyDropdown.appendChild(li);
+    });
+
+    // Clear history option
+    const clearLi = document.createElement('li');
+    clearLi.style.cssText = 'padding:.4rem .75rem;cursor:pointer;color:var(--color-text-muted);font-size:.8rem;border-top:1px solid var(--color-border);';
+    clearLi.textContent = t('foods.clearHistory');
+    clearLi.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      clearHistory();
+    });
+    historyDropdown.appendChild(clearLi);
+
+    const wrapper = searchInput.parentElement;
+    wrapper.style.position = 'relative';
+    wrapper.appendChild(historyDropdown);
+  }
+
+  function hideHistoryDropdown() {
+    if (historyDropdown) {
+      historyDropdown.remove();
+      historyDropdown = null;
+    }
+  }
+
+  searchInput.addEventListener('focus', () => {
+    if (!searchInput.value.trim()) showHistoryDropdown();
+  });
+
+  searchInput.addEventListener('blur', () => {
+    // Small delay so mousedown on dropdown items fires first
+    setTimeout(hideHistoryDropdown, 150);
+  });
+
   /* ---- Search ---- */
   const debouncedSearch = debounce((q) => {
+    hideHistoryDropdown();
     if (activeTab === 'custom') filterCustom(q);
     else searchUsda(q);
   }, 280);
 
   searchInput.addEventListener('input', () => {
-    debouncedSearch(searchInput.value.trim());
+    const q = searchInput.value.trim();
+    if (!q) {
+      showHistoryDropdown();
+    } else {
+      hideHistoryDropdown();
+    }
+    debouncedSearch(q);
   });
 
   function filterCustom(q) {
@@ -83,6 +185,8 @@
       const foods = await api(`/api/foods?q=${encodeURIComponent(q)}${Lang.langParam()}`);
       const usda = (foods || []).filter(f => f.source === 'usda');
       renderUsdaFoods(usda);
+      // Save to recent history only on a successful search with results
+      if (usda.length > 0) saveHistory(q);
     } catch (err) {
       usdaFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('common.loadError')) + '</p>';
       showToast(t('common.error') + ': ' + err.message, 'error');
@@ -260,6 +364,83 @@
       showToast(t('common.error') + ': ' + err.message, 'error');
     } finally {
       saveBtn.disabled = false;
+    }
+  });
+
+  /* ---- Import CSV Modal ---- */
+  function openImportModal() {
+    importForm.reset();
+    importResult.style.display = 'none';
+    importResult.textContent = '';
+    importSubmitBtn.disabled = false;
+    importModal.hidden = false;
+  }
+
+  function closeImportModal() {
+    importModal.hidden = true;
+    importForm.reset();
+    importResult.style.display = 'none';
+  }
+
+  openImportBtn.addEventListener('click', openImportModal);
+  closeImportBtn.addEventListener('click', closeImportModal);
+  cancelImportBtn.addEventListener('click', closeImportModal);
+  importModal.addEventListener('click', (e) => { if (e.target === importModal) closeImportModal(); });
+
+  // Generate and download a CSV template
+  importTemplateLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    const csvContent = 'name,protein,fat,carbs,calories,serving_size,serving_unit\n' +
+      'Chicken Breast,31,3.6,0,165,100,g\n' +
+      'Greek Yogurt,10,0.7,3.6,59,100,g\n';
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'foods_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  importForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = importFileInput.files[0];
+    if (!file) {
+      showToast(t('common.error') + ': Please select a CSV file', 'error');
+      return;
+    }
+    importSubmitBtn.disabled = true;
+    importResult.style.display = 'none';
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/foods/import', {
+        method: 'POST',
+        body: formData,
+        // Do NOT set Content-Type — browser sets multipart boundary automatically
+      });
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try { const b = await res.json(); msg = b.error || msg; } catch (_) {}
+        throw new Error(msg);
+      }
+      const data = await res.json();
+      const msg = t('foods.importResult')
+        .replace('{imported}', data.imported)
+        .replace('{skipped}', data.skipped);
+      importResult.textContent = msg + (data.errors && data.errors.length ? ' (' + data.errors.join('; ') + ')' : '');
+      importResult.style.display = 'block';
+      showToast(msg, data.imported > 0 ? 'success' : 'info');
+      if (data.imported > 0) {
+        await loadCustomFoods();
+        switchTab('custom');
+      }
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    } finally {
+      importSubmitBtn.disabled = false;
     }
   });
 

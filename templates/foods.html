@@ -6,7 +6,10 @@
 
   <div class="page-header">
     <h1 data-i18n="foods.title">My Foods</h1>
-    <button class="btn btn-primary" id="open-custom-food-form" data-i18n="foods.addCustom">+ Add Custom Food</button>
+    <div class="btn-group">
+      <button class="btn btn-outline" id="open-import-csv" data-i18n="foods.importCsv">Import CSV</button>
+      <button class="btn btn-primary" id="open-custom-food-form" data-i18n="foods.addCustom">+ Add Custom Food</button>
+    </div>
   </div>
 
   <!-- Tabs -->
@@ -123,6 +126,31 @@
   </div>
 </div>
 {% endblock %}
+
+<!-- Import CSV Modal -->
+<div class="modal-overlay" id="import-csv-modal" role="dialog" aria-modal="true" aria-labelledby="import-modal-title" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="import-modal-title" data-i18n="foods.importTitle">Import Foods from CSV</h2>
+      <button class="btn btn-icon modal-close" id="close-import-modal" aria-label="Close">&times;</button>
+    </div>
+    <form id="import-csv-form" novalidate>
+      <div class="form-group">
+        <p class="form-hint" data-i18n="foods.importInstructions">Columns: name, protein, fat, carbs, calories (optional), serving_size (optional), serving_unit (optional)</p>
+        <a id="import-template-link" href="#" data-i18n="foods.importTemplate">Download template</a>
+      </div>
+      <div class="form-group">
+        <label for="import-csv-file" data-i18n="foods.csvFile">CSV File</label>
+        <input type="file" id="import-csv-file" name="file" accept=".csv" class="form-control" required />
+      </div>
+      <div id="import-result" style="display:none;" class="form-hint"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="cancel-import-csv" data-i18n="foods.cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="import-csv-btn" data-i18n="foods.importSubmit">Import</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 {% block scripts %}
 <script src="/static/js/foods.js"></script>

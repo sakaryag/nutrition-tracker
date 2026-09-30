@@ -241,6 +241,107 @@ class TestFoods:
         assert resp.status_code == 403
 
 
+class TestFoodsImport:
+    """Tests for POST /api/foods/import (CSV bulk import)."""
+
+    def _csv_upload(self, client, csv_content, filename='foods.csv'):
+        """Helper: upload CSV content as multipart/form-data."""
+        from io import BytesIO
+        data = {'file': (BytesIO(csv_content.encode('utf-8')), filename)}
+        return client.post(
+            '/api/foods/import',
+            data=data,
+            content_type='multipart/form-data',
+        )
+
+    def test_import_basic(self, client):
+        csv_data = 'name,protein,fat,carbs\nTest Chicken,31,3.6,0\nTest Yogurt,10,0.7,3.6\n'
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        result = resp.get_json()
+        assert result['imported'] == 2
+        assert result['skipped'] == 0
+        assert result['errors'] == []
+
+    def test_import_auto_calories(self, client):
+        csv_data = 'name,protein,fat,carbs\nAutoCalFood,10,5,20\n'
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        assert resp.get_json()['imported'] == 1
+        # Verify food saved with auto-calculated calories
+        search = client.get('/api/foods?q=AutoCalFood&source=custom')
+        foods = search.get_json()
+        assert len(foods) == 1
+        expected_kcal = round(10 * 4 + 5 * 9 + 20 * 4, 1)
+        assert foods[0]['calories'] == expected_kcal
+
+    def test_import_with_optional_cols(self, client):
+        csv_data = 'name,protein,fat,carbs,calories,serving_size,serving_unit\nSalmon,25,12,0,213,150,g\n'
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        result = resp.get_json()
+        assert result['imported'] == 1
+        search = client.get('/api/foods?q=Salmon&source=custom')
+        food = search.get_json()[0]
+        assert food['calories'] == 213.0
+        assert food['default_serving'] == 150.0
+        assert food['serving_unit'] == 'g'
+
+    def test_import_skips_duplicates(self, client):
+        csv_data = 'name,protein,fat,carbs\nDupeFood,10,5,20\n'
+        # First import
+        self._csv_upload(client, csv_data)
+        # Second import — same food should be skipped
+        resp = self._csv_upload(client, csv_data)
+        result = resp.get_json()
+        assert result['imported'] == 0
+        assert result['skipped'] == 1
+
+    def test_import_missing_required_col(self, client):
+        csv_data = 'name,protein,fat\nIncompleteFood,10,5\n'  # missing carbs
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 400
+        assert 'carbs' in resp.get_json()['error']
+
+    def test_import_invalid_macros(self, client):
+        csv_data = 'name,protein,fat,carbs\nBadFood,abc,5,20\n'
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        result = resp.get_json()
+        assert result['imported'] == 0
+        assert len(result['errors']) == 1
+
+    def test_import_missing_name(self, client):
+        csv_data = 'name,protein,fat,carbs\n,10,5,20\n'
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        result = resp.get_json()
+        assert result['imported'] == 0
+        assert len(result['errors']) == 1
+
+    def test_import_no_file(self, client):
+        resp = client.post('/api/foods/import')
+        assert resp.status_code == 400
+
+    def test_import_empty_csv(self, client):
+        csv_data = ''
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 400
+
+    def test_import_mixed_valid_invalid(self, client):
+        csv_data = (
+            'name,protein,fat,carbs\n'
+            'GoodFood,20,5,10\n'
+            ',5,5,5\n'       # missing name
+            'AnotherGood,15,3,8\n'
+        )
+        resp = self._csv_upload(client, csv_data)
+        assert resp.status_code == 200
+        result = resp.get_json()
+        assert result['imported'] == 2
+        assert len(result['errors']) == 1
+
+
 class TestExport:
 
     def test_csv_export(self, client):

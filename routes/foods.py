@@ -1,4 +1,6 @@
 import base64
+import csv
+import io
 import json
 import re
 import urllib.request
@@ -8,6 +10,7 @@ from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import case, or_
 from models import db
 from models.saved_food import SavedFood
+from rapidfuzz import fuzz, process as rfprocess
 
 foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
 
@@ -295,6 +298,33 @@ def search_foods():
         type_order = case((SavedFood.food_type == 'ingredient', 0), else_=1)
         foods = query.order_by(type_order, name_col).limit(50).all()
 
+    # Fuzzy search supplement: when LIKE produces < 5 results and query is 3+ chars,
+    # pull candidates starting with the same letter and rank by WRatio similarity.
+    # This runs only in the `if q:` branch because `foods` is empty when q is blank.
+    if q and len(q) >= 3 and len(foods) < 5:
+        try:
+            candidates = (
+                SavedFood.query
+                .filter(SavedFood.is_archived == False)  # noqa: E712
+                .filter(SavedFood.name.ilike(q[0] + '%'))
+                .limit(200)
+                .all()
+            )
+            if candidates:
+                cand_names = [f.name for f in candidates]
+                fuzzy_matches = rfprocess.extract(
+                    q, cand_names, scorer=fuzz.WRatio, limit=10, score_cutoff=60
+                )
+                existing_ids = {f.id for f in foods}
+                fuzzy_extras = [
+                    candidates[m[2]]
+                    for m in fuzzy_matches
+                    if candidates[m[2]].id not in existing_ids
+                ]
+                foods = list(foods) + fuzzy_extras[:10]
+        except Exception:
+            pass  # fuzzy failure must never break primary results
+
     local_results = [f.to_dict() for f in foods]
 
     # OpenFoodFacts fallback: only when local results are sparse and query is meaningful
@@ -417,3 +447,134 @@ def clone_food(food_id: int):
     db.session.add(clone)
     db.session.commit()
     return jsonify(clone.to_dict()), 201
+
+
+@foods_bp.route('/import', methods=['POST'])
+def import_foods_csv():
+    """Bulk-import custom foods from a CSV file upload.
+
+    Expects multipart/form-data with a 'file' field (CSV).
+    Required columns: name, protein, fat, carbs
+    Optional columns: calories, serving_size, serving_unit
+    Returns: { imported: N, skipped: N, errors: [...] }
+    """
+    if 'file' not in request.files:
+        return jsonify({'error': 'file is required'}), 400
+    upload = request.files['file']
+    if not upload.filename:
+        return jsonify({'error': 'No file selected'}), 400
+
+    # Decode — try UTF-8 with BOM first, fall back to latin-1
+    raw_bytes = upload.read()
+    content = None
+    for enc in ('utf-8-sig', 'utf-8', 'latin-1'):
+        try:
+            content = raw_bytes.decode(enc)
+            break
+        except UnicodeDecodeError:
+            continue
+    if content is None:
+        return jsonify({'error': 'Cannot decode file. Use UTF-8 encoding.'}), 400
+
+    try:
+        reader = csv.DictReader(io.StringIO(content))
+        fieldnames = reader.fieldnames
+    except Exception:
+        return jsonify({'error': 'Invalid CSV format'}), 400
+
+    if not fieldnames:
+        return jsonify({'error': 'Empty or invalid CSV file'}), 400
+
+    # Normalise header names (strip whitespace, lowercase)
+    norm_fields = {h.strip().lower() for h in fieldnames}
+    required_cols = {'name', 'protein', 'fat', 'carbs'}
+    missing = required_cols - norm_fields
+    if missing:
+        return jsonify({'error': f'Missing required columns: {", ".join(sorted(missing))}'}), 400
+
+    # Pre-load existing names for O(1) duplicate checks
+    existing_names = {
+        row[0].lower()
+        for row in db.session.query(SavedFood.name).filter_by(is_archived=False).all()
+    }
+
+    imported = 0
+    skipped = 0
+    errors = []
+    total = 0
+
+    for row in reader:
+        total += 1
+        if total > 500:
+            errors.append('Maximum 500 rows per import exceeded — remaining rows ignored')
+            break
+
+        # Normalise row keys
+        norm_row = {k.strip().lower(): (v or '').strip() for k, v in row.items() if k}
+
+        name = norm_row.get('name', '').strip()
+        if not name:
+            errors.append(f'Row {total + 1}: name is required')
+            continue
+
+        if name.lower() in existing_names:
+            skipped += 1
+            continue
+
+        # Parse required numeric macros
+        try:
+            protein = float(norm_row.get('protein', ''))
+            fat = float(norm_row.get('fat', ''))
+            carbs = float(norm_row.get('carbs', ''))
+        except (ValueError, TypeError):
+            errors.append(f'Row {total + 1} ("{name}"): protein, fat, carbs must be numeric')
+            continue
+
+        if protein < 0 or fat < 0 or carbs < 0:
+            errors.append(f'Row {total + 1} ("{name}"): macro values must be >= 0')
+            continue
+
+        # Optional fields
+        cal_raw = norm_row.get('calories', '').strip()
+        try:
+            calories = float(cal_raw) if cal_raw else (protein * 4 + fat * 9 + carbs * 4)
+        except ValueError:
+            calories = protein * 4 + fat * 9 + carbs * 4
+
+        srv_raw = norm_row.get('serving_size', '').strip()
+        try:
+            serving_size = float(srv_raw) if srv_raw else 100.0
+            if serving_size <= 0:
+                serving_size = 100.0
+        except ValueError:
+            serving_size = 100.0
+
+        serving_unit = norm_row.get('serving_unit', '').strip() or 'g'
+
+        try:
+            food = SavedFood(
+                name=name,
+                protein=round(protein, 2),
+                fat=round(fat, 2),
+                carbs=round(carbs, 2),
+                calories=round(calories, 1),
+                default_serving=serving_size,
+                serving_unit=serving_unit,
+                food_type='ingredient',
+                source='custom',
+                is_archived=False,
+            )
+            db.session.add(food)
+            existing_names.add(name.lower())
+            imported += 1
+        except Exception as exc:
+            errors.append(f'Row {total + 1} ("{name}"): {exc}')
+
+    if imported > 0:
+        try:
+            db.session.commit()
+        except Exception as exc:
+            db.session.rollback()
+            return jsonify({'error': f'Database error: {exc}'}), 500
+
+    return jsonify({'imported': imported, 'skipped': skipped, 'errors': errors[:20]})

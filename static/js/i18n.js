@@ -243,6 +243,15 @@ const i18n = {
     'foods.noCustom':  'No custom foods yet. Click "+ Add Custom Food" to create one.',
     'foods.noUsda':    'No USDA foods found.',
     'foods.mealBadge': '(meal)',
+    'foods.importCsv':          'Import CSV',
+    'foods.importTitle':        'Import Foods from CSV',
+    'foods.importInstructions': 'Columns: name, protein, fat, carbs, calories (optional), serving_size (optional), serving_unit (optional)',
+    'foods.importTemplate':     'Download template',
+    'foods.importSubmit':       'Import',
+    'foods.importResult':       'Imported {imported} foods, skipped {skipped} duplicates.',
+    'foods.csvFile':            'CSV File',
+    'foods.recentSearches':     'Recent Searches',
+    'foods.clearHistory':       '✕ Clear history',
 
     /* Settings */
     'settings.macroTotal':    'Total: {pct}%',
@@ -662,6 +671,15 @@ const i18n = {
     'foods.noCustom':  'Henüz özel besin yok. Oluşturmak için "+ Özel Besin Ekle" düğmesine tıklayın.',
     'foods.noUsda':    'USDA besini bulunamadı.',
     'foods.mealBadge': '(öğün)',
+    'foods.importCsv':          'CSV İçe Aktar',
+    'foods.importTitle':        "Besinleri CSV'den İçe Aktar",
+    'foods.importInstructions': 'Sütunlar: name, protein, fat, carbs, calories (opsiyonel), serving_size (opsiyonel), serving_unit (opsiyonel)',
+    'foods.importTemplate':     'Şablon indir',
+    'foods.importSubmit':       'İçe Aktar',
+    'foods.importResult':       '{imported} besin içe aktarıldı, {skipped} tekrar atlandı.',
+    'foods.csvFile':            'CSV Dosyası',
+    'foods.recentSearches':     'Son Aramalar',
+    'foods.clearHistory':       '✕ Geçmişi temizle',
 
     /* Settings */
     'settings.macroTotal':    'Toplam: {pct}%',

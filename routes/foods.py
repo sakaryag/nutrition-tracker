@@ -10,7 +10,6 @@ from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import case, or_
 from models import db
 from models.saved_food import SavedFood
-from rapidfuzz import fuzz, process as rfprocess
 
 foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
 
@@ -303,6 +302,7 @@ def search_foods():
     # This runs only in the `if q:` branch because `foods` is empty when q is blank.
     if q and len(q) >= 3 and len(foods) < 5:
         try:
+            from rapidfuzz import fuzz, process as rfprocess  # lazy import — matches codebase pattern
             candidates = (
                 SavedFood.query
                 .filter(SavedFood.is_archived == False)  # noqa: E712

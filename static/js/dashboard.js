@@ -229,23 +229,26 @@
     try { var entries=await api('/api/entries?date='+currentDate); renderEntries(entries); }
     catch(err){ showToast(t('common.error')+': '+err.message,'error'); }
   }
-  var MEAL_ORDER=['Breakfast','Lunch','Dinner','Snack'];
-  var MEAL_I18N={Breakfast:'entry.breakfast',Lunch:'entry.lunch',Dinner:'entry.dinner',Snack:'entry.snack'};
+  var MEAL_ORDER=['Breakfast','Lunch','Dinner','Snack','Other'];
+  var MEAL_I18N={Breakfast:'entry.breakfast',Lunch:'entry.lunch',Dinner:'entry.dinner',Snack:'entry.snack',Other:'entry.other'};
 
   function renderEntries(entries) {
     if(!entries||entries.length===0){entriesList.innerHTML='<p class="empty-msg">'+escHtml(t('dash.noEntries'))+'</p>';return;}
     var groups={};MEAL_ORDER.forEach(function(m){groups[m]=[];});
-    entries.forEach(function(e){var k=e.meal_type in groups?e.meal_type:'Snack';groups[k].push(e);});
+    entries.forEach(function(e){var mt=e.meal_type;var k=(mt&&mt in groups)?mt:'Other';groups[k].push(e);});
     var html='';
     MEAL_ORDER.forEach(function(meal){
       if(groups[meal].length===0) return;
       var lbl=t(MEAL_I18N[meal])||meal;
+      var sp=0,sf=0,sc=0,sk=0;
+      groups[meal].forEach(function(e){sp+=e.protein||0;sf+=e.fat||0;sc+=e.carbs||0;sk+=e.calories||0;});
       html+='<div class="meal-group" data-meal="'+escHtml(meal)+'">'
         +'<div class="meal-group__header"><p class="meal-group__title">'+escHtml(lbl)+'</p>'
         +'<div class="meal-group__actions">'
-        +'<button class="btn btn-icon btn-sm" data-action="add-to-meal" data-meal="'+escHtml(meal)+'">+</button>'
-        +'<button class="btn-ghost meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; Clear</button>'
-        +'</div></div>';
+        +(meal!=='Other'?'<button class="btn btn-icon btn-sm" data-action="add-to-meal" data-meal="'+escHtml(meal)+'">+</button>'
+                        +'<button class="btn-ghost meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; Clear</button>':'')
+        +'</div></div>'
+        +'<p class="meal-group__subtotal">P '+round1(sp)+'g · F '+round1(sf)+'g · C '+round1(sc)+'g · '+Math.round(sk)+' kcal</p>';
       groups[meal].forEach(function(e){html+=renderEntryCard(e);});
       html+='</div>';
     });

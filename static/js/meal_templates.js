@@ -11,6 +11,8 @@
   var editingTemplateId = null;
   var templateItems = [];
   var itemSearchFilter = 'ingredient';
+  var activeCategoryFilter = '';  /* '' = All */
+  var pendingLogTemplateId = null;  /* for log-to-date modal */
 
   var templatesList    = document.getElementById('templates-list');
   var openFormBtn      = document.getElementById('open-template-form');
@@ -23,10 +25,19 @@
   var itemSearch       = document.getElementById('tpl-item-search');
   var itemAutocomplete = document.getElementById('tpl-item-autocomplete');
   var addCustomItemBtn = document.getElementById('tpl-add-custom-item');
+  var categoryFilterBar = document.getElementById('category-filter-bar');
+
+  /* --- Log-to-date modal --- */
+  var logDateModal    = document.getElementById('log-date-modal');
+  var logDateInput    = document.getElementById('log-date-input');
+  var closeLogDateBtn = document.getElementById('close-log-date-modal');
+  var cancelLogDate   = document.getElementById('cancel-log-date');
+  var confirmLogDate  = document.getElementById('confirm-log-date');
 
   function init() {
     loadTemplates();
     initFilterButtons();
+    initLogDateModal();
   }
 
   function initFilterButtons() {
@@ -43,21 +54,75 @@
     });
   }
 
+  function initLogDateModal() {
+    function closeLogModal() {
+      logDateModal.hidden = true;
+      pendingLogTemplateId = null;
+    }
+    closeLogDateBtn.addEventListener('click', closeLogModal);
+    cancelLogDate.addEventListener('click', closeLogModal);
+    confirmLogDate.addEventListener('click', async function () {
+      if (!pendingLogTemplateId) return;
+      var d = logDateInput.value;
+      if (!d) { showToast('Pick a date first.', 'error'); return; }
+      try {
+        var result = await api('/api/meal-templates/' + pendingLogTemplateId + '/log', {
+          method: 'POST',
+          body: JSON.stringify({ date: d }),
+        });
+        showToast('Logged ' + result.logged + ' item(s) to ' + d, 'success');
+        closeLogModal();
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    });
+  }
+
   async function loadTemplates() {
     try {
       templates = await api('/api/meal-templates');
+      renderCategoryFilter();
       renderTemplates();
     } catch (_) {
       templatesList.innerHTML = '<p class="empty-msg">' + esc(t('common.loadError')) + '</p>';
     }
   }
 
+  /* ---- Category filter bar ---- */
+  function renderCategoryFilter() {
+    var cats = [];
+    templates.forEach(function (tpl) {
+      if (tpl.category && cats.indexOf(tpl.category) === -1) cats.push(tpl.category);
+    });
+    if (cats.length === 0) {
+      categoryFilterBar.hidden = true;
+      return;
+    }
+    cats.sort();
+    var html = '<button class="btn btn-sm btn-outline' + (activeCategoryFilter === '' ? ' active' : '') + '" data-cat="">All</button>';
+    cats.forEach(function (c) {
+      html += '<button class="btn btn-sm btn-outline' + (activeCategoryFilter === c ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
+    });
+    categoryFilterBar.innerHTML = html;
+    categoryFilterBar.hidden = false;
+    categoryFilterBar.querySelectorAll('[data-cat]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeCategoryFilter = btn.dataset.cat;
+        categoryFilterBar.querySelectorAll('[data-cat]').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        renderTemplates();
+      });
+    });
+  }
+
   function renderTemplates() {
-    if (!templates || templates.length === 0) {
+    var filtered = templates;
+    if (activeCategoryFilter) {
+      filtered = templates.filter(function (tpl) { return tpl.category === activeCategoryFilter; });
+    }
+    if (!filtered || filtered.length === 0) {
       templatesList.innerHTML = '<p class="empty-msg">' + esc(t('meals.noTemplates')) + '</p>';
       return;
     }
-    templatesList.innerHTML = templates.map(function (tpl) {
+    templatesList.innerHTML = filtered.map(function (tpl) {
       var n = tpl.items ? tpl.items.length : 0;
       var itemLabel = t('meals.itemCount').replace('{n}', n);
       var pK = (tpl.total_protein || 0) * 4;
@@ -72,9 +137,10 @@
         '<div class="mini-macro-bar__segment mini-macro-bar__segment--fat" style="width:' + fPct + '%"></div>' +
         '<div class="mini-macro-bar__segment mini-macro-bar__segment--carbs" style="width:' + cPct + '%"></div>' +
         '</div>';
+      var catBadge = tpl.category ? '<span class="category-badge">' + esc(tpl.category) + '</span>' : '';
       return '<article class="food-card" data-id="' + tpl.id + '">' +
         '<div class="food-card__info">' +
-          '<p class="food-card__name">' + esc(tpl.name) + '</p>' +
+          '<p class="food-card__name">' + esc(tpl.name) + ' ' + catBadge + '</p>' +
           '<p class="food-card__meta">' + esc(tpl.meal_type) + ' &mdash; ' + esc(itemLabel) + '</p>' +
           '<div class="food-card__macros">' +
             '<span class="macro-tag macro-tag--protein">P: ' + r1(tpl.total_protein) + 'g</span>' +
@@ -85,6 +151,9 @@
           miniBar +
         '</div>' +
         '<div class="food-card__actions">' +
+          '<button class="btn btn-sm btn-primary" data-action="log" data-id="' + tpl.id + '" title="Log to Today">Log Today</button>' +
+          '<button class="btn btn-sm btn-outline" data-action="log-date" data-id="' + tpl.id + '" title="Log to specific date">&#128197;</button>' +
+          '<button class="btn btn-sm btn-outline" data-action="duplicate" data-id="' + tpl.id + '">Duplicate</button>' +
           '<button class="btn btn-sm btn-outline" data-action="edit" data-id="' + tpl.id + '">' + esc(t('meals.edit')) + '</button>' +
           '<button class="btn btn-sm btn-danger" data-action="delete" data-id="' + tpl.id + '">' + esc(t('meals.delete')) + '</button>' +
         '</div>' +
@@ -97,7 +166,7 @@
     if (!btn) return;
     var id = parseInt(btn.dataset.id, 10);
     if (btn.dataset.action === 'edit') {
-      var tpl = templates.find(function (tpl) { return tpl.id === id; });
+      var tpl = templates.find(function (t) { return t.id === id; });
       if (tpl) openModal(tpl);
     } else if (btn.dataset.action === 'delete') {
       if (!confirm(t('meals.delete') + '?')) return;
@@ -106,6 +175,22 @@
         showToast(t('common.success'), 'success');
         await loadTemplates();
       } catch (err) { showToast(t('common.error') + ': ' + err.message, 'error'); }
+    } else if (btn.dataset.action === 'log') {
+      try {
+        var result = await api('/api/meal-templates/' + id + '/log', { method: 'POST', body: JSON.stringify({}) });
+        showToast('Logged ' + result.logged + ' item(s) to today', 'success');
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
+    } else if (btn.dataset.action === 'log-date') {
+      pendingLogTemplateId = id;
+      var today = new Date();
+      logDateInput.value = today.toISOString().slice(0, 10);
+      logDateModal.hidden = false;
+    } else if (btn.dataset.action === 'duplicate') {
+      try {
+        await api('/api/meal-templates/' + id + '/clone', { method: 'POST' });
+        showToast('Template duplicated', 'success');
+        await loadTemplates();
+      } catch (err) { showToast('Error: ' + err.message, 'error'); }
     }
   });
 
@@ -114,6 +199,7 @@
     modalTitle.textContent = tpl ? t('meals.editTitle') : t('meals.newTitle');
     form.reset();
     document.getElementById('tpl-id').value = '';
+    document.getElementById('tpl-category').value = '';
     templateItems = [];
     itemAutocomplete.hidden = true;
     itemSearchFilter = 'ingredient';
@@ -124,13 +210,14 @@
       document.getElementById('tpl-id').value = tpl.id;
       document.getElementById('tpl-name').value = tpl.name;
       document.getElementById('tpl-meal-type').value = tpl.meal_type;
+      document.getElementById('tpl-category').value = tpl.category || '';
       templateItems = (tpl.items || []).map(function (i) {
         var cal = i.calories || (i.protein * 4 + i.fat * 9 + i.carbs * 4);
         var srv = i.serving_size || 100;
-        return { food_name: i.food_name, saved_food_id: i.saved_food_id,
+        return { id: i.id, food_name: i.food_name, saved_food_id: i.saved_food_id,
           protein: i.protein, fat: i.fat, carbs: i.carbs, calories: cal,
           serving_size: srv, serving_unit: i.serving_unit || 'g',
-          valid_units: i.valid_units || null,
+          valid_units: i.valid_units || null, sort_order: i.sort_order || 0,
           _bp: i.protein, _bf: i.fat, _bc: i.carbs, _bk: cal, _bs: srv };
       });
     }
@@ -148,14 +235,13 @@
     fromLogPanel.hidden = true;
     logEntriesDiv.innerHTML = '<p class="empty-msg">Pick a date and press Load.</p>';
     logActionsDiv.hidden = true;
-    logDateInput.value = '';
+    logDateInput2.value = '';
   }
 
   openFormBtn.addEventListener('click', function () { openModal(null); });
   closeModalBtn.addEventListener('click', closeModal);
   cancelBtn.addEventListener('click', closeModal);
-  /* Never close on backdrop click — this is a complex form with unsaved data.
-     Only the ✕ button and Cancel explicitly close the modal. */
+  /* Never close on backdrop click — complex form with unsaved data */
 
   /* ---- render items ---- */
   function unitOpts(sel, validUnitsJson) {
@@ -169,7 +255,7 @@
     return ALL_UNIT_OPTIONS.map(function (u) {
       var enabled = allowed.indexOf(u) !== -1;
       return '<option value="' + u + '"' + (u === sel ? ' selected' : '') + (enabled ? '' : ' disabled') + '>'
-        + (enabled ? '' : '✗ ') + u + '</option>';
+        + (enabled ? '' : '\u2717 ') + u + '</option>';
     }).join('');
   }
 
@@ -183,7 +269,8 @@
       return;
     }
     itemsList.innerHTML = templateItems.map(function (it, idx) {
-      return '<div class="tpl-item-row" data-idx="' + idx + '">' +
+      return '<div class="tpl-item-row" data-idx="' + idx + '" draggable="true">' +
+        '<span class="tpl-drag-handle" title="Drag to reorder">&#9776;</span>' +
         '<span class="tpl-item-row__name">' + esc(it.food_name) + '</span>' +
         '<input class="form-control tpl-item-serving" type="number" min="0.1" step="0.1" value="' + r1(it.serving_size) + '" data-idx="' + idx + '" data-field="serving_size" />' +
         '<select class="form-control tpl-item-unit" data-idx="' + idx + '" data-field="serving_unit">' + unitOpts(it.serving_unit, it.valid_units || null) + '</select>' +
@@ -191,6 +278,57 @@
         '<button type="button" class="btn btn-icon btn-sm" data-remove="' + idx + '" title="Remove">&times;</button>' +
       '</div>';
     }).join('');
+    initDragDrop();
+  }
+
+  /* ---- Drag and Drop ---- */
+  var dragSrcIdx = null;
+
+  function initDragDrop() {
+    var rows = itemsList.querySelectorAll('.tpl-item-row');
+    rows.forEach(function (row) {
+      row.addEventListener('dragstart', function (e) {
+        dragSrcIdx = parseInt(row.dataset.idx, 10);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(dragSrcIdx));
+        setTimeout(function () { row.style.opacity = '0.5'; }, 0);
+      });
+      row.addEventListener('dragend', function () {
+        row.style.opacity = '';
+        itemsList.querySelectorAll('.tpl-item-row').forEach(function (r) {
+          r.classList.remove('drag-over');
+        });
+      });
+      row.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        itemsList.querySelectorAll('.tpl-item-row').forEach(function (r) { r.classList.remove('drag-over'); });
+        row.classList.add('drag-over');
+      });
+      row.addEventListener('dragleave', function () {
+        row.classList.remove('drag-over');
+      });
+      row.addEventListener('drop', function (e) {
+        e.preventDefault();
+        var targetIdx = parseInt(row.dataset.idx, 10);
+        if (dragSrcIdx === null || dragSrcIdx === targetIdx) return;
+        /* Reorder in-memory array */
+        var moved = templateItems.splice(dragSrcIdx, 1)[0];
+        templateItems.splice(targetIdx, 0, moved);
+        dragSrcIdx = null;
+        renderItemsList();
+        /* Call reorder API if editing existing template */
+        if (editingTemplateId) {
+          var itemIds = templateItems.map(function (it) { return it.id; }).filter(function (id) { return id != null; });
+          if (itemIds.length > 0) {
+            api('/api/meal-templates/' + editingTemplateId + '/reorder', {
+              method: 'PUT',
+              body: JSON.stringify({ item_ids: itemIds }),
+            }).catch(function (err) { showToast('Reorder error: ' + err.message, 'error'); });
+          }
+        }
+      });
+    });
   }
 
   function scaleItem(it, newServing) {
@@ -270,9 +408,11 @@
       var srv = f.default_serving || 100;
       var unit = f.serving_unit || 'g';
       var cal = f.calories || (f.protein * 4 + f.fat * 9 + f.carbs * 4);
+      var ord = templateItems.length;
       templateItems.push({ food_name: f.name, saved_food_id: f.id,
         protein: f.protein, fat: f.fat, carbs: f.carbs, calories: cal,
         serving_size: srv, serving_unit: unit, valid_units: f.valid_units || null,
+        sort_order: ord,
         _bp: f.protein, _bf: f.fat, _bc: f.carbs, _bk: cal, _bs: srv });
       renderItemsList();
       itemSearch.value = '';
@@ -290,7 +430,7 @@
   var fromLogPanel   = document.getElementById('tpl-from-log-panel');
   var fromLogBtn     = document.getElementById('tpl-from-log-btn');
   var fromLogClose   = document.getElementById('tpl-from-log-close');
-  var logDateInput   = document.getElementById('tpl-log-date');
+  var logDateInput2  = document.getElementById('tpl-log-date');
   var logLoadBtn     = document.getElementById('tpl-log-load-btn');
   var logEntriesDiv  = document.getElementById('tpl-log-entries');
   var logActionsDiv  = document.getElementById('tpl-from-log-actions');
@@ -299,9 +439,9 @@
 
   fromLogBtn.addEventListener('click', function () {
     fromLogPanel.hidden = !fromLogPanel.hidden;
-    if (!fromLogPanel.hidden && !logDateInput.value) {
+    if (!fromLogPanel.hidden && !logDateInput2.value) {
       var today = new Date();
-      logDateInput.value = today.toISOString().slice(0, 10);
+      logDateInput2.value = today.toISOString().slice(0, 10);
     }
   });
 
@@ -310,9 +450,9 @@
   });
 
   logLoadBtn.addEventListener('click', async function () {
-    var d = logDateInput.value;
+    var d = logDateInput2.value;
     if (!d) { showToast('Pick a date first.', 'error'); return; }
-    logEntriesDiv.innerHTML = '<p class="empty-msg">Loading…</p>';
+    logEntriesDiv.innerHTML = '<p class="empty-msg">Loading\u2026</p>';
     logActionsDiv.hidden = true;
     try {
       var entries = await api('/api/entries?date=' + encodeURIComponent(d));
@@ -336,7 +476,7 @@
             }).replace(/'/g, '&#39;') + '\' />' +
           '<span class="tpl-log-entry-name">' + esc(e.food_name) + '</span>' +
           '<span class="tpl-log-entry-meta">P:' + r1(e.protein) + ' F:' + r1(e.fat) + ' C:' + r1(e.carbs) + 'g ' + Math.round(cal) + 'kcal' +
-            (e.serving_size ? ' · ' + r1(e.serving_size) + (e.serving_unit || 'g') : '') + '</span>' +
+            (e.serving_size ? ' \u00b7 ' + r1(e.serving_size) + (e.serving_unit || 'g') : '') + '</span>' +
         '</label>';
       }).join('');
       logActionsDiv.hidden = false;
@@ -358,11 +498,12 @@
     cbs.forEach(function (cb) {
       try {
         var e = JSON.parse(cb.dataset.entry);
+        var ord = templateItems.length;
         templateItems.push({
           food_name: e.food_name, saved_food_id: e.saved_food_id,
           protein: e.protein, fat: e.fat, carbs: e.carbs, calories: e.calories,
           serving_size: e.serving_size, serving_unit: e.serving_unit,
-          valid_units: null,
+          valid_units: null, sort_order: ord,
           _bp: e.protein, _bf: e.fat, _bc: e.carbs, _bk: e.calories, _bs: e.serving_size
         });
       } catch (_) {}
@@ -376,9 +517,10 @@
   addCustomItemBtn.addEventListener('click', function () {
     var name = itemSearch.value.trim();
     if (!name) { showToast(t('meals.typeFirst'), 'error'); return; }
+    var ord = templateItems.length;
     templateItems.push({ food_name: name, saved_food_id: null,
       protein: 0, fat: 0, carbs: 0, calories: 0,
-      serving_size: 100, serving_unit: 'g',
+      serving_size: 100, serving_unit: 'g', sort_order: ord,
       _bp: 0, _bf: 0, _bc: 0, _bk: 0, _bs: 100 });
     renderItemsList();
     itemSearch.value = '';
@@ -393,14 +535,17 @@
       var sel = itemsList.querySelector('[data-idx="' + idx + '"][data-field="serving_unit"]');
       if (inp) { var v = parseFloat(inp.value); if (v > 0 && v !== it.serving_size) scaleItem(it, v); }
       if (sel) it.serving_unit = sel.value;
+      it.sort_order = idx;
     });
     var body = {
       name: document.getElementById('tpl-name').value.trim(),
       meal_type: document.getElementById('tpl-meal-type').value,
-      items: templateItems.map(function (it) {
+      category: document.getElementById('tpl-category').value.trim(),
+      items: templateItems.map(function (it, idx) {
         return { food_name: it.food_name, saved_food_id: it.saved_food_id,
           protein: it.protein, fat: it.fat, carbs: it.carbs, calories: it.calories,
-          serving_size: it.serving_size, serving_unit: it.serving_unit };
+          serving_size: it.serving_size, serving_unit: it.serving_unit,
+          sort_order: idx };
       }),
     };
     if (!body.name) { showToast(t('meals.nameRequired'), 'error'); return; }

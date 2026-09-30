@@ -9,11 +9,38 @@
     <button class="btn btn-primary" id="open-template-form" data-i18n="meals.newTemplate">+ New Template</button>
   </div>
 
+  <!-- Category filter bar (hidden until categories exist) -->
+  <div id="category-filter-bar" class="category-filter-bar" hidden>
+    <button class="btn btn-sm btn-outline active" data-cat="">All</button>
+  </div>
+
   <div id="templates-list">
     <p class="empty-msg" data-i18n="common.loading">Loading templates&hellip;</p>
   </div>
 
 </section>
+
+<!-- Log to Date modal (secondary action) -->
+<div class="modal-overlay" id="log-date-modal" role="dialog" aria-modal="true" aria-labelledby="log-date-modal-title" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="log-date-modal-title">Log to Date</h2>
+      <button class="btn btn-icon modal-close" id="close-log-date-modal" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="log-date-input">Choose a date</label>
+        <input type="date" id="log-date-input" class="form-control" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions" style="margin:0">
+        <button type="button" class="btn btn-secondary" id="cancel-log-date">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-log-date">Log to this date</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Create / Edit Template Modal -->
 <div class="modal-overlay" id="template-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-modal-title" hidden>
@@ -43,6 +70,10 @@
               <option value="Dinner" data-i18n="meals.dinner">Dinner</option>
               <option value="Snack" data-i18n="meals.snack">Snack</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="tpl-category">Category</label>
+            <input type="text" id="tpl-category" class="form-control" placeholder="e.g. High Protein" maxlength="50" />
           </div>
         </div>
 

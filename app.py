@@ -411,6 +411,9 @@ def _migrate_add_columns(app):
                 created_at TIMESTAMP,
                 updated_at TIMESTAMP
             )''',
+            # --- Meal Template enhancements (PR14) ---
+            'ALTER TABLE meal_template ADD COLUMN IF NOT EXISTS category VARCHAR(50)',
+            'ALTER TABLE meal_template_item ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0',
         ]
     else:
         # SQLite does not support IF NOT EXISTS on ALTER TABLE -- use try/except
@@ -697,6 +700,9 @@ def _migrate_add_columns(app):
                 created_at DATETIME,
                 updated_at DATETIME
             )''',
+            # --- Meal Template enhancements (PR14) ---
+            'ALTER TABLE meal_template ADD COLUMN category VARCHAR(50)',
+            'ALTER TABLE meal_template_item ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0',
         ]
     for sql in migrations:
         with db.engine.connect() as conn:

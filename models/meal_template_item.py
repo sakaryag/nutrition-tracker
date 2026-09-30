@@ -18,6 +18,7 @@ class MealTemplateItem(db.Model):
     calories = db.Column(db.Float, nullable=False)
     serving_size = db.Column(db.Float, nullable=True)
     serving_unit = db.Column(db.String(20), default='g')
+    sort_order = db.Column(db.Integer, default=0)
 
     saved_food = db.relationship('SavedFood', foreign_keys=[saved_food_id], lazy='joined', uselist=False)
 
@@ -36,5 +37,6 @@ class MealTemplateItem(db.Model):
             'calories': self.calories,
             'serving_size': self.serving_size,
             'serving_unit': self.serving_unit,
+            'sort_order': self.sort_order if self.sort_order is not None else 0,
             'valid_units': valid_units,
         }

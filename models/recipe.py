@@ -9,7 +9,7 @@ class Recipe(db.Model):
     name = db.Column(db.String(200), nullable=False)
     name_tr = db.Column(db.String(200), nullable=True)
     owner_id = db.Column(
-        db.Integer, db.ForeignKey('user.id'), nullable=False, index=True
+        db.Integer, db.ForeignKey('user.id'), nullable=True, index=True
     )
     prep_notes = db.Column(db.Text, nullable=True)
     prep_notes_tr = db.Column(db.Text, nullable=True)
@@ -18,6 +18,7 @@ class Recipe(db.Model):
     total_fat = db.Column(db.Float, nullable=True)
     total_carbs = db.Column(db.Float, nullable=True)
     total_calories = db.Column(db.Float, nullable=True)
+    servings = db.Column(db.Integer, nullable=False, default=1)  # portions this recipe yields
     is_archived = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
@@ -43,13 +44,17 @@ class Recipe(db.Model):
             'name': self.name,
             'name_tr': self.name_tr,
             'owner_id': self.owner_id,
+            'description': self.prep_notes,  # alias for API clarity
             'prep_notes': self.prep_notes,
             'prep_notes_tr': self.prep_notes_tr,
             'category_tags': self.category_tags,
-            'total_protein': self.total_protein,
-            'total_fat': self.total_fat,
-            'total_carbs': self.total_carbs,
-            'total_calories': self.total_calories,
+            'servings': self.servings or 1,
+            'total_protein': self.total_protein if self.total_protein is not None else 0,
+            'total_fat': self.total_fat if self.total_fat is not None else 0,
+            'total_carbs': self.total_carbs if self.total_carbs is not None else 0,
+            'total_calories': self.total_calories if self.total_calories is not None else 0,
+            'ingredient_count': len(self.ingredients),
             'is_archived': self.is_archived,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
             'ingredients': [i.to_dict() for i in self.ingredients],
         }

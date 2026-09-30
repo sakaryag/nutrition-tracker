@@ -104,7 +104,6 @@ def social():
 
 @pages_bp.route('/recipes')
 @login_required
-@require_admin_page
 def recipes():
     return render_template('recipes.html')
 

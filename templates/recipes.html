@@ -2,68 +2,140 @@
 {% block title %} — Recipes{% endblock %}
 
 {% block content %}
-<div class="page-header">
-  <h1>Recipes</h1>
-  <button class="btn btn-primary" id="btn-new-recipe">+ New Recipe</button>
-</div>
+<section class="page-recipes">
 
-<div class="search-bar">
-  <input type="text" id="recipe-search" class="form-control" placeholder="Search recipes…" />
-</div>
+  <div class="page-header">
+    <h1>Recipes</h1>
+    <button class="btn btn-primary" id="btn-new-recipe">+ New Recipe</button>
+  </div>
 
-<div id="recipe-list" class="card-grid"></div>
+  <div style="margin-bottom:1rem">
+    <input type="text" id="recipe-search" class="form-control" placeholder="Search recipes…" style="max-width:360px" />
+  </div>
 
-<!-- Recipe modal -->
-<dialog id="recipe-modal" class="modal-dialog">
-  <form id="recipe-form" class="modal-form" method="dialog">
-    <h2 id="recipe-modal-title">New Recipe</h2>
+  <div id="recipe-list" class="recipe-list">
+    <p class="empty-msg">Loading recipes&hellip;</p>
+  </div>
 
-    <div class="form-row">
+</section>
+
+<!-- Log to Date modal (secondary action) -->
+<div class="modal-overlay" id="log-date-modal" role="dialog" aria-modal="true" aria-labelledby="log-date-modal-title" hidden>
+  <div class="modal modal--sm">
+    <div class="modal-header">
+      <h2 class="modal-title" id="log-date-modal-title">Log Recipe to Date</h2>
+      <button class="btn btn-icon modal-close" id="close-log-date-modal" aria-label="Close">&times;</button>
+    </div>
+    <div class="modal-body">
       <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="rf-name" class="form-control" required />
+        <label for="log-date-input">Choose a date</label>
+        <input type="date" id="log-date-input" class="form-control" />
       </div>
       <div class="form-group">
-        <label>Name (TR)</label>
-        <input type="text" id="rf-name-tr" class="form-control" />
+        <label for="log-meal-type">Meal Type</label>
+        <select id="log-meal-type" class="form-control">
+          <option value="Breakfast">Breakfast</option>
+          <option value="Lunch">Lunch</option>
+          <option value="Dinner">Dinner</option>
+          <option value="Snack" selected>Snack</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="form-actions" style="margin:0">
+        <button type="button" class="btn btn-secondary" id="cancel-log-date">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirm-log-date">Log to this date</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create / Edit Recipe Modal -->
+<div class="modal-overlay" id="recipe-modal" role="dialog" aria-modal="true" aria-labelledby="recipe-modal-title" hidden>
+  <div class="modal modal--wide">
+
+    <div class="modal-header">
+      <h2 class="modal-title" id="recipe-modal-title">New Recipe</h2>
+      <button class="btn btn-icon modal-close" id="close-recipe-modal" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <form id="recipe-form" novalidate>
+        <input type="hidden" id="rf-id" />
+
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label for="rf-name">Name <span aria-hidden="true">*</span></label>
+            <input type="text" id="rf-name" class="form-control" placeholder="e.g. My Chicken Bowl" required />
+          </div>
+          <div class="form-group" style="flex:0 0 100px">
+            <label for="rf-servings">Servings</label>
+            <input type="number" id="rf-servings" class="form-control" min="1" step="1" value="1" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="rf-prep-notes">Notes / Instructions</label>
+          <textarea id="rf-prep-notes" class="form-control" rows="2" placeholder="Optional preparation notes"></textarea>
+        </div>
+
+        <!-- Ingredients section -->
+        <div class="tpl-items-section">
+          <h3 class="section-title">Ingredients</h3>
+
+          <!-- Food search -->
+          <div class="autocomplete-wrap" style="margin-bottom:.75rem">
+            <input type="text" id="ing-search" class="form-control" placeholder="Search foods to add…" autocomplete="off" />
+            <ul id="ing-ac" class="autocomplete-dropdown" role="listbox" hidden></ul>
+          </div>
+
+          <!-- Ingredient table -->
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:.875rem">
+              <thead>
+                <tr style="border-bottom:2px solid var(--color-border)">
+                  <th style="text-align:left;padding:.4rem .5rem">Food</th>
+                  <th style="text-align:right;padding:.4rem .5rem;width:80px">Qty</th>
+                  <th style="text-align:left;padding:.4rem .5rem;width:80px">Unit</th>
+                  <th style="text-align:right;padding:.4rem .5rem;width:60px">P (g)</th>
+                  <th style="text-align:right;padding:.4rem .5rem;width:60px">F (g)</th>
+                  <th style="text-align:right;padding:.4rem .5rem;width:60px">C (g)</th>
+                  <th style="text-align:right;padding:.4rem .5rem;width:60px">kcal</th>
+                  <th style="padding:.4rem .5rem;width:36px"></th>
+                </tr>
+              </thead>
+              <tbody id="ing-body"></tbody>
+              <tfoot>
+                <tr style="border-top:2px solid var(--color-border);font-weight:600">
+                  <td style="padding:.4rem .5rem">
+                    <span id="totals-label">Totals</span>
+                  </td>
+                  <td colspan="2" style="padding:.4rem .5rem">
+                    <button type="button" class="btn btn-sm btn-outline" id="toggle-per-serving" style="font-size:.75rem;padding:.2rem .5rem">Per Serving</button>
+                  </td>
+                  <td id="tot-p" style="text-align:right;padding:.4rem .5rem">—</td>
+                  <td id="tot-f" style="text-align:right;padding:.4rem .5rem">—</td>
+                  <td id="tot-c" style="text-align:right;padding:.4rem .5rem">—</td>
+                  <td id="tot-k" style="text-align:right;padding:.4rem .5rem">—</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+      </form>
+    </div><!-- /modal-body -->
+
+    <div class="modal-footer">
+      <div class="form-actions" style="margin:0">
+        <button type="button" class="btn btn-secondary" id="cancel-recipe">Cancel</button>
+        <button type="submit" form="recipe-form" class="btn btn-primary" id="save-recipe-btn">Save Recipe</button>
       </div>
     </div>
 
-    <div class="form-group">
-      <label>Prep Notes</label>
-      <textarea id="rf-prep-notes" class="form-control" rows="2"></textarea>
-    </div>
-    <div class="form-group">
-      <label>Prep Notes (TR)</label>
-      <textarea id="rf-prep-notes-tr" class="form-control" rows="2"></textarea>
-    </div>
-
-    <h3>Ingredients</h3>
-    <div class="search-bar" style="margin-bottom:.5rem">
-      <input type="text" id="ing-search" class="form-control" placeholder="Search foods to add…" autocomplete="off" />
-      <ul id="ing-ac" class="autocomplete-list" hidden role="listbox"></ul>
-    </div>
-    <table class="data-table" id="ing-table">
-      <thead>
-        <tr><th>Food</th><th>Qty</th><th>Unit</th><th>Protein</th><th>Fat</th><th>Carbs</th><th>kcal</th><th></th></tr>
-      </thead>
-      <tbody id="ing-body"></tbody>
-      <tfoot>
-        <tr id="ing-totals" class="table-total">
-          <td><strong>Totals</strong></td>
-          <td colspan="2"></td>
-          <td id="tot-p">—</td><td id="tot-f">—</td><td id="tot-c">—</td><td id="tot-k">—</td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-
-    <div class="modal-actions">
-      <button type="button" class="btn btn-outline" id="recipe-cancel">Cancel</button>
-      <button type="submit" class="btn btn-primary">Save Recipe</button>
-    </div>
-  </form>
-</dialog>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

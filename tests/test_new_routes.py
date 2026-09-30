@@ -377,7 +377,7 @@ class TestAuthGuards:
 
     def test_social_feed_requires_auth(self, auth_client, auth_db):
         rv = auth_client.get("/api/social/feed")
-        assert rv.status_code in (401, 402)
+        assert rv.status_code == 401
 
     def test_game_score_requires_auth(self, auth_client, auth_db):
         rv = auth_client.get("/api/game/score")
@@ -385,4 +385,31 @@ class TestAuthGuards:
 
     def test_plans_requires_auth(self, auth_client, auth_db):
         rv = auth_client.get("/api/plans/my-assignment")
+        assert rv.status_code == 401
+    def test_post_shared_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.post("/api/shared", json={})
+        assert rv.status_code == 401
+
+    def test_social_feed_visibility_get_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.get("/api/social/feed/visibility")
+        assert rv.status_code == 401
+
+    def test_social_feed_visibility_put_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.put("/api/social/feed/visibility", json={})
+        assert rv.status_code == 401
+
+    def test_social_badges_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.get("/api/social/badges")
+        assert rv.status_code == 401
+
+    def test_game_leaderboard_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.get("/api/game/leaderboard")
+        assert rv.status_code == 401
+
+    def test_plans_complete_task_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.post("/api/plans/complete-task", json={})
+        assert rv.status_code == 401
+
+    def test_plans_progress_requires_auth(self, auth_client, auth_db):
+        rv = auth_client.get("/api/plans/progress")
         assert rv.status_code == 401

@@ -146,8 +146,9 @@ class TestEntryMealType:
         assert rv.status_code == 201
         rv2 = client.get("/api/entries?date=2024-06-02")
         entries = rv2.get_json()
-        # meal_type key must exist; value may be None or empty string
+        # meal_type key must exist with null/empty value (no explicit meal type was passed)
         assert "meal_type" in entries[0]
+        assert entries[0]["meal_type"] in (None, "", "Snack")  # route defaults to Snack
 
     def test_all_meal_types_accepted(self, client, db_session):
         for mt in ("breakfast", "lunch", "dinner", "snack"):

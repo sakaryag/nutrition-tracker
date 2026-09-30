@@ -820,6 +820,19 @@ def _patch_food_data(app):
         ('170327', 2.0, 14.7, 8.5, 160, 100, 'g'),
         ('170312', 0.6, 0.2, 7.6, 30, 100, 'g'),
         ('170523', 31.6, 48.8, 8.7, 553, 30, 'g'),
+        # Potato chips — fat/protein were stored as per-28g label values instead of per-100g
+        ('170728', 6.6, 35.9, 51.3, 536, 28, 'g'),
+        ('170729', 7.0, 17.4, 59.8, 420, 28, 'g'),
+        ('170730', 7.1, 23.4, 64.3, 489, 28, 'g'),
+        ('170731', 8.0, 25.5, 61.0, 507, 28, 'g'),
+        ('170732', 5.0, 22.0, 60.0, 452, 28, 'g'),
+        # Pretzels — protein and calories understated vs USDA per 100g
+        ('170733', 8.7, 2.7, 82.6, 380, 28, 'g'),
+        # Cookies — per-piece macros were inflated ~3x for 15g g_per_unit
+        ('170741', 0.8, 3.7, 9.7, 73, 1, 'piece'),
+        ('170742', 0.8, 2.8, 10.5, 70, 1, 'piece'),
+        ('170744', 0.8, 3.2, 10.4, 73, 1, 'piece'),
+        ('170745', 0.7, 0.4, 12.3, 54, 1, 'piece'),
     ]
     patched = 0
     for fdc_id, p, f, c, k, ds, su in fixes:

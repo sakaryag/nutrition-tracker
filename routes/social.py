@@ -2,6 +2,7 @@
 from datetime import datetime, date, timedelta, timezone
 
 from flask import Blueprint, jsonify, request, current_app, session
+from sqlalchemy.exc import IntegrityError
 
 from models import db
 from models.user import User
@@ -357,7 +358,12 @@ def react_to_feed(target_user_id, target_date):
         )
         db.session.add(reaction)
 
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        counts, my_reaction = _reaction_summary(target_user_id, for_date, uid)
+        return jsonify({'reactions': counts, 'my_reaction': my_reaction}), 409
 
     counts, my_reaction = _reaction_summary(target_user_id, for_date, uid)
     return jsonify({'reactions': counts, 'my_reaction': my_reaction})

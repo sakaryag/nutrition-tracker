@@ -57,6 +57,7 @@ def create_app(config_name=None, test_config=None):
         _create_all_if_needed(app)
         _migrate_add_columns(app)
         _auto_seed(app)
+        _seed_meals_on_startup(app)
         _patch_name_tr(app)
         _patch_food_data(app)
         _patch_program_days(app)
@@ -806,6 +807,17 @@ def _auto_seed(app):
             app.logger.info('Database seeded with initial food data.')
         except ImportError:
             pass
+
+
+def _seed_meals_on_startup(app):
+    """Auto-seed Turkish + international meal dataset on startup (idempotent)."""
+    try:
+        from seed_data.meals import seed_meals
+        count = seed_meals()
+        if count:
+            app.logger.info('Meal dataset seeded: %d new dishes.', count)
+    except Exception as e:
+        app.logger.warning('Meal seed skipped: %s', e)
 
 
 def _seed_starter_templates(app):

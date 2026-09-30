@@ -32,3 +32,4 @@ from models.program_version import ProgramVersion
 from models.slot_fulfillment import SlotFulfillment
 from models.weekly_category_quota import WeeklyCategoryQuota
 from models.program_image_upload import ProgramImageUpload
+from models.feed_reaction import FeedReaction

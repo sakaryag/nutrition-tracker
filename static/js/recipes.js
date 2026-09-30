@@ -308,8 +308,11 @@
   function recomputeIngMacros(idx) {
     var ing = ingredients[idx];
     if (ing._bp === undefined) return;
-    // Base macros are per 100 g. Recompute from base.
-    var scale = ing.quantity / 100.0;
+    // Base macros are per 100 g. For piece/slice/serving use g_per_unit to scale.
+    var unitBased = ['piece', 'slice', 'serving'].indexOf(ing.unit) !== -1;
+    var scale = (unitBased && ing._gpu)
+      ? ing.quantity * ing._gpu / 100.0
+      : ing.quantity / 100.0;
     ing.protein  = round1(ing._bp * scale);
     ing.fat      = round1(ing._bf * scale);
     ing.carbs    = round1(ing._bc * scale);
@@ -346,10 +349,11 @@
                 fat:      round1((food.fat      || 0) * qty / 100),
                 carbs:    round1((food.carbs    || 0) * qty / 100),
                 calories: round1((food.calories || 0) * qty / 100),
-                _bp: food.protein  || 0,
-                _bf: food.fat      || 0,
-                _bc: food.carbs    || 0,
-                _bk: food.calories || 0,
+                _bp: food.protein    || 0,
+                _bf: food.fat        || 0,
+                _bc: food.carbs      || 0,
+                _bk: food.calories   || 0,
+                _gpu: food.g_per_unit || 0,
               });
               ingAC.hidden = true;
               ingSearch.value = '';

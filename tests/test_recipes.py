@@ -215,3 +215,131 @@ class TestRecipeActions:
         data = resp.get_json()
         assert data['prep_notes'] == 'Mix it up'
         assert data['description'] == 'Mix it up'
+
+
+# ---------------------------------------------------------------------------
+# Auth guard tests — unauthenticated requests must get 401
+# ---------------------------------------------------------------------------
+
+class RecipesAuthConfig:
+    TESTING = True
+    AUTH_ENABLED = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'recipes-auth-test-secret'
+    DEFAULT_PROTEIN_TARGET = 150
+    DEFAULT_FAT_TARGET = 65
+    DEFAULT_CARBS_TARGET = 250
+    DEFAULT_CALORIES_TARGET = 2200
+
+
+@pytest.fixture(scope='class')
+def recipes_auth_app():
+    from app import create_app
+    from models import db as _db
+    application = create_app(test_config=RecipesAuthConfig)
+    with application.app_context():
+        _db.drop_all()
+        _db.create_all()
+    yield application
+
+
+@pytest.fixture
+def recipes_auth_db(recipes_auth_app):
+    from models import db as _db
+    with recipes_auth_app.app_context():
+        _db.create_all()
+        yield _db
+        _db.session.rollback()
+        for table in reversed(_db.metadata.sorted_tables):
+            _db.session.execute(table.delete())
+        _db.session.commit()
+
+
+@pytest.fixture
+def recipes_auth_client(recipes_auth_app):
+    return recipes_auth_app.test_client()
+
+
+class TestRecipesAuthGuards:
+    """All recipe routes must return 401 for unauthenticated requests when AUTH_ENABLED."""
+
+    def test_list_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.get('/api/recipes').status_code == 401
+
+    def test_create_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.post('/api/recipes', json={'name': 'X'}).status_code == 401
+
+    def test_get_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.get('/api/recipes/1').status_code == 401
+
+    def test_update_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.put('/api/recipes/1', json={}).status_code == 401
+
+    def test_delete_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.delete('/api/recipes/1').status_code == 401
+
+    def test_log_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.post('/api/recipes/1/log', json={}).status_code == 401
+
+    def test_save_as_food_requires_auth(self, recipes_auth_client, recipes_auth_db):
+        assert recipes_auth_client.post('/api/recipes/1/save-as-food', json={}).status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# Ownership isolation — user B must not access user A's recipes
+# ---------------------------------------------------------------------------
+
+class TestRecipeOwnership:
+
+    def _login(self, client, app, username, password='pw1234'):
+        from models import db as _db
+        from models.user import User
+        with app.app_context():
+            user = User(username=username)
+            user.set_pw(password)
+            _db.session.add(user)
+            _db.session.commit()
+            uid = user.id
+        with client.session_transaction() as sess:
+            sess['user_id'] = uid
+        return uid
+
+    def test_user_b_cannot_get_user_a_recipe(self, recipes_auth_client, recipes_auth_app, recipes_auth_db):
+        client_a = recipes_auth_app.test_client()
+        client_b = recipes_auth_app.test_client()
+        self._login(client_a, recipes_auth_app, 'alice')
+        self._login(client_b, recipes_auth_app, 'bob')
+
+        create_resp = client_a.post('/api/recipes', json={'name': 'Alice Secret Recipe'})
+        assert create_resp.status_code == 201
+        rid = create_resp.get_json()['id']
+
+        assert client_b.get(f'/api/recipes/{rid}').status_code == 404
+
+    def test_user_b_cannot_update_user_a_recipe(self, recipes_auth_client, recipes_auth_app, recipes_auth_db):
+        client_a = recipes_auth_app.test_client()
+        client_b = recipes_auth_app.test_client()
+        self._login(client_a, recipes_auth_app, 'alice2')
+        self._login(client_b, recipes_auth_app, 'bob2')
+
+        rid = client_a.post('/api/recipes', json={'name': 'Alice Recipe 2'}).get_json()['id']
+        assert client_b.put(f'/api/recipes/{rid}', json={'name': 'Hacked'}).status_code == 404
+
+    def test_user_b_cannot_delete_user_a_recipe(self, recipes_auth_client, recipes_auth_app, recipes_auth_db):
+        client_a = recipes_auth_app.test_client()
+        client_b = recipes_auth_app.test_client()
+        self._login(client_a, recipes_auth_app, 'alice3')
+        self._login(client_b, recipes_auth_app, 'bob3')
+
+        rid = client_a.post('/api/recipes', json={'name': 'Alice Recipe 3'}).get_json()['id']
+        assert client_b.delete(f'/api/recipes/{rid}').status_code == 404
+
+    def test_user_b_cannot_log_user_a_recipe(self, recipes_auth_client, recipes_auth_app, recipes_auth_db):
+        client_a = recipes_auth_app.test_client()
+        client_b = recipes_auth_app.test_client()
+        self._login(client_a, recipes_auth_app, 'alice4')
+        self._login(client_b, recipes_auth_app, 'bob4')
+
+        rid = client_a.post('/api/recipes', json={'name': 'Alice Recipe 4'}).get_json()['id']
+        assert client_b.post(f'/api/recipes/{rid}/log', json={}).status_code == 404

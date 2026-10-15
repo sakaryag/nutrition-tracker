@@ -1,6 +1,6 @@
 """
 POST /api/chat
-Nutrition chatbot backend.
+Nutrition chatbot backend — Google Gemini backend.
 
 Flow:
   1. Extract candidate food names from the user message (simple tokenisation).
@@ -8,7 +8,8 @@ Flow:
   3. Build a system prompt that contains:
        - today's macro totals vs targets
        - the top food matches found
-  4. Send message history + system prompt to Ollama (local) or Anthropic (if key set).
+  4. Send message history + system prompt to Gemini (requires API key).
+     No key → 401, no fallback.
   5. Parse the model response for a structured action block, execute it,
      and return both the natural-language reply and any logged entries.
 
@@ -46,17 +47,15 @@ log = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-# Ollama kept for optional use, but local_model is the primary offline backend
-OLLAMA_URL   = os.getenv('OLLAMA_URL', 'http://localhost:11434')
-OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.1')
+_ALLOWED_MODELS = {'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'}
+_DEFAULT_MODEL  = 'gemini-2.0-flash'
 
-def _anthropic_key() -> str:
-    """Read ANTHROPIC_API_KEY from environment or .env file."""
-    # Check OS environment first (works on Railway, Docker, etc.)
-    key = os.environ.get('ANTHROPIC_API_KEY', '').strip()
+
+def _gemini_key() -> str:
+    """Read GEMINI_API_KEY from environment or .env file."""
+    key = os.environ.get('GEMINI_API_KEY', '').strip()
     if key:
         return key
-    # Fallback: read from .env file for local dev
     env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
     try:
         with open(os.path.normpath(env_path), encoding='utf-8') as f:
@@ -65,7 +64,7 @@ def _anthropic_key() -> str:
                 if line.startswith('#') or '=' not in line:
                     continue
                 k, _, v = line.partition('=')
-                if k.strip() == 'ANTHROPIC_API_KEY':
+                if k.strip() == 'GEMINI_API_KEY':
                     return v.strip()
     except OSError:
         pass
@@ -309,82 +308,56 @@ def _build_system(uid, lang, food_tokens):
 
 
 # ---------------------------------------------------------------------------
-# LLM backends
+# LLM backend — Google Gemini
 # ---------------------------------------------------------------------------
-def _call_ollama(messages, system_prompt):
+def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
     import urllib.request
+    import urllib.error
+    key = api_key or _gemini_key()
+    if not model or model not in _ALLOWED_MODELS:
+        model = _DEFAULT_MODEL
+
+    # Convert to Gemini format: roles are 'user' / 'model'; merge consecutive same-role.
+    contents = []
+    for m in messages:
+        role    = 'model' if m.get('role') == 'assistant' else 'user'
+        content = (m.get('content') or '').strip()
+        if not content:
+            continue
+        if contents and contents[-1]['role'] == role:
+            contents[-1]['parts'][0]['text'] += '\n' + content
+        else:
+            contents.append({'role': role, 'parts': [{'text': content}]})
+    while contents and contents[0]['role'] != 'user':
+        contents = contents[1:]
+    if not contents:
+        raise RuntimeError('No valid messages to send')
+
     payload = json.dumps({
-        'model': OLLAMA_MODEL,
-        'messages': [{'role': 'system', 'content': system_prompt}] + messages,
-        'stream': False,
+        'systemInstruction': {'parts': [{'text': system_prompt}]},
+        'contents': contents,
+        'generationConfig': {'maxOutputTokens': 1024},
     }).encode()
+
+    url = (
+        'https://generativelanguage.googleapis.com/v1beta/models/'
+        f'{model}:generateContent?key={key}'
+    )
     req = urllib.request.Request(
-        f'{OLLAMA_URL}/api/chat',
-        data=payload,
+        url, data=payload,
         headers={'Content-Type': 'application/json'},
         method='POST',
     )
     try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = json.loads(resp.read())
-            return data['message']['content']
-    except Exception as e:
-        raise RuntimeError(f'Ollama error: {e}')
-
-
-_ALLOWED_MODELS = {
-    'claude-haiku-4-5-20251001',
-    'claude-sonnet-4-5',
-}
-
-
-def _call_anthropic(messages, system_prompt, api_key: str = '', model: str = ''):
-    import urllib.request
-    import urllib.error
-    key = api_key or _anthropic_key()
-    if not model or model not in _ALLOWED_MODELS:
-        model = 'claude-haiku-4-5-20251001'
-    # Anthropic requires strictly alternating user/assistant roles.
-    # Merge consecutive same-role messages to avoid 400 errors.
-    formatted = []
-    for m in messages:
-        content = (m.get('content') or '').strip()
-        if not content:
-            continue
-        if formatted and formatted[-1]['role'] == m['role']:
-            formatted[-1]['content'] += '\n' + content
-        else:
-            formatted.append({'role': m['role'], 'content': content})
-    # Must start with user role
-    while formatted and formatted[0]['role'] != 'user':
-        formatted = formatted[1:]
-    if not formatted:
-        raise RuntimeError('No valid messages to send')
-    payload = json.dumps({
-        'model': model,
-        'max_tokens': 1024,
-        'system': system_prompt,
-        'messages': formatted,
-    }).encode()
-    req = urllib.request.Request(
-        'https://api.anthropic.com/v1/messages',
-        data=payload,
-        headers={
-            'Content-Type': 'application/json',
-            'x-api-key': key,
-            'anthropic-version': '2023-06-01',
-        },
-        method='POST',
-    )
-    try:
         with urllib.request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read())
-            usage = data.get('usage', {})
+            data    = json.loads(resp.read())
+            text    = data['candidates'][0]['content']['parts'][0]['text']
+            usage   = data.get('usageMetadata', {})
             return {
-                'text': data['content'][0]['text'],
-                'input_tokens': usage.get('input_tokens', 0),
-                'output_tokens': usage.get('output_tokens', 0),
-                'model': model,
+                'text':          text,
+                'input_tokens':  usage.get('promptTokenCount', 0),
+                'output_tokens': usage.get('candidatesTokenCount', 0),
+                'model':         model,
             }
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='replace')
@@ -392,19 +365,17 @@ def _call_anthropic(messages, system_prompt, api_key: str = '', model: str = '')
             msg = json.loads(body).get('error', {}).get('message', body)
         except Exception:
             msg = body
-        raise RuntimeError(f'Anthropic {e.code}: {msg}')
+        raise RuntimeError(f'Gemini {e.code}: {msg}')
     except Exception as e:
-        raise RuntimeError(f'Anthropic error: {e}')
+        raise RuntimeError(f'Gemini error: {e}')
 
 
 def _get_reply(messages, system_prompt, user_key: str = '', model: str = ''):
-    key = user_key.strip() or _anthropic_key()
+    """Return Gemini response dict, or None if no key is available."""
+    key = user_key.strip() or _gemini_key()
     if key:
-        return _call_anthropic(messages, system_prompt, api_key=key, model=model)
-    # Ollama is optional — try only if explicitly configured
-    if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
-        return _call_ollama(messages, system_prompt)
-    return None  # signal: use local NLP model / rule-based fallback
+        return _call_gemini(messages, system_prompt, api_key=key, model=model)
+    return None  # no key — caller must return 401
 
 
 # ---------------------------------------------------------------------------
@@ -551,22 +522,6 @@ def _rule_based_chat(last_msg: str, uid, lang: str, food_tokens: list) -> dict:
     return {'action': 'log', 'entries': entries, 'reply': reply}
 
 
-def _local_model_available() -> bool:
-    """True if spaCy + rapidfuzz are both installed."""
-    try:
-        from local_model import is_available
-        return is_available()
-    except ImportError:
-        return False
-
-
-def _ollama_available() -> bool:
-    import urllib.request
-    try:
-        with urllib.request.urlopen(f'{OLLAMA_URL}/api/tags', timeout=2):
-            return True
-    except Exception:
-        return False
 
 
 # ---------------------------------------------------------------------------
@@ -636,21 +591,23 @@ def chat():
     usage = {}
     try:
         result = _get_reply(messages, system_prompt, user_key=user_key, model=model)
-        if isinstance(result, dict):
-            raw_reply = result['text']
-            usage = {'input_tokens': result['input_tokens'], 'output_tokens': result['output_tokens'], 'model': result['model']}
-        else:
-            raw_reply = result
     except RuntimeError as e:
         return jsonify({'error': str(e), 'reply': str(e), 'logged': []}), 502
 
-    if raw_reply is None:
-        # No LLM available — use rule-based parser
-        action = _rule_based_chat(last_user_msg, uid, lang, food_tokens)
-        logged = []
-        if action.get('action') == 'log' and action.get('entries'):
-            logged = _execute_log(action['entries'], uid)
-        return jsonify({'reply': action['reply'], 'logged': logged, 'raw': None})
+    if result is None:
+        # No Gemini API key available
+        return jsonify({
+            'error': 'no_key',
+            'reply': 'Gemini API key required. Add your free key in Settings.',
+            'logged': [],
+        }), 401
+
+    raw_reply = result['text']
+    usage = {
+        'input_tokens':  result['input_tokens'],
+        'output_tokens': result['output_tokens'],
+        'model':         result['model'],
+    }
 
     action = _parse_action(raw_reply)
     display_reply = _strip_json_block(raw_reply)
@@ -673,39 +630,6 @@ def chat():
 def status():
     """Check which backend is active."""
     has_user_key = request.args.get('has_user_key') == '1'
-    if has_user_key or _anthropic_key():
-        return jsonify({'backend': 'anthropic', 'model': 'claude-haiku-4-5-20251001', 'ready': True})
-    nlp_avail = _local_model_available()
-    if nlp_avail:
-        return jsonify({'backend': 'local-nlp', 'model': 'spaCy + rapidfuzz', 'ready': True})
-    # Debug: report why local-nlp is unavailable
-    try:
-        import spacy  # noqa: F401
-        spacy_ok = True
-    except ImportError:
-        spacy_ok = False
-    try:
-        import rapidfuzz  # noqa: F401
-        rf_ok = True
-    except ImportError:
-        rf_ok = False
-    try:
-        import spacy as _sp
-        _sp.load('en_core_web_sm')
-        model_ok = True
-    except Exception as e:
-        model_ok = str(e)
-    if os.getenv('OLLAMA_ENABLED', '').lower() in ('1', 'true', 'yes') and _ollama_available():
-        import urllib.request
-        try:
-            with urllib.request.urlopen(f'{OLLAMA_URL}/api/tags', timeout=3) as r:
-                data = json.loads(r.read())
-                models = [m['name'] for m in data.get('models', [])]
-                ready = any(OLLAMA_MODEL in m for m in models)
-                return jsonify({'backend': 'ollama', 'model': OLLAMA_MODEL, 'models': models, 'ready': ready})
-        except Exception:
-            pass
-    return jsonify({
-        'backend': 'rule-based', 'model': None, 'ready': True,
-        '_debug': {'spacy': spacy_ok, 'rapidfuzz': rf_ok, 'en_core_web_sm': model_ok},
-    })
+    if has_user_key or _gemini_key():
+        return jsonify({'backend': 'gemini', 'model': _DEFAULT_MODEL, 'ready': True})
+    return jsonify({'backend': 'none', 'model': None, 'ready': False})

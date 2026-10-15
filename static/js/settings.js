@@ -265,36 +265,36 @@
   // API Key management
   // ----------------------------------------------------------------
   (function () {
-    const keyInput    = document.getElementById('anthropic-api-key');
+    const keyInput    = document.getElementById('gemini-api-key');
     const saveKeyBtn  = document.getElementById('save-api-key-btn');
     const clearKeyBtn = document.getElementById('clear-api-key-btn');
     const keyStatus   = document.getElementById('api-key-status');
 
     function updateKeyStatus() {
-      const key = localStorage.getItem('nt_anthropic_key') || '';
+      const key = localStorage.getItem('nt_gemini_key') || '';
       if (key) {
-        keyStatus.textContent = '✓ Key saved (ends in …' + key.slice(-6) + ')';
+        keyStatus.innerHTML = '✓ Key saved (ends in …' + key.slice(-6) + ')';
         keyStatus.style.color = 'var(--color-success)';
         keyInput.value = '';
         keyInput.placeholder = '••••••••••••••••••••';
       } else {
-        keyStatus.textContent = 'No key saved — AI features (chat upgrade, photo recognition) require a key.';
+        keyStatus.innerHTML = 'No key saved — AI chat and Daily Insight require a key. ' +
+          '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get your free key →</a>';
         keyStatus.style.color = 'var(--color-text-muted)';
-        keyInput.placeholder = 'sk-ant-api03-...';
+        keyInput.placeholder = 'AIzaSy...';
       }
     }
 
     saveKeyBtn.addEventListener('click', function () {
       const val = keyInput.value.trim();
       if (!val) { keyStatus.textContent = 'Please enter a key first.'; return; }
-      if (!val.startsWith('sk-ant-')) { keyStatus.textContent = 'Key should start with sk-ant-'; keyStatus.style.color = 'var(--color-danger)'; return; }
-      localStorage.setItem('nt_anthropic_key', val);
+      localStorage.setItem('nt_gemini_key', val);
       updateKeyStatus();
       updateUsage();
     });
 
     clearKeyBtn.addEventListener('click', function () {
-      localStorage.removeItem('nt_anthropic_key');
+      localStorage.removeItem('nt_gemini_key');
       updateKeyStatus();
       updateUsage();
     });
@@ -321,7 +321,7 @@
   function updateUsage() {
     const spent  = ApiUsage.getSpent();
     const budget = ApiUsage.getBudget();
-    const hasKey = !!(localStorage.getItem('nt_anthropic_key') || '');
+    const hasKey = !!(localStorage.getItem('nt_gemini_key') || '');
 
     document.getElementById('usage-cost').textContent = '$' + spent.toFixed(3);
 

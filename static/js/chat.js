@@ -18,7 +18,7 @@
   // Status check
   // ----------------------------------------------------------------
   async function checkStatus() {
-    const userKey = localStorage.getItem('nt_anthropic_key') || '';
+    const userKey = localStorage.getItem('nt_gemini_key') || '';
     try {
       const data = await api('/api/chat/status?has_user_key=' + (userKey ? '1' : '0'));
       const ready = data.ready;
@@ -26,29 +26,40 @@
       statusBadge.classList.toggle('offline', !ready);
       const hintEl = document.getElementById('chat-api-hint');
       if (ready) {
-        if (data.backend === 'anthropic') {
-          const model = ApiUsage.MODELS[ApiUsage.getModel()];
-          const modelLabel = model ? model.label : (data.model || '');
-          const src = userKey && !data.server_key ? ' (your key)' : '';
-          statusLabel.textContent = 'Anthropic · ' + modelLabel + src;
-          if (hintEl) hintEl.hidden = true;
-        } else if (data.backend === 'local-nlp') {
-          statusLabel.textContent = 'Local NLP · spaCy + rapidfuzz';
-          if (hintEl) hintEl.hidden = false;
-        } else if (data.backend === 'ollama') {
-          statusLabel.textContent = 'Ollama · ' + (data.model || '');
-          if (hintEl) hintEl.hidden = true;
-        } else {
-          statusLabel.textContent = 'Smart search mode';
-          if (hintEl) hintEl.hidden = false;
-        }
+        const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : (data.model || 'gemini-2.0-flash');
+        statusLabel.textContent = 'Gemini · ' + model;
+        if (hintEl) hintEl.hidden = true;
       } else {
-        statusLabel.textContent = 'No AI key — using smart search mode';
+        statusLabel.textContent = 'API key required';
         if (hintEl) hintEl.hidden = false;
       }
+      _setInputEnabled(ready);
     } catch (_) {
       statusBadge.classList.add('offline');
       statusLabel.textContent = 'Cannot reach backend';
+    }
+  }
+
+  function _setInputEnabled(enabled) {
+    inputEl.disabled  = !enabled;
+    sendBtn.disabled  = !enabled;
+    const setupEl = document.getElementById('chat-setup-banner');
+    if (!enabled) {
+      if (!setupEl) {
+        const banner = document.createElement('div');
+        banner.id = 'chat-setup-banner';
+        banner.style.cssText = 'margin:1rem;padding:1rem;background:var(--color-bg-subtle,#f8f9fa);border-radius:.5rem;text-align:center;line-height:1.7;';
+        banner.innerHTML =
+          '<span style="font-size:1.4rem;">🔑</span><br>' +
+          '<strong>Gemini API key required</strong><br>' +
+          'Get your <strong>free</strong> key (no credit card) at<br>' +
+          '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" ' +
+          'style="color:var(--color-primary,#3b82f6);">aistudio.google.com/apikey</a><br>' +
+          '<span style="font-size:.875rem;color:var(--color-text-muted,#666);">Then paste it in Settings → AI Assistant</span>';
+        messagesEl.appendChild(banner);
+      }
+    } else if (setupEl) {
+      setupEl.remove();
     }
   }
 
@@ -115,22 +126,9 @@
     showTyping();
 
     const lang = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
-    const userKey = localStorage.getItem('nt_anthropic_key') || '';
+    const userKey = localStorage.getItem('nt_gemini_key') || '';
 
-    // Budget check before sending
-    if (userKey && typeof ApiUsage !== 'undefined') {
-      const budgetState = ApiUsage.checkBudget();
-      if (!budgetState.ok) {
-        hideTyping();
-        busy = false;
-        sendBtn.disabled = false;
-        history.pop();
-        appendBubble('bot', '<em style="color:var(--color-danger)">Monthly budget of $' + budgetState.budget.toFixed(2) + ' reached ($' + budgetState.spent.toFixed(3) + ' spent). Update your limit in Settings.</em>');
-        return;
-      }
-    }
-
-    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'claude-haiku-4-5-20251001';
+    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-2.0-flash';
 
     try {
       const data = await api('/api/chat', {
@@ -157,6 +155,8 @@
       // Remove the user message from history so the next send doesn't
       // create consecutive user messages (Anthropic rejects that with 400)
       history.pop();
+      // If key was rejected, re-check status so setup banner reappears if needed
+      if (String(err).includes('no_key') || String(err).includes('401')) checkStatus();
       appendBubble('bot', '<em style="color:var(--color-danger)">' + renderText(String(err)) + '</em>');
     } finally {
       busy = false;

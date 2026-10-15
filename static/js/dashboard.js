@@ -438,8 +438,16 @@
   function renderAutocomplete(foods){
     if(!foods||foods.length===0){autocompleteList.hidden=true;return;}
     autocompleteList.innerHTML=foods.slice(0,10).map(function(f){
-      var brand=f.brand?' <span class="ac-sub">'+escHtml(f.brand)+'</span>':'';
-      var macros='<span class="ac-sub">P:'+round1(f.protein)+'g F:'+round1(f.fat)+'g C:'+round1(f.carbs)+'g</span>';
+      // Hide "generic" brand label — it's a seed-data artefact, not useful info
+      var brand=(f.brand&&f.brand!=='generic')?' <span class="ac-sub">'+escHtml(f.brand)+'</span>':'';
+      // Scale macros to default_serving so the hint matches what fills the form
+      var baseUnit=f.serving_unit||'g';
+      var gpu=f.g_per_unit||null;
+      var serving=f.default_serving||100;
+      var initG=toGrams(serving,baseUnit,gpu);
+      var scale=(initG!=null)?initG/100:1;
+      var servLabel=(initG!=null)?round1(initG)+'g':'100g';
+      var macros='<span class="ac-sub">'+servLabel+' · P:'+round1(f.protein*scale)+'g F:'+round1(f.fat*scale)+'g C:'+round1(f.carbs*scale)+'g</span>';
       return '<li role="option" tabindex="-1" data-food=\''+JSON.stringify(f).replace(/'/g,"&#39;")+'\'>'+escHtml(Lang.foodName(f))+brand+' '+macros+'</li>';
     }).join('');
     autocompleteList.hidden=false;
@@ -447,16 +455,27 @@
   autocompleteList.addEventListener('click',function(e){
     var li=e.target.closest('li'); if(!li) return;
     try{
-      var food=JSON.parse(li.dataset.food); selectedFood=food; manualMacroEdit=false;
+      var food=JSON.parse(li.dataset.food);
+      manualMacroEdit=false;
       foodNameInput.value=food.name;
       document.getElementById('entry-saved-food-id').value=food.id??'';
-      document.getElementById('entry-protein').value=food.protein??'';
-      document.getElementById('entry-fat').value=food.fat??'';
-      document.getElementById('entry-carbs').value=food.carbs??'';
-      document.getElementById('entry-calories').value=food.calories?Math.round(food.calories):'';
       document.getElementById('entry-serving-size').value=food.default_serving??'';
       foodGPerUnit=food.g_per_unit||null;
       var baseUnit=food.serving_unit||'g';
+      // Scale from per-100g storage to default_serving so scaleFromServing works like the edit path
+      var initG=toGrams(food.default_serving||100,baseUnit,foodGPerUnit);
+      var scale=(initG!=null)?initG/100:1;
+      var rawP=(food.protein||0)*scale;
+      var rawF=(food.fat||0)*scale;
+      var rawC=(food.carbs||0)*scale;
+      var rawK=(food.calories??((food.protein*4)+(food.fat*9)+(food.carbs*4)))*scale;
+      document.getElementById('entry-protein').value=round1(rawP);
+      document.getElementById('entry-fat').value=round1(rawF);
+      document.getElementById('entry-carbs').value=round1(rawC);
+      document.getElementById('entry-calories').value=Math.round(rawK);
+      // selectedFood holds scaled macros — same contract as openModal(entry)
+      selectedFood=Object.assign({},food,{protein:rawP,fat:rawF,carbs:rawC,calories:rawK,
+        default_serving:food.default_serving||100,serving_unit:baseUnit});
       populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit,food.valid_units||null);
       autocompleteList.hidden=true; updateUnitHint();
     }catch(_){}

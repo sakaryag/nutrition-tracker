@@ -81,10 +81,10 @@ def image_lookup():
     if len(img_bytes) > 10 * 1024 * 1024:
         return jsonify({'found': False, 'message': 'Image too large (max 10 MB)'}), 400
     lang = request.form.get('lang', 'en').strip()
-    _vision_models = {'claude-haiku-4-5-20251001', 'claude-sonnet-4-5'}
+    _vision_models = {'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'}
     model = request.form.get('model', '').strip()
     if model not in _vision_models:
-        model = 'claude-haiku-4-5-20251001'
+        model = 'gemini-3.8-flash'
     b64 = base64.b64encode(img_bytes).decode('utf-8')
     if lang == 'tr':
         prompt = (
@@ -111,25 +111,22 @@ def image_lookup():
             '- use English food names'
         )
     try:
+        url = (
+            f'https://generativelanguage.googleapis.com/v1beta/models/'
+            f'{model}:generateContent?key={api_key}'
+        )
         payload = json.dumps({
-            'model': model,
-            'max_tokens': 1024,
-            'messages': [{
-                'role': 'user',
-                'content': [
-                    {'type': 'image', 'source': {'type': 'base64', 'media_type': mime, 'data': b64}},
-                    {'type': 'text', 'text': prompt},
+            'contents': [{
+                'parts': [
+                    {'inlineData': {'mimeType': mime, 'data': b64}},
+                    {'text': prompt},
                 ],
             }],
+            'generationConfig': {'maxOutputTokens': 1024},
         }).encode()
         req = urllib.request.Request(
-            'https://api.anthropic.com/v1/messages',
-            data=payload,
-            headers={
-                'Content-Type': 'application/json',
-                'x-api-key': api_key,
-                'anthropic-version': '2023-06-01',
-            },
+            url, data=payload,
+            headers={'Content-Type': 'application/json'},
             method='POST',
         )
         try:
@@ -137,14 +134,18 @@ def image_lookup():
                 data = json.loads(resp.read())
         except urllib.error.HTTPError as e:
             body = e.read().decode('utf-8', errors='replace')
-            if e.code == 401:
-                return jsonify({'found': False, 'message': 'Invalid API key'})
+            if e.code == 400:
+                return jsonify({'found': False, 'message': 'Invalid API key — check your key in Settings'})
+            if e.code == 401 or e.code == 403:
+                return jsonify({'found': False, 'message': 'Invalid API key — check your key in Settings'})
+            if e.code == 402:
+                return jsonify({'found': False, 'message': 'API key credits depleted. Get a free AI Studio key at aistudio.google.com/apikey'})
             try:
                 msg = json.loads(body).get('error', {}).get('message', body)
             except Exception:
                 msg = body
-            return jsonify({'found': False, 'message': f'Anthropic {e.code}: {msg}'})
-        text = data['content'][0]['text']
+            return jsonify({'found': False, 'message': f'Gemini {e.code}: {msg}'})
+        text = data['candidates'][0]['content']['parts'][0]['text']
         text = re.sub(r'^```(?:json)?\s*', '', text.strip())
         text = re.sub(r'\s*```$', '', text.strip())
         parsed = json.loads(text)
@@ -166,13 +167,13 @@ def image_lookup():
                 continue
         if not clean:
             return jsonify({'found': False, 'message': 'No food items recognised'})
-        usage = data.get('usage', {})
+        usage = data.get('usageMetadata', {})
         return jsonify({
             'found': True,
             'items': clean,
             'usage': {
-                'input_tokens': usage.get('input_tokens', 0),
-                'output_tokens': usage.get('output_tokens', 0),
+                'input_tokens': usage.get('promptTokenCount', 0),
+                'output_tokens': usage.get('candidatesTokenCount', 0),
                 'model': model,
             },
         })

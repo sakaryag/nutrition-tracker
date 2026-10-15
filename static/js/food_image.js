@@ -272,24 +272,48 @@
       showPreview(file);
     });
 
+    // Resize blob to max 1024px on the long edge, JPEG 0.8 quality
+    function resizeBlob(blob, maxPx, quality) {
+      return new Promise(function (resolve) {
+        var img = new Image();
+        var url = URL.createObjectURL(blob);
+        img.onload = function () {
+          URL.revokeObjectURL(url);
+          var w = img.naturalWidth, h = img.naturalHeight;
+          if (w <= maxPx && h <= maxPx) { resolve(blob); return; }
+          var scale = maxPx / Math.max(w, h);
+          var cw = Math.round(w * scale), ch = Math.round(h * scale);
+          var canvas = document.createElement('canvas');
+          canvas.width = cw; canvas.height = ch;
+          canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          canvas.toBlob(function (b) { resolve(b || blob); }, 'image/jpeg', quality);
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); resolve(blob); };
+        img.src = url;
+      });
+    }
+
     els.analyseBtn.addEventListener('click', function () {
       if (!capturedBlob) return;
       els.analyseBtn.disabled = true;
       els.retakeBtn.disabled = true;
-      setStatus('Analysing...');
+      setStatus('Resizing...');
       setError('');
       els.itemsList.hidden = true;
 
       var lang = (typeof Lang !== 'undefined' && Lang.get) ? Lang.get() : 'en';
       var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
 
-      var fd = new FormData();
-      fd.append('image', capturedBlob, 'food.jpg');
-      fd.append('api_key', apiKey);
-      fd.append('lang', lang);
-      fd.append('model', model);
+      resizeBlob(capturedBlob, 1024, 0.8).then(function (resized) {
+        setStatus('Analysing...');
+        var fd = new FormData();
+        fd.append('image', resized, 'food.jpg');
+        fd.append('api_key', apiKey);
+        fd.append('lang', lang);
+        fd.append('model', model);
 
-      fetch('/api/foods/image', { method: 'POST', body: fd })
+        return fetch('/api/foods/image', { method: 'POST', body: fd });
+      })
         .then(function (r) { return r.json(); })
         .then(function (data) {
           els.analyseBtn.disabled = false;

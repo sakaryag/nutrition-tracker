@@ -107,7 +107,7 @@
   }
 
   // ----------------------------------------------------------------
-  // Send message
+  // Send message — streaming SSE
   // ----------------------------------------------------------------
   async function send() {
     if (busy) return;
@@ -125,52 +125,104 @@
     sendBtn.disabled = true;
     showTyping();
 
-    const lang = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
+    const lang    = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
     const userKey = localStorage.getItem('nt_gemini_key') || '';
+    const model   = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
 
-    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
+    let botBubble = null;
+    let contentEl = null;
+    let fullText  = '';
+
+    function showError(msg) {
+      hideTyping();
+      if (botBubble) botBubble.remove();
+      appendBubble('bot', '<span style="color:var(--color-danger)">' + msg + '</span>');
+    }
 
     try {
-      const data = await api('/api/chat', {
+      const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: history, lang, api_key: userKey, model }),
       });
 
-      hideTyping();
-      if (data.usage && data.usage.input_tokens && typeof ApiUsage !== 'undefined') {
-        ApiUsage.addCost(data.usage.input_tokens, data.usage.output_tokens, data.usage.model || model);
+      // Non-2xx before streaming (e.g. 401 no-key)
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        history.pop();
+        const errStr = errData.error || String(resp.status);
+        if (errStr.includes('no_key') || resp.status === 401) checkStatus();
+        showError(renderText(errData.reply || errStr));
+        return;
       }
-      const reply = data.reply || '(no reply)';
-      history.push({ role: 'assistant', content: reply });
-      appendBubble('bot', renderText(reply));
 
-      if (data.logged && data.logged.length > 0) {
-        loggedText.textContent = 'Logged: ' + data.logged.join(', ');
-        loggedBanner.hidden = false;
-        setTimeout(() => { loggedBanner.hidden = true; }, 6000);
+      const reader  = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let   buf     = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+
+        // Process complete SSE lines
+        const lines = buf.split('\n');
+        buf = lines.pop(); // keep incomplete last line
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          let evt;
+          try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+          if (evt.error) {
+            history.pop();
+            const errStr = evt.error;
+            let userMsg = renderText(errStr);
+            if (errStr.includes('billing_depleted')) {
+              userMsg = '⚠️ <strong>API key credits depleted.</strong><br>' +
+                'Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> and update it in Settings.';
+            } else if (errStr.includes('model_not_found')) {
+              userMsg = '⚠️ <strong>Model not available.</strong> Pick another model in Settings → AI Assistant.';
+            } else if (errStr.includes('busy')) {
+              userMsg = '⚠️ Gemini servers are busy — please try again in a moment.';
+            }
+            showError(userMsg);
+            return;
+          }
+
+          if (evt.delta) {
+            hideTyping();
+            if (!botBubble) {
+              botBubble = appendBubble('bot', '');
+              contentEl = botBubble.querySelector('.chat-bubble__content');
+            }
+            fullText += evt.delta;
+            contentEl.innerHTML = renderText(fullText);
+            scrollBottom();
+          }
+
+          if (evt.done) {
+            const reply = evt.reply || fullText;
+            history.push({ role: 'assistant', content: reply });
+            if (evt.logged && evt.logged.length > 0) {
+              loggedText.textContent = 'Logged: ' + evt.logged.join(', ');
+              loggedBanner.hidden = false;
+              setTimeout(() => { loggedBanner.hidden = true; }, 6000);
+            }
+          }
+        }
       }
+
+      // If stream ended with no content at all
+      if (!botBubble) {
+        hideTyping();
+        history.pop();
+        appendBubble('bot', '<em>No response received.</em>');
+      }
+
     } catch (err) {
-      hideTyping();
       history.pop();
-      const errStr = String(err);
-      if (errStr.includes('no_key') || errStr.includes('401')) {
-        checkStatus();
-      }
-      let userMsg = renderText(errStr);
-      if (errStr.includes('billing_depleted')) {
-        userMsg =
-          '⚠️ <strong>API key credits depleted.</strong><br>' +
-          'Your key is from a billed Google Cloud project with no remaining credits.<br>' +
-          'Get a truly free key (no credit card) at ' +
-          '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>' +
-          ', then update it in Settings → AI Assistant.';
-      } else if (errStr.includes('model_not_found')) {
-        userMsg =
-          '⚠️ <strong>Model not available.</strong> ' +
-          'Go to Settings → AI Assistant and choose a different model.';
-      }
-      appendBubble('bot', '<span style="color:var(--color-danger)">' + userMsg + '</span>');
+      showError(renderText(String(err)));
     } finally {
       busy = false;
       sendBtn.disabled = false;

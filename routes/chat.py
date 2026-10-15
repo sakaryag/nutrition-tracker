@@ -33,7 +33,7 @@ import re
 import os
 import logging
 from datetime import date, datetime
-from flask import Blueprint, jsonify, request, current_app, session
+from flask import Blueprint, jsonify, request, current_app, session, Response, stream_with_context
 from sqlalchemy import or_
 from models import db
 from models.food_entry import FoodEntry
@@ -314,6 +314,89 @@ def _build_system(uid, lang, food_tokens):
 # ---------------------------------------------------------------------------
 # LLM backend — Google Gemini
 # ---------------------------------------------------------------------------
+
+def _stream_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
+    """Generator yielding text chunks from Gemini streamGenerateContent SSE."""
+    import urllib.request, urllib.error, time as _time
+    key = api_key or _gemini_key()
+    if not model or model not in _ALLOWED_MODELS:
+        model = _DEFAULT_MODEL
+
+    contents = []
+    for m in messages:
+        role    = 'model' if m.get('role') == 'assistant' else 'user'
+        content = (m.get('content') or '').strip()
+        if not content:
+            continue
+        if contents and contents[-1]['role'] == role:
+            contents[-1]['parts'][0]['text'] += '\n' + content
+        else:
+            contents.append({'role': role, 'parts': [{'text': content}]})
+    while contents and contents[0]['role'] != 'user':
+        contents = contents[1:]
+    if not contents:
+        raise RuntimeError('No valid messages to send')
+
+    payload = json.dumps({
+        'systemInstruction': {'parts': [{'text': system_prompt}]},
+        'contents': contents,
+        'generationConfig': {'maxOutputTokens': 1024},
+    }).encode()
+
+    if key.startswith('AQ.'):
+        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+               f'{model}:streamGenerateContent?alt=sse')
+        _key_header = {'x-goog-api-key': key}
+    else:
+        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+               f'{model}:streamGenerateContent?alt=sse&key={key}')
+        _key_header = {}
+
+    last_err = None
+    for attempt in range(3):
+        if attempt:
+            _time.sleep(attempt * 2)
+        req = urllib.request.Request(
+            url, data=payload,
+            headers={'Content-Type': 'application/json', **_key_header},
+            method='POST',
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                for raw_line in resp:
+                    line = raw_line.decode('utf-8').strip()
+                    if not line.startswith('data: '):
+                        continue
+                    chunk_str = line[6:]
+                    if chunk_str == '[DONE]':
+                        return
+                    try:
+                        chunk = json.loads(chunk_str)
+                        text = chunk['candidates'][0]['content']['parts'][0]['text']
+                        if text:
+                            yield text
+                    except (KeyError, IndexError, json.JSONDecodeError):
+                        pass
+            return
+        except urllib.error.HTTPError as e:
+            body = e.read().decode('utf-8', errors='replace')
+            if e.code in (503, 529):
+                last_err = RuntimeError('Gemini servers are busy right now — please try again in a moment.')
+                continue
+            if e.code == 402:
+                raise RuntimeError('billing_depleted: Credits depleted. Get a free AI Studio key at aistudio.google.com/apikey')
+            if e.code == 404:
+                raise RuntimeError(f'model_not_found: Model "{model}" is not available.')
+            try:
+                msg = json.loads(body).get('error', {}).get('message', body)
+            except Exception:
+                msg = body
+            raise RuntimeError(f'Gemini {e.code}: {msg}')
+        except Exception as e:
+            raise RuntimeError(f'Gemini error: {e}')
+    raise last_err
+
+
 def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
     import urllib.request
     import urllib.error
@@ -605,7 +688,7 @@ def check_auth():
 @chat_bp.route('', methods=['POST'])
 def chat():
     data = request.get_json(silent=True) or {}
-    messages   = data.get('messages', [])   # [{role, content}, ...]
+    messages   = data.get('messages', [])
     lang       = data.get('lang', 'en')
     uid        = current_user_id()
     user_key   = data.get('api_key', '').strip()
@@ -614,46 +697,49 @@ def chat():
     if not messages:
         return jsonify({'error': 'messages required'}), 400
 
-    last_user_msg = next((m['content'] for m in reversed(messages) if m['role'] == 'user'), '')
-    food_tokens   = _extract_food_tokens(last_user_msg)
-    system_prompt = _build_system(uid, lang, food_tokens)
-
-    usage = {}
-    try:
-        result = _get_reply(messages, system_prompt, user_key=user_key, model=model)
-    except RuntimeError as e:
-        return jsonify({'error': str(e), 'reply': str(e), 'logged': []}), 502
-
-    if result is None:
-        # No Gemini API key available
+    key = user_key or _gemini_key()
+    if not key:
         return jsonify({
             'error': 'no_key',
             'reply': 'Gemini API key required. Add your free key in Settings.',
             'logged': [],
         }), 401
 
-    raw_reply = result['text']
-    usage = {
-        'input_tokens':  result['input_tokens'],
-        'output_tokens': result['output_tokens'],
-        'model':         result['model'],
-    }
+    last_user_msg = next((m['content'] for m in reversed(messages) if m['role'] == 'user'), '')
+    food_tokens   = _extract_food_tokens(last_user_msg)
+    system_prompt = _build_system(uid, lang, food_tokens)
 
-    action = _parse_action(raw_reply)
-    display_reply = _strip_json_block(raw_reply)
-    if action and action.get('reply'):
-        display_reply = action['reply']
+    def _generate():
+        full_chunks = []
+        try:
+            for chunk in _stream_gemini(messages, system_prompt, user_key, model):
+                full_chunks.append(chunk)
+                yield f"data: {json.dumps({'delta': chunk})}\n\n"
+        except RuntimeError as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            return
 
-    logged = []
-    if action and action.get('action') == 'log' and action.get('entries'):
-        logged = _execute_log(action['entries'], uid)
+        raw_reply     = ''.join(full_chunks)
+        action        = _parse_action(raw_reply)
+        display_reply = _strip_json_block(raw_reply)
+        if action and action.get('reply'):
+            display_reply = action['reply']
 
-    return jsonify({
-        'reply': display_reply,
-        'logged': logged,
-        'raw': raw_reply,
-        'usage': usage,
-    })
+        logged = []
+        if action and action.get('action') == 'log' and action.get('entries'):
+            logged = _execute_log(action['entries'], uid)
+
+        yield f"data: {json.dumps({'done': True, 'reply': display_reply, 'logged': logged, 'model': model or _DEFAULT_MODEL})}\n\n"
+
+    return Response(
+        stream_with_context(_generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Connection': 'keep-alive',
+        },
+    )
 
 
 @chat_bp.route('/status', methods=['GET'])

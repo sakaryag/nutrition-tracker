@@ -281,7 +281,7 @@
       els.itemsList.hidden = true;
 
       var lang = (typeof Lang !== 'undefined' && Lang.get) ? Lang.get() : 'en';
-      var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'claude-haiku-4-5-20251001';
+      var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
 
       var fd = new FormData();
       fd.append('image', capturedBlob, 'food.jpg');

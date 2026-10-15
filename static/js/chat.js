@@ -26,7 +26,7 @@
       statusBadge.classList.toggle('offline', !ready);
       const hintEl = document.getElementById('chat-api-hint');
       if (ready) {
-        const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : (data.model || 'gemini-2.0-flash');
+        const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : (data.model || 'gemini-3.8-flash');
         statusLabel.textContent = 'Gemini · ' + model;
         if (hintEl) hintEl.hidden = true;
       } else {
@@ -52,7 +52,7 @@
         banner.innerHTML =
           '<span style="font-size:1.4rem;">🔑</span><br>' +
           '<strong>Gemini API key required</strong><br>' +
-          'Get your <strong>free</strong> key (no credit card) at<br>' +
+          'Get your <strong>free</strong> key (no credit card, no developer account needed) at<br>' +
           '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" ' +
           'style="color:var(--color-primary,#3b82f6);">aistudio.google.com/apikey</a><br>' +
           '<span style="font-size:.875rem;color:var(--color-text-muted,#666);">Then paste it in Settings → AI Assistant</span>';
@@ -128,7 +128,7 @@
     const lang = (typeof Lang !== 'undefined') ? Lang.get() : 'en';
     const userKey = localStorage.getItem('nt_gemini_key') || '';
 
-    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-2.0-flash';
+    const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
 
     try {
       const data = await api('/api/chat', {

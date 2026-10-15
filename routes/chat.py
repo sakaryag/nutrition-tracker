@@ -369,6 +369,17 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
             msg = json.loads(body).get('error', {}).get('message', body)
         except Exception:
             msg = body
+        if e.code == 402:
+            raise RuntimeError(
+                'billing_depleted: Your API key has run out of prepaid credits. '
+                'Switch to a free AI Studio key at aistudio.google.com/apikey — '
+                'no credit card, 1 500 free requests per day.'
+            )
+        if e.code == 404:
+            raise RuntimeError(
+                f'model_not_found: Model "{model}" is not available. '
+                'Please pick a different model in Settings → AI Assistant.'
+            )
         raise RuntimeError(f'Gemini {e.code}: {msg}')
     except Exception as e:
         raise RuntimeError(f'Gemini error: {e}')

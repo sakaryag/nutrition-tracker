@@ -52,10 +52,10 @@
         banner.innerHTML =
           '<span style="font-size:1.4rem;">🔑</span><br>' +
           '<strong>Gemini API key required</strong><br>' +
-          'Get your <strong>free</strong> key (no credit card, no developer account needed) at<br>' +
+          'Get your <strong>free AI Studio key</strong> — no credit card, 1 500 req/day:<br>' +
           '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" ' +
-          'style="color:var(--color-primary,#3b82f6);">aistudio.google.com/apikey</a><br>' +
-          '<span style="font-size:.875rem;color:var(--color-text-muted,#666);">Then paste it in Settings → AI Assistant</span>';
+          'style="color:var(--color-primary,#3b82f6);font-weight:600;">aistudio.google.com/apikey</a><br>' +
+          '<span style="font-size:.875rem;color:var(--color-text-muted,#666);">Paste it in Settings → AI Assistant</span>';
         messagesEl.appendChild(banner);
       }
     } else if (setupEl) {
@@ -152,12 +152,25 @@
       }
     } catch (err) {
       hideTyping();
-      // Remove the user message from history so the next send doesn't
-      // create consecutive user messages (Anthropic rejects that with 400)
       history.pop();
-      // If key was rejected, re-check status so setup banner reappears if needed
-      if (String(err).includes('no_key') || String(err).includes('401')) checkStatus();
-      appendBubble('bot', '<em style="color:var(--color-danger)">' + renderText(String(err)) + '</em>');
+      const errStr = String(err);
+      if (errStr.includes('no_key') || errStr.includes('401')) {
+        checkStatus();
+      }
+      let userMsg = renderText(errStr);
+      if (errStr.includes('billing_depleted')) {
+        userMsg =
+          '⚠️ <strong>API key credits depleted.</strong><br>' +
+          'Your key is from a billed Google Cloud project with no remaining credits.<br>' +
+          'Get a truly free key (no credit card) at ' +
+          '<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>' +
+          ', then update it in Settings → AI Assistant.';
+      } else if (errStr.includes('model_not_found')) {
+        userMsg =
+          '⚠️ <strong>Model not available.</strong> ' +
+          'Go to Settings → AI Assistant and choose a different model.';
+      }
+      appendBubble('bot', '<span style="color:var(--color-danger)">' + userMsg + '</span>');
     } finally {
       busy = false;
       sendBtn.disabled = false;

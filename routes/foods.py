@@ -110,6 +110,7 @@ def image_lookup():
             '- if multiple foods, one item per food\n'
             '- use English food names'
         )
+    import time as _time
     try:
         url = (
             f'https://generativelanguage.googleapis.com/v1beta/models/'
@@ -124,27 +125,36 @@ def image_lookup():
             }],
             'generationConfig': {'maxOutputTokens': 1024},
         }).encode()
-        req = urllib.request.Request(
-            url, data=payload,
-            headers={'Content-Type': 'application/json'},
-            method='POST',
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                data = json.loads(resp.read())
-        except urllib.error.HTTPError as e:
-            body = e.read().decode('utf-8', errors='replace')
-            if e.code == 400:
-                return jsonify({'found': False, 'message': 'Invalid API key — check your key in Settings'})
-            if e.code == 401 or e.code == 403:
-                return jsonify({'found': False, 'message': 'Invalid API key — check your key in Settings'})
-            if e.code == 402:
-                return jsonify({'found': False, 'message': 'API key credits depleted. Get a free AI Studio key at aistudio.google.com/apikey'})
+        data = None
+        for attempt in range(3):
+            if attempt:
+                _time.sleep(attempt * 2)
+            req = urllib.request.Request(
+                url, data=payload,
+                headers={'Content-Type': 'application/json'},
+                method='POST',
+            )
             try:
-                msg = json.loads(body).get('error', {}).get('message', body)
-            except Exception:
-                msg = body
-            return jsonify({'found': False, 'message': f'Gemini {e.code}: {msg}'})
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read())
+                break
+            except urllib.error.HTTPError as e:
+                body = e.read().decode('utf-8', errors='replace')
+                if e.code in (503, 529):
+                    if attempt < 2:
+                        continue
+                    return jsonify({'found': False, 'message': 'Gemini servers are busy right now — please try again in a moment.'})
+                if e.code in (400, 401, 403):
+                    return jsonify({'found': False, 'message': 'Invalid API key — check your key in Settings'})
+                if e.code == 402:
+                    return jsonify({'found': False, 'message': 'API key credits depleted. Get a free AI Studio key at aistudio.google.com/apikey'})
+                if e.code == 404:
+                    return jsonify({'found': False, 'message': 'Model not available — please choose a different model in Settings'})
+                try:
+                    msg = json.loads(body).get('error', {}).get('message', body)
+                except Exception:
+                    msg = body
+                return jsonify({'found': False, 'message': f'Gemini {e.code}: {msg}'})
         text = data['candidates'][0]['content']['parts'][0]['text']
         text = re.sub(r'^```(?:json)?\s*', '', text.strip())
         text = re.sub(r'\s*```$', '', text.strip())

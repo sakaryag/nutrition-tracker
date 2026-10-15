@@ -347,42 +347,51 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
         'https://generativelanguage.googleapis.com/v1beta/models/'
         f'{model}:generateContent?key={key}'
     )
-    req = urllib.request.Request(
-        url, data=payload,
-        headers={'Content-Type': 'application/json'},
-        method='POST',
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data    = json.loads(resp.read())
-            text    = data['candidates'][0]['content']['parts'][0]['text']
-            usage   = data.get('usageMetadata', {})
-            return {
-                'text':          text,
-                'input_tokens':  usage.get('promptTokenCount', 0),
-                'output_tokens': usage.get('candidatesTokenCount', 0),
-                'model':         model,
-            }
-    except urllib.error.HTTPError as e:
-        body = e.read().decode('utf-8', errors='replace')
+    import time
+    last_err = None
+    for attempt in range(3):
+        if attempt:
+            time.sleep(attempt * 2)
+        req = urllib.request.Request(
+            url, data=payload,
+            headers={'Content-Type': 'application/json'},
+            method='POST',
+        )
         try:
-            msg = json.loads(body).get('error', {}).get('message', body)
-        except Exception:
-            msg = body
-        if e.code == 402:
-            raise RuntimeError(
-                'billing_depleted: Your API key has run out of prepaid credits. '
-                'Switch to a free AI Studio key at aistudio.google.com/apikey — '
-                'no credit card, 1 500 free requests per day.'
-            )
-        if e.code == 404:
-            raise RuntimeError(
-                f'model_not_found: Model "{model}" is not available. '
-                'Please pick a different model in Settings → AI Assistant.'
-            )
-        raise RuntimeError(f'Gemini {e.code}: {msg}')
-    except Exception as e:
-        raise RuntimeError(f'Gemini error: {e}')
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data    = json.loads(resp.read())
+                text    = data['candidates'][0]['content']['parts'][0]['text']
+                usage   = data.get('usageMetadata', {})
+                return {
+                    'text':          text,
+                    'input_tokens':  usage.get('promptTokenCount', 0),
+                    'output_tokens': usage.get('candidatesTokenCount', 0),
+                    'model':         model,
+                }
+        except urllib.error.HTTPError as e:
+            body = e.read().decode('utf-8', errors='replace')
+            try:
+                msg = json.loads(body).get('error', {}).get('message', body)
+            except Exception:
+                msg = body
+            if e.code == 503 or e.code == 529:
+                last_err = RuntimeError('Gemini servers are busy right now — please try again in a moment.')
+                continue
+            if e.code == 402:
+                raise RuntimeError(
+                    'billing_depleted: Your API key has run out of prepaid credits. '
+                    'Switch to a free AI Studio key at aistudio.google.com/apikey — '
+                    'no credit card, 1 500 free requests per day.'
+                )
+            if e.code == 404:
+                raise RuntimeError(
+                    f'model_not_found: Model "{model}" is not available. '
+                    'Please pick a different model in Settings → AI Assistant.'
+                )
+            raise RuntimeError(f'Gemini {e.code}: {msg}')
+        except Exception as e:
+            raise RuntimeError(f'Gemini error: {e}')
+    raise last_err
 
 
 def _get_reply(messages, system_prompt, user_key: str = '', model: str = ''):

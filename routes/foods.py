@@ -70,7 +70,7 @@ _ALLOWED_MIME = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
 def image_lookup():
     api_key = request.form.get('api_key', '').strip()
     if not api_key:
-        return jsonify({'found': False, 'message': 'Anthropic API key required — add yours in Settings'})
+        return jsonify({'found': False, 'message': 'Gemini API key required — add yours in Settings'})
     if 'image' not in request.files:
         return jsonify({'found': False, 'message': 'image file is required'}), 400
     img = request.files['image']

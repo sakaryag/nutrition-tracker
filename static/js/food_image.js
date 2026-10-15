@@ -150,7 +150,7 @@
     var apiKey = (typeof localStorage !== 'undefined') ? (localStorage.getItem('nt_anthropic_key') || '') : '';
     if (!apiKey) {
       if (typeof showToast === 'function') {
-        showToast('Add your Anthropic API key in Settings to use photo recognition.', 'error', 5000);
+        showToast('Add your Gemini API key in Settings to use photo recognition.', 'error', 5000);
       }
       return;
     }

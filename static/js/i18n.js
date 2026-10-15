@@ -159,8 +159,8 @@ const i18n = {
     'settings.dailyTarget':   'Daily Target',
     'settings.applyTargets':  'Apply as My Targets',
     'settings.chatTitle':     'Chat / AI Assistant',
-    'settings.chatDesc':      'Add your own Anthropic API key to enable the AI chat assistant. Your key is stored only in this browser.',
-    'settings.apiKey':        'Anthropic API Key',
+    'settings.chatDesc':      'Add your own Gemini API key to enable the AI chat assistant. Your key is stored only in this browser.',
+    'settings.apiKey':        'Gemini API Key',
     'settings.saveKey':       'Save',
     'settings.clearKey':      'Clear',
     'settings.language':      'Language / Dil',
@@ -440,7 +440,7 @@ const i18n = {
 
     /* Daily Insight (Enhancement 3) */
     'insight.btn':     '✨ Daily Insight',
-    'insight.noKey':   'Set your Anthropic API key in Settings to enable daily insights.',
+    'insight.noKey':   'Add your Gemini API key in Settings to enable daily insights.',
     'insight.loading': 'Getting your daily insight…',
   },
 
@@ -881,7 +881,7 @@ const i18n = {
 
     /* Daily Insight (Enhancement 3) */
     'insight.btn':     '✨ Günlük Analiz',
-    'insight.noKey':   'Günlük analizi etkinleştirmek için Ayarlar bölümünden Anthropic API anahtarınızı girin.',
+    'insight.noKey':   'Günlük analizi etkinleştirmek için Ayarlar bölümünden Gemini API anahtarınızı girin.',
     'insight.loading': 'Günlük analiziniz hazırlanıyor…',
   },
 };

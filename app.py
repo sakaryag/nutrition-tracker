@@ -59,6 +59,7 @@ def create_app(config_name=None, test_config=None):
         _auto_seed(app)
         _seed_meals_on_startup(app)
         _patch_name_tr(app)
+        _refresh_usda_foods(app)
         _patch_food_data(app)
         _patch_program_days(app)
         _seed_starter_templates(app)
@@ -849,6 +850,82 @@ def _patch_name_tr(app):
     if updated:
         db.session.commit()
         app.logger.info(f'Patched name_tr for {updated} USDA foods.')
+
+
+def _refresh_usda_foods(app):
+    """Idempotent: sync all USDA foods from seed_data/foods.csv.
+
+    Runs only when any USDA food has fiber IS NULL or g_per_unit IS NULL
+    (signature that the strict-pass CSV has not yet been applied).
+    Safe to call on every startup — exits immediately once already applied.
+    """
+    import csv as csv_mod
+    from models.saved_food import SavedFood
+
+    needs_refresh = SavedFood.query.filter(
+        SavedFood.source == 'usda',
+        (SavedFood.fiber == None) | (SavedFood.g_per_unit == None)
+    ).first()
+    if not needs_refresh:
+        return
+
+    csv_path = os.path.join(os.path.dirname(__file__), 'seed_data', 'foods.csv')
+    if not os.path.exists(csv_path):
+        return
+
+    with open(csv_path, newline='', encoding='utf-8') as f:
+        csv_rows = {int(r['usda_fdc_id']): r for r in csv_mod.DictReader(f) if r.get('usda_fdc_id')}
+
+    def _f(val):
+        try:
+            return float(val) if val else 0.0
+        except (ValueError, TypeError):
+            return 0.0
+
+    updated = inserted = 0
+    existing_ids = {f.usda_fdc_id for f in SavedFood.query.filter_by(source='usda')
+                    .with_entities(SavedFood.usda_fdc_id).all()}
+
+    for fdc_id, r in csv_rows.items():
+        food = SavedFood.query.filter_by(usda_fdc_id=fdc_id).first()
+        if food:
+            food.protein         = _f(r['protein'])
+            food.fat             = _f(r['fat'])
+            food.carbs           = _f(r['carbs'])
+            food.calories        = _f(r['calories'])
+            food.fiber           = _f(r['fiber'])
+            food.sugar           = _f(r['sugar'])
+            food.default_serving = _f(r['default_serving'])
+            food.serving_unit    = r['serving_unit'] or 'g'
+            food.g_per_unit      = _f(r['g_per_unit']) or None
+            food.name            = r['name'] or food.name
+            food.name_tr         = r.get('name_tr') or food.name_tr
+            updated += 1
+        elif fdc_id not in existing_ids:
+            new_food = SavedFood(
+                usda_fdc_id    = fdc_id,
+                name           = r['name'],
+                name_tr        = r.get('name_tr') or r['name'],
+                brand          = r.get('brand') or 'generic',
+                category       = r.get('category') or 'General',
+                source         = 'usda',
+                food_type      = r.get('food_type') or 'ingredient',
+                protein        = _f(r['protein']),
+                fat            = _f(r['fat']),
+                carbs          = _f(r['carbs']),
+                calories       = _f(r['calories']),
+                fiber          = _f(r['fiber']),
+                sugar          = _f(r['sugar']),
+                default_serving= _f(r['default_serving']),
+                serving_unit   = r.get('serving_unit') or 'g',
+                g_per_unit     = _f(r['g_per_unit']) or None,
+            )
+            db.session.add(new_food)
+            inserted += 1
+
+    if updated or inserted:
+        db.session.commit()
+        app.logger.info(f'_refresh_usda_foods: updated={updated} inserted={inserted}')
 
 
 def _patch_food_data(app):

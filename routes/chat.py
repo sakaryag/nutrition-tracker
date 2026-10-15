@@ -343,10 +343,16 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
         'generationConfig': {'maxOutputTokens': 1024},
     }).encode()
 
-    url = (
-        'https://generativelanguage.googleapis.com/v1beta/models/'
-        f'{model}:generateContent?key={key}'
-    )
+    # AQ. keys (new AI Studio format) use x-goog-api-key header
+    # Legacy AIzaSy keys use ?key= query param
+    if key.startswith('AQ.'):
+        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+               f'{model}:generateContent')
+        _key_header = {'x-goog-api-key': key}
+    else:
+        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+               f'{model}:generateContent?key={key}')
+        _key_header = {}
     import time
     last_err = None
     for attempt in range(3):
@@ -354,7 +360,7 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
             time.sleep(attempt * 2)
         req = urllib.request.Request(
             url, data=payload,
-            headers={'Content-Type': 'application/json'},
+            headers={'Content-Type': 'application/json', **_key_header},
             method='POST',
         )
         try:

@@ -112,10 +112,15 @@ def image_lookup():
         )
     import time as _time
     try:
-        url = (
-            f'https://generativelanguage.googleapis.com/v1beta/models/'
-            f'{model}:generateContent?key={api_key}'
-        )
+        # AQ. keys use x-goog-api-key header; legacy AIzaSy keys use ?key= param
+        if api_key.startswith('AQ.'):
+            url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+                   f'{model}:generateContent')
+            _key_header = {'x-goog-api-key': api_key}
+        else:
+            url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+                   f'{model}:generateContent?key={api_key}')
+            _key_header = {}
         payload = json.dumps({
             'contents': [{
                 'parts': [
@@ -131,7 +136,7 @@ def image_lookup():
                 _time.sleep(attempt * 2)
             req = urllib.request.Request(
                 url, data=payload,
-                headers={'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json', **_key_header},
                 method='POST',
             )
             try:

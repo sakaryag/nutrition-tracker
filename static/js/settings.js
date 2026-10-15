@@ -288,11 +288,11 @@
     saveKeyBtn.addEventListener('click', function () {
       const val = keyInput.value.trim();
       if (!val) { keyStatus.textContent = 'Please enter a key first.'; return; }
-      if (!val.startsWith('AIzaSy')) {
+      if (!val.startsWith('AIzaSy') && !val.startsWith('AQ.')) {
         keyStatus.innerHTML =
-          '⚠️ This doesn\'t look like a Gemini API key. Gemini keys start with <code>AIzaSy</code>. ' +
-          'Get the right key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> ' +
-          '→ click <strong>Create API key</strong>.';
+          '⚠️ This doesn\'t look like a Gemini API key. ' +
+          'Go to <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> ' +
+          'and click <strong>Create API key</strong> to get your key.';
         keyStatus.style.color = 'var(--color-danger)';
         return;
       }

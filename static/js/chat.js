@@ -210,9 +210,7 @@
           }
 
           if (evt.done) {
-            const reply = evt.reply || stripJsonBlock(fullText);
-            history.push({ role: 'assistant', content: reply });
-            if (contentEl) contentEl.innerHTML = renderText(reply);
+            history.push({ role: 'assistant', content: stripJsonBlock(fullText) });
             if (evt.logged && evt.logged.length > 0) {
               var hasAI = false;
               var parts = evt.logged.map(function(item) {

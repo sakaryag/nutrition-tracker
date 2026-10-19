@@ -249,6 +249,9 @@ def assign_plan(user_id):
         start_date = date.today()
     # Deactivate existing assignments
     UserPlanAssignment.query.filter_by(user_id=user_id, is_active=True).update({'is_active': False})
+    # Unlock the plan feature so the user can see "My Plan" in the nav
+    if not user.plan_feature_enabled:
+        user.plan_feature_enabled = True
     assignment = UserPlanAssignment(
         user_id=user_id,
         plan_id=plan_id,

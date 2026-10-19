@@ -96,6 +96,14 @@
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
+  // Strip ```json ... ``` blocks (complete or partial at end of stream)
+  function stripJsonBlock(text) {
+    return text
+      .replace(/```json[\s\S]*?```/g, '')   // complete block
+      .replace(/```json[\s\S]*$/, '')        // partial block still streaming
+      .trim();
+  }
+
   // Basic markdown-ish: newlines → <br>, **bold**
   function renderText(text) {
     return text
@@ -197,13 +205,14 @@
               contentEl = botBubble.querySelector('.chat-bubble__content');
             }
             fullText += evt.delta;
-            contentEl.innerHTML = renderText(fullText);
+            contentEl.innerHTML = renderText(stripJsonBlock(fullText));
             scrollBottom();
           }
 
           if (evt.done) {
-            const reply = evt.reply || fullText;
+            const reply = evt.reply || stripJsonBlock(fullText);
             history.push({ role: 'assistant', content: reply });
+            if (contentEl) contentEl.innerHTML = renderText(reply);
             if (evt.logged && evt.logged.length > 0) {
               var hasAI = false;
               var parts = evt.logged.map(function(item) {

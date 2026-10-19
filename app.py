@@ -855,16 +855,16 @@ def _patch_name_tr(app):
 def _refresh_usda_foods(app):
     """Idempotent: sync all USDA foods from seed_data/foods.csv.
 
-    Runs only when any USDA food has fiber IS NULL or g_per_unit IS NULL
-    (signature that the strict-pass CSV has not yet been applied).
-    Safe to call on every startup — exits immediately once already applied.
+    Sentinel: fiber is always a real number after seeding (never legitimately NULL).
+    g_per_unit IS intentionally NULL for weight-only foods, so we no longer use it
+    as the sentinel — that was causing this to re-run on every startup unnecessarily.
     """
     import csv as csv_mod
     from models.saved_food import SavedFood
 
     needs_refresh = SavedFood.query.filter(
         SavedFood.source == 'usda',
-        (SavedFood.fiber == None) | (SavedFood.g_per_unit == None)
+        SavedFood.fiber == None
     ).first()
     if not needs_refresh:
         return
@@ -882,12 +882,12 @@ def _refresh_usda_foods(app):
         except (ValueError, TypeError):
             return 0.0
 
-    updated = inserted = 0
-    existing_ids = {f.usda_fdc_id for f in SavedFood.query.filter_by(source='usda')
-                    .with_entities(SavedFood.usda_fdc_id).all()}
+    # Single bulk fetch — replaces ~751 individual queries
+    existing = {f.usda_fdc_id: f for f in SavedFood.query.filter_by(source='usda').all()}
 
+    updated = inserted = 0
     for fdc_id, r in csv_rows.items():
-        food = SavedFood.query.filter_by(usda_fdc_id=fdc_id).first()
+        food = existing.get(fdc_id)
         if food:
             food.protein         = _f(r['protein'])
             food.fat             = _f(r['fat'])
@@ -901,7 +901,7 @@ def _refresh_usda_foods(app):
             food.name            = r['name'] or food.name
             food.name_tr         = r.get('name_tr') or food.name_tr
             updated += 1
-        elif fdc_id not in existing_ids:
+        elif fdc_id not in existing:
             new_food = SavedFood(
                 usda_fdc_id    = fdc_id,
                 name           = r['name'],
@@ -926,6 +926,12 @@ def _refresh_usda_foods(app):
     if updated or inserted:
         db.session.commit()
         app.logger.info(f'_refresh_usda_foods: updated={updated} inserted={inserted}')
+
+    # Zero out remaining NULL fibers (USDA foods not in CSV) so sentinel exits on next start
+    db.session.execute(db.text(
+        "UPDATE saved_food SET fiber=0 WHERE source='usda' AND fiber IS NULL"
+    ))
+    db.session.commit()
 
 
 def _patch_food_data(app):
@@ -959,10 +965,18 @@ def _patch_food_data(app):
         ('170744', 0.8, 3.2, 10.4, 73, 1, 'piece'),
         ('170745', 0.7, 0.4, 12.3, 54, 1, 'piece'),
     ]
+    fdc_ids = [int(fdc_id) for fdc_id, *_ in fixes]
+    fix_map = {int(fdc_id): (p, f, c, k, ds, su) for fdc_id, p, f, c, k, ds, su in fixes}
+    foods = {
+        food.usda_fdc_id: food
+        for food in SavedFood.query.filter(
+            SavedFood.usda_fdc_id.in_(fdc_ids), SavedFood.source == 'usda'
+        ).all()
+    }
     patched = 0
-    for fdc_id, p, f, c, k, ds, su in fixes:
-        food = SavedFood.query.filter_by(usda_fdc_id=int(fdc_id), source='usda').first()
-        if food and round(food.calories or 0) != k:
+    for fdc_id, food in foods.items():
+        p, f, c, k, ds, su = fix_map[fdc_id]
+        if round(food.calories or 0) != k:
             food.protein = p; food.fat = f; food.carbs = c; food.calories = k
             food.default_serving = ds; food.serving_unit = su
             patched += 1

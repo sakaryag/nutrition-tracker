@@ -22,7 +22,17 @@ def require_plan_feature(f):
             if user is None:
                 return redirect(url_for('auth.login'))
             if not user.is_admin and not user.plan_feature_enabled:
-                return redirect(url_for('pages.dashboard'))
+                # Also allow access if the user has an active plan assignment
+                # (handles cases where plan_feature_enabled wasn't set retroactively)
+                from models.user_plan_assignment import UserPlanAssignment
+                has_assignment = UserPlanAssignment.query.filter_by(
+                    user_id=user.id, is_active=True
+                ).first()
+                if not has_assignment:
+                    return redirect(url_for('pages.dashboard'))
+                # Proactively set the flag so this check doesn't re-run next time
+                user.plan_feature_enabled = True
+                db.session.commit()
         return f(*args, **kwargs)
     return decorated
 

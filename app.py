@@ -46,12 +46,22 @@ def create_app(config_name=None, test_config=None):
         from flask import session as _session
         uid = _session.get('user_id')
         if uid is None:
-            return {'current_user': None}
+            return {'current_user': None, 'user_has_plan': False}
         try:
             from models.user import User as _User
-            return {'current_user': db.session.get(_User, uid)}
+            user = db.session.get(_User, uid)
+            # Determine plan nav visibility: flag OR active assignment
+            user_has_plan = False
+            if user and (user.plan_feature_enabled or user.is_admin):
+                user_has_plan = True
+            elif user:
+                from models.user_plan_assignment import UserPlanAssignment
+                user_has_plan = UserPlanAssignment.query.filter_by(
+                    user_id=uid, is_active=True
+                ).first() is not None
+            return {'current_user': user, 'user_has_plan': user_has_plan}
         except Exception:
-            return {'current_user': None}
+            return {'current_user': None, 'user_has_plan': False}
 
     with app.app_context():
         _create_all_if_needed(app)
@@ -62,6 +72,7 @@ def create_app(config_name=None, test_config=None):
         _refresh_usda_foods(app)
         _patch_food_data(app)
         _patch_program_days(app)
+        _patch_plan_feature_enabled(app)
         _seed_starter_templates(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
@@ -1051,6 +1062,38 @@ def _patch_program_days(app):
     if migrated:
         db.session.commit()
         app.logger.info(f'Migrated {migrated} plans into ProgramDay/MealSlot/SlotItem structure.')
+
+
+def _patch_plan_feature_enabled(app):
+    """Backfill: ensure every user who has an active plan assignment
+    has plan_feature_enabled=True so they can access the My Plan page.
+    Safe to run on every startup — only touches rows where the flag is False."""
+    try:
+        from models.user import User
+        from models.user_plan_assignment import UserPlanAssignment
+        subq = (
+            db.session.query(UserPlanAssignment.user_id)
+            .filter_by(is_active=True)
+            .subquery()
+        )
+        updated = (
+            db.session.query(User)
+            .filter(
+                User.id.in_(subq),
+                User.plan_feature_enabled.is_(False),
+            )
+            .all()
+        )
+        if updated:
+            for u in updated:
+                u.plan_feature_enabled = True
+            db.session.commit()
+            app.logger.info(
+                'Backfilled plan_feature_enabled=True for %d user(s) with active plan assignments.',
+                len(updated),
+            )
+    except Exception as e:
+        app.logger.warning('_patch_plan_feature_enabled: %s', e)
 
 
 if __name__ == '__main__':

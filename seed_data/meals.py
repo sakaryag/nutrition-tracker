@@ -190,9 +190,10 @@ def seed_turkish_meals():
     Also updates name_tr on existing rows when name_tr is NULL.
     Returns count of newly inserted rows.
     """
+    existing = {f.name: f for f in SavedFood.query.filter_by(food_type="meal").all()}
     count = 0
     for m in TURKISH_MEALS_V2:
-        exists = SavedFood.query.filter_by(name=m["name"], food_type="meal").first()
+        exists = existing.get(m["name"])
         if not exists:
             db.session.add(SavedFood(
                 name=m["name"],
@@ -223,9 +224,10 @@ def seed_turkish_meals():
 
 
 def seed_meals():
+    existing = {f.name: f for f in SavedFood.query.filter_by(food_type="meal").all()}
     count = 0
     for m in MEALS:
-        exists = SavedFood.query.filter_by(name=m["name"], food_type="meal").first()
+        exists = existing.get(m["name"])
         if not exists:
             db.session.add(SavedFood(
                 name=m["name"],
@@ -244,7 +246,6 @@ def seed_meals():
             ))
             count += 1
         else:
-            # Update valid_units on existing records if not yet set
             if exists.valid_units is None and m.get("valid_units"):
                 exists.valid_units = m["valid_units"]
     db.session.commit()

@@ -736,8 +736,8 @@ def _migrate_add_columns(app):
             # --- Recipe Builder (PR15) ---
             'ALTER TABLE recipe ADD COLUMN servings INTEGER NOT NULL DEFAULT 1',
         ]
-    for sql in migrations:
-        with db.engine.connect() as conn:
+    with db.engine.connect() as conn:
+        for sql in migrations:
             try:
                 conn.execute(text(sql))
                 conn.commit()

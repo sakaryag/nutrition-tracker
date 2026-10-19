@@ -129,9 +129,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170128,Blue cheese,Mavi peynir,generic,Dairy,usda,ingredient,21.0,32.1,2.3,382,0.0,0.0,28,g,1.0
 170129,Cream cheese,Krem peynir,generic,Dairy,usda,ingredient,5.9,34.4,4.1,342,0.0,0.0,28,g,1.0
 171265,Ricotta,rikotta,generic,Dairy,usda,ingredient,11.3,13.0,3.0,174,0.0,0.3,1,serving,124.0
-171265,Ricotta,rikotta,generic,Dairy,usda,ingredient,11.3,13.0,3.0,174,0.0,0.3,1,serving,124.0
-746766,Cottage cheese,lor peyniri,generic,Dairy,usda,ingredient,11.1,4.3,3.4,98,0.0,2.7,1,serving,113.0
-746766,Cottage cheese,lor peyniri,generic,Dairy,usda,ingredient,11.1,4.3,3.4,98,0.0,2.7,1,serving,113.0
 746766,Cottage cheese,lor peyniri,generic,Dairy,usda,ingredient,11.1,4.3,3.4,98,0.0,2.7,1,serving,113.0
 170135,"American cheese, processed","Amerikan peyniri, işlenmiş",generic,Dairy,usda,ingredient,16.3,16.5,1.5,220,0.0,0.0,28,g,1.0
 170136,Velveeta cheese,Velveeta peyniri,generic,Dairy,usda,ingredient,14.3,13.5,3.2,192,0.0,0.0,28,g,1.0
@@ -449,7 +446,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170532,Cashew butter,Kaju ezmesi,generic,Legumes & Nuts,usda,ingredient,11.2,28.0,18.8,376,1.2,4.8,2,g,1.0
 170533,Sunflower seed butter,Ayçiçeği ezmesi,generic,Legumes & Nuts,usda,ingredient,11.0,32.0,15.0,394,2.0,4.0,2,g,1.0
 172429,Tahini,tahin,generic,Nuts & Seeds,usda,ingredient,17.0,54.0,21.0,638,9.3,0.5,1,serving,15.0
-172429,Tahini,tahin,generic,Nuts & Seeds,usda,ingredient,17.0,54.0,21.0,638,9.3,0.5,1,serving,15.0
 170536,"Black beans, cooked","Siyah fasulye, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.9,0.5,20.0,120,0.0,4.5,150,g,1.0
 170537,"Black beans, canned, drained","Siyah fasulye, konserve, süzülmüş",generic,Legumes & Nuts,usda,ingredient,8.3,0.3,18.0,108,0.0,4.0,150,g,1.0
 170538,"Kidney beans, red, cooked","Barbunya, kırmızı, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.7,0.3,20.0,127,0.0,6.4,150,g,1.0
@@ -465,10 +461,9 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170548,"Lentils, red, cooked","Mercimek, kırmızı, pişmiş",generic,Legumes & Nuts,usda,ingredient,9.1,0.4,20.0,116,0.0,1.8,150,g,1.0
 170549,"Lentils, brown, cooked","Mercimek, kahverengi, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.8,0.4,20.0,116,0.0,3.9,150,g,1.0
 169284,Edamame,edamame,generic,Grains & Legumes,usda,ingredient,11.9,5.2,8.9,121,5.2,2.2,1,serving,155.0
-169284,Edamame,edamame,generic,Grains & Legumes,usda,ingredient,11.9,5.2,8.9,121,5.2,2.2,1,serving,155.0
 170552,"Peas, split, cooked","Bezelye, bölünmüş, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.2,0.4,21.0,116,0.0,8.3,150,g,1.0
 170553,"Broad beans, cooked","Bakla, pişmiş",generic,Legumes & Nuts,usda,ingredient,9.6,0.4,17.0,111,0.0,5.3,150,g,1.0
-170554,"Butter beans, cooked","Tereyağı fasulyesi, pişmiş",generic,Legumes & Nuts,usda,ingredient,7.6,0.3,20.0,113,0.0,4.7,150,g,1.0
+180066,"Butter beans, cooked","Tereyağı fasulyesi, pişmiş",generic,Legumes & Nuts,usda,ingredient,7.6,0.3,20.0,113,0.0,4.7,150,g,1.0
 170555,"Black-eyed peas, cooked","Börülce, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.7,0.5,20.0,119,0.0,4.0,150,g,1.0
 170556,"Mung beans, cooked","Maş fasulyesi, pişmiş",generic,Legumes & Nuts,usda,ingredient,3.1,0.2,21.0,104,0.0,2.3,150,g,1.0
 170557,"Azuki beans, cooked","Azuki fasulyesi, pişmiş",generic,Legumes & Nuts,usda,ingredient,8.3,0.1,20.0,114,0.0,3.2,150,g,1.0
@@ -501,8 +496,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170624,"Shortening, vegetable",Bitkisel katı yağ,generic,Oils & Fats,usda,ingredient,0.0,12.2,0.0,110,0.0,0.0,1,g,1.0
 170625,Cooking spray,Pişirme spreyi, canola,Oils & Fats,usda,ingredient,0.0,0.1,0.0,1,0.0,0.0,1,serving,100.0
 170626,Cooking spray,Pişirme spreyi, olive oil,Oils & Fats,usda,ingredient,0.0,0.1,0.0,1,0.0,0.0,1,serving,100.0
-167587,Dark chocolate 70-85%,bitter cikolata,generic,Snacks & Sweets,usda,ingredient,7.8,42.6,45.9,598,10.9,24.0,1,piece,10.0
-167587,Dark chocolate 70-85%,bitter cikolata,generic,Snacks & Sweets,usda,ingredient,7.8,42.6,45.9,598,10.9,24.0,1,piece,10.0
 167587,Dark chocolate 70-85%,bitter cikolata,generic,Snacks & Sweets,usda,ingredient,7.8,42.6,45.9,598,10.9,24.0,1,piece,10.0
 170704,Milk chocolate,Sütlü çikolata,generic,Snacks & Sweets,usda,ingredient,8.0,30.0,58.0,540,0.0,2.0,40,g,1.0
 170705,Milk chocolate with almonds,"Sütlü çikolata, bademli",generic,Snacks & Sweets,usda,ingredient,9.0,33.0,54.0,549,0.0,3.0,40,g,1.0
@@ -660,8 +653,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170924,"Salsa, verde",Salsa verde,generic,Condiments & Sauces,usda,ingredient,0.4,0.0,1.5,10,0.0,0.5,2,g,1.0
 170925,"Salsa, corn","Salsa, mısırlı",generic,Condiments & Sauces,usda,ingredient,0.5,1.0,4.0,30,0.0,0.5,2,g,1.0
 174289,Hummus,humus,generic,Prepared Foods,usda,meal,7.8,17.8,15.0,251,5.5,0.6,1,serving,30.0
-174289,Hummus,humus,generic,Prepared Foods,usda,meal,7.8,17.8,15.0,251,5.5,0.6,1,serving,30.0
-174289,Hummus,humus,generic,Prepared Foods,usda,meal,7.8,17.8,15.0,251,5.5,0.6,1,serving,30.0
 170929,Guacamole,Guacamole,generic,Condiments & Sauces,usda,ingredient,1.0,5.6,3.0,66,1.8,0.2,2,g,1.0
 170930,"Guacamole, light","Guacamole, light",generic,Condiments & Sauces,usda,ingredient,0.6,2.4,3.0,34,1.0,0.2,2,g,1.0
 170931,Teriyaki sauce,Teriyaki sosu,generic,Condiments & Sauces,usda,ingredient,1.0,0.0,11.0,45,0.0,10.0,1,g,1.0
@@ -677,8 +668,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 170941,"Pickles, dill","Turşu, dereotlu",generic,Condiments & Sauces,usda,ingredient,0.6,0.1,1.0,8,0.0,0.5,30,g,1.0
 170942,Pickle juice,Turşu suyu,generic,Condiments & Sauces,usda,ingredient,0.2,0.0,0.4,3,0.0,0.0,1,g,1.0
 170943,Capers,Kapari,generic,Condiments & Sauces,usda,ingredient,2.4,0.9,4.0,34,0.0,3.2,1,g,1.0
-172429,Tahini,tahin,generic,Nuts & Seeds,usda,ingredient,17.0,54.0,21.0,638,9.3,0.5,1,serving,15.0
-169640,Miso,miso,generic,Prepared Foods,usda,ingredient,12.8,6.0,25.4,198,5.4,6.2,1,serving,18.0
 169640,Miso,miso,generic,Prepared Foods,usda,ingredient,12.8,6.0,25.4,198,5.4,6.2,1,serving,18.0
 170947,Soy butter,Soya ezmesi,generic,Condiments & Sauces,usda,ingredient,5.6,9.8,1.1,110,0.5,0.0,1,g,1.0
 170948,Coconut aminos,Hindistan cevizi aminoası,generic,Condiments & Sauces,usda,ingredient,1.0,0.0,0.4,6,0.0,0.0,1,g,1.0
@@ -788,7 +777,6 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 180036,Kazandibi (caramelised milk pudding),Kazandibi,generic,Desserts,usda,ingredient,5.0,7.0,30.0,202,0.0,0.0,150,g,1.0
 180037,Muhallebi (milk pudding),Muhallebi,generic,Desserts,usda,ingredient,6.0,5.0,32.0,196,0.0,0.0,200,g,1.0
 180038,Lokma (fried dough balls),Lokma,generic,Desserts,usda,ingredient,3.0,10.0,28.0,213,0.0,0.0,90,g,1.0
-172429,Tahini,tahin,generic,Nuts & Seeds,usda,ingredient,17.0,54.0,21.0,638,9.3,0.5,1,serving,15.0
 180040,Revani (semolina cake),Revani,generic,Desserts,usda,ingredient,4.0,6.0,42.0,234,1.0,0.0,100,g,1.0
 180041,Sekerpare (semolina cookies in syrup),Sekerpare,generic,Desserts,usda,ingredient,3.0,8.0,35.0,227,0.0,0.0,80,g,1.0
 180042,White bread (ekmek),Ekmek,generic,Bread,usda,ingredient,3.0,1.0,18.0,93,1.0,0.0,40,g,40.0
@@ -804,13 +792,11 @@ usda_fdc_id,name,name_tr,brand,category,source,food_type,protein,fat,carbs,calor
 180052,Hazelnuts,Findik,generic,Snacks,usda,ingredient,4.0,18.0,5.0,189,2.0,0.0,30,g,1.0
 180053,Leblebi (roasted chickpeas),Leblebi,generic,Snacks,usda,ingredient,7.0,2.0,22.0,133,4.0,0.0,40,g,1.0
 180054,Dried apricots,Kuru kayisi,generic,Snacks,usda,ingredient,1.0,0.2,22.0,97,3.0,0.0,40,g,1.0
-172429,Tahini,tahin,generic,Nuts & Seeds,usda,ingredient,17.0,54.0,21.0,638,9.3,0.5,1,serving,15.0
 180056,Fish sandwich (balik ekmek),Balik ekmek,generic,Mains,usda,ingredient,20.0,10.0,38.0,322,2.0,0.0,250,g,1.0
 180057,Lamb shish kebab,Kuzu sis,generic,Mains,usda,ingredient,32.0,14.0,2.0,262,0.0,0.0,200,g,1.0
 180058,Meatball sandwich (kofte ekmek),Kofte ekmek,generic,Mains,usda,ingredient,20.0,14.0,35.0,346,2.0,0.0,200,g,1.0
 180059,Shepherd salad (coban salata),Coban salata,generic,Mains,usda,ingredient,2.0,4.0,8.0,76,3.0,0.0,200,g,1.0
 180060,Cacik (yogurt with cucumber),Cacik,generic,Dairy,usda,ingredient,5.0,3.0,7.0,75,0.0,0.0,200,ml,1.0
-174289,Hummus,humus,generic,Prepared Foods,usda,meal,7.8,17.8,15.0,251,5.5,0.6,1,serving,30.0
 180062,Circassian chicken,Cerkez tavugu,generic,Mains,usda,ingredient,22.0,18.0,8.0,282,1.0,0.0,150,g,1.0
 180063,Artichoke in olive oil,Zeytinyagli enginar,generic,Mains,usda,ingredient,3.0,10.0,12.0,147,5.0,0.0,200,g,1.0
 180064,Grape molasses (pekmez),Pekmez,generic,Snacks,usda,ingredient,0.2,0.1,16.0,66,0.0,0.0,20,g,1.0

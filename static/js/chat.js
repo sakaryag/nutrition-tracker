@@ -205,9 +205,16 @@
             const reply = evt.reply || fullText;
             history.push({ role: 'assistant', content: reply });
             if (evt.logged && evt.logged.length > 0) {
-              loggedText.textContent = 'Logged: ' + evt.logged.join(', ');
+              var hasAI = false;
+              var parts = evt.logged.map(function(item) {
+                var name   = typeof item === 'object' ? item.name   : item;
+                var isAI   = typeof item === 'object' && item.source === 'ai_estimate';
+                if (isAI) hasAI = true;
+                return isAI ? name + ' (~AI)' : name;
+              });
+              loggedText.textContent = 'Logged: ' + parts.join(', ') + (hasAI ? ' — ~AI: estimated from Gemini knowledge, not from database' : '');
               loggedBanner.hidden = false;
-              setTimeout(() => { loggedBanner.hidden = true; }, 6000);
+              setTimeout(() => { loggedBanner.hidden = true; }, 8000);
             }
           }
         }

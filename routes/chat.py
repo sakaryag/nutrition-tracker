@@ -223,6 +223,7 @@ Veritabanında bulunan eşleşen yiyecekler:
 KURALLAR:
 - Kullanıcı yiyecek bildirdiğinde, yukarıdaki DB sonuçlarından en uygun olanı seç.
 - Makroları DB değerlerinden orantıla (porsiyon * (DB_değer / 100)).
+- Eğer veritabanında uygun eşleşme bulunamazsa, kendi beslenme bilginle makroları tahmin et. Bu durumda girişe `"source": "ai_estimate"` ekle ve `saved_food_id` kullanma.
 - Sadece mantıklı öğün tipini ata (sabah→Breakfast, öğle→Lunch, akşam→Dinner, ara→Snack).
 - Türkçe cevap ver.
 - Cevabının sonunda, yiyecek kaydı varsa şu formatta bir JSON bloğu ekle:
@@ -257,6 +258,7 @@ Matching foods found in database:
 RULES:
 - When the user reports eating food, pick the best match from the DB results above.
 - Scale macros from DB per-100g values (portion * DB_value / 100).
+- If no suitable DB match is found for a food, use your own nutritional knowledge to estimate the macros. In that case set `"source": "ai_estimate"` on the entry and omit `saved_food_id`.
 - Assign a sensible meal type based on time cues (morning→Breakfast, noon→Lunch, evening→Dinner, else→Snack).
 - Reply in English.
 - At the end of your response, if logging food, include a JSON block:
@@ -670,7 +672,7 @@ def _execute_log(entries_data, uid):
             entry_time=now.time(),
         )
         db.session.add(entry)
-        logged.append(food_name)
+        logged.append({'name': food_name, 'source': ed.get('source', 'db')})
     if logged:
         db.session.commit()
     return logged

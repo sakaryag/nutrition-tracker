@@ -21,8 +21,14 @@
       '.fi-item-row{display:flex;align-items:flex-start;gap:.5rem;padding:.4rem 0;border-bottom:1px solid #f0f0f0;}',
       '.fi-item-row:last-child{border-bottom:none;}',
       '.fi-item-info{flex:1;font-size:.875rem;}',
-      '.fi-item-name{font-weight:600;}',
-      '.fi-item-macros{color:#718096;font-size:.8rem;}',
+      '.fi-name-input{font-weight:600;font-size:.875rem;border:1px solid transparent;border-radius:.25rem;padding:.1rem .25rem;width:100%;background:transparent;box-sizing:border-box;}',
+      '.fi-name-input:focus{border-color:#667eea;outline:none;background:#fff;}',
+      '.fi-grams-row{display:flex;align-items:center;gap:.25rem;font-size:.8rem;color:#718096;margin:.2rem 0 0;}',
+      '.fi-grams-input{width:4.5rem;font-size:.8rem;border:1px solid #e2e8f0;border-radius:.25rem;padding:.15rem .3rem;text-align:right;background:#f7fafc;box-sizing:border-box;}',
+      '.fi-edit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin-top:.35rem;}',
+      '.fi-macro-label{font-size:.68rem;color:#718096;text-align:center;margin-bottom:.1rem;}',
+      '.fi-edit-input{width:100%;font-size:.78rem;border:1px solid #e2e8f0;border-radius:.25rem;padding:.15rem .3rem;text-align:right;background:#f7fafc;box-sizing:border-box;}',
+      '.fi-edit-input:focus,.fi-grams-input:focus{border-color:#667eea;outline:none;background:#fff;}',
       '#fi-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem;}',
       '#fi-analyse-row{display:flex;gap:.5rem;margin-top:.75rem;}',
     ].join('');
@@ -346,25 +352,59 @@
 
     function renderItemList(items) {
       els.itemsList.hidden = false;
-      els.itemsList.innerHTML = '<p style="font-size:.875rem;font-weight:600;margin:0 0 .5rem;">Select items to log:</p>';
+      els.itemsList.innerHTML = '<p style="font-size:.875rem;font-weight:600;margin:0 0 .5rem;">Select items to log — you can edit values before logging:</p>';
       items.forEach(function (it, idx) {
         var row = document.createElement('div');
         row.className = 'fi-item-row';
+
         var chk = document.createElement('input');
         chk.type = 'checkbox';
         chk.checked = true;
         chk.id = 'fi-chk-' + idx;
         chk.dataset.idx = idx;
+
         var info = document.createElement('div');
         info.className = 'fi-item-info';
-        var nameEl = document.createElement('div');
-        nameEl.className = 'fi-item-name';
-        nameEl.textContent = it.food_name + ' (' + it.estimated_grams + 'g)';
-        var macroEl = document.createElement('div');
-        macroEl.className = 'fi-item-macros';
-        macroEl.textContent = 'P:' + it.protein + 'g F:' + it.fat + 'g C:' + it.carbs + 'g ' + it.calories + 'kcal';
-        info.appendChild(nameEl);
-        info.appendChild(macroEl);
+
+        var nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.className = 'fi-name-input';
+        nameInput.value = it.food_name;
+        nameInput.dataset.field = 'food_name';
+
+        var gramsRow = document.createElement('div');
+        gramsRow.className = 'fi-grams-row';
+        var gramsInput = document.createElement('input');
+        gramsInput.type = 'number';
+        gramsInput.className = 'fi-grams-input';
+        gramsInput.value = it.estimated_grams;
+        gramsInput.min = 1;
+        gramsInput.dataset.field = 'estimated_grams';
+        gramsRow.appendChild(gramsInput);
+        gramsRow.appendChild(document.createTextNode(' g estimated'));
+
+        var macroGrid = document.createElement('div');
+        macroGrid.className = 'fi-edit-grid';
+        [['protein','P(g)'],['fat','F(g)'],['carbs','C(g)'],['calories','kcal']].forEach(function (spec) {
+          var cell = document.createElement('div');
+          var lbl = document.createElement('div');
+          lbl.className = 'fi-macro-label';
+          lbl.textContent = spec[1];
+          var inp = document.createElement('input');
+          inp.type = 'number';
+          inp.className = 'fi-edit-input';
+          inp.value = it[spec[0]];
+          inp.min = 0;
+          inp.step = '0.1';
+          inp.dataset.field = spec[0];
+          cell.appendChild(lbl);
+          cell.appendChild(inp);
+          macroGrid.appendChild(cell);
+        });
+
+        info.appendChild(nameInput);
+        info.appendChild(gramsRow);
+        info.appendChild(macroGrid);
         row.appendChild(chk);
         row.appendChild(info);
         els.itemsList.appendChild(row);
@@ -380,19 +420,23 @@
         logBtn.disabled = true;
         setStatus('Logging...');
         var today = new Date().toISOString().slice(0, 10);
-        // POST each item directly to /api/entries — avoids modal re-open loop
         var promises = checked.map(function (chk) {
-          var it = items[parseInt(chk.dataset.idx, 10)];
+          var idx = parseInt(chk.dataset.idx, 10);
+          var row = chk.closest('.fi-item-row');
+          function rf(field) {
+            var inp = row.querySelector('[data-field="' + field + '"]');
+            return inp ? inp.value : '';
+          }
           return fetch('/api/entries', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              food_name: it.food_name,
-              protein: it.protein,
-              fat: it.fat,
-              carbs: it.carbs,
-              calories: it.calories,
-              serving_size: it.estimated_grams,
+              food_name:    rf('food_name') || items[idx].food_name,
+              protein:      parseFloat(rf('protein'))        || 0,
+              fat:          parseFloat(rf('fat'))            || 0,
+              carbs:        parseFloat(rf('carbs'))          || 0,
+              calories:     parseFloat(rf('calories'))       || 0,
+              serving_size: parseFloat(rf('estimated_grams')) || items[idx].estimated_grams,
               serving_unit: 'g',
               date: today,
             }),

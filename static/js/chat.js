@@ -210,7 +210,14 @@
           }
 
           if (evt.done) {
-            history.push({ role: 'assistant', content: stripJsonBlock(fullText) });
+            const cleaned = stripJsonBlock(fullText);
+            const finalReply = cleaned || evt.reply || '';
+            history.push({ role: 'assistant', content: finalReply });
+            // If streaming produced no visible text (Gemini put everything in the JSON),
+            // fall back to evt.reply (the "reply" field from inside the JSON block).
+            if (contentEl && !cleaned && evt.reply) {
+              contentEl.innerHTML = renderText(evt.reply);
+            }
             if (evt.logged && evt.logged.length > 0) {
               var hasAI = false;
               var parts = evt.logged.map(function(item) {

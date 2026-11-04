@@ -958,7 +958,8 @@ def upload_image():
     upload_dir = os.path.join(current_app.instance_path, 'uploads')
     os.makedirs(upload_dir, exist_ok=True)
     now = datetime.now(timezone.utc)
-    safe_name = f'{int(now.timestamp())}_{f.filename}'
+    from werkzeug.utils import secure_filename
+    safe_name = f'{int(now.timestamp())}_{secure_filename(f.filename) or "upload"}'
     file_path = os.path.join(upload_dir, safe_name)
     f.save(file_path)
     upload = ProgramImageUpload(

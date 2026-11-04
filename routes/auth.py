@@ -103,6 +103,105 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
+def delete_user_data(uid):
+    """Permanently remove a user and everything linked to them. Caller commits."""
+    import os
+    from models.food_entry import FoodEntry
+    from models.daily_target import DailyTarget
+    from models.daily_note import DailyNote
+    from models.water_log import WaterLog
+    from models.meal_template import MealTemplate
+    from models.recipe import Recipe
+    from models.friend_connection import FriendConnection
+    from models.feed_visibility import FeedVisibility
+    from models.feed_reaction import FeedReaction
+    from models.user_badge import UserBadge
+    from models.shared_entry import SharedEntry
+    from models.plan_task_completion import PlanTaskCompletion
+    from models.user_plan_assignment import UserPlanAssignment
+    from models.nutrition_plan import NutritionPlan
+    from models.program_version import ProgramVersion
+    from models.program_image_upload import ProgramImageUpload
+    from models.slot_fulfillment import SlotFulfillment
+    from models.dietitian_access import DietitianAccess
+    from models.dietitian_visit import DietitianVisit
+    from models.food_exchange_category import FoodExchangeCategory
+    from models.weekly_category_quota import WeeklyCategoryQuota
+
+    or_ = db.or_
+    SharedEntry.query.filter(or_(SharedEntry.shared_by_id == uid, SharedEntry.shared_to_id == uid)).delete(synchronize_session=False)
+    SlotFulfillment.query.filter_by(user_id=uid).delete(synchronize_session=False)
+    FeedReaction.query.filter(or_(FeedReaction.reactor_id == uid, FeedReaction.target_user_id == uid)).delete(synchronize_session=False)
+    FriendConnection.query.filter(or_(FriendConnection.requester_id == uid, FriendConnection.recipient_id == uid)).delete(synchronize_session=False)
+    DietitianAccess.query.filter(or_(DietitianAccess.dietitian_id == uid, DietitianAccess.client_id == uid)).delete(synchronize_session=False)
+    DietitianVisit.query.filter(or_(DietitianVisit.dietitian_id == uid, DietitianVisit.client_id == uid)).delete(synchronize_session=False)
+    for model in (FeedVisibility, UserBadge, PlanTaskCompletion, UserPlanAssignment,
+                  WaterLog, DailyNote, DailyTarget, FoodEntry):
+        model.query.filter_by(user_id=uid).delete(synchronize_session=False)
+
+    # ORM deletes so child rows cascade (template items, recipe ingredients, category members).
+    for tpl in MealTemplate.query.filter_by(user_id=uid).all():
+        db.session.delete(tpl)
+    recipe_ids = [r.id for r in Recipe.query.filter_by(owner_id=uid).all()]
+    if recipe_ids:
+        SlotFulfillment.query.filter(SlotFulfillment.recipe_id.in_(recipe_ids)).update({'recipe_id': None}, synchronize_session=False)
+        for r in Recipe.query.filter(Recipe.id.in_(recipe_ids)).all():
+            db.session.delete(r)
+    cat_ids = [c.id for c in FoodExchangeCategory.query.filter_by(owner_id=uid).all()]
+    if cat_ids:
+        WeeklyCategoryQuota.query.filter(WeeklyCategoryQuota.exchange_category_id.in_(cat_ids)).delete(synchronize_session=False)
+        SlotFulfillment.query.filter(SlotFulfillment.exchange_category_id.in_(cat_ids)).update({'exchange_category_id': None}, synchronize_session=False)
+        for c in FoodExchangeCategory.query.filter(FoodExchangeCategory.id.in_(cat_ids)).all():
+            db.session.delete(c)
+
+    # Plans authored by a dietitian stay available to their clients, just unattributed.
+    NutritionPlan.query.filter_by(created_by=uid).update({'created_by': None}, synchronize_session=False)
+    ProgramVersion.query.filter_by(created_by=uid).update({'created_by': None}, synchronize_session=False)
+    UserPlanAssignment.query.filter_by(assigned_by=uid).update({'assigned_by': None}, synchronize_session=False)
+
+    upload_root = os.path.realpath(os.path.join(current_app.instance_path, 'uploads'))
+    for up in ProgramImageUpload.query.filter_by(uploaded_by=uid).all():
+        path = os.path.realpath(up.file_path or '')
+        if path.startswith(upload_root + os.sep) and os.path.isfile(path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+        db.session.delete(up)
+
+    user = db.session.get(User, uid)
+    if user is not None:
+        db.session.delete(user)
+
+
+@auth_bp.route('/delete-account', methods=['GET', 'POST'])
+def delete_account():
+    auth_on = bool(current_app.config.get('AUTH_ENABLED'))
+    uid = session.get('user_id') if auth_on else None
+    user = db.session.get(User, uid) if uid else None
+    if request.method == 'GET' or user is None:
+        if user is not None:
+            session['delete_token'] = secrets.token_urlsafe(32)
+        return render_template('delete_account.html', auth_on=auth_on, user=user,
+                               token=session.get('delete_token'))
+
+    token = request.form.get('token', '')
+    expected = session.pop('delete_token', None)
+    if not expected or not secrets.compare_digest(token, expected):
+        return render_template('delete_account.html', auth_on=auth_on, user=user,
+                               error='Your session expired. Please try again.'), 400
+    if request.form.get('confirm', '').strip().upper() != 'DELETE':
+        session['delete_token'] = secrets.token_urlsafe(32)
+        return render_template('delete_account.html', auth_on=auth_on, user=user,
+                               token=session['delete_token'],
+                               error='Type DELETE to confirm.'), 400
+
+    delete_user_data(user.id)
+    db.session.commit()
+    session.clear()
+    return render_template('delete_account.html', auth_on=auth_on, user=None, deleted=True)
+
+
 @auth_bp.route('/auth/google')
 def google_login():
     if not current_app.config.get('AUTH_ENABLED'):

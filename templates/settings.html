@@ -242,6 +242,16 @@
     </div>
   </article>
 
+  {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
+  <article class="settings-card">
+    <h2>Delete account</h2>
+    <p class="settings-description">Permanently delete your account and all of your data. This cannot be undone.</p>
+    <div class="form-actions">
+      <a class="btn btn-danger" href="/delete-account">Delete my account</a>
+    </div>
+  </article>
+  {% endif %}
+
 </section>
 {% endblock %}
 

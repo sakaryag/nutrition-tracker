@@ -6,15 +6,16 @@
   <title>NutriTrack{% block title %}{% endblock %}</title>
   <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
   <link rel="manifest" href="/static/manifest.json" />
-  <meta name="theme-color" content="#2D7A4F" />
+  <meta name="theme-color" content="#F7F6FB" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="NutriTrack" />
   <link rel="apple-touch-icon" href="/static/icon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css?v=2" />
+  {% block head %}{% endblock %}
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 </head>
 <body>
@@ -64,6 +65,24 @@
   <footer class="site-footer">
     NutriTrack &copy; 2026
   </footer>
+
+  <nav class="bottom-dock" aria-label="Primary">
+    <a href="/" class="bottom-dock__item" aria-label="Home" title="Home">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+    </a>
+    <a href="/meals" class="bottom-dock__item" aria-label="Meals" title="Meals">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.5"/><path d="M2 4v5a2 2 0 0 0 2 2"/><path d="M4 4v16"/><path d="M22 4c-1.5 0-2 2-2 4s.5 3 2 3v9"/></svg>
+    </a>
+    <a href="/?scan=1" class="bottom-dock__item bottom-dock__item--scan" data-dock-static aria-label="Scan food" title="Scan food">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2"/><path d="M16 4h2a2 2 0 0 1 2 2v2"/><path d="M20 16v2a2 2 0 0 1-2 2h-2"/><path d="M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>
+    </a>
+    <a href="/reports" class="bottom-dock__item" aria-label="Reports" title="Reports">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12A9 9 0 1 1 12 3"/><path d="M12 3a9 9 0 0 1 9 9h-9z"/></svg>
+    </a>
+    <a href="/settings" class="bottom-dock__item" aria-label="Profile" title="Profile">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+    </a>
+  </nav>
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
@@ -123,6 +142,13 @@
       var href = a.getAttribute('href');
       if (href === '/' ? path === '/' : (href && path.startsWith(href))) {
         a.classList.add('active');
+      }
+    });
+    document.querySelectorAll('.bottom-dock__item:not([data-dock-static])').forEach(function (a) {
+      var href = a.getAttribute('href');
+      if (href === '/' ? path === '/' : path.startsWith(href)) {
+        a.classList.add('is-active');
+        a.setAttribute('aria-current', 'page');
       }
     });
   })();

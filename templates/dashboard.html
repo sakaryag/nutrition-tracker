@@ -1,167 +1,239 @@
 {% extends "base.html" %}
 {% block title %} &mdash; Dashboard{% endblock %}
 
+{% block head %}<link rel="stylesheet" href="/static/css/dashboard.css?v=1">{% endblock %}
+
 {% block content %}
-<section class="page-dashboard">
+<section class="page-dashboard dash">
 
-  <!-- Date Navigation -->
-  <div class="date-nav">
-    <button class="btn btn-icon" id="prev-day" aria-label="Previous day">&#8592;</button>
-    <h1 class="date-heading" id="date-heading"></h1>
-    <button class="btn btn-icon" id="next-day" aria-label="Next day">&#8594;</button>
+  <!-- Header -->
+  <header class="dash-header">
+    <div class="dash-header__text">
+      <p class="dash-header__welcome">
+        {% if current_user %}<span data-i18n="dash.welcomeBackName">Welcome back,</span> {{ current_user.username }} <span aria-hidden="true">&#x1F44B;</span>
+        {% else %}<span data-i18n="dash.welcome">Welcome Back</span> <span aria-hidden="true">&#x1F44B;</span>{% endif %}
+      </p>
+      <h1 class="dash-header__title" data-i18n="dash.stayOnTrack">Stay On Track Today</h1>
+    </div>
+    <a href="/settings" class="dash-avatar" aria-label="Settings">
+      {% if current_user and current_user.avatar_url and current_user.avatar_url.startswith('https://') %}
+        <img src="{{ current_user.avatar_url }}" alt="" referrerpolicy="no-referrer" width="44" height="44" />
+      {% else %}
+        <span aria-hidden="true">{{ (current_user.username[:1] if current_user else 'N')|upper }}</span>
+      {% endif %}
+    </a>
+  </header>
+
+  <!-- Weekly date scroller -->
+  <section class="dash-dates" aria-label="Select day">
+    <div class="dash-dates__top">
+      <button type="button" class="dash-chev" id="prev-day" aria-label="Previous day">&#8249;</button>
+      <p class="dash-dates__heading" id="date-heading" aria-live="polite"></p>
+      <button type="button" class="dash-chev" id="next-day" aria-label="Next day">&#8250;</button>
+      <button type="button" class="btn btn-soft btn-sm copy-yesterday-btn" id="copy-yesterday-btn" hidden data-i18n="dash.copyYesterday">Copy Yesterday</button>
+    </div>
+    <div class="dash-week" id="dash-week" role="group" aria-label="Week"></div>
+  </section>
+
+  <div class="dash-cols">
+  <div class="dash-col dash-col--main">
+
+    <!-- Today's Goal card -->
+    <section class="card dash-goal" aria-labelledby="goal-title">
+      <div class="dash-goal__top">
+        <div class="dash-goal__text">
+          <h2 class="stat-caption dash-goal__label" id="goal-title" data-i18n="dash.todaysGoal">Today's Goal</h2>
+          <p class="dash-goal__value"><span class="dash-goal__consumed" id="summary-calories">0</span><span class="dash-goal__target"> / <span id="target-calories">0</span></span></p>
+          <p class="summary-card__remaining dash-goal__rem">
+            <span id="remaining-calories">0</span> kcal <span id="lbl-remaining-calories">remaining</span>
+            <span class="dash-goal__pct" id="pct-calories"></span>
+          </p>
+        </div>
+        <div class="dash-arc" id="cal-arc" role="img" aria-label="Calories">
+          <svg viewBox="0 0 120 68" aria-hidden="true" focusable="false">
+            <path class="dash-arc__track" d="M12 60 A48 48 0 0 1 108 60" />
+            <path class="dash-arc__fill" id="cal-arc-fill" d="M12 60 A48 48 0 0 1 108 60" />
+          </svg>
+          <span class="dash-arc__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M12 2.5c.6 3.2-1.4 5-3 6.8C7.6 10.9 6.5 12.6 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1.1-4-2.3-5.2.1 1.6-.6 2.8-1.7 3.3.4-3.6-.4-7.3-1.5-10.6z"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="dash-macros">
+        {% for m in ['protein', 'carbs', 'fat'] %}
+        <div class="dash-macro dash-macro--{{ m }}" id="dash-macro-{{ m }}">
+          <div class="dash-ring" id="ring-{{ m }}" role="img" aria-label="{{ m|capitalize }}">
+            <svg viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+              <circle class="dash-ring__track" cx="22" cy="22" r="18" />
+              <circle class="dash-ring__fill" id="ring-fill-{{ m }}" cx="22" cy="22" r="18" transform="rotate(-90 22 22)" />
+            </svg>
+          </div>
+          <div class="dash-macro__text">
+            <p class="dash-macro__val"><span id="dash-left-{{ m }}">0</span>g</p>
+            <p class="dash-macro__cap" id="dash-cap-{{ m }}">{{ m|capitalize }} left</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <details class="dash-details">
+        <summary><span data-i18n="dash.details">Details</span></summary>
+        <div class="dash-details__grid">
+          {% for m in ['protein', 'fat', 'carbs'] %}
+          <article class="dash-detail dash-detail--{{ m }}">
+            <p class="dash-detail__label"><span data-i18n="macro.{{ m }}">{{ m|capitalize }}</span> <span class="dash-detail__pct" id="pct-{{ m }}"></span></p>
+            <p class="dash-detail__value"><span id="summary-{{ m }}">0</span> / <span id="target-{{ m }}">0</span> g</p>
+            <div class="progress-bar-wrap" aria-hidden="true"><div class="progress-bar progress-bar--{{ m }}" id="bar-{{ m }}" style="width:0%"></div></div>
+            <p class="summary-card__remaining"><span id="remaining-{{ m }}">0</span> g <span class="remaining-label" id="lbl-remaining-{{ m }}">remaining</span></p>
+            <p class="dash-detail__split"><span data-i18n="macro.split">Split</span>: <span id="split-{{ m }}">&mdash;</span></p>
+          </article>
+          {% endfor %}
+          <article class="dash-detail dash-detail--calories">
+            <p class="dash-detail__label"><span data-i18n="macro.calories">Calories</span></p>
+            <div class="progress-bar-wrap" aria-hidden="true"><div class="progress-bar progress-bar--calories" id="bar-calories" style="width:0%"></div></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Today's Meals -->
+    <section class="dash-meals" aria-labelledby="meals-title">
+      <h2 class="section-title" id="meals-title" data-i18n="dash.todaysMeals">Today's Meals</h2>
+      <div id="entries-list"></div>
+    </section>
+
+    <!-- Actions -->
+    <div class="action-bar dash-actions">
+      <button type="button" class="btn btn-ink btn-pill" id="open-add-form" data-i18n="dash.addFood">+ Add Food</button>
+      <button type="button" id="scan-barcode-btn" class="btn btn-soft btn-pill" aria-label="Scan barcode"><span aria-hidden="true">&#x1F4F7;</span> <span data-i18n="dash.scanBarcode">Scan Barcode</span></button>
+      <button type="button" id="photo-food-btn" class="btn btn-soft btn-pill" aria-label="Recognise food from photo"><span aria-hidden="true">&#x1F4F8;</span> <span data-i18n="dash.recognise">Recognise</span></button>
+    </div>
+
   </div>
-  <div class="date-nav-actions">
-    <button class="btn copy-yesterday-btn" id="copy-yesterday-btn" hidden data-i18n="dash.copyYesterday">Copy Yesterday</button>
+  <div class="dash-col dash-col--side">
+
+    <!-- Daily Breakdown -->
+    <section class="dash-breakdown" aria-labelledby="breakdown-title">
+      <h2 class="section-title" id="breakdown-title" data-i18n="dash.dailyBreakdown">Daily Breakdown</h2>
+      <div class="dash-breakdown__grid">
+
+        <section class="card water-widget dash-water" aria-label="Water intake tracker" id="water-widget">
+          <div class="dash-water__top">
+            <div>
+              <p class="stat-caption" data-i18n="dash.water">Water</p>
+              <p class="dash-water__amount"><span id="water-total">0</span>/<span id="water-goal">2000</span> <span class="dash-water__unit">ml</span></p>
+            </div>
+            <div class="dash-drop" id="water-drop" role="img" aria-label="Water">
+              <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <defs>
+                  <clipPath id="dash-drop-clip"><path d="M32 12C32 12 19 27 19 37a13 13 0 0 0 26 0C45 27 32 12 32 12Z"/></clipPath>
+                </defs>
+                <circle class="dash-drop__track" cx="32" cy="32" r="29" />
+                <circle class="dash-drop__ring" id="water-ring-fill" cx="32" cy="32" r="29" transform="rotate(-90 32 32)" />
+                <path class="dash-drop__bg" d="M32 12C32 12 19 27 19 37a13 13 0 0 0 26 0C45 27 32 12 32 12Z"/>
+                <g clip-path="url(#dash-drop-clip)">
+                  <g class="dash-drop__level" id="water-level">
+                    <path class="dash-drop__wave" d="M-32 0Q-24 -3 -16 0T0 0T16 0T32 0T48 0T64 0T80 0V40H-32Z"/>
+                  </g>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <div class="water-progress visually-hidden" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="water-progress__bar" id="water-bar" style="width:0%"></div>
+          </div>
+          <div class="water-btns" id="water-btns">
+            <button type="button" class="water-btn" data-ml="200">+200 ml</button>
+            <button type="button" class="water-btn" data-ml="330">+330 ml</button>
+            <button type="button" class="water-btn" data-ml="500">+500 ml</button>
+            <button type="button" class="water-btn water-btn--custom" id="water-custom-toggle" data-i18n="water.custom">+Custom</button>
+          </div>
+          <div class="water-custom-row hidden" id="water-custom-row">
+            <input type="number" id="water-custom-input" class="form-control" min="1" max="5000" step="1" placeholder="ml" aria-label="Custom water amount in ml" />
+            <button type="button" class="btn btn-ink btn-sm" id="water-custom-add" data-i18n="water.add">Add</button>
+          </div>
+          <div class="water-logs-row" id="water-logs-row"></div>
+        </section>
+
+        <section class="card dash-health" aria-labelledby="health-title">
+          <div class="dash-health__top">
+            <div>
+              <h3 class="stat-caption" id="health-title" data-i18n="dash.healthScore">Health Score</h3>
+              <p class="dash-health__label" id="health-label">&ndash;</p>
+            </div>
+            <div class="dash-health__badge is-none" id="health-badge" role="img" aria-label="Health score">
+              <span id="health-score">&ndash;</span><small>/10</small>
+            </div>
+          </div>
+          <ul class="dash-health__list" id="health-list"></ul>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- Today's Plan Slots -->
+    <section class="card today-plan-section" id="today-plan-section" hidden aria-label="Today's nutrition plan">
+      <div class="section-header-row">
+        <h2 class="section-title">Today&#8217;s Plan</h2>
+        <a href="/plans" class="btn btn-ghost btn-sm">View all &#8594;</a>
+      </div>
+      <div id="today-plan-slots" class="today-plan-slots"></div>
+    </section>
+
+    <!-- Meal Templates Quick Log -->
+    <section class="quick-add dash-chips" aria-labelledby="tpl-title">
+      <h2 class="section-title" id="tpl-title" data-i18n="dash.mealTemplates">Meal Templates</h2>
+      <div class="quick-add__list" id="template-chips">
+        <p class="empty-msg" data-i18n="dash.loadingTemplates">Loading templates&hellip;</p>
+      </div>
+    </section>
+
+    <!-- Recent Foods -->
+    <section class="quick-add dash-chips" aria-labelledby="recents-title">
+      <div class="section-header-row">
+        <h2 class="section-title" id="recents-title" data-i18n="dash.recentFoods">Recent Foods</h2>
+        <button type="button" class="btn btn-sm btn-ghost" id="clear-recents-btn" aria-label="Clear recent foods list">&#x2715; <span data-i18n="common.clearLabel">Clear</span></button>
+      </div>
+      <div class="quick-add__list" id="quick-add-list">
+        <p class="empty-msg" data-i18n="dash.loadingRecents">Loading recent foods&hellip;</p>
+      </div>
+    </section>
+
+    <!-- What Can I Still Eat? Panel -->
+    <section class="remaining-panel" id="remaining-panel" aria-label="Remaining macros panel">
+      <div class="remaining-panel-header" id="remaining-panel-toggle" role="button" tabindex="0"
+           aria-expanded="true" aria-controls="remaining-panel-body">
+        <span id="remaining-panel-title" data-i18n="remaining.panel.title">What Can I Still Eat?</span>
+        <span class="remaining-panel-chevron" id="remaining-panel-chevron" aria-hidden="true">&#9650;</span>
+      </div>
+      <div id="remaining-panel-body">
+        <div id="remaining-macro-rows"></div>
+        <div class="remaining-suggestions" id="remaining-suggestions" hidden></div>
+      </div>
+    </section>
+
+    <!-- Daily Insight -->
+    <section class="insight-section" id="insight-section">
+      <button type="button" class="btn btn-soft btn-pill insight-btn" id="insight-btn" data-i18n="insight.btn">&#10024; Daily Insight</button>
+      <div class="insight-result" id="insight-result" hidden></div>
+    </section>
+
+    <!-- Daily Notes -->
+    <section class="notes-section" id="notes-section" aria-label="Daily notes">
+      <button type="button" class="notes-toggle" id="notes-toggle" aria-expanded="false" aria-controls="notes-panel">
+        <span data-i18n="dash.notes">Daily Notes</span>
+        <span class="notes-preview" hidden></span>
+        <span class="notes-chevron" aria-hidden="true">&#9660;</span>
+      </button>
+      <div class="notes-panel" id="notes-panel" hidden>
+        <textarea class="notes-textarea" id="notes-textarea" aria-label="Daily note" data-i18n-placeholder="dash.notesPlaceholder" placeholder="Add a note for today... (auto-saved)" rows="3"></textarea>
+        <span class="notes-save-status" id="notes-save-status" hidden data-i18n="dash.notesSaved">Note saved</span>
+      </div>
+    </section>
+
   </div>
-
-  <!-- Summary Cards -->
-  <section class="summary-cards" aria-label="Daily nutrient totals">
-    <article class="summary-card summary-card--protein">
-      <h2 class="summary-card__label" data-i18n="macro.protein">Protein <span class="summary-card__pct" id="pct-protein"></span></h2>
-      <p class="summary-card__value"><span id="summary-protein">0</span> / <span id="target-protein">0</span> g</p>
-      <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-protein" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar progress-bar--protein" id="bar-protein" style="width:0%"></div>
-      </div>
-      <p class="summary-card__remaining"><span id="remaining-protein">0</span> g <span class="remaining-label" id="lbl-remaining-protein">remaining</span></p>
-      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-protein">&mdash;</span></p>
-    </article>
-    <article class="summary-card summary-card--fat">
-      <h2 class="summary-card__label" data-i18n="macro.fat">Fat <span class="summary-card__pct" id="pct-fat"></span></h2>
-      <p class="summary-card__value"><span id="summary-fat">0</span> / <span id="target-fat">0</span> g</p>
-      <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-fat" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar progress-bar--fat" id="bar-fat" style="width:0%"></div>
-      </div>
-      <p class="summary-card__remaining"><span id="remaining-fat">0</span> g <span class="remaining-label" id="lbl-remaining-fat">remaining</span></p>
-      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-fat">&mdash;</span></p>
-    </article>
-    <article class="summary-card summary-card--carbs">
-      <h2 class="summary-card__label" data-i18n="macro.carbs">Carbs <span class="summary-card__pct" id="pct-carbs"></span></h2>
-      <p class="summary-card__value"><span id="summary-carbs">0</span> / <span id="target-carbs">0</span> g</p>
-      <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-carbs" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar progress-bar--carbs" id="bar-carbs" style="width:0%"></div>
-      </div>
-      <p class="summary-card__remaining"><span id="remaining-carbs">0</span> g <span class="remaining-label" id="lbl-remaining-carbs">remaining</span></p>
-      <p class="summary-card__split"><span data-i18n="macro.split">Split</span>: <span id="split-carbs">&mdash;</span></p>
-    </article>
-    <article class="summary-card summary-card--calories">
-      <h2 class="summary-card__label" data-i18n="macro.calories">Calories <span class="summary-card__pct" id="pct-calories"></span></h2>
-      <p class="summary-card__value"><span id="summary-calories">0</span> / <span id="target-calories">0</span> kcal</p>
-      <div class="progress-bar-wrap" role="progressbar" aria-labelledby="summary-calories" aria-valuemin="0" aria-valuemax="100">
-        <div class="progress-bar progress-bar--calories" id="bar-calories" style="width:0%"></div>
-      </div>
-      <p class="summary-card__remaining"><span id="remaining-calories">0</span> kcal <span class="remaining-label" id="lbl-remaining-calories">remaining</span></p>
-    </article>
-  </section>
-
-  <!-- What Can I Still Eat? Panel (Enhancement 1) -->
-  <section class="remaining-panel" id="remaining-panel" aria-label="Remaining macros panel">
-    <div class="remaining-panel-header" id="remaining-panel-toggle" role="button" tabindex="0"
-         aria-expanded="true" aria-controls="remaining-panel-body">
-      <span id="remaining-panel-title" data-i18n="remaining.panel.title">What Can I Still Eat?</span>
-      <span class="remaining-panel-chevron" id="remaining-panel-chevron" aria-hidden="true">&#9650;</span>
-    </div>
-    <div id="remaining-panel-body">
-      <div id="remaining-macro-rows"></div>
-      <div class="remaining-suggestions" id="remaining-suggestions" hidden></div>
-    </div>
-  </section>
-
-  <!-- Daily Insight (Enhancement 3) -->
-  <section class="insight-section" id="insight-section">
-    <button class="btn btn-secondary insight-btn" id="insight-btn" data-i18n="insight.btn">&#10024; Daily Insight</button>
-    <div class="insight-result" id="insight-result" hidden></div>
-  </section>
-
-  <!-- Macro Donut Chart -->
-  <section class="macro-donut-section" aria-label="Macro breakdown chart">
-    <h2 class="section-title" data-i18n="dash.macroBreakdown">Macro Breakdown</h2>
-    <div class="donut-wrap">
-      <canvas id="macro-donut" width="220" height="220"></canvas>
-      <p class="donut-center-label" id="donut-center-label">0 kcal</p>
-    </div>
-  </section>
-
-  <!-- Today's Plan Slots -->
-  <section class="today-plan-section" id="today-plan-section" hidden aria-label="Today's nutrition plan">
-    <div class="section-header-row">
-      <h2 class="section-title">Today&#8217;s Plan</h2>
-      <a href="/plans" class="btn btn-ghost btn-sm" style="font-size:.85rem">View all &#8594;</a>
-    </div>
-    <div id="today-plan-slots" class="today-plan-slots"></div>
-  </section>
-
-  <!-- Add Food Button -->
-  <div class="action-bar">
-    <button class="btn btn-primary" id="open-add-form" data-i18n="dash.addFood">+ Add Food</button>
-    <button type="button" id="scan-barcode-btn" class="btn btn-secondary" title="Scan barcode">&#x1F4F7;Scan Barcode</button>
-    <button type="button" id="photo-food-btn" class="btn btn-secondary" title="Recognise food from photo">&#x1F4F8;Recognise</button>
   </div>
-
-  <!-- Meal Templates Quick Log -->
-  <section class="quick-add" aria-label="Log meal template">
-    <h2 class="section-title" data-i18n="dash.mealTemplates">Meal Templates</h2>
-    <div class="quick-add__list" id="template-chips">
-      <p class="empty-msg" data-i18n="dash.loadingTemplates">Loading templates&hellip;</p>
-    </div>
-  </section>
-
-  <!-- Quick Add Section -->
-  <section class="quick-add" aria-label="Quick add recent foods">
-    <div class="section-header-row">
-      <h2 class="section-title" data-i18n="dash.recentFoods">Recent Foods</h2>
-      <button class="btn btn-sm btn-ghost" id="clear-recents-btn" title="Clear recent foods list">&#x2715; <span data-i18n="common.clearLabel">Clear</span></button>
-    </div>
-    <div class="quick-add__list" id="quick-add-list">
-      <p class="empty-msg" data-i18n="dash.loadingRecents">Loading recent foods&hellip;</p>
-    </div>
-  </section>
-
-  <!-- Water Tracker -->
-  <section class="water-widget" aria-label="Water intake tracker" id="water-widget">
-    <div class="water-widget__header">
-      <span class="water-widget__icon" aria-hidden="true">&#x1F4A7;</span>
-      <span class="water-widget__title" data-i18n="water.title">Water Intake</span>
-    </div>
-    <div class="water-amount">
-      <span id="water-total">0</span> ml
-      <span class="water-goal">/ <span id="water-goal">2000</span> ml</span>
-    </div>
-    <div class="water-progress" role="progressbar" aria-label="Water intake progress" aria-valuemin="0" aria-valuemax="100">
-      <div class="water-progress__bar" id="water-bar" style="width:0%"></div>
-    </div>
-    <div class="water-btns" id="water-btns">
-      <button class="water-btn" data-ml="200">+200 ml</button>
-      <button class="water-btn" data-ml="330">+330 ml</button>
-      <button class="water-btn" data-ml="500">+500 ml</button>
-      <button class="water-btn water-btn--custom" id="water-custom-toggle" data-i18n="water.custom">+Custom</button>
-    </div>
-    <div class="water-custom-row hidden" id="water-custom-row">
-      <input type="number" id="water-custom-input" min="1" max="5000" step="1" placeholder="ml" aria-label="Custom water amount in ml" />
-      <button class="btn btn-primary btn-sm" id="water-custom-add" data-i18n="water.add">Add</button>
-    </div>
-    <div class="water-logs-row" id="water-logs-row"></div>
-  </section>
-
-  <!-- Today's Entries -->
-  <section class="entries-section" aria-label="Today's food entries">
-    <h2 class="section-title" data-i18n="dash.todaysEntries">Today's Entries</h2>
-    <div id="entries-list">
-      <p class="empty-msg" data-i18n="dash.noEntries">No entries yet. Add a food to get started.</p>
-    </div>
-  </section>
-
-  <!-- Daily Notes -->
-  <section class="notes-section" id="notes-section" aria-label="Daily notes">
-    <button class="notes-toggle" id="notes-toggle" aria-expanded="false">
-      <span data-i18n="dash.notes">Daily Notes</span>
-      <span class="notes-preview" hidden></span>
-      <span class="notes-chevron">&#9660;</span>
-    </button>
-    <div class="notes-panel" id="notes-panel" hidden>
-      <textarea class="notes-textarea" id="notes-textarea" data-i18n-placeholder="dash.notesPlaceholder" placeholder="Add a note for today... (auto-saved)" rows="3"></textarea>
-      <span class="notes-save-status" id="notes-save-status" hidden data-i18n="dash.notesSaved">Note saved</span>
-    </div>
-  </section>
 
 </section>
 

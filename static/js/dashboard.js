@@ -130,6 +130,17 @@
     setRemainingLabels();
     initCopyYesterday();
     initNotes();
+    handleScanDeepLink();
+  }
+
+  function handleScanDeepLink() {
+    var params = new URLSearchParams(location.search);
+    if (params.get('scan') !== '1') return;
+    var btn = document.getElementById('photo-food-btn');
+    if (btn) btn.click();
+    params.delete('scan');
+    var qs = params.toString();
+    history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
   }
 
   function setRemainingLabels() {
@@ -153,14 +164,61 @@
     var d = parseLocalDate(currentDate); d.setDate(d.getDate() + 1);
     currentDate = formatDate(d); loadPage();
   });
+  /* ---- Weekly date scroller ---- */
+  var weekEl = document.getElementById('dash-week');
+  var weekReq = 0;
+  function addDays(str, n) { var d = parseLocalDate(str); d.setDate(d.getDate() + n); return formatDate(d); }
+
+  async function loadWeek() {
+    if (!weekEl) return;
+    var today = formatDate(new Date());
+    var end = addDays(currentDate, 3); if (end > today) end = today;
+    var start = addDays(end, -6);
+    var days = []; for (var i = 0; i < 7; i++) days.push(addDays(start, i));
+    var req = ++weekReq;
+    renderWeek(days, {});
+    try {
+      var rows = await api('/api/summary/range?start=' + start + '&end=' + end);
+      if (req !== weekReq) return;
+      var logged = {};
+      (rows || []).forEach(function (r) { logged[r.date] = true; });
+      renderWeek(days, logged);
+    } catch (_) { /* dots are decorative */ }
+  }
+
+  function renderWeek(days, logged) {
+    var today = formatDate(new Date());
+    var loc = (Lang && Lang.isTr && Lang.isTr()) ? 'tr-TR' : 'en-US';
+    weekEl.innerHTML = days.map(function (ds) {
+      var d = parseLocalDate(ds), sel = ds === currentDate, has = !!logged[ds];
+      var wd = d.toLocaleDateString(loc, { weekday: 'short' });
+      var full = d.toLocaleDateString(loc, { weekday: 'long', day: 'numeric', month: 'long' });
+      return '<button type="button" class="dash-day' + (sel ? ' is-selected' : '') + (has ? ' has-entries' : '') + '"'
+        + ' data-date="' + ds + '" aria-pressed="' + sel + '"' + (ds === today ? ' aria-current="date"' : '')
+        + ' aria-label="' + escHtml(full + (has ? ' \u00b7 ' + t('dash.hasEntries') : '')) + '">'
+        + '<span class="dash-day__wd">' + escHtml(wd) + '</span>'
+        + '<span class="dash-day__num">' + d.getDate() + '</span>'
+        + '<span class="dash-day__dot" aria-hidden="true"></span></button>';
+    }).join('');
+    var s = weekEl.querySelector('.is-selected');
+    if (s) weekEl.scrollLeft = s.offsetLeft - (weekEl.clientWidth - s.offsetWidth) / 2;
+  }
+
+  if (weekEl) weekEl.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-date]');
+    if (!b || b.dataset.date === currentDate) return;
+    currentDate = b.dataset.date;
+    loadPage();
+  });
+
   async function loadPage() {
     updateDateHeading();
-    await Promise.all([loadSummary(), loadEntries()]);
+    await Promise.all([loadSummary(), loadEntries(), loadWeek()]);
     updateCopyYesterdayVisibility();
     loadNote();
   }
   async function loadSummary() {
-    try { var data = await api('/api/summary?date=' + currentDate); renderSummary(data); renderDonut(data); renderRemainingPanel(data); }
+    try { var data = await api('/api/summary?date=' + currentDate); renderSummary(data); renderHero(data); renderRemainingPanel(data); }
     catch (err) { showToast(t('common.error') + ': ' + err.message, 'error'); }
   }
 
@@ -207,22 +265,86 @@
     });
   }
 
-  var donutChart = null;
-  function renderDonut(data) {
-    var p=Math.round(data.totals?.protein??0), f=Math.round(data.totals?.fat??0), c=Math.round(data.totals?.carbs??0);
-    var consumed=Math.round(data.totals?.calories??0);
-    var targetCal=Math.round(data.target?.calories??0);
-    var lbl=document.getElementById('donut-center-label');
-    if(lbl){lbl.innerHTML=consumed+'<br><span style="font-size:0.7rem;font-weight:400;color:#718096">/ '+targetCal+' kcal</span>';}
-    var ctx=document.getElementById('macro-donut'); if(!ctx) return;
-    var pK=p*4,fK=f*9,cK=c*4,tot=pK+fK+cK;
-    var pP=tot>0?Math.round(pK/tot*100):0, fP=tot>0?Math.round(fK/tot*100):0, cP=tot>0?100-pP-fP:0;
-    var hasData=p+f+c>0;
-    if(donutChart) donutChart.destroy();
-    donutChart=new Chart(ctx,{type:'doughnut',data:{
-      labels:hasData?[t('macro.protein')+' '+p+'g ('+pP+'%)',t('macro.fat')+' '+f+'g ('+fP+'%)',t('macro.carbs')+' '+c+'g ('+cP+'%)']:['No data'],
-      datasets:[{data:hasData?[pK,fK,cK]:[1],backgroundColor:hasData?['#4A90D9','#E8913A','#5CB85C']:['#e2e8f0'],borderWidth:2,borderColor:'#fff',hoverBorderColor:'#fff'}]
-    },options:{responsive:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:10,font:{size:12}}},tooltip:{enabled:hasData}}}});
+  /* ---- Hero gauges (calorie arc + macro rings) ---- */
+  var ARC_LEN = 150.8, RING_LEN = 113.1, DROP_RING_LEN = 182.2;
+  function pctOf(c, g) { return g > 0 ? c / g * 100 : 0; }
+
+  function renderHero(data) {
+    var tot = data.totals || {}, tgt = data.target || {}, rem = data.remaining || {};
+    var kc = Math.round(tot.calories || 0), kt = Math.round(tgt.calories || 0), kp = pctOf(kc, kt);
+    var arc = document.getElementById('cal-arc-fill');
+    if (arc) {
+      arc.style.strokeDasharray = ARC_LEN;
+      arc.style.strokeDashoffset = ARC_LEN * (1 - Math.min(100, kp) / 100);
+      arc.classList.toggle('is-over', kt > 0 && kc > kt);
+    }
+    var gauge = document.getElementById('cal-arc');
+    if (gauge) gauge.setAttribute('aria-label', t('macro.calories') + ': ' + kc + ' / ' + kt + ' kcal (' + Math.round(kp) + '%)');
+
+    ['protein', 'carbs', 'fat'].forEach(function (m) {
+      var c = tot[m] || 0, g = tgt[m] || 0, over = g > 0 && c > g, p = pctOf(c, g);
+      var fill = document.getElementById('ring-fill-' + m);
+      if (fill) {
+        fill.style.strokeDasharray = RING_LEN;
+        fill.style.strokeDashoffset = RING_LEN * (1 - Math.min(100, p) / 100);
+      }
+      var val = document.getElementById('dash-left-' + m);
+      if (val) val.textContent = Math.round(Math.abs(rem[m] || 0));
+      var cap = document.getElementById('dash-cap-' + m);
+      if (cap) cap.textContent = t('macro.' + m) + ' ' + t(over ? 'macro.over' : 'macro.left');
+      var card = document.getElementById('dash-macro-' + m);
+      if (card) card.classList.toggle('is-over', over);
+      var ring = document.getElementById('ring-' + m);
+      if (ring) ring.setAttribute('aria-label', t('macro.' + m) + ': ' + Math.round(c) + ' / ' + Math.round(g) + ' g (' + Math.round(p) + '%)');
+    });
+    renderHealth(tot, tgt);
+  }
+
+  /* ---- Health score (macro adherence only; no micronutrient data exists) ---- */
+  function healthStatus(c, g) {
+    if (!(g > 0) || !(c > 0)) return 'none';
+    var r = c / g;
+    if (r >= 0.9 && r <= 1.1) return 'good';
+    if (r >= 0.7 && r <= 1.3) return 'warn';
+    return 'bad';
+  }
+
+  function renderHealth(tot, tgt) {
+    var keys = ['protein', 'fat', 'carbs', 'calories'];
+    var hasEntries = keys.some(function (k) { return (tot[k] || 0) > 0; });
+    var scores = [];
+    keys.forEach(function (k) {
+      var g = tgt[k] || 0;
+      if (g > 0) scores.push(10 * Math.max(0, 1 - Math.abs((tot[k] || 0) / g - 1)));
+    });
+    var score = (hasEntries && scores.length)
+      ? Math.round(scores.reduce(function (a, b) { return a + b; }, 0) / scores.length) : null;
+
+    var labelKey = score == null ? 'dash.noData'
+      : score >= 9 ? 'health.great' : score >= 7 ? 'health.good' : score >= 4 ? 'health.fair' : 'health.poor';
+    var tone = score == null ? 'none' : score >= 7 ? 'good' : score >= 4 ? 'warn' : 'bad';
+    var lblEl = document.getElementById('health-label');
+    if (lblEl) lblEl.textContent = t(labelKey);
+    var scoreEl = document.getElementById('health-score');
+    if (scoreEl) scoreEl.textContent = score == null ? '\u2013' : score;
+    var badge = document.getElementById('health-badge');
+    if (badge) {
+      badge.className = 'dash-health__badge is-' + tone;
+      badge.setAttribute('aria-label', t('dash.healthScore') + ': ' + (score == null ? '\u2013' : score) + '/10 \u2013 ' + t(labelKey));
+    }
+
+    var listEl = document.getElementById('health-list');
+    if (!listEl) return;
+    listEl.innerHTML = ['protein', 'carbs', 'fat', 'calories'].map(function (k) {
+      var c = tot[k] || 0, g = tgt[k] || 0, st = healthStatus(c, g);
+      var unit = k === 'calories' ? ' kcal' : 'g';
+      return '<li class="dash-health__row">'
+        + '<span class="dash-dot dash-dot--' + st + '" aria-hidden="true"></span>'
+        + '<span class="dash-health__name">' + escHtml(t('macro.' + k)) + '</span>'
+        + '<span class="dash-health__val">' + Math.round(c) + unit + '</span>'
+        + '<span class="dash-health__pct">' + (g > 0 ? Math.round(c / g * 100) + '%' : '\u2013') + '</span>'
+        + '</li>';
+    }).join('');
   }
 
   async function loadEntries() {
@@ -232,25 +354,55 @@
   var MEAL_ORDER=['Breakfast','Lunch','Dinner','Snack','Other'];
   var MEAL_I18N={Breakfast:'entry.breakfast',Lunch:'entry.lunch',Dinner:'entry.dinner',Snack:'entry.snack',Other:'entry.other'};
 
+  var MEAL_ICONS={Breakfast:'\uD83C\uDF73',Lunch:'\uD83E\uDD57',Dinner:'\uD83C\uDF72',Snack:'\uD83C\uDF4E',Other:'\uD83C\uDF7D\uFE0F'};
+  var AVATAR_TONES=['protein','carbs','fat','water'];
+  var FLAME_SVG='<svg class="ico-flame" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.5c.6 3.2-1.4 5-3 6.8C7.6 10.9 6.5 12.6 6.5 15a5.5 5.5 0 0 0 11 0c0-2.3-1.1-4-2.3-5.2.1 1.6-.6 2.8-1.7 3.3.4-3.6-.4-7.3-1.5-10.6z"/></svg>';
+  var expandedMeals={};
+
+  function mealAvatar(name){
+    var n=String(name||'').trim(), h=0;
+    for(var i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
+    var ch=n?Array.from(n)[0].toUpperCase():'?';
+    return '<span class="meal-ava meal-ava--'+AVATAR_TONES[h%AVATAR_TONES.length]+'" title="'+escHtml(n)+'">'+escHtml(ch)+'</span>';
+  }
+
   function renderEntries(entries) {
-    if(!entries||entries.length===0){entriesList.innerHTML='<p class="empty-msg">'+escHtml(t('dash.noEntries'))+'</p>';return;}
+    entries=entries||[];
     var groups={};MEAL_ORDER.forEach(function(m){groups[m]=[];});
     entries.forEach(function(e){var mt=e.meal_type;var k=(mt&&mt in groups)?mt:'Other';groups[k].push(e);});
     var html='';
     MEAL_ORDER.forEach(function(meal){
-      if(groups[meal].length===0) return;
+      var list=groups[meal];
+      if(meal==='Other'&&list.length===0) return;
       var lbl=t(MEAL_I18N[meal])||meal;
       var sp=0,sf=0,sc=0,sk=0;
-      groups[meal].forEach(function(e){sp+=e.protein||0;sf+=e.fat||0;sc+=e.carbs||0;sk+=e.calories||0;});
-      html+='<div class="meal-group" data-meal="'+escHtml(meal)+'">'
-        +'<div class="meal-group__header"><p class="meal-group__title">'+escHtml(lbl)+'</p>'
-        +'<div class="meal-group__actions">'
-        +'<button class="meal-add-btn" data-action="add-to-meal" data-meal="'+escHtml(meal)+'" aria-label="Add food to '+escHtml(lbl)+'">+ Add</button>'
-        +(meal!=='Other'?'<button class="btn-ghost meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; Clear</button>':'')
-        +'</div></div>'
-        +'<p class="meal-group__subtotal">P '+round1(sp)+'g · F '+round1(sf)+'g · C '+round1(sc)+'g · '+Math.round(sk)+' kcal</p>';
-      groups[meal].forEach(function(e){html+=renderEntryCard(e);});
-      html+='</div>';
+      list.forEach(function(e){sp+=e.protein||0;sf+=e.fat||0;sc+=e.carbs||0;sk+=e.calories||0;});
+      var open=!!expandedMeals[meal];
+      var bodyId='meal-body-'+meal.toLowerCase();
+      var avatars=list.slice(0,3).map(function(e){return mealAvatar(e.food_name);}).join('')
+        +(list.length>3?'<span class="meal-ava meal-ava--more">+'+(list.length-3)+'</span>':'');
+      html+='<div class="meal-group meal-row'+(open?' is-open':'')+(list.length?'':' is-empty')+'" data-meal="'+escHtml(meal)+'">'
+        +'<div class="meal-row__head">'
+        +'<button type="button" class="meal-row__toggle" data-action="toggle-meal" data-meal="'+escHtml(meal)+'" aria-expanded="'+open+'" aria-controls="'+bodyId+'">'
+        +'<span class="meal-row__icon" aria-hidden="true">'+MEAL_ICONS[meal]+'</span>'
+        +'<span class="meal-row__text"><span class="meal-row__title">'+escHtml(lbl)+'</span>'
+        +'<span class="meal-row__kcal">'+FLAME_SVG+Math.round(sk)+' Kcal</span></span>'
+        +'<span class="meal-row__avatars" aria-hidden="true">'+avatars+'</span>'
+        +'<span class="meal-row__chev" aria-hidden="true"></span>'
+        +'</button>'
+        +(meal!=='Other'?'<button type="button" class="meal-row__add" data-action="add-to-meal" data-meal="'+escHtml(meal)+'" aria-label="'+escHtml(t('dash.addToMeal').replace('{meal}',lbl))+'">+</button>':'')
+        +'</div>'
+        +'<div class="meal-row__body" id="'+bodyId+'"'+(open?'':' hidden')+'>';
+      if(list.length){
+        html+='<div class="meal-group__header">'
+          +'<p class="meal-group__subtotal">P '+round1(sp)+'g \u00b7 F '+round1(sf)+'g \u00b7 C '+round1(sc)+'g \u00b7 '+Math.round(sk)+' kcal</p>'
+          +(meal!=='Other'?'<button type="button" class="meal-clear-btn" data-action="clear-meal" data-meal="'+escHtml(meal)+'">&times; '+escHtml(t('common.clearLabel'))+'</button>':'')
+          +'</div>';
+        list.forEach(function(e){html+=renderEntryCard(e);});
+      }else{
+        html+='<p class="meal-row__empty">'+escHtml(t('dash.mealEmpty'))+'</p>';
+      }
+      html+='</div></div>';
     });
     entriesList.innerHTML=html;
   }
@@ -555,6 +707,15 @@
   entriesList.addEventListener('click',async function(e){
     var btn=e.target.closest('[data-action]'); if(!btn) return;
     var id=btn.dataset.id, meal=btn.dataset.meal;
+    if(btn.dataset.action==='toggle-meal'){
+      var row=btn.closest('.meal-row'), body=row?row.querySelector('.meal-row__body'):null;
+      var open=btn.getAttribute('aria-expanded')!=='true';
+      expandedMeals[meal]=open;
+      btn.setAttribute('aria-expanded',String(open));
+      if(body) body.hidden=!open;
+      if(row) row.classList.toggle('is-open',open);
+      return;
+    }
     if(btn.dataset.action==='edit'){
       try{
         var entries=await api('/api/entries?date='+currentDate);
@@ -1137,7 +1298,20 @@
     if (goalEl) goalEl.textContent = waterGoal;
 
     var pct = waterGoal > 0 ? Math.min(100, Math.round((totalMl / waterGoal) * 100)) : 0;
-    if (barEl) barEl.style.width = pct + '%';
+    if (barEl) {
+      barEl.style.width = pct + '%';
+      if (barEl.parentElement) barEl.parentElement.setAttribute('aria-valuenow', pct);
+    }
+    var ringEl = document.getElementById('water-ring-fill');
+    if (ringEl) {
+      ringEl.style.strokeDasharray = DROP_RING_LEN;
+      ringEl.style.strokeDashoffset = DROP_RING_LEN * (1 - pct / 100);
+    }
+    /* drop spans y=12..50 in the SVG; park the wave below the tip when empty */
+    var levelEl = document.getElementById('water-level');
+    if (levelEl) levelEl.style.transform = 'translateY(' + (pct > 0 ? 50 - 38 * pct / 100 : 54) + 'px)';
+    var dropEl = document.getElementById('water-drop');
+    if (dropEl) dropEl.setAttribute('aria-label', t('dash.water') + ': ' + Math.round(totalMl) + ' / ' + waterGoal + ' ml (' + pct + '%)');
 
     if (logsRow) {
       if (waterLogs.length === 0) {

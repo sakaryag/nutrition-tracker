@@ -1,17 +1,17 @@
 /* ============================================================
    NutriTrack Service Worker
-   Cache name: nutritrack-v1
+   Cache name: nutritrack-v2
    Strategy:
      - /static/* → cache-first (CSS, JS, images, manifest)
      - /api/*    → network-first (always try live, fall back to cache)
      - pages     → network-first
    ============================================================ */
 
-var CACHE_NAME = 'nutritrack-v1';
+var CACHE_NAME = 'nutritrack-v2';
 
 var STATIC_SHELL = [
   '/',
-  '/static/css/style.css',
+  '/static/css/style.css?v=2',
   '/static/js/i18n.js',
   '/static/js/app.js',
   '/static/js/dashboard.js',

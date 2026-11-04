@@ -345,14 +345,10 @@ def _stream_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
         'generationConfig': {'maxOutputTokens': 1024},
     }).encode()
 
-    if key.startswith('AQ.'):
-        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-               f'{model}:streamGenerateContent?alt=sse')
-        _key_header = {'x-goog-api-key': key}
-    else:
-        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-               f'{model}:streamGenerateContent?alt=sse&key={key}')
-        _key_header = {}
+    # Key goes in a header, never the URL, so it can't leak into logs or error text.
+    url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+           f'{model}:streamGenerateContent?alt=sse')
+    _key_header = {'x-goog-api-key': key}
 
     last_err = None
     for attempt in range(3):
@@ -428,16 +424,9 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
         'generationConfig': {'maxOutputTokens': 1024},
     }).encode()
 
-    # AQ. keys (new AI Studio format) use x-goog-api-key header
-    # Legacy AIzaSy keys use ?key= query param
-    if key.startswith('AQ.'):
-        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-               f'{model}:generateContent')
-        _key_header = {'x-goog-api-key': key}
-    else:
-        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-               f'{model}:generateContent?key={key}')
-        _key_header = {}
+    url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+           f'{model}:generateContent')
+    _key_header = {'x-goog-api-key': key}
     import time
     last_err = None
     for attempt in range(3):

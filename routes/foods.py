@@ -112,15 +112,9 @@ def image_lookup():
         )
     import time as _time
     try:
-        # AQ. keys use x-goog-api-key header; legacy AIzaSy keys use ?key= param
-        if api_key.startswith('AQ.'):
-            url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-                   f'{model}:generateContent')
-            _key_header = {'x-goog-api-key': api_key}
-        else:
-            url = ('https://generativelanguage.googleapis.com/v1beta/models/'
-                   f'{model}:generateContent?key={api_key}')
-            _key_header = {}
+        url = ('https://generativelanguage.googleapis.com/v1beta/models/'
+               f'{model}:generateContent')
+        _key_header = {'x-goog-api-key': api_key}
         payload = json.dumps({
             'contents': [{
                 'parts': [

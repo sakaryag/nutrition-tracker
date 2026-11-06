@@ -79,6 +79,7 @@ def create_app(config_name=None, test_config=None):
             _seed_meals_on_startup(app)
             _patch_name_tr(app)
             _refresh_usda_foods(app)
+            _sync_usda_identity(app)
             _patch_food_data(app)
             _patch_program_days(app)
             _patch_plan_feature_enabled(app)
@@ -999,6 +1000,60 @@ def _refresh_usda_foods(app):
         "UPDATE saved_food SET fiber=0 WHERE source='usda' AND fiber IS NULL"
     ))
     db.session.commit()
+
+
+def _sync_usda_identity(app):
+    """Insert seed foods missing from the DB; if a missing food's name sits on another fdc id
+    (an id reassigned in foods.csv), move that row to the new id so existing references keep pointing at it."""
+    import csv as csv_mod
+    from models.saved_food import SavedFood
+
+    csv_path = os.path.join(os.path.dirname(__file__), 'seed_data', 'foods.csv')
+    if not os.path.exists(csv_path):
+        return
+    with open(csv_path, newline='', encoding='utf-8-sig') as f:
+        seed = {int(r['usda_fdc_id']): r for r in csv_mod.DictReader(f) if r.get('usda_fdc_id')}
+
+    rows = {f.usda_fdc_id: f for f in SavedFood.query.filter_by(source='usda').all()}
+    missing = [fdc for fdc in seed if fdc not in rows]
+    if not missing:
+        return
+    by_name = {}
+    for row in rows.values():
+        by_name.setdefault((row.name or '').strip().lower(), row)
+
+    def _f(val):
+        try:
+            return float(val) if val else 0.0
+        except (ValueError, TypeError):
+            return 0.0
+
+    moved = inserted = 0
+    for fdc in missing:
+        row = by_name.get(seed[fdc]['name'].strip().lower())
+        if row is not None and row.usda_fdc_id in seed and \
+                seed[row.usda_fdc_id]['name'].strip().lower() != seed[fdc]['name'].strip().lower():
+            rows.pop(row.usda_fdc_id, None)
+            row.usda_fdc_id = fdc
+            rows[fdc] = row
+            db.session.flush()
+            moved += 1
+    for fdc in seed:
+        if fdc in rows:
+            continue
+        r = seed[fdc]
+        db.session.add(SavedFood(
+            usda_fdc_id=fdc, name=r['name'], name_tr=r.get('name_tr') or r['name'],
+            brand=r.get('brand') or 'generic', category=r.get('category') or 'General',
+            source='usda', food_type=r.get('food_type') or 'ingredient',
+            protein=_f(r['protein']), fat=_f(r['fat']), carbs=_f(r['carbs']),
+            calories=_f(r['calories']), fiber=_f(r['fiber']), sugar=_f(r['sugar']),
+            default_serving=_f(r['default_serving']) or 100, serving_unit=r.get('serving_unit') or 'g',
+            g_per_unit=_f(r['g_per_unit']) or None,
+        ))
+        inserted += 1
+    db.session.commit()
+    app.logger.info('_sync_usda_identity: moved=%d inserted=%d', moved, inserted)
 
 
 def _patch_food_data(app):

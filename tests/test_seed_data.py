@@ -165,3 +165,17 @@ class TestEntryMealType:
         returned_types = {e["meal_type"] for e in entries}
         for mt in ("breakfast", "lunch", "dinner", "snack"):
             assert mt in returned_types
+def test_sync_usda_identity_moves_reassigned_fdc_id(app, db_session):
+    from app import _sync_usda_identity
+    from models import db
+    from models.saved_food import SavedFood
+    SavedFood.query.filter(SavedFood.usda_fdc_id.in_([170554, 180066])).delete(synchronize_session=False)
+    old = SavedFood(usda_fdc_id=170554, name='Butter beans, cooked', source='usda',
+                    protein=7.6, fat=0.3, carbs=20, calories=113)
+    db.session.add(old)
+    db.session.commit()
+    _sync_usda_identity(app)
+    db.session.refresh(old)
+    assert old.usda_fdc_id == 180066
+    chia = SavedFood.query.filter_by(usda_fdc_id=170554).one()
+    assert chia.name == 'Chia seeds' and chia.protein > 10

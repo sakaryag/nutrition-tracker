@@ -29,3 +29,7 @@ android.keystore
 
 # Claude Code search helper (local only)
 .ignore
+
+# Food audit outputs (regenerate with scripts/audit_foods.py)
+food_audit.csv
+foods_strict_full_pass.csv

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %} — Progress{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="/static/css/progress.css?v=2" />
+{% endblock %}
+
+{% block content %}
+<section class="page-progress">
+
+  <h1 class="pg-title" data-pt="title">Goal Progress</h1>
+
+  <div class="pg-weights">
+    <div class="card pg-weight-card">
+      <div>
+        <div class="stat-value"><span id="pg-goal-value">&mdash;</span> <span class="pg-unit">kg</span></div>
+        <div class="stat-caption" data-pt="goalWeight">Goal weight</div>
+      </div>
+      <button type="button" class="btn btn-ink btn-pill pg-btn" id="pg-open-goal" data-pt="updateGoal">Update my goal</button>
+    </div>
+    <div class="card pg-weight-card">
+      <div>
+        <div class="stat-value"><span id="pg-current-value">&mdash;</span> <span class="pg-unit">kg</span></div>
+        <div class="stat-caption" data-pt="currentWeight">Current weight</div>
+      </div>
+      <button type="button" class="btn btn-ink btn-pill pg-btn" id="pg-open-weight" data-pt="updateWeight">Update weight</button>
+    </div>
+  </div>
+
+  <div class="card pg-chart-card">
+    <div class="pg-card-head">
+      <div>
+        <h2 class="section-title" data-pt="goalProgress">Goal Progress</h2>
+        <div class="pg-pct-row">
+          <span class="stat-value" id="pg-pct">&mdash;</span>
+          <span class="pg-status" id="pg-status"></span>
+        </div>
+      </div>
+      <label class="visually-hidden" for="pg-range" data-pt="range">Range</label>
+      <select id="pg-range" class="pg-range">
+        <option value="week" data-pt="weekly">Weekly</option>
+        <option value="month" selected data-pt="monthly">Monthly</option>
+        <option value="all" data-pt="all">All</option>
+      </select>
+    </div>
+    <div class="pg-chart-wrap" id="pg-chart-wrap">
+      <canvas id="pg-chart" aria-label="Weight over time" role="img"></canvas>
+    </div>
+    <p class="pg-empty" id="pg-chart-empty" hidden data-pt="emptyChart">No weigh-ins yet. Tap &ldquo;Update weight&rdquo; to log your first one.</p>
+  </div>
+
+  <div class="card pg-bmi-card">
+    <h2 class="section-title" data-pt="bmiTitle">Your BMI (Body Mass Index)</h2>
+    <div id="pg-bmi-body" hidden>
+      <div class="pg-bmi-row">
+        <span class="stat-value" id="pg-bmi-value">&mdash;</span>
+        <span class="stat-caption" data-pt="yourWeightIs">Your weight is</span>
+        <span class="pg-bmi-pill" id="pg-bmi-pill"></span>
+      </div>
+      <div class="pg-bmi-bar" aria-hidden="true">
+        <span class="pg-bmi-marker" id="pg-bmi-marker"></span>
+      </div>
+      <ul class="pg-bmi-legend">
+        <li><span class="pg-dot pg-dot--under"></span><span data-pt="underweight">Underweight</span></li>
+        <li><span class="pg-dot pg-dot--healthy"></span><span data-pt="healthy">Healthy</span></li>
+        <li><span class="pg-dot pg-dot--over"></span><span data-pt="overweight">Overweight</span></li>
+        <li><span class="pg-dot pg-dot--obese"></span><span data-pt="obese">Obese</span></li>
+      </ul>
+    </div>
+    <div class="pg-empty" id="pg-bmi-empty" hidden>
+      <span id="pg-bmi-empty-msg"></span>
+      <button type="button" class="btn btn-soft btn-pill btn-sm" id="pg-add-height" data-pt="addHeight">Add height</button>
+    </div>
+  </div>
+
+  <div class="card pg-history-card">
+    <h2 class="section-title" data-pt="recent">Recent weigh-ins</h2>
+    <ul class="pg-history" id="pg-history"></ul>
+    <p class="pg-empty" id="pg-history-empty" hidden data-pt="emptyHistory">Your weigh-ins will show up here.</p>
+  </div>
+
+</section>
+
+<div class="modal-overlay" id="pg-goal-modal" role="dialog" aria-modal="true" aria-labelledby="pg-goal-title" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="pg-goal-title" data-pt="updateGoal">Update my goal</h2>
+      <button type="button" class="btn btn-icon modal-close" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="pg-goal-form" novalidate>
+      <div class="form-group">
+        <label for="pg-goal-input" data-pt="goalWeightKg">Goal weight (kg)</label>
+        <input type="number" id="pg-goal-input" class="form-control" inputmode="decimal" step="0.1" min="20" max="400" required />
+      </div>
+      <div class="form-group" id="pg-height-group">
+        <label for="pg-height-input" data-pt="heightCm">Height (cm)</label>
+        <input type="number" id="pg-height-input" class="form-control" inputmode="decimal" step="0.1" min="80" max="250" />
+      </div>
+      <p class="form-error" id="pg-goal-error" role="alert"></p>
+      <button type="submit" class="btn btn-ink btn-pill pg-submit" data-pt="save">Save</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="pg-weight-modal" role="dialog" aria-modal="true" aria-labelledby="pg-weight-title" hidden>
+  <div class="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="pg-weight-title" data-pt="updateWeight">Update weight</h2>
+      <button type="button" class="btn btn-icon modal-close" data-close aria-label="Close">&times;</button>
+    </div>
+    <form id="pg-weight-form" novalidate>
+      <div class="form-group">
+        <label for="pg-weight-input" data-pt="weightKg">Weight (kg)</label>
+        <input type="number" id="pg-weight-input" class="form-control" inputmode="decimal" step="0.1" min="20" max="400" required />
+      </div>
+      <div class="form-group">
+        <label for="pg-date-input" data-pt="date">Date</label>
+        <input type="date" id="pg-date-input" class="form-control" required />
+      </div>
+      <p class="form-error" id="pg-weight-error" role="alert"></p>
+      <button type="submit" class="btn btn-ink btn-pill pg-submit" data-pt="save">Save</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/progress.js?v=1"></script>
+{% endblock %}

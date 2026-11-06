@@ -778,6 +778,7 @@ def _register_blueprints(app):
         from routes.dietitian import dietitian_bp
         from routes.recipes import recipes_bp
         from routes.exchange_categories import exchange_categories_bp
+        from routes.progress import progress_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -798,6 +799,7 @@ def _register_blueprints(app):
         app.register_blueprint(dietitian_bp)
         app.register_blueprint(recipes_bp)
         app.register_blueprint(exchange_categories_bp)
+        app.register_blueprint(progress_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

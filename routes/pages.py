@@ -80,6 +80,12 @@ def settings():
     return render_template('settings.html')
 
 
+@pages_bp.route('/progress')
+@login_required
+def progress():
+    return render_template('progress.html')
+
+
 @pages_bp.route('/chat')
 @login_required
 def chat():

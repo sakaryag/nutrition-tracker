@@ -95,6 +95,17 @@
   var autocompleteList = document.getElementById('food-autocomplete');
   var unitSelect       = document.getElementById('entry-serving-unit');
   var unitHintEl       = document.getElementById('unit-equiv-hint');
+  var mealSelect       = document.getElementById('entry-meal-type');
+  var servingInput     = document.getElementById('entry-serving-size');
+  var mealRadios       = Array.from(document.querySelectorAll('#entry-modal input[name="lf_meal"]'));
+  var lfRecents        = document.getElementById('lf-recents');
+  var lfRecentsRow     = document.getElementById('lf-recents-row');
+  var lfQuick          = document.getElementById('lf-quick');
+  var lfManual         = document.getElementById('lf-manual');
+  var lfStepDec        = document.getElementById('lf-step-dec');
+  var lfStepInc        = document.getElementById('lf-step-inc');
+  var recentFoods = [];
+  var acFoods = [];
   var clearRecentsBtn  = document.getElementById('clear-recents-btn');
   var copyYesterdayBtn  = document.getElementById('copy-yesterday-btn');
   var copyConfirmModal  = document.getElementById('copy-confirm-modal');
@@ -430,6 +441,7 @@
     catch(_){ quickAddList.innerHTML='<p class="empty-msg">'+escHtml(t('common.loadError'))+'</p>'; }
   }
   function renderRecents(recents) {
+    recentFoods=recents||[]; renderSheetRecents();
     if(!recents||recents.length===0){quickAddList.innerHTML='<p class="empty-msg">No recent foods yet.</p>';return;}
     quickAddList.innerHTML=recents.map(function(r){
       var kcal=Math.round(r.calories??((r.protein||0)*4+(r.fat||0)*9+(r.carbs||0)*4));
@@ -445,6 +457,7 @@
     try{var food=JSON.parse(chip.dataset.food);openModal();prefillFromFood(food);}catch(_){}
   });
   if(clearRecentsBtn) clearRecentsBtn.addEventListener('click',function(){
+    recentFoods=[]; renderSheetRecents();
     quickAddList.innerHTML='<p class="empty-msg">No recent foods yet.</p>';
   });
 
@@ -460,8 +473,9 @@
 
   function openModal(entry) {
     editingId=entry?entry.id:null; selectedFood=null; manualMacroEdit=false; foodGPerUnit=null;
-    modalTitle.textContent=entry?t('entry.editEntry'):t('entry.addFood');
+    modalTitle.textContent=entry?t('entry.editEntry'):t('entry.logFood');
     entryForm.reset();
+    if(lfManual) lfManual.open=false;
     document.getElementById('entry-id').value='';
     document.getElementById('entry-saved-food-id').value='';
     autocompleteList.hidden=true;
@@ -488,9 +502,10 @@
       }
       selectedFood={protein:entry.protein??0,fat:entry.fat??0,carbs:entry.carbs??0,
         calories:entry.calories??0,default_serving:entry.serving_size??100,serving_unit:entry.serving_unit??'g'};
-    } else if(pendingMealType){
-      document.getElementById('entry-meal-type').value=pendingMealType;
+    } else {
+      mealSelect.value=pendingMealType||defaultMeal();
     }
+    refreshSheet();
     entryModal.hidden=false; foodNameInput.focus();
   }
 
@@ -554,7 +569,7 @@
     selectedFood={protein:food.protein??0,fat:food.fat??0,carbs:food.carbs??0,
       calories:food.calories??0,default_serving:food.default_serving??food.serving_size??100,
       serving_unit:baseUnit,g_per_unit:foodGPerUnit};
-    manualMacroEdit=false; updateUnitHint();
+    manualMacroEdit=false; updateUnitHint(); refreshSheet();
   }
 
   var debouncedSearch=debounce(async function(q){
@@ -581,7 +596,10 @@
     else if(e.key==='ArrowUp'){e.preventDefault();idx=Math.max(idx-1,0);}
     else if(e.key==='Enter'&&focused){e.preventDefault();focused.click();return;}
     else if(e.key==='Escape'){autocompleteList.hidden=true;return;}
-    items.forEach(function(li,i){li.classList.toggle('focused',i===idx);});
+    items.forEach(function(li,i){
+      li.classList.toggle('focused',i===idx); li.setAttribute('aria-selected',String(i===idx));
+      if(i===idx) li.scrollIntoView({block:'nearest'});
+    });
   });
   document.addEventListener('click',function(e){
     if(!e.target.closest('.autocomplete-wrap')) autocompleteList.hidden=true;
@@ -589,25 +607,33 @@
 
   function renderAutocomplete(foods){
     if(!foods||foods.length===0){autocompleteList.hidden=true;return;}
-    autocompleteList.innerHTML=foods.slice(0,10).map(function(f){
+    acFoods=foods.slice(0,10);
+    autocompleteList.innerHTML=acFoods.map(function(f,i){
       // Hide "generic" brand label — it's a seed-data artefact, not useful info
-      var brand=(f.brand&&f.brand!=='generic')?' <span class="ac-sub">'+escHtml(f.brand)+'</span>':'';
+      var brand=(f.brand&&f.brand!=='generic')?' · '+escHtml(f.brand):'';
       // Scale macros to default_serving so the hint matches what fills the form
       var baseUnit=f.serving_unit||'g';
       var gpu=f.g_per_unit||null;
       var serving=f.default_serving||100;
       var initG=toGrams(serving,baseUnit,gpu);
       var scale=(initG!=null)?initG/100:1;
-      var servLabel=(initG!=null)?round1(initG)+'g':'100g';
-      var macros='<span class="ac-sub">'+servLabel+' · P:'+round1(f.protein*scale)+'g F:'+round1(f.fat*scale)+'g C:'+round1(f.carbs*scale)+'g</span>';
-      return '<li role="option" tabindex="-1" data-food=\''+JSON.stringify(f).replace(/'/g,"&#39;")+'\'>'+escHtml(Lang.foodName(f))+brand+' '+macros+'</li>';
+      var servLabel=(initG!=null)?round1(initG)+' g':'100 g';
+      var kcal=Math.round((f.calories??((f.protein||0)*4+(f.fat||0)*9+(f.carbs||0)*4))*scale);
+      var nm=Lang.foodName(f)||f.name||'';
+      return '<li role="option" tabindex="-1" aria-selected="false" class="lf-ac__row" data-idx="'+i+'">'
+        +avatarHtml(nm)
+        +'<span class="lf-ac__main"><span class="lf-ac__name">'+escHtml(nm)+'</span>'
+        +'<span class="lf-ac__cap">'+servLabel+' · '+kcal+' kcal'+brand+'</span></span>'
+        +'<span class="lf-ac__mac"><span class="lf-m--p">P '+round1(f.protein*scale)+'</span>'
+        +'<span class="lf-m--c">C '+round1(f.carbs*scale)+'</span>'
+        +'<span class="lf-m--f">F '+round1(f.fat*scale)+'</span></span></li>';
     }).join('');
     autocompleteList.hidden=false;
   }
   autocompleteList.addEventListener('click',function(e){
     var li=e.target.closest('li'); if(!li) return;
     try{
-      var food=JSON.parse(li.dataset.food);
+      var food=acFoods[parseInt(li.dataset.idx,10)]; if(!food) return;
       manualMacroEdit=false;
       foodNameInput.value=food.name;
       document.getElementById('entry-saved-food-id').value=food.id??'';
@@ -629,7 +655,7 @@
       selectedFood=Object.assign({},food,{protein:rawP,fat:rawF,carbs:rawC,calories:rawK,
         default_serving:food.default_serving||100,serving_unit:baseUnit});
       populateUnitSelect(unitSelect,baseUnit,foodGPerUnit,baseUnit,food.valid_units||null);
-      autocompleteList.hidden=true; updateUnitHint();
+      autocompleteList.hidden=true; updateUnitHint(); refreshSheet();
     }catch(_){}
   });
 
@@ -661,12 +687,125 @@
     document.getElementById('entry-calories').value=Math.round(baseCal*ratio);
   }
 
+  /* ---------- Log Food sheet helpers ---------- */
+  var MEAL_KEYS={Breakfast:'entry.breakfast',Lunch:'entry.lunch',Dinner:'entry.dinner',Snack:'entry.snack'};
+  function defaultMeal(){
+    var h=new Date().getHours();
+    return h<11?'Breakfast':h<16?'Lunch':h<21?'Dinner':'Snack';
+  }
+  function avatarHtml(name){
+    var s=String(name||'').trim(), h=0;
+    for(var i=0;i<s.length;i++) h=(h+s.charCodeAt(i))%5;
+    return '<span class="lf-av lf-av--'+h+'" aria-hidden="true">'+escHtml((s.charAt(0)||'?').toUpperCase())+'</span>';
+  }
+  function syncMealPills(){
+    mealRadios.forEach(function(r){r.checked=(r.value===mealSelect.value);});
+    updateSaveLabel();
+  }
+  function updateSaveLabel(){
+    var btn=document.getElementById('save-entry-btn');
+    if(editingId) btn.textContent=t('entry.saveChanges');
+    else if(MEAL_KEYS[mealSelect.value]) btn.textContent=t('entry.addTo').replace('{meal}',t(MEAL_KEYS[mealSelect.value]));
+    else btn.textContent=t('entry.save');
+  }
+  function numVal(id){var v=parseFloat(document.getElementById(id).value);return isFinite(v)&&v>0?v:0;}
+  function updatePreview(){
+    var p=numVal('entry-protein'), f=numVal('entry-fat'), c=numVal('entry-carbs');
+    var k=document.getElementById('entry-calories').value!==''?numVal('entry-calories'):p*4+f*9+c*4;
+    document.getElementById('lf-kcal').textContent=Math.round(k);
+    document.getElementById('lf-p').textContent=round1(p);
+    document.getElementById('lf-c').textContent=round1(c);
+    document.getElementById('lf-f').textContent=round1(f);
+    var name=foodNameInput.value.trim(), amt=parseFloat(servingInput.value);
+    document.getElementById('lf-preview-name').textContent=name
+      ?name+(amt>0?' · '+round1(amt)+' '+(unitSelect?unitSelect.value:'g'):'')
+      :t('entry.noFood');
+    var pk=p*4, ck=c*4, fk=f*9, tot=pk+ck+fk;
+    document.getElementById('lf-bar-p').style.width=(tot?pk/tot*100:0)+'%';
+    document.getElementById('lf-bar-c').style.width=(tot?ck/tot*100:0)+'%';
+    document.getElementById('lf-bar-f').style.width=(tot?fk/tot*100:0)+'%';
+  }
+  function updateQuick(){
+    if(!lfQuick) return;
+    var base=selectedFood?(selectedFood.default_serving??selectedFood.serving_size):null;
+    lfQuick.hidden=!(base>0);
+    if(lfQuick.hidden) return;
+    var bu=selectedFood.serving_unit||'g', cur=parseFloat(servingInput.value);
+    lfQuick.querySelectorAll('[data-mult]').forEach(function(b){
+      var on=unitSelect.value===bu&&Math.abs(cur-base*parseFloat(b.dataset.mult))<0.05;
+      b.setAttribute('aria-pressed',String(on));
+    });
+  }
+  function updateRecentsVisibility(){
+    if(lfRecents) lfRecents.hidden=!!editingId||!recentFoods.length||foodNameInput.value.trim()!=='';
+  }
+  function renderSheetRecents(){
+    if(!lfRecentsRow) return;
+    lfRecentsRow.innerHTML=recentFoods.slice(0,10).map(function(r,i){
+      var kcal=Math.round(r.calories??((r.protein||0)*4+(r.fat||0)*9+(r.carbs||0)*4));
+      return '<button type="button" class="lf-rchip" data-idx="'+i+'">'+avatarHtml(r.food_name)
+        +'<span class="lf-rchip__txt"><span class="lf-rchip__name">'+escHtml(r.food_name)+'</span>'
+        +'<span class="lf-rchip__cap">'+kcal+' kcal</span></span></button>';
+    }).join('');
+    updateRecentsVisibility();
+  }
+  function refreshSheet(){
+    syncMealPills(); updatePreview(); updateQuick(); updateRecentsVisibility();
+  }
+  function stepServing(dir){
+    var u=unitSelect?unitSelect.value:'g';
+    var s=(u==='g'||u==='ml')?10:(u==='oz'?1:0.5);
+    var nv=round1((parseFloat(servingInput.value)||0)+dir*s);
+    if(nv<=0) return;
+    servingInput.value=nv;
+    servingInput.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+
+  mealRadios.forEach(function(r){
+    r.addEventListener('change',function(){if(r.checked){mealSelect.value=r.value;updateSaveLabel();}});
+  });
+  if(lfStepDec){lfStepDec.setAttribute('aria-label',t('entry.decrease'));lfStepDec.addEventListener('click',function(){stepServing(-1);});}
+  if(lfStepInc){lfStepInc.setAttribute('aria-label',t('entry.increase'));lfStepInc.addEventListener('click',function(){stepServing(1);});}
+  if(lfQuick){
+    lfQuick.setAttribute('aria-label',t('entry.quickPortions'));
+    lfQuick.addEventListener('click',function(e){
+      var b=e.target.closest('[data-mult]'); if(!b||!selectedFood) return;
+      var base=selectedFood.default_serving??selectedFood.serving_size; if(!(base>0)) return;
+      var bu=selectedFood.serving_unit||'g';
+      var opt=Array.from(unitSelect.options).find(function(o){return o.value===bu;});
+      if(opt&&!opt.disabled) unitSelect.value=bu;
+      servingInput.value=round1(base*parseFloat(b.dataset.mult));
+      servingInput.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+  }
+  if(lfRecentsRow) lfRecentsRow.addEventListener('click',function(e){
+    var b=e.target.closest('.lf-rchip'); if(!b) return;
+    var food=recentFoods[parseInt(b.dataset.idx,10)]; if(!food) return;
+    prefillFromFood(food); servingInput.focus();
+  });
+  var lfBar=document.getElementById('lf-bar');
+  if(lfBar) lfBar.setAttribute('aria-label',t('entry.kcalSplit'));
+  ['close-modal','close-copy-modal','close-tpl-adjust'].forEach(function(id){
+    var b=document.getElementById(id); if(b) b.setAttribute('aria-label',t('common.close'));
+  });
+  /* Bubble-phase: runs after the field-level handlers above have rescaled macros */
+  entryForm.addEventListener('input',function(){updatePreview();updateQuick();updateRecentsVisibility();});
+  entryForm.addEventListener('change',function(){updatePreview();updateQuick();});
+
   entryForm.addEventListener('submit',async function(e){
     e.preventDefault();
     var protein=parseFloat(document.getElementById('entry-protein').value);
     var fat=parseFloat(document.getElementById('entry-fat').value);
     var carbs=parseFloat(document.getElementById('entry-carbs').value);
     var calRaw=document.getElementById('entry-calories').value;
+    if(isNaN(protein)||isNaN(fat)||isNaN(carbs)){
+      if(lfManual) lfManual.open=true;
+      var bad=['entry-protein','entry-carbs','entry-fat'].map(function(id){return document.getElementById(id);})
+        .find(function(el){return isNaN(parseFloat(el.value));});
+      if(bad) bad.focus();
+      showToast(t('entry.macrosRequired'),'error'); return;
+    }
+    if(!mealSelect.value){mealSelect.value=defaultMeal();syncMealPills();}
     var calories=calRaw!==''?parseFloat(calRaw):(protein*4)+(fat*9)+(carbs*4);
     var unit=unitSelect?unitSelect.value:'g';
     var body={food_name:foodNameInput.value.trim(),protein:protein,fat:fat,carbs:carbs,calories:calories,
@@ -752,6 +891,7 @@
           carbs:src.carbs,calories:src.calories,serving_size:src.serving_size,default_serving:src.serving_size,
           serving_unit:src.serving_unit,id:src.saved_food_id});
         document.getElementById('entry-meal-type').value=src.meal_type;
+        syncMealPills();
       }catch(err){showToast(t('common.error')+': '+err.message,'error');}
     }else if(btn.dataset.action==='add-to-meal'){
       pendingMealType=meal; openModal();

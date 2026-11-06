@@ -245,6 +245,19 @@ KURALLAR:
 ```
 
 Kayıt yoksa action'ı "none" yap ve entries'i boş liste yap.
+
+Kullanıcı yemek önerisi/fikri isterse (yediğini bildirmiyorsa) KAYIT YAPMA. Kısa cevap ver ve sonuna en fazla 3 öneriyle şu bloğu ekle (fiyat yazma):
+
+```json
+{{
+  "action": "suggest",
+  "entries": [],
+  "suggestions": [
+    {{"title": "Izgara tavuk salata", "emoji": "🥗", "protein": 35, "fat": 12, "carbs": 18, "calories": 320, "servings": 1, "prep_minutes": 15, "meal_type": "Lunch"}}
+  ],
+  "reply": "Kısa özet mesaj"
+}}
+```
 """
 
 _SYSTEM_EN = """You are a nutrition assistant. Help the user log what they eat.
@@ -280,6 +293,19 @@ RULES:
 ```
 
 If not logging, set action to "none" and entries to [].
+
+If the user asks for meal ideas or suggestions (not reporting food they ate), do NOT log. Answer briefly and end with this block containing at most 3 suggestions (never include prices):
+
+```json
+{{
+  "action": "suggest",
+  "entries": [],
+  "suggestions": [
+    {{"title": "Grilled chicken salad", "emoji": "🥗", "protein": 35, "fat": 12, "carbs": 18, "calories": 320, "servings": 1, "prep_minutes": 15, "meal_type": "Lunch"}}
+  ],
+  "reply": "Short summary message"
+}}
+```
 """
 
 

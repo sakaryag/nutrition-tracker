@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %} &mdash; Dashboard{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/dashboard.css?v=1">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/dashboard.css?v=2">{% endblock %}
 
 {% block content %}
 <section class="page-dashboard dash">
@@ -238,125 +238,189 @@
 </section>
 
 <!-- Add / Edit Food Modal -->
-<div class="modal-overlay" id="entry-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
-  <div class="modal">
-    <div class="modal-header">
-      <h2 class="modal-title" id="modal-title" data-i18n="entry.addFood">Add Food</h2>
-      <button class="btn btn-icon modal-close" id="close-modal" aria-label="Close">&times;</button>
+<div class="modal-overlay lf-overlay" id="entry-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+  <div class="modal lf-sheet">
+    <span class="lf-handle" aria-hidden="true"></span>
+    <div class="lf-head">
+      <h2 class="modal-title lf-title" id="modal-title" data-i18n="entry.logFood">Log Food</h2>
+      <button type="button" class="lf-close modal-close" id="close-modal" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
-    <form id="entry-form" novalidate>
+    <form id="entry-form" class="lf-form" novalidate>
       <input type="hidden" id="entry-id" name="entry_id" />
       <input type="hidden" id="entry-saved-food-id" name="saved_food_id" />
+      <select id="entry-meal-type" name="meal_type" hidden tabindex="-1" aria-hidden="true">
+        <option value="" data-i18n="entry.selectMeal">Select meal</option>
+        <option value="Breakfast" data-i18n="entry.breakfast">Breakfast</option>
+        <option value="Lunch" data-i18n="entry.lunch">Lunch</option>
+        <option value="Dinner" data-i18n="entry.dinner">Dinner</option>
+        <option value="Snack" data-i18n="entry.snack">Snack</option>
+      </select>
 
-      <!-- Food Name with Autocomplete -->
-      <div class="form-group autocomplete-wrap">
-        <label for="entry-food-name" data-i18n="entry.foodName">Food Name <span aria-hidden="true">*</span></label>
-        <input type="text" id="entry-food-name" name="food_name" class="form-control" data-i18n-placeholder="entry.searchPlaceholder" placeholder="Search or type a food name" autocomplete="off" required />
-        <ul class="autocomplete-dropdown" id="food-autocomplete" role="listbox" hidden></ul>
+      <div class="lf-body">
+        <!-- Meal type segmented control -->
+        <div class="lf-seg" role="radiogroup" aria-labelledby="lf-meal-label">
+          <span class="visually-hidden" id="lf-meal-label" data-i18n="entry.mealType">Meal type</span>
+          <label class="lf-seg__opt"><input type="radio" name="lf_meal" value="Breakfast" /><span class="lf-seg__pill"><span class="lf-seg__ico" aria-hidden="true">&#x2615;</span><span data-i18n="entry.breakfast">Breakfast</span></span></label>
+          <label class="lf-seg__opt"><input type="radio" name="lf_meal" value="Lunch" /><span class="lf-seg__pill"><span class="lf-seg__ico" aria-hidden="true">&#x1F957;</span><span data-i18n="entry.lunch">Lunch</span></span></label>
+          <label class="lf-seg__opt"><input type="radio" name="lf_meal" value="Dinner" /><span class="lf-seg__pill"><span class="lf-seg__ico" aria-hidden="true">&#x1F37D;&#xFE0F;</span><span data-i18n="entry.dinner">Dinner</span></span></label>
+          <label class="lf-seg__opt"><input type="radio" name="lf_meal" value="Snack" /><span class="lf-seg__pill"><span class="lf-seg__ico" aria-hidden="true">&#x1F34E;</span><span data-i18n="entry.snack">Snack</span></span></label>
+        </div>
+
+        <!-- Search with autocomplete -->
+        <div class="autocomplete-wrap lf-search-wrap">
+          <label for="entry-food-name" class="visually-hidden" data-i18n="entry.searchFood">Search food</label>
+          <div class="lf-search">
+            <svg class="lf-search__ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input type="text" id="entry-food-name" name="food_name" class="lf-search__input" data-i18n-placeholder="entry.searchPlaceholder" placeholder="Search or type a food name" autocomplete="off" required />
+          </div>
+          <ul class="autocomplete-dropdown lf-ac" id="food-autocomplete" role="listbox" hidden></ul>
+        </div>
+
+        <!-- Recent foods (shown while search is empty) -->
+        <div class="lf-recents" id="lf-recents" hidden>
+          <p class="lf-label" id="lf-recents-label" data-i18n="entry.recent">Recent</p>
+          <div class="lf-recents__row" id="lf-recents-row" role="group" aria-labelledby="lf-recents-label"></div>
+        </div>
+
+        <!-- Live nutrition preview -->
+        <section class="lf-preview" id="lf-preview">
+          <div class="lf-preview__top" aria-live="polite" aria-atomic="true">
+            <p class="lf-preview__kcal"><span id="lf-kcal">0</span> <span class="lf-preview__unit">kcal</span></p>
+            <p class="lf-preview__name" id="lf-preview-name" data-i18n="entry.noFood">No food selected</p>
+          </div>
+          <div class="lf-tiles">
+            <div class="lf-tile lf-tile--protein"><span class="lf-tile__head"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="macro.protein">Protein</span></span><strong><span id="lf-p">0</span> g</strong></div>
+            <div class="lf-tile lf-tile--carbs"><span class="lf-tile__head"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="macro.carbs">Carbs</span></span><strong><span id="lf-c">0</span> g</strong></div>
+            <div class="lf-tile lf-tile--fat"><span class="lf-tile__head"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="macro.fat">Fat</span></span><strong><span id="lf-f">0</span> g</strong></div>
+          </div>
+          <div class="lf-bar" id="lf-bar" role="img" aria-label="Calorie split">
+            <span class="lf-bar__seg lf-bar__seg--protein" id="lf-bar-p"></span>
+            <span class="lf-bar__seg lf-bar__seg--carbs" id="lf-bar-c"></span>
+            <span class="lf-bar__seg lf-bar__seg--fat" id="lf-bar-f"></span>
+          </div>
+        </section>
+
+        <!-- Portion -->
+        <div class="lf-portion-sec">
+          <div class="lf-label-row">
+            <label class="lf-label" for="entry-serving-size" data-i18n="entry.portion">Portion</label>
+            <p class="lf-hint" id="unit-equiv-hint" hidden></p>
+          </div>
+          <div class="lf-portion">
+            <div class="lf-stepper">
+              <button type="button" class="lf-step" id="lf-step-dec" aria-label="Decrease serving size">&minus;</button>
+              <input type="number" id="entry-serving-size" name="serving_size" class="lf-step__input" min="0.1" step="0.1" inputmode="decimal" required />
+              <button type="button" class="lf-step" id="lf-step-inc" aria-label="Increase serving size">+</button>
+            </div>
+            <div class="lf-unit">
+              <label for="entry-serving-unit" class="visually-hidden" data-i18n="entry.unit">Unit</label>
+              <select id="entry-serving-unit" name="serving_unit" class="lf-unit__select" required>
+                <option value="g">g (gram)</option>
+                <option value="ml">ml (millilitre)</option>
+                <option value="oz">oz (ounce)</option>
+                <option value="cup">cup (~240 ml)</option>
+                <option value="tbsp">tbsp (tablespoon)</option>
+                <option value="tsp">tsp (teaspoon)</option>
+                <option value="glass">glass (200 ml)</option>
+                <option value="piece">piece</option>
+                <option value="slice">slice</option>
+                <option value="serving">serving</option>
+              </select>
+            </div>
+          </div>
+          <div class="lf-quick" id="lf-quick" role="group" aria-label="Quick portions" hidden>
+            <button type="button" class="lf-chip" data-mult="0.5">&frac12;&times;</button>
+            <button type="button" class="lf-chip" data-mult="1">1&times;</button>
+            <button type="button" class="lf-chip" data-mult="1.5">1&frac12;&times;</button>
+            <button type="button" class="lf-chip" data-mult="2">2&times;</button>
+          </div>
+        </div>
+
+        <!-- Manual macros -->
+        <details class="lf-manual" id="lf-manual">
+          <summary><span data-i18n="entry.editManually">Edit macros manually</span><svg class="lf-manual__chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <div class="lf-manual__grid">
+            <div class="lf-field lf-field--protein">
+              <label for="entry-protein"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="entry.protein">Protein (g)</span></label>
+              <input type="number" id="entry-protein" name="protein" class="lf-input" min="0" step="0.1" inputmode="decimal" required />
+            </div>
+            <div class="lf-field lf-field--carbs">
+              <label for="entry-carbs"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="entry.carbs">Carbs (g)</span></label>
+              <input type="number" id="entry-carbs" name="carbs" class="lf-input" min="0" step="0.1" inputmode="decimal" required />
+            </div>
+            <div class="lf-field lf-field--fat">
+              <label for="entry-fat"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="entry.fat">Fat (g)</span></label>
+              <input type="number" id="entry-fat" name="fat" class="lf-input" min="0" step="0.1" inputmode="decimal" required />
+            </div>
+            <div class="lf-field lf-field--cal">
+              <label for="entry-calories"><span class="lf-dot" aria-hidden="true"></span><span data-i18n="entry.calories">Calories (kcal)</span></label>
+              <input type="number" id="entry-calories" name="calories" class="lf-input" min="0" step="1" inputmode="numeric" placeholder="Auto" />
+            </div>
+          </div>
+        </details>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="entry-protein" data-i18n="entry.protein">Protein (g) <span aria-hidden="true">*</span></label>
-          <input type="number" id="entry-protein" name="protein" class="form-control" min="0" step="0.1" required />
-        </div>
-        <div class="form-group">
-          <label for="entry-fat" data-i18n="entry.fat">Fat (g) <span aria-hidden="true">*</span></label>
-          <input type="number" id="entry-fat" name="fat" class="form-control" min="0" step="0.1" required />
-        </div>
-        <div class="form-group">
-          <label for="entry-carbs" data-i18n="entry.carbs">Carbs (g) <span aria-hidden="true">*</span></label>
-          <input type="number" id="entry-carbs" name="carbs" class="form-control" min="0" step="0.1" required />
-        </div>
-        <div class="form-group">
-          <label for="entry-calories" data-i18n="entry.calories">Calories (kcal)</label>
-          <input type="number" id="entry-calories" name="calories" class="form-control" min="0" step="1" placeholder="Auto" />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label for="entry-meal-type" data-i18n="entry.meal">Meal <span aria-hidden="true">*</span></label>
-          <select id="entry-meal-type" name="meal_type" class="form-control" required>
-            <option value="" data-i18n="entry.selectMeal">Select meal</option>
-            <option value="Breakfast" data-i18n="entry.breakfast">Breakfast</option>
-            <option value="Lunch" data-i18n="entry.lunch">Lunch</option>
-            <option value="Dinner" data-i18n="entry.dinner">Dinner</option>
-            <option value="Snack" data-i18n="entry.snack">Snack</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="entry-serving-size" data-i18n="entry.servingSize">Serving Size <span aria-hidden="true">*</span></label>
-          <input type="number" id="entry-serving-size" name="serving_size" class="form-control" min="0.1" step="0.1" required />
-        </div>
-        <div class="form-group">
-          <label for="entry-serving-unit" data-i18n="entry.unit">Unit <span aria-hidden="true">*</span></label>
-          <select id="entry-serving-unit" name="serving_unit" class="form-control" required>
-            <option value="g">g (gram)</option>
-            <option value="ml">ml (millilitre)</option>
-            <option value="oz">oz (ounce)</option>
-            <option value="cup">cup (~240 ml)</option>
-            <option value="tbsp">tbsp (tablespoon)</option>
-            <option value="tsp">tsp (teaspoon)</option>
-            <option value="glass">glass (200 ml)</option>
-            <option value="piece">piece</option>
-            <option value="slice">slice</option>
-            <option value="serving">serving</option>
-          </select>
-        </div>
-      </div>
-      <p class="form-hint" id="unit-equiv-hint" hidden></p>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" id="cancel-entry" data-i18n="entry.cancel">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="save-entry-btn" data-i18n="entry.save">Save Entry</button>
+      <div class="lf-foot">
+        <button type="button" class="btn btn-soft btn-pill lf-btn" id="cancel-entry" data-i18n="entry.cancel">Cancel</button>
+        <button type="submit" class="btn btn-ink btn-pill lf-btn lf-btn--main" id="save-entry-btn">Save Entry</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Copy Yesterday Confirm Modal -->
-<div class="modal-overlay" id="copy-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="copy-confirm-title" hidden>
-  <div class="modal">
-    <div class="modal-header">
-      <h2 class="modal-title" id="copy-confirm-title" data-i18n="dash.copyYesterdayTitle">Copy Yesterday's Entries</h2>
-      <button class="btn btn-icon modal-close" id="close-copy-modal" aria-label="Close">&times;</button>
+<div class="modal-overlay lf-overlay" id="copy-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="copy-confirm-title" hidden>
+  <div class="modal lf-sheet">
+    <span class="lf-handle" aria-hidden="true"></span>
+    <div class="lf-head">
+      <h2 class="modal-title lf-title" id="copy-confirm-title" data-i18n="dash.copyYesterdayTitle">Copy Yesterday's Entries</h2>
+      <button type="button" class="lf-close modal-close" id="close-copy-modal" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
-    <p class="form-hint" data-i18n="dash.copyYesterdayHint">The following entries from yesterday will be copied to today:</p>
-    <ul class="copy-preview-list" id="copy-preview-list"></ul>
-    <div class="form-actions" style="margin-top:1rem;">
-      <button type="button" class="btn btn-secondary" id="cancel-copy-btn" data-i18n="entry.cancel">Cancel</button>
-      <button type="button" class="btn btn-primary" id="confirm-copy-btn" data-i18n="dash.copyYesterdayConfirm">Copy All</button>
+    <div class="lf-body lf-body--scroll">
+      <p class="form-hint" data-i18n="dash.copyYesterdayHint">The following entries from yesterday will be copied to today:</p>
+      <ul class="copy-preview-list" id="copy-preview-list"></ul>
+    </div>
+    <div class="lf-foot">
+      <button type="button" class="btn btn-soft btn-pill lf-btn" id="cancel-copy-btn" data-i18n="entry.cancel">Cancel</button>
+      <button type="button" class="btn btn-ink btn-pill lf-btn lf-btn--main" id="confirm-copy-btn" data-i18n="dash.copyYesterdayConfirm">Copy All</button>
     </div>
   </div>
 </div>
 
 <!-- Template Adjust Modal -->
-<div class="modal-overlay" id="tpl-adjust-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-adjust-title" hidden>
-  <div class="modal modal--wide">
-    <div class="modal-header">
-      <h2 class="modal-title" id="tpl-adjust-title" data-i18n="dash.logTemplate">Log Template</h2>
-      <button class="btn btn-icon modal-close" id="close-tpl-adjust" aria-label="Close">&times;</button>
+<div class="modal-overlay lf-overlay" id="tpl-adjust-modal" role="dialog" aria-modal="true" aria-labelledby="tpl-adjust-title" hidden>
+  <div class="modal modal--wide lf-sheet">
+    <span class="lf-handle" aria-hidden="true"></span>
+    <div class="lf-head">
+      <h2 class="modal-title lf-title" id="tpl-adjust-title" data-i18n="dash.logTemplate">Log Template</h2>
+      <button type="button" class="lf-close modal-close" id="close-tpl-adjust" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
-    <p class="form-hint" style="margin-bottom:0.75rem;" data-i18n="dash.adjustHint">Adjust, remove, or add items before logging.</p>
-    <div id="tpl-adjust-items"></div>
+    <div class="lf-body lf-body--scroll">
+      <p class="form-hint" style="margin-bottom:0.75rem;" data-i18n="dash.adjustHint">Adjust, remove, or add items before logging.</p>
+      <div id="tpl-adjust-items"></div>
 
-    <!-- Add item search -->
-    <div class="tpl-add-item-row autocomplete-wrap" style="margin-top:0.75rem;">
-      <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="dash.addItemPlaceholder" placeholder="Add item... (search food)" autocomplete="off" />
-      <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
+      <!-- Add item search -->
+      <div class="tpl-add-item-row autocomplete-wrap" style="margin-top:0.75rem;">
+        <input type="text" id="tpl-item-search" class="form-control" data-i18n-placeholder="dash.addItemPlaceholder" placeholder="Add item... (search food)" autocomplete="off" />
+        <ul class="autocomplete-dropdown" id="tpl-item-autocomplete" role="listbox" hidden></ul>
+      </div>
+
+      <div class="tpl-adjust-totals" id="tpl-adjust-totals"></div>
+
+      <label class="tpl-save-label" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-size:0.88rem;">
+        <input type="checkbox" id="tpl-save-changes" />
+        <span data-i18n="dash.updateTemplate">Also update the saved template</span>
+      </label>
     </div>
-
-    <div class="tpl-adjust-totals" id="tpl-adjust-totals"></div>
-
-    <label class="tpl-save-label" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.75rem;font-size:0.88rem;">
-      <input type="checkbox" id="tpl-save-changes" />
-      <span data-i18n="dash.updateTemplate">Also update the saved template</span>
-    </label>
-
-    <div class="form-actions" style="margin-top:1rem;">
-      <button type="button" class="btn btn-secondary" id="cancel-tpl-adjust" data-i18n="entry.cancel">Cancel</button>
-      <button type="button" class="btn btn-primary" id="confirm-tpl-log" data-i18n="dash.logAsEntry">Log as One Entry</button>
+    <div class="lf-foot">
+      <button type="button" class="btn btn-soft btn-pill lf-btn" id="cancel-tpl-adjust" data-i18n="entry.cancel">Cancel</button>
+      <button type="button" class="btn btn-ink btn-pill lf-btn lf-btn--main" id="confirm-tpl-log" data-i18n="dash.logAsEntry">Log as One Entry</button>
     </div>
   </div>
 </div>

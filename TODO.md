@@ -12,7 +12,10 @@
 - [ ] **USDA FoodData Central API (optional)** — opt-in via `USDA_API_KEY` env var (deferred — 817 foods already seeded)
 
 ## Multi-user data isolation
-- [ ] **saved_food custom foods per-user** — currently all custom foods are shared across users; add user_id FK to saved_food for source='custom' (deferred)
+- [x] **saved_food custom foods per-user** — `saved_food.owner_id`; only owner/super-admin can edit; legacy foods backfilled by single referencing user, others read-only (clone instead)
+
+## Notifications
+- [ ] **Email alerts for dietitian requests (free)** — Gmail SMTP + App Password (or Resend free tier). Email admin on new dietitian request (signup / Settings role switch); optionally email Google-sign-in users on approve/reject. Store password in Secret Manager (`nutritrack-smtp-pass`), add `SMTP_USER`/`ADMIN_NOTIFY_EMAIL` env vars + `--set-secrets` in deploy workflow. Send async/fail-safe (never block the request).
 
 ## Weekly / monthly reports
 - [x] **Reports page** — fully built; nav link restored (PR4). Compliance rate, streaks, charts at `/reports`

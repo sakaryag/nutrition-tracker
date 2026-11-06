@@ -14,6 +14,8 @@ class User(db.Model):
     plan_feature_enabled = db.Column(db.Boolean, default=False, nullable=False)
     google_id = db.Column(db.String(255), nullable=True, unique=True)
     avatar_url = db.Column(db.String(500), nullable=True)
+    # 'pending' | 'rejected' while a dietitian request awaits super-admin review; None otherwise.
+    dietitian_status = db.Column(db.String(20), nullable=True)
 
     @property
     def role(self):

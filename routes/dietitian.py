@@ -5,7 +5,7 @@ from models.user import User
 from models.food_entry import FoodEntry
 from models.daily_target import DailyTarget
 from models.user_plan_assignment import UserPlanAssignment
-from routes.auth import current_user_id
+from routes.auth import current_user_id, is_superadmin
 
 dietitian_bp = Blueprint('dietitian', __name__, url_prefix='/api/dietitian')
 
@@ -315,11 +315,20 @@ def set_role():
     user = db.session.get(User, uid)
     if user is None:
         return jsonify({'error': 'User not found'}), 404
-    user.is_admin = (role == 'dietitian')
-    if user.is_admin:
-        user.plan_feature_enabled = True
+    if role == 'dietitian':
+        if not user.is_admin:
+            if is_superadmin(user):
+                user.is_admin = True
+                user.plan_feature_enabled = True
+                user.dietitian_status = None
+            else:
+                user.dietitian_status = 'pending'
+    else:
+        user.is_admin = False
+        user.dietitian_status = None
     db.session.commit()
-    return jsonify({'role': user.role, 'is_admin': user.is_admin})
+    return jsonify({'role': user.role, 'is_admin': user.is_admin,
+                    'dietitian_status': user.dietitian_status})
 
 
 # ── Dietitian summary for admin user management ───────────────────────────────

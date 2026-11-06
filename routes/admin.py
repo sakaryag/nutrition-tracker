@@ -266,6 +266,34 @@ def list_users():
     return jsonify(result)
 
 
+@admin_bp.route('/dietitian-requests', methods=['GET'])
+@require_superadmin
+def list_dietitian_requests():
+    rows = (User.query.filter(User.dietitian_status == 'pending', User.is_admin.is_(False))
+            .order_by(User.created_at).all())
+    return jsonify([{'id': u.id, 'username': u.username,
+                     'requested_at': u.created_at.isoformat() if u.created_at else None} for u in rows])
+
+
+@admin_bp.route('/dietitian-requests/<int:user_id>/<action>', methods=['POST'])
+@require_superadmin
+def review_dietitian_request(user_id, action):
+    if action not in ('approve', 'reject'):
+        return jsonify({'error': 'Unknown action'}), 400
+    user = db.session.get(User, user_id)
+    if user is None or user.dietitian_status != 'pending':
+        return jsonify({'error': 'No pending request for this user'}), 404
+    if action == 'approve':
+        user.is_admin = True
+        user.plan_feature_enabled = True
+        user.dietitian_status = None
+    else:
+        user.dietitian_status = 'rejected'
+    db.session.commit()
+    return jsonify({'id': user.id, 'username': user.username, 'is_admin': user.is_admin,
+                    'dietitian_status': user.dietitian_status})
+
+
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 @require_superadmin
 def update_user(user_id):

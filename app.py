@@ -206,6 +206,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS google_id VARCHAR(255)',
             'CREATE UNIQUE INDEX IF NOT EXISTS uq_user_google_id ON "user" (google_id) WHERE google_id IS NOT NULL',
             'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS avatar_url VARCHAR(500)',
+            'ALTER TABLE "user" ADD COLUMN IF NOT EXISTS dietitian_status VARCHAR(20)',
             'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS water_goal_ml FLOAT',
             # daily_note table creation handled by create_all; ensure it exists via migration too
             '''CREATE TABLE IF NOT EXISTS daily_note (
@@ -512,6 +513,7 @@ def _migrate_add_columns(app):
             'ALTER TABLE "user" ADD COLUMN google_id VARCHAR(255)',
             'CREATE UNIQUE INDEX IF NOT EXISTS uq_user_google_id ON "user" (google_id)',
             'ALTER TABLE "user" ADD COLUMN avatar_url VARCHAR(500)',
+            'ALTER TABLE "user" ADD COLUMN dietitian_status VARCHAR(20)',
             'ALTER TABLE daily_target ADD COLUMN water_goal_ml FLOAT',
             # SQLite: create daily_note if it doesn't exist yet (idempotent)
             '''CREATE TABLE IF NOT EXISTS daily_note (

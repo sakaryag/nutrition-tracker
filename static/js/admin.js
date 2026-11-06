@@ -738,7 +738,39 @@ function loadTemplates() {
 var _adminPage = document.getElementById('admin-page');
 var IS_SUPERADMIN = !!_adminPage && _adminPage.dataset.superadmin === 'true';
 
+function loadDietitianRequests() {
+  var box = document.getElementById('dietitian-requests-list');
+  if (!box || !IS_SUPERADMIN) return;
+  api('/api/admin/dietitian-requests').then(function (rows) {
+    if (!rows.length) { box.innerHTML = '<p class="empty-msg">No pending requests.</p>'; return; }
+    box.innerHTML = rows.map(function (r) {
+      var when = r.requested_at ? new Date(r.requested_at).toLocaleDateString() : '';
+      return '<div class="dt-request-row" style="display:flex;align-items:center;gap:.5rem;padding:.5rem 0;border-bottom:1px solid var(--color-border);">' +
+        '<span style="flex:1;"><strong>' + esc(r.username) + '</strong> <span class="stat-caption">' + esc(when) + '</span></span>' +
+        '<button class="btn btn-sm btn-pill btn-soft" data-review="reject" data-uid="' + r.id + '">Reject</button>' +
+        '<button class="btn btn-sm btn-pill btn-ink" data-review="approve" data-uid="' + r.id + '">Approve</button>' +
+      '</div>';
+    }).join('');
+  }).catch(function (e) { box.innerHTML = '<p class="empty-msg">' + esc(e.message) + '</p>'; });
+}
+
+var _dtReqBox = document.getElementById('dietitian-requests-list');
+if (_dtReqBox) {
+  _dtReqBox.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-review]');
+    if (!btn) return;
+    btn.disabled = true;
+    api('/api/admin/dietitian-requests/' + btn.dataset.uid + '/' + btn.dataset.review, { method: 'POST' })
+      .then(function (res) {
+        showToast(res.username + (btn.dataset.review === 'approve' ? ' is now a dietitian' : ' request rejected'), 'success');
+        loadUsers();
+      })
+      .catch(function (err) { btn.disabled = false; showToast(err.message, 'error'); });
+  });
+}
+
 function loadUsers() {
+  loadDietitianRequests();
   api('/api/admin/users').then(function (data) {
     var tbody = document.getElementById('admin-users-body');
     tbody.innerHTML = data.map(function (u) {

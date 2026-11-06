@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Blueprint, render_template, redirect, url_for, current_app, session, jsonify, send_from_directory
-from routes.auth import login_required
+from routes.auth import login_required, is_superadmin
 from models import db
 from models.user import User
 
@@ -44,7 +44,7 @@ def require_admin_page(f):
             user = _get_current_user()
             if user is None:
                 return redirect(url_for('auth.login'))
-            if not user.is_admin:
+            if not user.is_admin and not is_superadmin(user):
                 return redirect(url_for('pages.dashboard'))
         return f(*args, **kwargs)
     return decorated

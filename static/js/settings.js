@@ -376,17 +376,26 @@
 
     // NT_USER_ROLE is injected by base.html from server session — no API call needed
     var currentRole = window.NT_USER_ROLE || 'member';
+    var dietitianStatus = window.NT_DIETITIAN_STATUS || null;
     showRoleUI();
 
     function showRoleUI() {
+      switchBtn.disabled = false;
       if (currentRole === 'dietitian') {
         roleDisplay.textContent = 'Dietitian / Coach';
         roleDesc.textContent = 'You can create nutrition plans, assign them to clients, and view their progress from the Dietitian panel.';
         switchBtn.textContent = 'Switch to Member';
+      } else if (dietitianStatus === 'pending') {
+        roleDisplay.textContent = 'Member — Dietitian request pending';
+        roleDesc.textContent = 'Your Dietitian / Coach request is waiting for approval by the NutriTrack team. You will get access to the Dietitian panel once it is approved.';
+        switchBtn.textContent = 'Request pending';
+        switchBtn.disabled = true;
       } else {
         roleDisplay.textContent = 'Member';
-        roleDesc.textContent = 'You are tracking your own nutrition. You can switch to Dietitian / Coach role to manage client plans.';
-        switchBtn.textContent = 'Switch to Dietitian / Coach';
+        roleDesc.textContent = dietitianStatus === 'rejected'
+          ? 'Your previous Dietitian / Coach request was not approved. You can send a new request.'
+          : 'You are tracking your own nutrition. You can request the Dietitian / Coach role to manage client plans.';
+        switchBtn.textContent = 'Request Dietitian / Coach role';
       }
       switchBtn.style.display = 'inline-flex';
     }
@@ -394,12 +403,18 @@
     switchBtn.addEventListener('click', function () {
       var newRole = currentRole === 'dietitian' ? 'member' : 'dietitian';
       var msg = newRole === 'dietitian'
-        ? 'Switch to Dietitian / Coach role? You will gain access to the Dietitian panel and plan management.'
+        ? 'Request the Dietitian / Coach role? An administrator will review your request.'
         : 'Switch to Member role? You will lose access to the Dietitian panel.';
       if (!confirm(msg)) return;
       switchBtn.disabled = true;
       api('/api/dietitian/role', { method: 'PUT', body: JSON.stringify({ role: newRole }) })
         .then(function (res) {
+          if (res.role !== 'dietitian' && res.dietitian_status === 'pending') {
+            dietitianStatus = 'pending';
+            showRoleUI();
+            showToast('Request sent. You will be notified once it is approved.', 'success');
+            return;
+          }
           showToast('Role updated to ' + (res.role === 'dietitian' ? 'Dietitian' : 'Member') + '. Reloading…', 'success');
           setTimeout(function () { location.reload(); }, 1000);
         })

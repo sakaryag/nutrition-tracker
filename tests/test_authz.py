@@ -176,14 +176,43 @@ class TestDietitianFlow:
 
 class TestRegistration:
 
-    def test_dietitian_signup_gets_no_global_access(self, client, people):
+    def test_dietitian_signup_is_pending_until_approved(self, client, people):
         rv = client.post('/register', data={'username': 'newdiet', 'password': 'secret123',
                                             'confirm': 'secret123', 'role': 'dietitian'})
         assert rv.status_code == 302
         u = User.query.filter_by(username='newdiet').one()
-        assert u.is_admin is True
-        assert client.get('/api/admin/users').get_json() == []
+        assert u.is_admin is False and u.plan_feature_enabled is False
+        assert u.dietitian_status == 'pending'
+        assert client.get('/api/admin/users').status_code == 403
         assert client.put(f"/api/admin/users/{u.id}", json={'is_admin': True}).status_code == 403
+        assert client.post(f"/api/admin/dietitian-requests/{u.id}/approve").status_code == 403
+
+    def test_role_switch_requests_approval(self, client, people):
+        _login(client, people['victim'])
+        rv = client.put('/api/dietitian/role', json={'role': 'dietitian'})
+        assert rv.get_json()['role'] == 'member'
+        db.session.refresh(people['victim'])
+        assert people['victim'].is_admin is False
+        assert people['victim'].dietitian_status == 'pending'
+
+    def test_superadmin_approves_and_rejects(self, client, people):
+        a = _user('reqa')
+        b = _user('reqb')
+        a.dietitian_status = b.dietitian_status = 'pending'
+        db.session.commit()
+        _login(client, people['owner'])
+        names = [r['username'] for r in client.get('/api/admin/dietitian-requests').get_json()]
+        assert names == ['reqa', 'reqb']
+        assert client.post(f'/api/admin/dietitian-requests/{a.id}/approve').status_code == 200
+        assert client.post(f'/api/admin/dietitian-requests/{b.id}/reject').status_code == 200
+        db.session.refresh(a)
+        db.session.refresh(b)
+        assert a.is_admin and a.plan_feature_enabled and a.dietitian_status is None
+        assert not b.is_admin and b.dietitian_status == 'rejected'
+
+    def test_dietitian_cannot_review_requests(self, client, people):
+        _login(client, people['diet'])
+        assert client.get('/api/admin/dietitian-requests').status_code == 403
 
     def test_reserved_username_cannot_register(self, client, people):
         rv = client.post('/register', data={'username': '__system__', 'password': 'secret123',

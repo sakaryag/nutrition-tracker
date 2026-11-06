@@ -130,6 +130,12 @@
     <div class="admin-panel-header">
       <h2>Users</h2>
     </div>
+    {% if current_user_is_superadmin %}
+    <article class="card" id="dietitian-requests-card" style="margin-bottom:1rem;">
+      <h3 style="font-size:1rem;font-weight:700;margin:0 0 .5rem;">Dietitian requests</h3>
+      <div id="dietitian-requests-list"><p class="empty-msg">Loading&hellip;</p></div>
+    </article>
+    {% endif %}
     <div class="table-wrap">
       <table class="admin-table" id="admin-users-table">
         <thead>

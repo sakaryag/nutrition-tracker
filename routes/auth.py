@@ -107,9 +107,8 @@ def register():
     user = User(username=username)
     user.set_pw(password)
     if role == 'dietitian':
-        # is_admin == dietitian role: scoped to consenting clients, never global access.
-        user.is_admin = True
-        user.plan_feature_enabled = True
+        # Dietitian rights (and premium) require super-admin approval.
+        user.dietitian_status = 'pending'
     db.session.add(user)
     db.session.commit()
     session.permanent = True

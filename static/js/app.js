@@ -2,6 +2,26 @@
    app.js — Shared utilities for NutriTrack
    ============================================================ */
 
+/* Gemini API key: kept per user on this device; any other user's key (or the legacy
+   shared key) is purged so a second account on the same device can never use it. */
+var ApiKey = (function () {
+  var PREFIX = 'nt_gemini_key:';
+  var uid = window.NT_USER_ID;
+  var name = uid == null ? null : PREFIX + uid;
+  try {
+    localStorage.removeItem('nt_gemini_key');
+    for (var i = localStorage.length - 1; i >= 0; i--) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf(PREFIX) === 0 && k !== name) localStorage.removeItem(k);
+    }
+  } catch (_) {}
+  return {
+    get: function () { try { return name ? (localStorage.getItem(name) || '') : ''; } catch (_) { return ''; } },
+    set: function (v) { try { if (name) localStorage.setItem(name, v); } catch (_) {} },
+    clear: function () { try { if (name) localStorage.removeItem(name); } catch (_) {} },
+  };
+})();
+
 /**
  * Lightweight fetch wrapper.
  * Returns parsed JSON on success, throws Error with message on failure.

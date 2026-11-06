@@ -65,8 +65,15 @@ def create_app(config_name=None, test_config=None):
                 user_has_plan = UserPlanAssignment.query.filter_by(
                     user_id=uid, is_active=True
                 ).first() is not None
+            superadmin = _is_superadmin(user)
+            pending_dietitians = 0
+            if superadmin and app.config.get('AUTH_ENABLED'):
+                pending_dietitians = _User.query.filter(
+                    _User.dietitian_status == 'pending', _User.is_admin.is_(False)
+                ).count()
             return {'current_user': user, 'user_has_plan': user_has_plan,
-                    'current_user_is_superadmin': _is_superadmin(user)}
+                    'current_user_is_superadmin': superadmin,
+                    'pending_dietitian_requests': pending_dietitians}
         except Exception:
             return {'current_user': None, 'user_has_plan': False, 'current_user_is_superadmin': False}
 

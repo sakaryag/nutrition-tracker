@@ -317,7 +317,7 @@
   }
 
   window.openFoodImageScanner = function (onResult) {
-    var apiKey = lsGet('nt_gemini_key') || '';
+    var apiKey = ApiKey.get();
     if (!apiKey) {
       if (typeof showToast === 'function') {
         showToast('Add your Gemini API key in Settings to use photo recognition.', 'error', 5000);

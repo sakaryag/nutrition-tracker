@@ -1351,7 +1351,7 @@
 
     insightBtn.addEventListener('click', async function() {
       var apiKey = '';
-      try { apiKey = localStorage.getItem('nt_gemini_key') || ''; } catch(_) {}
+      try { apiKey = ApiKey.get(); } catch(_) {}
 
       if (!apiKey) {
         insightResult.textContent = t('insight.noKey');

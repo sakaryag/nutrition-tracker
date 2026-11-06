@@ -271,7 +271,7 @@
     const keyStatus   = document.getElementById('api-key-status');
 
     function updateKeyStatus() {
-      const key = localStorage.getItem('nt_gemini_key') || '';
+      const key = ApiKey.get();
       if (key) {
         keyStatus.innerHTML = '✓ Key saved (ends in …' + key.slice(-6) + ')';
         keyStatus.style.color = 'var(--color-success)';
@@ -296,13 +296,13 @@
         keyStatus.style.color = 'var(--color-danger)';
         return;
       }
-      localStorage.setItem('nt_gemini_key', val);
+      ApiKey.set(val);
       updateKeyStatus();
       updateUsage();
     });
 
     clearKeyBtn.addEventListener('click', function () {
-      localStorage.removeItem('nt_gemini_key');
+      ApiKey.clear();
       updateKeyStatus();
       updateUsage();
     });
@@ -329,7 +329,7 @@
   function updateUsage() {
     const spent  = ApiUsage.getSpent();
     const budget = ApiUsage.getBudget();
-    const hasKey = !!(localStorage.getItem('nt_gemini_key') || '');
+    const hasKey = !!ApiKey.get();
 
     document.getElementById('usage-cost').textContent = '$' + spent.toFixed(3);
 

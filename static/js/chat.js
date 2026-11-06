@@ -121,7 +121,7 @@
   // Status check
   // ----------------------------------------------------------------
   async function checkStatus() {
-    const userKey = localStorage.getItem('nt_gemini_key') || '';
+    const userKey = ApiKey.get();
     try {
       const data = await api('/api/chat/status?has_user_key=' + (userKey ? '1' : '0'));
       if (data.ready) {
@@ -485,7 +485,7 @@
     showTyping();
 
     const lng     = lang();
-    const userKey = localStorage.getItem('nt_gemini_key') || '';
+    const userKey = ApiKey.get();
     const model   = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
 
     let botBubble = null;

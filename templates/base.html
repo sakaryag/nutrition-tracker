@@ -44,7 +44,7 @@
         <li><a href="/dietitian" class="nav-link">Dietitian</a></li>
         {% endif %}
         {% if current_user and (current_user.is_admin or current_user_is_superadmin) %}
-        <li><a href="/admin" class="nav-link" data-i18n="nav.admin">Admin</a></li>
+        <li><a href="/admin" class="nav-link"><span data-i18n="nav.admin">Admin</span>{% if pending_dietitian_requests %} <span class="notif-badge" style="position:static;display:inline-block;margin-left:.25rem;" title="Pending dietitian requests">{{ pending_dietitian_requests }}</span>{% endif %}</a></li>
         {% endif %}
         {% if config.get('AUTH_ENABLED') and session.get('user_id') %}
         {% if current_user and not current_user.is_admin %}
@@ -55,7 +55,7 @@
           </a>
         </li>
         {% endif %}
-        <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
+        <li><a href="/logout" class="nav-link" data-i18n="nav.logout" onclick="ApiKey.clear()">Logout</a></li>
         {% endif %}
       </ul>
     </nav>
@@ -89,6 +89,7 @@
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
+  <script>window.NT_USER_ID = {{ (session.get('user_id') if config.get('AUTH_ENABLED') else 'local') | tojson }};</script>
   <script src="/static/js/i18n.js"></script>
   <script src="/static/js/app.js"></script>
   <script>

@@ -1,13 +1,13 @@
 /* ============================================================
    NutriTrack Service Worker
-   Cache name: nutritrack-v3
+   Cache name: nutritrack-v4
    Strategy:
      - /static/* → cache-first (CSS, JS, images, manifest)
      - /api/*    → network-first (always try live, fall back to cache)
      - pages     → network-first
    ============================================================ */
 
-var CACHE_NAME = 'nutritrack-v3';
+var CACHE_NAME = 'nutritrack-v4';
 
 var STATIC_SHELL = [
   '/',

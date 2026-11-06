@@ -48,9 +48,11 @@ def create_app(config_name=None, test_config=None):
     @app.context_processor
     def inject_current_user():
         from flask import session as _session
+        from routes.auth import is_superadmin as _is_superadmin
         uid = _session.get('user_id')
         if uid is None:
-            return {'current_user': None, 'user_has_plan': False}
+            return {'current_user': None, 'user_has_plan': False,
+                    'current_user_is_superadmin': not app.config.get('AUTH_ENABLED')}
         try:
             from models.user import User as _User
             user = db.session.get(_User, uid)
@@ -63,9 +65,10 @@ def create_app(config_name=None, test_config=None):
                 user_has_plan = UserPlanAssignment.query.filter_by(
                     user_id=uid, is_active=True
                 ).first() is not None
-            return {'current_user': user, 'user_has_plan': user_has_plan}
+            return {'current_user': user, 'user_has_plan': user_has_plan,
+                    'current_user_is_superadmin': _is_superadmin(user)}
         except Exception:
-            return {'current_user': None, 'user_has_plan': False}
+            return {'current_user': None, 'user_has_plan': False, 'current_user_is_superadmin': False}
 
     with app.app_context():
         fingerprint = _startup_fingerprint()
@@ -79,6 +82,7 @@ def create_app(config_name=None, test_config=None):
             _patch_food_data(app)
             _patch_program_days(app)
             _patch_plan_feature_enabled(app)
+            _patch_saved_food_owner(app)
             _seed_starter_templates(app)
             _mark_startup_done(app, fingerprint)
 
@@ -191,6 +195,8 @@ def _migrate_add_columns(app):
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS g_per_unit FLOAT',
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS valid_units VARCHAR(500)',
             'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS is_archived BOOLEAN DEFAULT FALSE',
+            'ALTER TABLE saved_food ADD COLUMN IF NOT EXISTS owner_id INTEGER REFERENCES "user"(id)',
+            'CREATE INDEX IF NOT EXISTS ix_saved_food_owner_id ON saved_food (owner_id)',
             'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS template_id INTEGER',
             'ALTER TABLE food_entry ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES "user"(id)',
@@ -495,6 +501,8 @@ def _migrate_add_columns(app):
             'ALTER TABLE saved_food ADD COLUMN g_per_unit FLOAT',
             'ALTER TABLE saved_food ADD COLUMN valid_units VARCHAR(500)',
             'ALTER TABLE saved_food ADD COLUMN is_archived BOOLEAN DEFAULT 0',
+            'ALTER TABLE saved_food ADD COLUMN owner_id INTEGER REFERENCES "user"(id)',
+            'CREATE INDEX IF NOT EXISTS ix_saved_food_owner_id ON saved_food (owner_id)',
             'ALTER TABLE food_entry ADD COLUMN template_id INTEGER',
             'ALTER TABLE food_entry ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
             'ALTER TABLE daily_target ADD COLUMN user_id INTEGER REFERENCES "user"(id)',
@@ -1108,6 +1116,60 @@ def _patch_program_days(app):
     if migrated:
         db.session.commit()
         app.logger.info(f'Migrated {migrated} plans into ProgramDay/MealSlot/SlotItem structure.')
+
+
+def _patch_saved_food_owner(app):
+    """Backfill SavedFood.owner_id for legacy custom foods referenced by exactly one user.
+    Seeded meals and foods with zero or several referencing users stay unowned (read-only)."""
+    try:
+        from models.saved_food import SavedFood
+        from models.food_entry import FoodEntry
+        from models.meal_template import MealTemplate
+        from models.meal_template_item import MealTemplateItem
+        from models.recipe import Recipe
+        from models.recipe_ingredient import RecipeIngredient
+        from seed_data.meals import MEALS, TURKISH_MEALS_V2
+
+        seeded_meal_names = {m['name'] for m in MEALS} | {m['name'] for m in TURKISH_MEALS_V2}
+        cand = (
+            db.select(SavedFood.id)
+            .where(SavedFood.source == 'custom', SavedFood.owner_id.is_(None))
+            .where(db.not_(db.and_(SavedFood.food_type == 'meal', SavedFood.name.in_(seeded_meal_names))))
+        )
+        pair_queries = [
+            db.session.query(FoodEntry.saved_food_id, FoodEntry.user_id)
+            .filter(FoodEntry.saved_food_id.in_(cand), FoodEntry.user_id.isnot(None)),
+            db.session.query(MealTemplateItem.saved_food_id, MealTemplate.user_id)
+            .join(MealTemplate, MealTemplate.id == MealTemplateItem.template_id)
+            .filter(MealTemplateItem.saved_food_id.in_(cand), MealTemplate.user_id.isnot(None)),
+            db.session.query(RecipeIngredient.saved_food_id, Recipe.owner_id)
+            .join(Recipe, Recipe.id == RecipeIngredient.recipe_id)
+            .filter(RecipeIngredient.saved_food_id.in_(cand), Recipe.owner_id.isnot(None)),
+        ]
+        users_by_food = {}
+        for q in pair_queries:
+            for food_id, uid in q.distinct().all():
+                users_by_food.setdefault(food_id, set()).add(uid)
+
+        foods_by_user = {}
+        for food_id, uids in users_by_food.items():
+            if len(uids) == 1:
+                foods_by_user.setdefault(next(iter(uids)), []).append(food_id)
+        if not foods_by_user:
+            return
+        total = 0
+        for uid, ids in foods_by_user.items():
+            for i in range(0, len(ids), 500):
+                total += (
+                    SavedFood.query
+                    .filter(SavedFood.id.in_(ids[i:i + 500]), SavedFood.owner_id.is_(None))
+                    .update({'owner_id': uid}, synchronize_session=False)
+                )
+        db.session.commit()
+        app.logger.info('Backfilled owner_id on %d custom food(s).', total)
+    except Exception as e:
+        db.session.rollback()
+        app.logger.warning('_patch_saved_food_owner failed: %s', e)
 
 
 def _patch_plan_feature_enabled(app):

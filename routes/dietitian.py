@@ -90,6 +90,51 @@ def invite_client():
                     'access_granted': bool(row.allowed)}), 201
 
 
+def _as_dt(v):
+    """Raw SQL returns DATETIME as str on SQLite and datetime on PostgreSQL."""
+    if isinstance(v, str):
+        try:
+            return datetime.fromisoformat(v)
+        except ValueError:
+            return None
+    return v
+
+
+def _access_status(allowed, created_at, updated_at):
+    """accepted | declined (client answered no / revoked) | pending (never answered)."""
+    if allowed:
+        return 'accepted'
+    try:
+        if created_at and updated_at and (updated_at - created_at).total_seconds() > 1:
+            return 'declined'
+    except TypeError:
+        pass
+    return 'pending'
+
+
+@dietitian_bp.route('/invites', methods=['GET'])
+def list_invites():
+    """The current dietitian's access requests with client usernames."""
+    dietitian, err, code = _require_dietitian()
+    if err:
+        return err, code
+    from models.dietitian_access import DietitianAccess
+    rows = (
+        db.session.query(DietitianAccess, User.username)
+        .join(User, User.id == DietitianAccess.client_id)
+        .filter(DietitianAccess.dietitian_id == dietitian.id)
+        .order_by(DietitianAccess.allowed, User.username)
+        .all()
+    )
+    return jsonify([{
+        'client_id': da.client_id,
+        'username': username,
+        'status': _access_status(da.allowed, da.created_at, da.updated_at),
+        'created_at': da.created_at.isoformat() if da.created_at else None,
+        'updated_at': da.updated_at.isoformat() if da.updated_at else None,
+    } for da, username in rows])
+
+
 # ── Dietitian: view client data (read-only, requires consent) ────────────────
 
 @dietitian_bp.route('/clients/<int:client_id>/data', methods=['GET'])
@@ -210,7 +255,7 @@ def my_access_settings():
 
     rows = db.session.execute(
         db.text('''
-            SELECT da.id, u.id AS dietitian_id, u.username, da.allowed, da.updated_at
+            SELECT da.id, u.id AS dietitian_id, u.username, da.allowed, da.updated_at, da.created_at
             FROM dietitian_access da
             JOIN "user" u ON u.id = da.dietitian_id
             WHERE da.client_id = :uid
@@ -224,7 +269,8 @@ def my_access_settings():
         'dietitian_id': r[1],
         'dietitian_name': r[2],
         'allowed': bool(r[3]),
-        'updated_at': r[4].isoformat() if r[4] else None,
+        'updated_at': r[4].isoformat() if hasattr(r[4], 'isoformat') else r[4],
+        'status': _access_status(bool(r[3]), _as_dt(r[5]), _as_dt(r[4])),
     } for r in rows])
 
 

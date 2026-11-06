@@ -220,8 +220,12 @@ def save_recipe_as_food(recipe_id):
     if err:
         return err
 
-    # Update if a custom food with the same name already exists
-    existing = SavedFood.query.filter_by(name=recipe.name, source='custom').first()
+    # Update a same-named custom food only if the caller owns it; otherwise create their own copy.
+    uid = current_user_id()
+    q = SavedFood.query.filter_by(name=recipe.name, source='custom')
+    if current_app.config.get('AUTH_ENABLED'):
+        q = q.filter_by(owner_id=uid)
+    existing = q.first()
     if existing:
         existing.protein = round(recipe.total_protein or 0, 1)
         existing.fat = round(recipe.total_fat or 0, 1)
@@ -240,6 +244,7 @@ def save_recipe_as_food(recipe_id):
         food_type='meal',
         default_serving=100,
         serving_unit='g',
+        owner_id=uid,
     )
     db.session.add(food)
     db.session.commit()

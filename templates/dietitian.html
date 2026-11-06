@@ -17,6 +17,15 @@
 
   <!-- ── Clients panel ────────────────────────────────────── -->
   <div class="dietitian-panel active" id="dietitian-panel-clients">
+    <article class="card dt-invite-card" style="margin-bottom:1rem;">
+      <h2 style="font-size:1rem;font-weight:700;margin:0 0 .25rem;">Invite client</h2>
+      <p class="settings-description" style="margin:0 0 .75rem;">The client approves your request under Settings &rarr; Dietitian Access.</p>
+      <form id="dt-invite-form" style="display:flex;gap:.5rem;flex-wrap:wrap;" novalidate>
+        <input type="text" id="dt-invite-username" class="form-control" placeholder="Username" autocomplete="off" required style="flex:1;min-width:180px;" />
+        <button type="submit" class="btn btn-pill btn-ink" id="dt-invite-btn">Send invite</button>
+      </form>
+      <div id="dt-invites-list" style="margin-top:.75rem;"></div>
+    </article>
     <p class="settings-description">Click a client to view their daily food log. Clients control whether you can access their data.</p>
     <div id="dietitian-clients-list" class="dietitian-clients-list">
       <p class="empty-msg">Loading&hellip;</p>

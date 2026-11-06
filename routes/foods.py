@@ -10,8 +10,33 @@ from flask import Blueprint, jsonify, request, current_app, session
 from sqlalchemy import case, or_
 from models import db
 from models.saved_food import SavedFood
+from models.user import User
+from routes.auth import current_user_id, is_superadmin
 
 foods_bp = Blueprint('foods', __name__, url_prefix='/api/foods')
+
+
+def _viewer():
+    """(uid, is_superadmin) for the current request."""
+    uid = current_user_id()
+    user = db.session.get(User, uid) if uid is not None else None
+    return uid, is_superadmin(user)
+
+
+def can_edit_food(food, viewer=None):
+    """USDA foods are read-only; others are editable by their owner or a superadmin (or anyone with auth off)."""
+    if food is None or food.source == 'usda':
+        return False
+    if not current_app.config.get('AUTH_ENABLED'):
+        return True
+    uid, superadmin = viewer or _viewer()
+    return superadmin or (uid is not None and food.owner_id == uid)
+
+
+def food_json(food, viewer=None):
+    d = food.to_dict()
+    d['can_edit'] = can_edit_food(food, viewer)
+    return d
 
 
 @foods_bp.before_request
@@ -193,7 +218,7 @@ def image_lookup():
 def _fetch_openfoodfacts(q: str) -> list:
     """Search OpenFoodFacts and return a list of SavedFood-like dicts.
     Returns [] on any error (network, timeout, bad data).
-    Saves new entries to saved_food with source='openfoodfacts'.
+    Saves new entries to saved_food with source='openfoodfacts' as an unowned shared cache.
     """
     try:
         url = (
@@ -246,7 +271,7 @@ def _fetch_openfoodfacts(q: str) -> list:
             .first()
         )
         if existing:
-            d = existing.to_dict()
+            d = food_json(existing)
             d['source'] = existing.source
             results.append(d)
         else:
@@ -266,7 +291,7 @@ def _fetch_openfoodfacts(q: str) -> list:
             db.session.add(food)
             try:
                 db.session.commit()
-                d = food.to_dict()
+                d = food_json(food)
                 d['source'] = 'openfoodfacts'
                 results.append(d)
             except Exception:
@@ -305,7 +330,13 @@ def search_foods():
         foods = query.order_by(relevance, type_order, name_col).limit(50).all()
     else:
         type_order = case((SavedFood.food_type == 'ingredient', 0), else_=1)
-        foods = query.order_by(type_order, name_col).limit(50).all()
+        uid = current_user_id()
+        if uid is not None:
+            # Surface the caller's own foods before the shared/community library.
+            owned_first = case((SavedFood.owner_id == uid, 0), else_=1)
+            foods = query.order_by(owned_first, type_order, name_col).limit(50).all()
+        else:
+            foods = query.order_by(type_order, name_col).limit(50).all()
 
     # Fuzzy search supplement: when LIKE produces < 5 results and query is 3+ chars,
     # pull candidates starting with the same letter and rank by WRatio similarity.
@@ -335,7 +366,8 @@ def search_foods():
         except Exception:
             pass  # fuzzy failure must never break primary results
 
-    local_results = [f.to_dict() for f in foods]
+    viewer = _viewer()
+    local_results = [food_json(f, viewer) for f in foods]
 
     # OpenFoodFacts fallback: only when local results are sparse and query is meaningful
     if q and len(q) >= 3 and len(local_results) < 3 and not source and not current_app.testing:
@@ -385,10 +417,11 @@ def create_food():
         source='custom',
         is_archived=False,
         g_per_unit=float(g_per_unit) if g_per_unit is not None else None,
+        owner_id=current_user_id(),
     )
     db.session.add(food)
     db.session.commit()
-    return jsonify(food.to_dict()), 201
+    return jsonify(food_json(food)), 201
 
 
 @foods_bp.route('/<int:food_id>', methods=['PUT'])
@@ -398,6 +431,8 @@ def update_food(food_id: int):
         return jsonify({'error': 'Food not found'}), 404
     if food.source == 'usda':
         return jsonify({'error': 'USDA foods cannot be edited. Clone the food first.'}), 403
+    if not can_edit_food(food):
+        return jsonify({'error': 'You can only edit your own foods. Clone the food first.'}), 403
     data = request.get_json(silent=True) or {}
     if 'name' in data:
         food.name = data['name']
@@ -427,7 +462,7 @@ def update_food(food_id: int):
     if 'g_per_unit' in data:
         food.g_per_unit = float(data['g_per_unit']) if data['g_per_unit'] is not None else None
     db.session.commit()
-    return jsonify(food.to_dict())
+    return jsonify(food_json(food))
 
 
 @foods_bp.route('/<int:food_id>', methods=['DELETE'])
@@ -437,6 +472,8 @@ def delete_food(food_id: int):
         return jsonify({'error': 'Food not found'}), 404
     if food.source == 'usda':
         return jsonify({'error': 'USDA foods cannot be deleted. Clone the food first.'}), 403
+    if not can_edit_food(food):
+        return jsonify({'error': 'You can only delete your own foods.'}), 403
     food.is_archived = True
     db.session.commit()
     return jsonify({'archived': food_id})
@@ -453,10 +490,11 @@ def clone_food(food_id: int):
         fiber=food.fiber, sugar=food.sugar,
         default_serving=food.default_serving, serving_unit=food.serving_unit,
         food_type=food.food_type, source='custom', is_archived=False,
+        owner_id=current_user_id(),
     )
     db.session.add(clone)
     db.session.commit()
-    return jsonify(clone.to_dict()), 201
+    return jsonify(food_json(clone)), 201
 
 
 @foods_bp.route('/import', methods=['POST'])
@@ -512,6 +550,7 @@ def import_foods_csv():
     skipped = 0
     errors = []
     total = 0
+    uid = current_user_id()
 
     for row in reader:
         total += 1
@@ -573,6 +612,7 @@ def import_foods_csv():
                 food_type='ingredient',
                 source='custom',
                 is_archived=False,
+                owner_id=uid,
             )
             db.session.add(food)
             existing_names.add(name.lower())

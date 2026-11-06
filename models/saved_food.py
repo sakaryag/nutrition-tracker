@@ -24,6 +24,8 @@ class SavedFood(db.Model):
     g_per_unit = db.Column(db.Float, nullable=True)  # grams per 1 piece/slice/serving (enables cross-unit conversion)
     valid_units = db.Column(db.String(500), nullable=True)  # JSON array of allowed unit keys; NULL = use default group logic
     is_archived = db.Column(db.Boolean, default=False)
+    # NULL = shared library food (USDA/seed/OpenFoodFacts cache/legacy): read-only for normal users.
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
@@ -55,4 +57,5 @@ class SavedFood(db.Model):
             'is_archived': self.is_archived,
             'g_per_unit': self.g_per_unit,
             'valid_units': self.valid_units,
+            'owner_id': self.owner_id,
         }

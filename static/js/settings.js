@@ -429,28 +429,60 @@
       rows.forEach(function (row) {
         var item = document.createElement('div');
         item.className = 'dietitian-access-row';
-        item.innerHTML =
-          '<div class="dietitian-access-name">' + escHtml(row.dietitian_name) + '</div>' +
-          '<label class="toggle-switch">' +
-            '<input type="checkbox" class="toggle-input"' + (row.allowed ? ' checked' : '') + ' data-did="' + row.dietitian_id + '" />' +
-            '<span class="toggle-slider"></span>' +
-          '</label>' +
-          '<span class="toggle-label" style="margin-left:.5rem;">' + (row.allowed ? 'Access granted' : 'Access denied') + '</span>';
-        var cb = item.querySelector('input[type=checkbox]');
-        var lbl = item.querySelector('.toggle-label');
-        cb.addEventListener('change', function () {
-          api('/api/dietitian/access/' + row.dietitian_id, {
-            method: 'PUT',
-            body: JSON.stringify({ allowed: cb.checked }),
-          }).then(function (res) {
-            lbl.textContent = res.allowed ? 'Access granted' : 'Access denied';
-            showToast(res.allowed ? 'Dietitian can now view your data' : 'Access revoked', 'success');
+        list.appendChild(item);
+        if (row.status === 'pending') renderPending(item, row);
+        else renderToggle(item, row);
+      });
+    }
+
+    function setAccess(row, allowed) {
+      return api('/api/dietitian/access/' + row.dietitian_id, {
+        method: 'PUT',
+        body: JSON.stringify({ allowed: allowed }),
+      });
+    }
+
+    function renderPending(item, row) {
+      item.innerHTML =
+        '<div class="dietitian-access-name">' + escHtml(row.dietitian_name) +
+          ' <span class="badge badge--info">Invite pending</span></div>' +
+        '<button type="button" class="btn btn-sm btn-pill btn-ink" data-act="accept">Accept</button>' +
+        '<button type="button" class="btn btn-sm btn-pill btn-soft" data-act="decline">Decline</button>';
+      item.querySelectorAll('button').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var allowed = b.dataset.act === 'accept';
+          item.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
+          setAccess(row, allowed).then(function (res) {
+            row.allowed = res.allowed;
+            row.status = res.allowed ? 'accepted' : 'declined';
+            showToast(res.allowed ? 'Dietitian can now view your data' : 'Invite declined', 'success');
+            renderToggle(item, row);
           }).catch(function (err) {
-            cb.checked = !cb.checked;
+            item.querySelectorAll('button').forEach(function (x) { x.disabled = false; });
             showToast(err.message || 'Error', 'error');
           });
         });
-        list.appendChild(item);
+      });
+    }
+
+    function renderToggle(item, row) {
+      item.innerHTML =
+        '<div class="dietitian-access-name">' + escHtml(row.dietitian_name) + '</div>' +
+        '<label class="toggle-switch">' +
+          '<input type="checkbox" class="toggle-input"' + (row.allowed ? ' checked' : '') + ' data-did="' + row.dietitian_id + '" />' +
+          '<span class="toggle-slider"></span>' +
+        '</label>' +
+        '<span class="toggle-label" style="margin-left:.5rem;">' + (row.allowed ? 'Access granted' : 'Access denied') + '</span>';
+      var cb = item.querySelector('input[type=checkbox]');
+      var lbl = item.querySelector('.toggle-label');
+      cb.addEventListener('change', function () {
+        setAccess(row, cb.checked).then(function (res) {
+          lbl.textContent = res.allowed ? 'Access granted' : 'Access denied';
+          showToast(res.allowed ? 'Dietitian can now view your data' : 'Access revoked', 'success');
+        }).catch(function (err) {
+          cb.checked = !cb.checked;
+          showToast(err.message || 'Error', 'error');
+        });
       });
     }
 

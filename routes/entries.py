@@ -4,6 +4,7 @@ from models import db
 from models.food_entry import FoodEntry
 from models.saved_food import SavedFood
 from routes.auth import current_user_id
+from routes.foods import can_edit_food
 from sqlalchemy import func
 
 entries_bp = Blueprint('entries', __name__, url_prefix='/api/entries')
@@ -112,6 +113,7 @@ def create_entry():
                 default_serving=float(serving_size) if serving_size is not None else 100.0,
                 serving_unit=serving_unit,
                 is_archived=False,
+                owner_id=uid,
             )
             db.session.add(new_food)
             db.session.flush()          # populate new_food.id before commit
@@ -156,10 +158,10 @@ def update_entry(entry_id: int):
     if 'saved_food_id' in data:
         entry.saved_food_id = int(data['saved_food_id']) if data['saved_food_id'] is not None else None
 
-    # If this entry is linked to a custom saved food, keep its macros in sync.
+    # If this entry is linked to a custom saved food the caller owns, keep its macros in sync.
     if entry.saved_food_id:
         linked_food = db.session.get(SavedFood, entry.saved_food_id)
-        if linked_food and linked_food.source == 'custom':
+        if linked_food and linked_food.source == 'custom' and can_edit_food(linked_food):
             if 'protein' in data:
                 linked_food.protein = entry.protein
             if 'fat' in data:

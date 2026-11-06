@@ -2,7 +2,7 @@
 {% block title %} — Admin{% endblock %}
 
 {% block content %}
-<section class="page-admin">
+<section class="page-admin" id="admin-page" data-superadmin="{{ 'true' if current_user_is_superadmin else 'false' }}">
 
   <div class="page-header">
     <h1>Admin Panel</h1>

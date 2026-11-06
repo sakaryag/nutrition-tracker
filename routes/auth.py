@@ -191,9 +191,48 @@ def delete_user_data(uid):
                 pass
         db.session.delete(up)
 
+    _release_owned_foods(uid)
+
     user = db.session.get(User, uid)
     if user is not None:
         db.session.delete(user)
+
+
+def _release_owned_foods(uid):
+    """Delete the user's foods nobody else references; orphan (owner NULL) the rest."""
+    from models.saved_food import SavedFood
+    from models.food_entry import FoodEntry
+    from models.meal_template_item import MealTemplateItem
+    from models.recipe_ingredient import RecipeIngredient
+    from models.exchange_category_member import ExchangeCategoryMember
+    from models.slot_item import SlotItem
+    from models.slot_fulfillment import SlotFulfillment
+    from models.program_guideline import ProgramGuideline
+
+    # Apply pending ORM deletes (the user's own templates/recipes/categories) before checking refs.
+    db.session.flush()
+    owned = db.select(SavedFood.id).where(SavedFood.owner_id == uid)
+    if db.session.execute(owned.limit(1)).first() is None:
+        return
+    referenced = set()
+    for col in (FoodEntry.saved_food_id, MealTemplateItem.saved_food_id, RecipeIngredient.saved_food_id,
+                ExchangeCategoryMember.saved_food_id, SlotItem.saved_food_id,
+                SlotFulfillment.saved_food_id, ProgramGuideline.target_food_id):
+        referenced.update(r[0] for r in db.session.query(col).filter(col.in_(owned)).distinct())
+    # plan_task_completion.saved_food_id exists only via ALTER on older DBs (not in the ORM model).
+    try:
+        with db.session.begin_nested():
+            rows = db.session.execute(db.text(
+                'SELECT DISTINCT saved_food_id FROM plan_task_completion WHERE saved_food_id IN '
+                '(SELECT id FROM saved_food WHERE owner_id = :uid)'), {'uid': uid})
+            referenced.update(r[0] for r in rows)
+    except Exception:
+        pass
+
+    if referenced:
+        SavedFood.query.filter(SavedFood.owner_id == uid, SavedFood.id.in_(referenced)) \
+            .update({'owner_id': None}, synchronize_session=False)
+    SavedFood.query.filter(SavedFood.owner_id == uid).delete(synchronize_session=False)
 
 
 @auth_bp.route('/delete-account', methods=['GET', 'POST'])

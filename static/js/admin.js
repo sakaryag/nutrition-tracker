@@ -735,14 +735,21 @@ function loadTemplates() {
 }
 
 /* ── Users tab ────────────────────────────────────────────── */
+var _adminPage = document.getElementById('admin-page');
+var IS_SUPERADMIN = !!_adminPage && _adminPage.dataset.superadmin === 'true';
+
 function loadUsers() {
   api('/api/admin/users').then(function (data) {
     var tbody = document.getElementById('admin-users-body');
     tbody.innerHTML = data.map(function (u) {
+      // Premium/admin flags are global settings: only super-admins may change them.
+      var planCell = IS_SUPERADMIN
+        ? '<label class="checkbox-label"><input type="checkbox" class="toggle-plan-feature" data-uid="' + u.id + '"' + (u.plan_feature_enabled ? ' checked' : '') + ' /> Enabled</label>'
+        : (u.plan_feature_enabled ? 'Enabled' : '&mdash;');
       return '<tr>' +
         '<td>' + esc(u.username) + '</td>' +
         '<td>' + (u.is_admin ? '&#10003;' : '') + '</td>' +
-        '<td><label class="checkbox-label"><input type="checkbox" class="toggle-plan-feature" data-uid="' + u.id + '"' + (u.plan_feature_enabled ? ' checked' : '') + ' /> Enabled</label></td>' +
+        '<td>' + planCell + '</td>' +
         '<td>' + (u.active_plan_name ? esc(u.active_plan_name) : '<em>none</em>') + '</td>' +
         '<td><button class="btn btn-sm btn-outline assign-plan-btn" data-uid="' + u.id + '" data-uname="' + esc(u.username) + '">Assign Plan</button></td>' +
       '</tr>';

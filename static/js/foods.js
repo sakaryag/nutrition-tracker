@@ -197,7 +197,7 @@
   async function loadCustomFoods() {
     try {
       const foods = await api('/api/foods?q=&source=custom');
-      customFoods = (foods || []).filter(f => !f.is_archived);
+      customFoods = (foods || []).filter(f => !f.is_archived && f.can_edit !== false);
       renderCustomFoods(customFoods);
     } catch (err) {
       customFoodsList.innerHTML = '<p class="empty-msg">' + escHtml(t('common.loadError')) + '</p>';
@@ -230,7 +230,7 @@
       : (f.source === 'off' ? '<span class="badge badge--off">OpenFoodFacts</span>' : '<span class="badge badge--usda">USDA</span>');
 
     let actions = '';
-    if (isCustom) {
+    if (isCustom && f.can_edit !== false) {
       actions = `
         <button class="btn btn-sm btn-outline" data-action="edit" data-id="${f.id}" title="${escHtml(t('foods.edit'))}">${escHtml(t('foods.edit'))}</button>
         <button class="btn btn-sm btn-danger" data-action="delete" data-id="${f.id}" title="${escHtml(t('foods.delete'))}">${escHtml(t('foods.delete'))}</button>`;

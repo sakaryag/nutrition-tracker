@@ -24,6 +24,52 @@
 
     loadStats();
     loadClients();
+    initInvites();
+  }
+
+  var INVITE_BADGE = {
+    accepted: '<span class="badge badge--success">Accepted</span>',
+    pending:  '<span class="badge badge--info">Pending</span>',
+    declined: '<span class="badge badge--muted">Declined</span>',
+  };
+
+  function initInvites() {
+    var form = document.getElementById('dt-invite-form');
+    if (!form) return;
+    var input = document.getElementById('dt-invite-username');
+    var btn = document.getElementById('dt-invite-btn');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var username = input.value.trim();
+      if (!username) { input.focus(); return; }
+      btn.disabled = true;
+      api('/api/dietitian/invite', { method: 'POST', body: JSON.stringify({ username: username }) })
+        .then(function (res) {
+          showToast(res.access_granted
+            ? res.username + ' has already granted you access'
+            : 'Invite sent to ' + res.username, 'success');
+          input.value = '';
+          loadInvites();
+        })
+        .catch(function (err) { showToast(err.message || 'Could not send invite', 'error'); })
+        .then(function () { btn.disabled = false; });
+    });
+    loadInvites();
+  }
+
+  function loadInvites() {
+    var list = document.getElementById('dt-invites-list');
+    api('/api/dietitian/invites')
+      .then(function (rows) {
+        if (!rows.length) { list.innerHTML = ''; return; }
+        list.innerHTML = rows.map(function (r) {
+          return '<div class="dietitian-access-row">' +
+            '<div class="dietitian-access-name">' + escHtml(r.username) + '</div>' +
+            (INVITE_BADGE[r.status] || '') +
+          '</div>';
+        }).join('');
+      })
+      .catch(function () { list.innerHTML = ''; });
   }
 
   function loadStats() {

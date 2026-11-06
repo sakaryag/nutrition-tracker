@@ -3,7 +3,7 @@ import csv
 from flask import Blueprint, request, Response, current_app, session, jsonify
 from datetime import date
 from models.food_entry import FoodEntry
-from routes.auth import premium_required
+from routes.auth import premium_required, current_user_id
 
 export_bp = Blueprint('export', __name__, url_prefix='/api/export')
 
@@ -30,12 +30,11 @@ def export_entries():
     except ValueError:
         return Response('Invalid date format, use YYYY-MM-DD', status=400)
 
-    entries = (
-        FoodEntry.query
-        .filter(FoodEntry.entry_date >= start_date, FoodEntry.entry_date <= end_date)
-        .order_by(FoodEntry.entry_date, FoodEntry.entry_time)
-        .all()
-    )
+    q = FoodEntry.query.filter(FoodEntry.entry_date >= start_date, FoodEntry.entry_date <= end_date)
+    uid = current_user_id()
+    if uid is not None:
+        q = q.filter(FoodEntry.user_id == uid)
+    entries = q.order_by(FoodEntry.entry_date, FoodEntry.entry_time).all()
 
     buf = io.StringIO()
     writer = csv.writer(buf)

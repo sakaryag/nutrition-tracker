@@ -67,6 +67,29 @@ def list_clients():
     return jsonify(result)
 
 
+# ── Dietitian: invite a client by username (client must then grant access) ───
+
+@dietitian_bp.route('/invite', methods=['POST'])
+def invite_client():
+    dietitian, err, code = _require_dietitian()
+    if err:
+        return err, code
+    from models.dietitian_access import DietitianAccess
+    username = ((request.get_json(silent=True) or {}).get('username') or '').strip()
+    client = User.query.filter_by(username=username).first() if username else None
+    if client is None or client.id == dietitian.id or client.username.startswith('__'):
+        return jsonify({'error': 'User not found'}), 404
+    row = DietitianAccess.query.filter_by(dietitian_id=dietitian.id, client_id=client.id).first()
+    if row is None:
+        now = datetime.utcnow()
+        row = DietitianAccess(dietitian_id=dietitian.id, client_id=client.id, allowed=False,
+                              created_at=now, updated_at=now)
+        db.session.add(row)
+        db.session.commit()
+    return jsonify({'client_id': client.id, 'username': client.username,
+                    'access_granted': bool(row.allowed)}), 201
+
+
 # ── Dietitian: view client data (read-only, requires consent) ────────────────
 
 @dietitian_bp.route('/clients/<int:client_id>/data', methods=['GET'])

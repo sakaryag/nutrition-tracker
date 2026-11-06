@@ -329,6 +329,9 @@ def react_to_feed(target_user_id, target_date):
     if emoji not in VALID_EMOJIS:
         return jsonify({'error': 'Invalid emoji. Use one of: ' + ', '.join(VALID_EMOJIS)}), 400
 
+    if current_app.config.get('AUTH_ENABLED') and target_user_id not in _friend_ids(uid):
+        return jsonify({'error': 'Not found'}), 404
+
     try:
         for_date = date.fromisoformat(target_date)
     except ValueError:

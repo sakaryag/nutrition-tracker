@@ -256,6 +256,9 @@ def fulfill_slot():
     slot = db.session.get(MealSlot, slot_id)
     if slot is None:
         return jsonify({'error': 'Slot not found'}), 404
+    if current_app.config.get('AUTH_ENABLED') and UserPlanAssignment.query.filter_by(
+            user_id=uid, plan_id=slot.day.program_id, is_active=True).first() is None:
+        return jsonify({'error': 'Plan not assigned to you'}), 403
 
     existing = SlotFulfillment.query.filter_by(
         user_id=uid, slot_id=slot_id, fulfillment_date=target_date
@@ -458,8 +461,15 @@ def category_progress():
 
 @plans_bp.route('/templates', methods=['GET'])
 def list_public_templates():
-    """List all is_template=True plans — callable by any authenticated user."""
-    plans = NutritionPlan.query.filter_by(is_template=True).order_by(NutritionPlan.name).all()
+    """List template plans the current user may read (own, system or public)."""
+    from routes.admin import readable_plans_filter
+    from routes.auth import is_superadmin
+    from models.user import User
+    query = NutritionPlan.query.filter_by(is_template=True)
+    uid = current_user_id()
+    if not is_superadmin(db.session.get(User, uid) if uid is not None else None):
+        query = query.filter(readable_plans_filter(uid))
+    plans = query.order_by(NutritionPlan.name).all()
     return jsonify([p.to_dict() for p in plans])
 
 
@@ -476,7 +486,8 @@ def self_assign():
     if not plan_id:
         return jsonify({'error': 'plan_id is required'}), 400
     plan = db.session.get(NutritionPlan, plan_id)
-    if plan is None:
+    from routes.admin import can_read_plan
+    if plan is None or not can_read_plan(plan):
         return jsonify({'error': 'Plan not found'}), 404
     try:
         start_date = date.fromisoformat(data['start_date']) if data.get('start_date') else date.today()

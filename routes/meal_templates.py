@@ -235,6 +235,7 @@ def log_template_single(template_id):
         serving_size=round(total_serving, 1) if total_serving else None,
         serving_unit='g',
         saved_food_id=None,
+        user_id=current_user_id(),
         entry_date=entry_date,
         entry_time=now.time(),
     )

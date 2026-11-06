@@ -29,6 +29,10 @@ class Config:
             'pool_recycle': 300,
         }
     AUTH_ENABLED = os.getenv('AUTH_ENABLED', 'true').lower() == 'true'
+    # Only these usernames get global user management; is_admin alone means "dietitian".
+    SUPERADMIN_USERNAMES = frozenset(
+        u.strip() for u in os.getenv('SUPERADMIN_USERNAMES', '').split(',') if u.strip()
+    )
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)

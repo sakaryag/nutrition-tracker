@@ -6,6 +6,8 @@ from models.user import User
 from models.nutrition_plan import NutritionPlan
 from models.plan_task import PlanTask
 from models.user_plan_assignment import UserPlanAssignment
+from models.dietitian_access import DietitianAccess
+from routes.auth import is_superadmin
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
@@ -16,18 +18,54 @@ def check_auth():
         return jsonify({'error': 'Authentication required'}), 401
 
 
-def require_admin(f):
+def _current_user():
+    uid = session.get('user_id')
+    return db.session.get(User, uid) if uid is not None else None
+
+
+def require_superadmin(f):
+    """Global user management: only SUPERADMIN_USERNAMES (is_admin/dietitian is not enough)."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        uid = session.get('user_id')
-        if uid is None and current_app.config.get('AUTH_ENABLED'):
-            return jsonify({'error': 'Authentication required'}), 401
-        if uid is not None:
-            user = db.session.get(User, uid)
-            if user is None or not getattr(user, 'is_admin', False):
+        if current_app.config.get('AUTH_ENABLED') and not is_superadmin(_current_user()):
+            return jsonify({'error': 'Admin access required'}), 403
+        return f(*args, **kwargs)
+    return decorated
+
+
+def require_dietitian(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if current_app.config.get('AUTH_ENABLED'):
+            user = _current_user()
+            if user is None or not (user.is_admin or is_superadmin(user)):
                 return jsonify({'error': 'Admin access required'}), 403
         return f(*args, **kwargs)
     return decorated
+
+
+def _has_client_access(dietitian_id, client_id):
+    return DietitianAccess.query.filter_by(
+        dietitian_id=dietitian_id, client_id=client_id, allowed=True
+    ).first() is not None
+
+
+def readable_plans_filter(uid):
+    """Plans a non-superadmin may see: own, unowned (system/orphaned) or public."""
+    return db.or_(
+        NutritionPlan.created_by == uid,
+        NutritionPlan.created_by.is_(None),
+        NutritionPlan.is_public.is_(True),
+    )
+
+
+def can_read_plan(plan):
+    if not current_app.config.get('AUTH_ENABLED'):
+        return True
+    uid = session.get('user_id')
+    if plan.created_by is None or plan.is_public or (uid is not None and plan.created_by == uid):
+        return True
+    return is_superadmin(_current_user())
 
 
 def require_plan_access(f):
@@ -46,9 +84,23 @@ def _assert_owner(plan):
     if not current_app.config.get('AUTH_ENABLED'):
         return
     uid = session.get('user_id')
-    if uid is not None and plan.created_by is not None and plan.created_by != uid:
+    if uid is not None and plan.created_by == uid:
+        return
+    # Unowned plans (system/orphaned) are shared, so only a superadmin may modify them.
+    if not is_superadmin(_current_user()):
         from flask import abort
         abort(403)
+
+
+def _own_upload(upload_id):
+    """Return the upload if the current user uploaded it (or is superadmin), else None."""
+    from models.program_image_upload import ProgramImageUpload
+    upload = db.session.get(ProgramImageUpload, upload_id)
+    if upload is None or not current_app.config.get('AUTH_ENABLED'):
+        return upload
+    if upload.uploaded_by == session.get('user_id') or is_superadmin(_current_user()):
+        return upload
+    return None
 
 
 # Ã¢â€â‚¬Ã¢â€â‚¬ Plans Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
@@ -58,15 +110,8 @@ def _assert_owner(plan):
 def list_plans():
     uid = session.get('user_id')
     query = NutritionPlan.query
-    if current_app.config.get('AUTH_ENABLED') and uid is not None:
-        user = db.session.get(User, uid)
-        is_admin = user and getattr(user, 'is_admin', False)
-        if not is_admin:
-            # Regular users only see their own plans and system-owned (NULL) plans
-            query = query.filter(
-                (NutritionPlan.created_by == uid) | (NutritionPlan.created_by == None)
-            )
-        # Admins see everything — including __system__ seeded templates
+    if current_app.config.get('AUTH_ENABLED') and not is_superadmin(_current_user()):
+        query = query.filter(readable_plans_filter(uid))
     is_template = request.args.get('is_template')
     if is_template is not None:
         query = query.filter(NutritionPlan.is_template == (is_template == '1'))
@@ -103,6 +148,7 @@ def update_plan(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
         return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
     data = request.get_json(silent=True) or {}
     if 'name' in data:
         plan.name = data['name'].strip()
@@ -130,6 +176,7 @@ def delete_plan(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
         return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
     db.session.delete(plan)
     db.session.commit()
     return jsonify({'deleted': plan_id})
@@ -143,6 +190,7 @@ def list_tasks(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
         return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
     tasks = PlanTask.query.filter_by(plan_id=plan_id).order_by(PlanTask.day_offset, PlanTask.id).all()
     return jsonify([t.to_dict() for t in tasks])
 
@@ -153,6 +201,7 @@ def add_task(plan_id):
     plan = db.session.get(NutritionPlan, plan_id)
     if plan is None:
         return jsonify({'error': 'Plan not found'}), 404
+    _assert_owner(plan)
     data = request.get_json(silent=True) or {}
     description = data.get('description', '').strip()
     if not description:
@@ -181,6 +230,7 @@ def delete_task(task_id):
     task = db.session.get(PlanTask, task_id)
     if task is None:
         return jsonify({'error': 'Task not found'}), 404
+    _assert_owner(task.plan)
     db.session.delete(task)
     db.session.commit()
     return jsonify({'deleted': task_id})
@@ -189,9 +239,16 @@ def delete_task(task_id):
 # Ã¢â€â‚¬Ã¢â€â‚¬ Users Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
 @admin_bp.route('/users', methods=['GET'])
-@require_admin
+@require_dietitian
 def list_users():
-    users = User.query.order_by(User.username).all()
+    query = User.query
+    actor = _current_user()
+    if current_app.config.get('AUTH_ENABLED') and not is_superadmin(actor):
+        client_ids = db.session.query(DietitianAccess.client_id).filter_by(
+            dietitian_id=actor.id, allowed=True
+        )
+        query = query.filter(User.id.in_(client_ids))
+    users = query.order_by(User.username).all()
     result = []
     for u in users:
         assignment = UserPlanAssignment.query.filter_by(
@@ -210,7 +267,7 @@ def list_users():
 
 
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
-@require_admin
+@require_superadmin
 def update_user(user_id):
     user = db.session.get(User, user_id)
     if user is None:
@@ -230,8 +287,12 @@ def update_user(user_id):
 
 
 @admin_bp.route('/users/<int:user_id>/assign-plan', methods=['POST'])
-@require_admin
+@require_dietitian
 def assign_plan(user_id):
+    actor = _current_user()
+    if (current_app.config.get('AUTH_ENABLED') and not is_superadmin(actor)
+            and not _has_client_access(actor.id, user_id)):
+        return jsonify({'error': 'Client has not granted you access'}), 403
     user = db.session.get(User, user_id)
     if user is None:
         return jsonify({'error': 'User not found'}), 404
@@ -241,7 +302,7 @@ def assign_plan(user_id):
     if not plan_id:
         return jsonify({'error': 'plan_id is required'}), 400
     plan = db.session.get(NutritionPlan, plan_id)
-    if plan is None:
+    if plan is None or not can_read_plan(plan):
         return jsonify({'error': 'Plan not found'}), 404
     try:
         start_date = date.fromisoformat(raw_date) if raw_date else date.today()
@@ -808,7 +869,7 @@ def promote_to_template(plan_id):
 def clone_plan(plan_id):
     """Deep-clone a template plan into a new editable program."""
     source = db.session.get(NutritionPlan, plan_id)
-    if source is None:
+    if source is None or not can_read_plan(source):
         return jsonify({'error': 'Plan not found'}), 404
     from models.program_day import ProgramDay
     from models.meal_slot import MealSlot
@@ -979,9 +1040,8 @@ def upload_image():
 @admin_bp.route('/plans/confirm-extraction/<int:upload_id>', methods=['POST'])
 @require_plan_access
 def confirm_extraction(upload_id):
-    from models.program_image_upload import ProgramImageUpload
     from datetime import datetime, timezone
-    upload = db.session.get(ProgramImageUpload, upload_id)
+    upload = _own_upload(upload_id)
     if upload is None:
         return jsonify({'error': 'Upload not found'}), 404
     if upload.extraction_status not in ('draft_ready',):
@@ -991,6 +1051,7 @@ def confirm_extraction(upload_id):
     if upload.program_id:
         plan = db.session.get(NutritionPlan, upload.program_id)
         if plan:
+            _assert_owner(plan)
             plan.status = 'active'
     db.session.commit()
     return jsonify(upload.to_dict())
@@ -1002,11 +1063,10 @@ def confirm_extraction(upload_id):
 @require_plan_access
 def process_image(upload_id):
     """Trigger async Claude Vision extraction for a previously uploaded image."""
-    from models.program_image_upload import ProgramImageUpload
     from datetime import datetime, timezone
     import threading, json as _json
 
-    upload = db.session.get(ProgramImageUpload, upload_id)
+    upload = _own_upload(upload_id)
     if upload is None:
         return jsonify({'error': 'Upload not found'}), 404
     if upload.extraction_status == 'processing':
@@ -1060,8 +1120,7 @@ def process_image(upload_id):
 def upload_status(upload_id):
     """Poll extraction status. Returns extracted JSON when draft_ready."""
     import json as _json
-    from models.program_image_upload import ProgramImageUpload
-    upload = db.session.get(ProgramImageUpload, upload_id)
+    upload = _own_upload(upload_id)
     if upload is None:
         return jsonify({'error': 'Upload not found'}), 404
     resp = upload.to_dict()
@@ -1082,14 +1141,13 @@ def apply_extraction(upload_id):
     Existing days for the plan are cleared first if replace=true is passed.
     """
     import json as _json
-    from models.program_image_upload import ProgramImageUpload
     from models.program_day import ProgramDay
     from models.meal_slot import MealSlot
     from models.slot_item import SlotItem
     from models.saved_food import SavedFood
     from datetime import datetime, timezone
 
-    upload = db.session.get(ProgramImageUpload, upload_id)
+    upload = _own_upload(upload_id)
     if upload is None:
         return jsonify({'error': 'Upload not found'}), 404
     if upload.extraction_status not in ('draft_ready', 'confirmed'):

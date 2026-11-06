@@ -34,3 +34,4 @@ from models.weekly_category_quota import WeeklyCategoryQuota
 from models.program_image_upload import ProgramImageUpload
 from models.feed_reaction import FeedReaction
 from models.weight_log import WeightLog, BodyGoal
+from models.app_meta import AppMeta

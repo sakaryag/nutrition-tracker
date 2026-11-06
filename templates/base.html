@@ -16,7 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css?v=3" />
   {% block head %}{% endblock %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 </head>
 <body>
   <header class="site-header">
@@ -93,6 +93,7 @@
   window.NT_USER_ROLE = "{{ current_user.role if current_user else 'guest' }}";
   window.NT_USER_IS_ADMIN = {{ "true" if current_user and current_user.is_admin else "false" }};
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   {% block scripts %}{% endblock %}
 
   <script>

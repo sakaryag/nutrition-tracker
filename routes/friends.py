@@ -192,7 +192,8 @@ def remove_friend(friend_id):
     block = bool(data.get('block', False))
 
     conn = _get_connection_between(uid, friend_id)
-    if not conn:
+    # Only the blocker may lift a block; otherwise the blocked user could delete it and re-request.
+    if not conn or (conn.status == 'blocked' and conn.requester_id != uid):
         return jsonify({'error': 'Connection not found'}), 404
 
     if block:

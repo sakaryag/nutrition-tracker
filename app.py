@@ -1,8 +1,9 @@
 import os
 import shutil
+import hashlib
 from datetime import datetime
+from pathlib import Path
 from flask import Flask
-from flask_migrate import Migrate
 from sqlalchemy import event, text
 from werkzeug.middleware.proxy_fix import ProxyFix
 from models import db
@@ -24,7 +25,10 @@ def create_app(config_name=None, test_config=None):
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     db.init_app(app)
-    Migrate(app, db)
+    # Flask-Migrate is only needed for `flask db ...` CLI; importing it costs seconds on cold start.
+    if not os.getenv('K_SERVICE'):
+        from flask_migrate import Migrate
+        Migrate(app, db)
 
     if oauth is not None:
         oauth.init_app(app)
@@ -64,16 +68,19 @@ def create_app(config_name=None, test_config=None):
             return {'current_user': None, 'user_has_plan': False}
 
     with app.app_context():
-        _create_all_if_needed(app)
-        _migrate_add_columns(app)
-        _auto_seed(app)
-        _seed_meals_on_startup(app)
-        _patch_name_tr(app)
-        _refresh_usda_foods(app)
-        _patch_food_data(app)
-        _patch_program_days(app)
-        _patch_plan_feature_enabled(app)
-        _seed_starter_templates(app)
+        fingerprint = _startup_fingerprint()
+        if not _startup_already_done(fingerprint):
+            _create_all_if_needed(app)
+            _migrate_add_columns(app)
+            _auto_seed(app)
+            _seed_meals_on_startup(app)
+            _patch_name_tr(app)
+            _refresh_usda_foods(app)
+            _patch_food_data(app)
+            _patch_program_days(app)
+            _patch_plan_feature_enabled(app)
+            _seed_starter_templates(app)
+            _mark_startup_done(app, fingerprint)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
         _backup_db(app)
@@ -87,6 +94,43 @@ def create_app(config_name=None, test_config=None):
                 cursor.close()
 
     return app
+
+
+def _startup_fingerprint():
+    """Hash of everything the startup pass depends on: schema, migrations, seed data."""
+    root = Path(__file__).resolve().parent
+    files = [root / 'app.py']
+    files += sorted((root / 'models').glob('*.py'))
+    files += sorted(p for p in (root / 'seed_data').rglob('*') if p.is_file() and '__pycache__' not in p.parts)
+    h = hashlib.sha256()
+    for p in files:
+        h.update(p.name.encode())
+        h.update(p.read_bytes())
+    return h.hexdigest()[:40]
+
+
+def _startup_already_done(fingerprint):
+    from models.app_meta import AppMeta
+    try:
+        row = db.session.get(AppMeta, 'startup_fingerprint')
+        return row is not None and row.value == fingerprint
+    except Exception:
+        db.session.rollback()
+        return False
+
+
+def _mark_startup_done(app, fingerprint):
+    from models.app_meta import AppMeta
+    try:
+        row = db.session.get(AppMeta, 'startup_fingerprint')
+        if row is None:
+            db.session.add(AppMeta(key='startup_fingerprint', value=fingerprint))
+        else:
+            row.value = fingerprint
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        app.logger.warning('Could not record startup fingerprint: %s', e)
 
 
 def _create_all_if_needed(app):

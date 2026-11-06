@@ -14,6 +14,23 @@ def current_user_id():
     return session.get('user_id')
 
 
+def _is_reserved_username(username):
+    # '__system__' owns seeded templates and has a well-known seed password.
+    return username.startswith('__')
+
+
+def is_superadmin(user):
+    """True for site owners listed in SUPERADMIN_USERNAMES (or anyone when auth is off)."""
+    if not current_app.config.get('AUTH_ENABLED'):
+        return True
+    if user is None or _is_reserved_username(user.username):
+        return False
+    names = current_app.config.get('SUPERADMIN_USERNAMES') or ()
+    if isinstance(names, str):
+        names = {n.strip() for n in names.split(',') if n.strip()}
+    return user.username in names
+
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -55,7 +72,7 @@ def login():
     password = data.get('password', '')
     if not username or not password:
         return render_template('login.html', error='Username and password are required.')
-    user = User.query.filter_by(username=username).first()
+    user = None if _is_reserved_username(username) else User.query.filter_by(username=username).first()
     if user is None or not user.check_pw(password):
         return render_template('login.html', error='Invalid username or password.')
     session.permanent = True
@@ -77,16 +94,20 @@ def register():
     confirm = data.get('confirm', '')
     if not username or not password:
         return render_template('register.html', error='All fields are required.')
+    # Email-shaped usernames are reserved for Google sign-in linking (prevents account pre-hijacking).
+    if '@' in username:
+        return render_template('register.html', error='Username cannot contain "@".')
     if len(password) < 6:
         return render_template('register.html', error='Password must be at least 6 characters.')
     if password != confirm:
         return render_template('register.html', error='Passwords do not match.')
-    if User.query.filter_by(username=username).first():
+    if _is_reserved_username(username) or User.query.filter_by(username=username).first():
         return render_template('register.html', error='Username already taken.')
     role = data.get('role', 'member')
     user = User(username=username)
     user.set_pw(password)
     if role == 'dietitian':
+        # is_admin == dietitian role: scoped to consenting clients, never global access.
         user.is_admin = True
         user.plan_feature_enabled = True
     db.session.add(user)
@@ -232,10 +253,10 @@ def google_callback():
 
     user = User.query.filter_by(google_id=google_id).first()
     if user is None:
-        user = User.query.filter_by(username=email).first() if email else None
+        user = User.query.filter_by(username=email).first() if email and userinfo.get('email_verified') else None
         if user is None:
             base = (email.split('@')[0] if email else 'user').lower()
-            base = ''.join(c for c in base if c.isalnum() or c == '_')[:30] or 'user'
+            base = ''.join(c for c in base if c.isalnum() or c == '_')[:30].lstrip('_') or 'user'
             username = base
             counter = 1
             while User.query.filter_by(username=username).first():

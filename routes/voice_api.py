@@ -568,8 +568,12 @@ def log_food():
     totals = _totals_for_date(d, uid)
     target = _get_target(d, uid)
     speech = _log_speech(logged, unresolved, totals, target, lang, dry_run)
+    ai_mode = 'gemini' if parsed is not None else ('gemini_failed' if key else 'offline')
+    if ai_mode == 'offline':
+        speech += (' Yapay zeka kapalı; token oluştururken Gemini anahtarınız ekli değildi.' if lang == 'tr'
+                   else ' AI is off: this token has no Gemini key attached.')
     body = {'logged': logged, 'unresolved': unresolved, 'totals_today': totals,
-            'log_id': log_id, 'dry_run': dry_run, 'heard': text, 'speech': speech}
+            'log_id': log_id, 'dry_run': dry_run, 'heard': text, 'ai': ai_mode, 'speech': speech}
     return jsonify(body), (201 if logged and not dry_run else 200)
 
 

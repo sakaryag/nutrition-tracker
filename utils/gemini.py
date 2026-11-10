@@ -222,6 +222,22 @@ def pick_model(requested: str, key: str) -> str:
 # ---------------------------------------------------------------------------
 # One-shot JSON generation (used by the voice API)
 # ---------------------------------------------------------------------------
+def _post_generate(model: str, body: dict, key: str, timeout: float) -> str:
+    req = urllib.request.Request(
+        f'{API_BASE}/models/{model}:generateContent', data=json.dumps(body).encode(),
+        headers={'Content-Type': 'application/json', 'x-goog-api-key': key}, method='POST',
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read())
+        parts = data['candidates'][0]['content'].get('parts') or []
+        return ''.join(p.get('text', '') for p in parts)
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f'Gemini {e.code}') from None
+    except Exception as e:
+        raise RuntimeError(f'Gemini error: {type(e).__name__}') from None
+
+
 def generate_text(prompt: str, key: str, model: str = '', system: str = '',
                   timeout: float = 8, max_tokens: int = 1024) -> str:
     """Single generateContent call, no retries (voice clients need fast answers)."""
@@ -232,18 +248,25 @@ def generate_text(prompt: str, key: str, model: str = '', system: str = '',
     }
     if system:
         body['systemInstruction'] = {'parts': [{'text': system}]}
-    req = urllib.request.Request(
-        f'{API_BASE}/models/{model}:generateContent', data=json.dumps(body).encode(),
-        headers={'Content-Type': 'application/json', 'x-goog-api-key': key}, method='POST',
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = json.loads(resp.read())
-        return data['candidates'][0]['content']['parts'][0]['text']
-    except urllib.error.HTTPError as e:
-        raise RuntimeError(f'Gemini {e.code}') from None
-    except Exception as e:
-        raise RuntimeError(f'Gemini error: {type(e).__name__}') from None
+    return _post_generate(model, body, key, timeout)
+
+
+def transcribe(audio: bytes, mime: str, key: str, lang: str = 'en', model: str = '',
+               timeout: float = 25) -> str:
+    """Speech-to-text for a short voice note (Turkish or English)."""
+    likely = 'Turkish' if lang == 'tr' else 'English or Turkish'
+    prompt = (f'Transcribe this short voice note verbatim. The speaker most likely speaks {likely}; '
+              'keep the original language and write numbers as digits. It is usually about food '
+              'and portions. Return only the transcript text without quotes or commentary. '
+              'If there is no intelligible speech, return nothing.')
+    body = {
+        'contents': [{'role': 'user', 'parts': [
+            {'inlineData': {'mimeType': mime, 'data': base64.b64encode(audio).decode()}},
+            {'text': prompt},
+        ]}],
+        'generationConfig': {'maxOutputTokens': 512, 'temperature': 0},
+    }
+    return _post_generate(pick_model(model, key), body, key, timeout).strip().strip('"')
 
 
 def generate_json(prompt: str, key: str, **kw):

@@ -45,9 +45,10 @@
       chipsLabel: 'Suggested prompts',
       scan: 'Scan a meal',
       more: 'More actions',
-      speak: 'Speak', stopSpeak: 'Stop listening', listening: 'Listening…',
-      micDenied: 'Microphone access is blocked. Allow it in your browser settings.',
-      micError: 'Could not recognise speech. Please try again.',
+      speak: 'Speak', stopSpeak: 'Stop recording', listening: 'Listening… tap to stop', transcribing: 'Transcribing…',
+      noSpeech: 'No speech detected. Try again.',
+      micDenied: 'Microphone is blocked. iPhone: Settings → Apps → Safari → Microphone → Allow. Android: tap the lock icon → Permissions → Microphone → Allow.',
+      micError: 'Could not transcribe. Please try again.',
       send: 'Send',
       message: 'Message',
       hintStrong: 'Tip:',
@@ -88,9 +89,10 @@
       chipsLabel: 'Önerilen sorular',
       scan: 'Öğün tara',
       more: 'Diğer işlemler',
-      speak: 'Konuş', stopSpeak: 'Dinlemeyi durdur', listening: 'Dinliyorum…',
-      micDenied: 'Mikrofon erişimi engelli. Tarayıcı ayarlarından izin verin.',
-      micError: 'Konuşma anlaşılamadı. Lütfen tekrar deneyin.',
+      speak: 'Konuş', stopSpeak: 'Kaydı durdur', listening: 'Dinliyorum… durdurmak için dokun', transcribing: 'Yazıya çevriliyor…',
+      noSpeech: 'Ses algılanamadı. Tekrar deneyin.',
+      micDenied: 'Mikrofon engelli. iPhone: Ayarlar → Uygulamalar → Safari → Mikrofon → İzin Ver. Android: kilit simgesi → İzinler → Mikrofon → İzin ver.',
+      micError: 'Yazıya çevrilemedi. Lütfen tekrar deneyin.',
       send: 'Gönder',
       message: 'Mesaj',
       hintStrong: 'İpucu:',
@@ -692,68 +694,140 @@
   window.addEventListener('resize', syncComposerHeight);
 
   // ----------------------------------------------------------------
-  // Voice input (Web Speech API; hidden where unsupported)
+  // Voice input: record WAV in-page, transcribe with Gemini on the server.
+  // (Browser speech recognition is unreliable for Turkish and re-prompts on iOS.)
   // ----------------------------------------------------------------
-  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recog = null;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const REC_RATE = 16000;
+  let rec = null;
   let listening = false;
 
-  function setListening(on) {
-    listening = on;
-    micBtn.classList.toggle('is-listening', on);
-    micBtn.setAttribute('aria-pressed', String(on));
-    micBtn.setAttribute('aria-label', on ? t('stopSpeak') : t('speak'));
-    inputEl.placeholder = on ? t('listening') : t('placeholder');
+  function setMicState(state) {
+    listening = state === 'listening';
+    micBtn.classList.toggle('is-listening', listening);
+    micBtn.disabled = state === 'busy' || !ready;
+    micBtn.setAttribute('aria-pressed', String(listening));
+    micBtn.setAttribute('aria-label', listening ? t('stopSpeak') : t('speak'));
+    inputEl.placeholder = listening ? t('listening') : state === 'busy' ? t('transcribing') : t('placeholder');
   }
 
-  function startListening() {
-    if (busy || !ready) return;
-    closeMenu();
-    const base = inputEl.value.trim();
-    let finalText = '';
-    let failed = false;
-    recog = new Recognition();
-    recog.lang = lang() === 'tr' ? 'tr-TR' : 'en-US';
-    recog.interimResults = true;
-    recog.continuous = false;
-    recog.maxAlternatives = 1;
-
-    recog.onresult = function (e) {
-      let interim = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
+  function downsample(chunks, inRate) {
+    let len = 0;
+    chunks.forEach(function (c) { len += c.length; });
+    const ratio = inRate / REC_RATE;
+    const out = new Float32Array(Math.floor(len / ratio));
+    let pos = 0, idx = 0, acc = 0, n = 0, next = ratio;
+    chunks.forEach(function (c) {
+      for (let i = 0; i < c.length; i++, pos++) {
+        acc += c[i]; n++;
+        if (pos + 1 >= next && idx < out.length) { out[idx++] = acc / n; acc = 0; n = 0; next += ratio; }
       }
-      inputEl.value = [base, finalText, interim].filter(Boolean).join(' ').slice(0, 500);
-      autoResize();
-    };
-    recog.onerror = function (e) {
-      failed = true;
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') showToast(t('micDenied'), 'error', 5000);
-      else if (e.error !== 'no-speech' && e.error !== 'aborted') showToast(t('micError'), 'error');
-    };
-    recog.onend = function () {
-      setListening(false);
-      recog = null;
-      updateChips();
-      if (!failed && finalText.trim()) send();
-      else if (!inputEl.disabled) inputEl.focus();
-    };
-
-    try {
-      recog.start();
-      setListening(true);
-    } catch (_) {
-      recog = null;
-      setListening(false);
-    }
+    });
+    return out.subarray(0, idx);
   }
 
-  if (Recognition && micBtn) {
+  function encodeWav(samples) {
+    const buf = new ArrayBuffer(44 + samples.length * 2);
+    const v = new DataView(buf);
+    function str(o, s) { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    str(0, 'RIFF'); v.setUint32(4, 36 + samples.length * 2, true); str(8, 'WAVE');
+    str(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, REC_RATE, true); v.setUint32(28, REC_RATE * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, 'data'); v.setUint32(40, samples.length * 2, true);
+    for (let i = 0; i < samples.length; i++) {
+      const s = Math.max(-1, Math.min(1, samples[i]));
+      v.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    }
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+
+  function startRecording() {
+    if (busy || !ready || rec) return;
+    closeMenu();
+    // AudioContext must be created inside the tap for iOS.
+    const ctx = new AC();
+    rec = { ctx: ctx, chunks: [], heard: false, started: Date.now(), lastLoud: 0, stream: null, timer: null };
+    setMicState('listening');
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } })
+      .then(function (stream) {
+        if (!rec || rec.ctx !== ctx) { stream.getTracks().forEach(function (tr) { tr.stop(); }); return; }
+        rec.stream = stream;
+        if (ctx.state === 'suspended') ctx.resume();
+        const source = ctx.createMediaStreamSource(stream);
+        const proc = ctx.createScriptProcessor(4096, 1, 1);
+        proc.onaudioprocess = function (e) {
+          if (!rec) return;
+          const d = e.inputBuffer.getChannelData(0);
+          rec.chunks.push(new Float32Array(d));
+          let sum = 0;
+          for (let i = 0; i < d.length; i += 4) sum += d[i] * d[i];
+          if (Math.sqrt(sum / (d.length / 4)) > 0.02) { rec.heard = true; rec.lastLoud = Date.now(); }
+        };
+        source.connect(proc);
+        proc.connect(ctx.destination);
+        rec.source = source; rec.proc = proc;
+        // Auto-stop: 1.5 s of silence after speech, 7 s with no speech, 20 s max.
+        rec.timer = setInterval(function () {
+          if (!rec) return;
+          const now = Date.now();
+          if ((rec.heard && now - rec.lastLoud > 1500) || (!rec.heard && now - rec.started > 7000) || now - rec.started > 20000) {
+            stopRecording();
+          }
+        }, 200);
+      })
+      .catch(function (err) {
+        cleanupRecording();
+        setMicState('idle');
+        const denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+        showToast(t(denied ? 'micDenied' : 'micError'), 'error', 6000);
+      });
+  }
+
+  function cleanupRecording() {
+    if (!rec) return null;
+    const r = rec;
+    rec = null;
+    clearInterval(r.timer);
+    try { if (r.proc) r.proc.disconnect(); if (r.source) r.source.disconnect(); } catch (_) {}
+    if (r.stream) r.stream.getTracks().forEach(function (tr) { tr.stop(); });
+    try { r.ctx.close(); } catch (_) {}
+    return r;
+  }
+
+  function stopRecording() {
+    const r = cleanupRecording();
+    if (!r) return;
+    if (!r.heard || !r.chunks.length) {
+      setMicState('idle');
+      showToast(t('noSpeech'), 'info');
+      return;
+    }
+    setMicState('busy');
+    const fd = new FormData();
+    fd.append('audio', encodeWav(downsample(r.chunks, r.ctx.sampleRate)), 'voice.wav');
+    fd.append('lang', lang());
+    fetch('/api/chat/transcribe', { method: 'POST', body: fd })
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, d: d }; }); })
+      .then(function (x) {
+        setMicState('idle');
+        const text = (x.ok && x.d.text || '').trim();
+        if (!text) { showToast(t(x.ok ? 'noSpeech' : 'micError'), 'error'); return; }
+        const base = inputEl.value.trim();
+        inputEl.value = (base ? base + ' ' : '') + text;
+        autoResize();
+        send();
+      })
+      .catch(function () {
+        setMicState('idle');
+        showToast(t('micError'), 'error');
+      });
+  }
+
+  if (AC && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && micBtn) {
     micBtn.hidden = false;
     micBtn.addEventListener('click', function () {
-      if (listening && recog) recog.stop();
-      else startListening();
+      if (rec) stopRecording();
+      else startRecording();
     });
   }
 

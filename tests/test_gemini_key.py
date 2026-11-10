@@ -117,3 +117,34 @@ def test_models_live_list_sorted_and_filtered(client, monkeypatch):
 def test_pick_model_rejects_path_injection():
     assert G.pick_model('../../v1/evil', '') == G.FALLBACK_DEFAULT
     assert G.pick_model('gemini-x:generateContent?', '') == G.FALLBACK_DEFAULT
+
+
+def _wav(n=4000):
+    import struct
+    data = b'\x00\x00' * n
+    return (b'RIFF' + struct.pack('<I', 36 + len(data)) + b'WAVEfmt '
+            + struct.pack('<IHHIIHH', 16, 1, 1, 16000, 32000, 2, 16) + b'data'
+            + struct.pack('<I', len(data)) + data)
+
+
+def test_transcribe_requires_key(client):
+    from io import BytesIO
+    rv = client.post('/api/chat/transcribe', data={'audio': (BytesIO(_wav()), 'v.wav')})
+    assert rv.status_code == 401
+
+
+def test_transcribe_ok_and_validation(client, monkeypatch):
+    from io import BytesIO
+    seen = {}
+
+    def fake(audio, mime, key, lang='en', **kw):
+        seen.update(mime=mime, key=key, lang=lang)
+        return 'iki yumurta ve bir muz'
+
+    monkeypatch.setattr(G, 'transcribe', fake)
+    client.put('/api/chat/key', json={'key': KEY_A})
+    rv = client.post('/api/chat/transcribe', data={'audio': (BytesIO(_wav()), 'v.wav'), 'lang': 'tr'})
+    assert rv.status_code == 200 and rv.get_json()['text'] == 'iki yumurta ve bir muz'
+    assert seen == {'mime': 'audio/wav', 'key': KEY_A, 'lang': 'tr'}
+    bad = client.post('/api/chat/transcribe', data={'audio': (BytesIO(b'x' * 5000), 'v.wav')})
+    assert bad.status_code == 400

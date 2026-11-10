@@ -763,6 +763,30 @@ def key_clear():
     return G.clear_key_cookie(jsonify({'has_key': False, 'hint': ''}))
 
 
+@chat_bp.route('/transcribe', methods=['POST'])
+def transcribe():
+    key = G.resolve_key()
+    if not key:
+        return jsonify({'error': 'no_key'}), 401
+    f = request.files.get('audio')
+    if f is None:
+        return jsonify({'error': 'audio required'}), 400
+    # 16 kHz mono 16-bit WAV: ~32 KB/s, client caps recordings at 20 s.
+    max_bytes = 2 * 1024 * 1024
+    data = f.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        return jsonify({'error': 'audio too large'}), 413
+    if len(data) < 1000 or data[:4] != b'RIFF' or data[8:12] != b'WAVE':
+        return jsonify({'error': 'invalid audio'}), 400
+    lang = 'tr' if request.form.get('lang') == 'tr' else 'en'
+    try:
+        text = G.transcribe(data, 'audio/wav', key, lang=lang)
+    except RuntimeError as e:
+        log.warning('transcribe failed: %s', e)
+        return jsonify({'error': 'transcribe_failed'}), 502
+    return jsonify({'text': text[:500]})
+
+
 @chat_bp.route('/models', methods=['GET'])
 def models():
     key = G.resolve_key()

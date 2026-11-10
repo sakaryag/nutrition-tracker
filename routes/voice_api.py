@@ -222,7 +222,8 @@ def _from_cache(m, uid):
 
 
 def _from_db(m, lang):
-    queries = []
+    query = _singular_phrase(m['food_text'])
+    queries = [query]
     for tok in _extract_food_tokens(m['food_text'])[:6]:
         queries.append(tok)
         if tok in _TR_EN:
@@ -235,29 +236,49 @@ def _from_db(m, lang):
         return None
     foods = list(candidates.values())
     names = [((f.get('name_tr') or f['name']) if lang == 'tr' else f['name']).lower() for f in foods]
-    idx, score = fuzzy_match(m['food_text'], names, threshold=DB_MATCH_THRESHOLD)
-    if idx < 0:
-        return None
+
+    # Prefer foods whose main name is exactly the spoken food ("eggs" -> "Egg, whole, raw",
+    # not "Omelet, cheese, 2 eggs"); for counted items prefer foods measured in pieces.
+    counted = m['quantity'] is not None and (m['unit'] or 'serving') not in ('g', 'ml')
+    exact = [i for i, n in enumerate(names) if _singular_phrase(n.split(',')[0]) == query]
+    if exact:
+        idx = min(exact, key=lambda i: (
+            0 if counted and (foods[i].get('serving_unit') or 'g') not in ('g', 'ml') else 1,
+            len(names[i])))
+        score = 100.0
+    else:
+        idx, score = fuzzy_match(query, names, threshold=DB_MATCH_THRESHOLD)
+        if idx < 0:
+            return None
     food = foods[idx]
     row = db.session.get(SavedFood, food['id'])
     q, u = m['quantity'], m['unit']
-    ds = float(food.get('default_serving') or 100.0)
     su = food.get('serving_unit') or 'g'
+    weight_food = su in ('g', 'ml')
+    ds = float(food.get('default_serving') or (100.0 if weight_food else 1.0))
+    gpu = row.g_per_unit if row is not None and row.g_per_unit and row.g_per_unit > 1 else None
     if q is None:
         q, u = ds, su
-    if u in ('g', 'ml'):
-        grams = q
-    else:
-        if row is not None and row.g_per_unit:
-            per = row.g_per_unit
+    u = u or 'serving'
+
+    # Weight foods store macros per 100 g; counted foods (piece/slice/serving) per default serving.
+    if weight_food:
+        if u in ('g', 'ml'):
+            grams = q
         elif u in _UNIT_GRAMS:
-            per = _UNIT_GRAMS[u]
+            grams = q * _UNIT_GRAMS[u]
         else:
-            per = ds if su in ('g', 'ml') else 100.0
-        grams = q * per
+            grams = q * (gpu or ds)
+        factor = grams / 100.0
+    else:
+        if u in ('g', 'ml'):
+            units = q / (gpu or 100.0)
+        else:
+            units = q
+        factor = units / ds
     per100 = {k: float(food[k] or 0) for k in ('protein', 'fat', 'carbs', 'calories')}
     name = (food.get('name_tr') or food['name']) if lang == 'tr' else food['name']
-    it = _item(name, per100, grams, q, u or 'serving', 'db', m['food_text'], food['id'])
+    it = _item(name, per100, factor * 100.0, q, u, 'db', m['food_text'], food['id'])
     it['match_score'] = round(score, 1)
     return it
 
@@ -342,21 +363,42 @@ def _cleanup(uid):
         AiFoodCache.created_at < now - timedelta(days=CACHE_DAYS)).delete(synchronize_session=False)
 
 
+def _singular(word: str) -> str:
+    if len(word) <= 3 or word.endswith('ss'):
+        return word
+    if word.endswith('ies'):
+        return word[:-3] + 'y'
+    if word.endswith(('oes', 'ches', 'shes', 'xes', 'sses')):
+        return word[:-2]
+    if word.endswith('s'):
+        return word[:-1]
+    return word
+
+
+def _singular_phrase(text: str) -> str:
+    return ' '.join(_singular(w) for w in _normalize(text).split())
+
+
 def _mentions(text):
     out, seen = [], set()
     for m in extract_mentions(text):
         ft = (m.get('food_text') or '').strip()
         norm = _normalize(ft)
-        if not norm or norm in seen:
+        key = _singular_phrase(ft)
+        if not norm or key in seen:
             continue
-        seen.add(norm)
-        out.append({'food_text': ft, 'quantity': m.get('quantity'), 'unit': m.get('unit'), 'norm': norm})
-        if len(out) >= MAX_MENTIONS:
-            break
+        seen.add(key)
+        out.append({'food_text': ft, 'quantity': m.get('quantity'), 'unit': m.get('unit'),
+                    'norm': norm, 'key': key})
+    # Drop quantity-less mentions already covered by another mention ("2 eggs" + "eggs").
+    out = [m for m in out if m['quantity'] is not None or not any(
+        o is not m and set(m['key'].split()) <= set(o['key'].split()) for o in out)]
+    out = out[:MAX_MENTIONS]
     if not out:
         norm = _normalize(text)
         if norm:
-            out.append({'food_text': text.strip()[:200], 'quantity': None, 'unit': None, 'norm': norm})
+            out.append({'food_text': text.strip()[:200], 'quantity': None, 'unit': None,
+                        'norm': norm, 'key': _singular_phrase(text)})
     return out
 
 

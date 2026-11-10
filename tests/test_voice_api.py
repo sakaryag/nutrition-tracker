@@ -192,6 +192,28 @@ class TestLog:
         assert vl.get_entry_ids() == [item['id']]
         assert body['log_id'] == vl.id
 
+    def test_counted_eggs_single_entry(self, client, no_server_key, gemini_spy):
+        egg = _food('Egg, whole, raw', g_per_unit=50.0)
+        egg.protein, egg.fat, egg.carbs, egg.calories = 6.3, 5.0, 0.6, 72
+        egg.default_serving, egg.serving_unit = 1, 'piece'
+        _food('Egg salad', g_per_unit=1.0)
+        _food('Omelet, cheese, 2 eggs')
+        db.session.commit()
+        tok = _new_token(client)['token']
+        rv = client.post('/api/v1/log', json={'text': '2 eggs to breakfast'}, headers=_bearer(tok))
+        body = rv.get_json()
+        assert rv.status_code == 201, body
+        assert [i['saved_food_id'] for i in body['logged']] == [egg.id]
+        assert body['logged'][0]['calories'] == 144
+        assert body['logged'][0]['meal_type'] == 'Breakfast'
+
+    def test_serving_of_weight_food_uses_default_serving(self, client, no_server_key, gemini_spy):
+        food = _food('Zorblax bar', g_per_unit=1.0)  # 165 kcal/100 g, default 50 g
+        tok = _new_token(client)['token']
+        rv = client.post('/api/v1/log', json={'text': '2 zorblax bars'}, headers=_bearer(tok))
+        item = rv.get_json()['logged'][0]
+        assert item['saved_food_id'] == food.id and item['calories'] == 165
+
     def test_unresolved_without_key(self, client, no_server_key, gemini_spy):
         tok = _new_token(client)['token']
         rv = client.post('/api/v1/log', json={'text': '3 flumberries'}, headers=_bearer(tok))

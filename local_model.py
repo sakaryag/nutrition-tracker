@@ -84,6 +84,19 @@ _COOKING_ADJ = {
     'whole', 'skimmed', 'low-fat', 'greek',
 }
 
+# A food phrase ends at these words ("2 eggs to breakfast", "rice for lunch")
+_BREAK = {',', 'and', 'with', 'for', 'at', 'plus', 'or', 'to', 'in', 'on', 'from', 'into', 'as'}
+
+
+def _trim_food_words(words):
+    out = []
+    for w in words:
+        if w in _BREAK or w in _MEAL_MAP:
+            break
+        if w not in _SKIP:
+            out.append(w)
+    return out
+
 # ---------------------------------------------------------------------------
 # spaCy lazy load
 # ---------------------------------------------------------------------------
@@ -116,45 +129,43 @@ def _parse_number(s: str) -> float:
     return float(s)
 
 
-# Regex fallback for when spaCy is unavailable
-_QTY_RE = re.compile(
-    r'(\d+(?:[.,]\d+)?(?:/\d+)?)'          # quantity: 1, 1.5, 1/2
-    r'\s*'
-    r'(g|gr|grams?|kg|ml|l\b|lt|cups?|tbsps?|tablespoons?|tsps?|teaspoons?'
-    r'|pieces?|slices?|servings?|glasses?|oz|lb|adet|dilim|porsiyon|bardak|avuç)?'
-    r'\s*(?:of\s+)?'
-    r'([a-zA-ZğüşıöçĞÜŞİÖÇ][a-zA-ZğüşıöçĞÜŞİÖÇ ]{1,40})',
-    re.IGNORECASE,
-)
+# Regex fallback for when spaCy is unavailable: split into segments, then
+# parse "[qty][unit] [of] food" in each ("2 eggs and a banana for lunch").
+_SEGMENT_SPLIT_RE = re.compile(r'\s*(?:[,;]|\band\b|\bwith\b|\bplus\b|\bthen\b|\bve\b|\bile\b)\s*', re.IGNORECASE)
+_NUM_UNIT_RE = re.compile(r'^(\d+(?:[.,]\d+)?(?:/\d+)?)([a-zçğıöşü]*)$')
+_LEAD_SKIP = _SKIP | {'a', 'an', 'of', 'the', 'some', 'ate', 'had', 'drank', 'log', 'add', 'please'}
 
 
 def _mentions_regex(text: str) -> list[dict]:
-    lower = text.lower()
     results = []
-    seen = set()
-    for m in _QTY_RE.finditer(lower):
-        if m.start() in seen:
+    for seg in _SEGMENT_SPLIT_RE.split(text.lower()):
+        words = re.findall(r"[\wçğıöşü./]+", seg)
+        qty, raw_unit = None, ''
+        while words and (words[0] in _SKIP or words[0] in _MEAL_MAP or words[0] in _BREAK):
+            words.pop(0)
+        if words:
+            m = _NUM_UNIT_RE.match(words[0])
+            if m:
+                try:
+                    qty = _parse_number(m.group(1))
+                except (ValueError, ZeroDivisionError):
+                    qty = 1.0
+                raw_unit = m.group(2)
+                words.pop(0)
+            elif words[0] in _WORD_NUMBERS and len(words) > 1:
+                qty = _WORD_NUMBERS[words.pop(0)]
+        if qty is not None and not raw_unit and words and words[0] in _UNIT_MAP:
+            raw_unit = words.pop(0)
+        while words and words[0] in _LEAD_SKIP:
+            words.pop(0)
+        food_text = ' '.join(_trim_food_words(words))
+        if not food_text or food_text.isnumeric():
             continue
-        seen.add(m.start())
-
-        raw_qty = m.group(1)
-        raw_unit = (m.group(2) or '').strip().lower()
-        food_text = ' '.join(
-            w for w in (m.group(3) or '').strip().split()
-            if w not in _SKIP
-        )
-        if not food_text:
-            continue
-
-        try:
-            qty = _parse_number(raw_qty)
-        except ValueError:
-            qty = 1.0
-
-        if raw_unit in _UNIT_MULTIPLIERS:
-            qty *= _UNIT_MULTIPLIERS[raw_unit]
-        unit = _UNIT_MAP.get(raw_unit, raw_unit or 'serving')
-
+        unit = None
+        if qty is not None:
+            if raw_unit in _UNIT_MULTIPLIERS:
+                qty *= _UNIT_MULTIPLIERS[raw_unit]
+            unit = _UNIT_MAP.get(raw_unit, 'serving')
         results.append({'food_text': food_text, 'quantity': qty, 'unit': unit})
     return results
 
@@ -213,7 +224,7 @@ def _mentions_spacy(text: str, nlp) -> list[dict]:
         food_parts = []
         for j in range(i, min(i + 5, n)):
             t = tokens[j]
-            if t.lower_ in (',', 'and', 'with', 'for', 'at', 'plus', 'or'):
+            if t.lower_ in _BREAK or t.lower_ in _MEAL_MAP or t.lemma_.lower() in _MEAL_MAP:
                 break
             if t.pos_ == 'VERB' and t.lower_ not in _COOKING_ADJ:
                 break
@@ -233,11 +244,13 @@ def _mentions_spacy(text: str, nlp) -> list[dict]:
                 'unit': unit,
             })
 
-    # Second pass: noun chunks not yet covered (no quantity given)
+    # Second pass: noun chunks not yet covered (no quantity given); compare lemmas so
+    # "2 eggs" (stored as "egg") isn't picked up again as "eggs".
     covered_words = {w for m in results for w in m['food_text'].split()}
     for chunk in doc.noun_chunks:
-        words = [t.lower_ for t in chunk if not t.is_stop or t.lower_ in _COOKING_ADJ]
-        words = [w for w in words if w not in _SKIP and not w.isnumeric() and len(w) > 1]
+        words = [t.lemma_.lower() for t in chunk if not t.is_stop or t.lower_ in _COOKING_ADJ]
+        words = [w for w in words if w not in _SKIP and w not in _MEAL_MAP
+                 and not w.isnumeric() and len(w) > 1]
         if not words:
             continue
         # Strip already-covered leading words so "banana and greek yogurt" chunk

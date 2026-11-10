@@ -93,7 +93,8 @@ _ALLOWED_MIME = {'image/jpeg', 'image/png', 'image/gif', 'image/webp'}
 
 @foods_bp.route('/image', methods=['POST'])
 def image_lookup():
-    api_key = request.form.get('api_key', '').strip()
+    from utils import gemini as G
+    api_key = G.resolve_key(request.form.get('api_key', ''))
     if not api_key:
         return jsonify({'found': False, 'message': 'Gemini API key required — add yours in Settings'})
     if 'image' not in request.files:
@@ -106,10 +107,7 @@ def image_lookup():
     if len(img_bytes) > 10 * 1024 * 1024:
         return jsonify({'found': False, 'message': 'Image too large (max 10 MB)'}), 400
     lang = request.form.get('lang', 'en').strip()
-    _vision_models = {'gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'}
-    model = request.form.get('model', '').strip()
-    if model not in _vision_models:
-        model = 'gemini-3.8-flash'
+    model = G.pick_model(request.form.get('model', ''), api_key)
     b64 = base64.b64encode(img_bytes).decode('utf-8')
     if lang == 'tr':
         prompt = (

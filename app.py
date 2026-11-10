@@ -77,6 +77,16 @@ def create_app(config_name=None, test_config=None):
         except Exception:
             return {'current_user': None, 'user_has_plan': False, 'current_user_is_superadmin': False}
 
+    @app.context_processor
+    def inject_gemini_key_state():
+        from utils import gemini as _g
+        try:
+            key = _g.cookie_key()
+        except Exception:
+            key = ''
+        return {'gemini_key_state': {'has': bool(key), 'hint': _g.key_hint(key),
+                                     'server': bool(_g.server_key())}}
+
     with app.app_context():
         fingerprint = _startup_fingerprint()
         if not _startup_already_done(fingerprint):
@@ -841,6 +851,8 @@ def _register_blueprints(app):
         from routes.recipes import recipes_bp
         from routes.exchange_categories import exchange_categories_bp
         from routes.progress import progress_bp
+        from routes.tokens import tokens_bp
+        from routes.voice_api import voice_bp
         app.register_blueprint(auth_bp)
         app.register_blueprint(entries_bp)
         app.register_blueprint(summary_bp)
@@ -862,6 +874,8 @@ def _register_blueprints(app):
         app.register_blueprint(recipes_bp)
         app.register_blueprint(exchange_categories_bp)
         app.register_blueprint(progress_bp)
+        app.register_blueprint(tokens_bp)
+        app.register_blueprint(voice_bp)
     except ImportError:
         app.logger.warning('Some blueprints not yet available.')
 

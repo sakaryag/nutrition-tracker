@@ -40,39 +40,14 @@ from models.food_entry import FoodEntry
 from models.saved_food import SavedFood
 from models.daily_target import DailyTarget
 from routes.auth import current_user_id
+from utils import gemini as G
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/api/chat')
 log = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Config
-# ---------------------------------------------------------------------------
-_ALLOWED_MODELS = {
-    'gemini-3.8-flash',
-    'gemini-3.5-flash-lite',
-    'gemini-3.1-flash-lite',
-}
-_DEFAULT_MODEL  = 'gemini-3.8-flash'
-
 
 def _gemini_key() -> str:
-    """Read GEMINI_API_KEY from environment or .env file."""
-    key = os.environ.get('GEMINI_API_KEY', '').strip()
-    if key:
-        return key
-    env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-    try:
-        with open(os.path.normpath(env_path), encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith('#') or '=' not in line:
-                    continue
-                k, _, v = line.partition('=')
-                if k.strip() == 'GEMINI_API_KEY':
-                    return v.strip()
-    except OSError:
-        pass
-    return ''
+    return G.server_key()
 
 
 # ---------------------------------------------------------------------------
@@ -346,9 +321,8 @@ def _build_system(uid, lang, food_tokens):
 def _stream_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
     """Generator yielding text chunks from Gemini streamGenerateContent SSE."""
     import urllib.request, urllib.error, time as _time
-    key = api_key or _gemini_key()
-    if not model or model not in _ALLOWED_MODELS:
-        model = _DEFAULT_MODEL
+    key = api_key or G.resolve_key()
+    model = G.pick_model(model, key)
 
     contents = []
     for m in messages:
@@ -424,9 +398,8 @@ def _stream_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
 def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
     import urllib.request
     import urllib.error
-    key = api_key or _gemini_key()
-    if not model or model not in _ALLOWED_MODELS:
-        model = _DEFAULT_MODEL
+    key = api_key or G.resolve_key()
+    model = G.pick_model(model, key)
 
     # Convert to Gemini format: roles are 'user' / 'model'; merge consecutive same-role.
     contents = []
@@ -502,7 +475,7 @@ def _call_gemini(messages, system_prompt, api_key: str = '', model: str = ''):
 
 def _get_reply(messages, system_prompt, user_key: str = '', model: str = ''):
     """Return Gemini response dict, or None if no key is available."""
-    key = user_key.strip() or _gemini_key()
+    key = G.resolve_key(user_key)
     if key:
         return _call_gemini(messages, system_prompt, api_key=key, model=model)
     return None  # no key — caller must return 401
@@ -714,7 +687,7 @@ def chat():
     if not messages:
         return jsonify({'error': 'messages required'}), 400
 
-    key = user_key or _gemini_key()
+    key = G.resolve_key(user_key)
     if not key:
         return jsonify({
             'error': 'no_key',
@@ -725,11 +698,12 @@ def chat():
     last_user_msg = next((m['content'] for m in reversed(messages) if m['role'] == 'user'), '')
     food_tokens   = _extract_food_tokens(last_user_msg)
     system_prompt = _build_system(uid, lang, food_tokens)
+    model = G.pick_model(model, key)
 
     def _generate():
         full_chunks = []
         try:
-            for chunk in _stream_gemini(messages, system_prompt, user_key, model):
+            for chunk in _stream_gemini(messages, system_prompt, key, model):
                 full_chunks.append(chunk)
                 yield f"data: {json.dumps({'delta': chunk})}\n\n"
         except RuntimeError as e:
@@ -746,7 +720,7 @@ def chat():
         if action and action.get('action') == 'log' and action.get('entries'):
             logged = _execute_log(action['entries'], uid)
 
-        yield f"data: {json.dumps({'done': True, 'reply': display_reply, 'logged': logged, 'model': model or _DEFAULT_MODEL})}\n\n"
+        yield f"data: {json.dumps({'done': True, 'reply': display_reply, 'logged': logged, 'model': model})}\n\n"
 
     return Response(
         stream_with_context(_generate()),
@@ -762,7 +736,36 @@ def chat():
 @chat_bp.route('/status', methods=['GET'])
 def status():
     """Check which backend is active."""
-    has_user_key = request.args.get('has_user_key') == '1'
-    if has_user_key or _gemini_key():
-        return jsonify({'backend': 'gemini', 'model': _DEFAULT_MODEL, 'ready': True})
+    key = G.resolve_key()
+    if key:
+        return jsonify({'backend': 'gemini', 'model': G.pick_model('', key), 'ready': True})
     return jsonify({'backend': 'none', 'model': None, 'ready': False})
+
+
+@chat_bp.route('/key', methods=['GET'])
+def key_status():
+    key = G.cookie_key()
+    return jsonify({'has_key': bool(key), 'hint': G.key_hint(key),
+                    'server_key': bool(G.server_key())})
+
+
+@chat_bp.route('/key', methods=['PUT'])
+def key_save():
+    key = ((request.get_json(silent=True) or {}).get('key') or '').strip()
+    if not G.looks_like_key(key):
+        return jsonify({'error': 'invalid_key'}), 400
+    resp = jsonify({'has_key': True, 'hint': G.key_hint(key)})
+    return G.set_key_cookie(resp, key)
+
+
+@chat_bp.route('/key', methods=['DELETE'])
+def key_clear():
+    return G.clear_key_cookie(jsonify({'has_key': False, 'hint': ''}))
+
+
+@chat_bp.route('/models', methods=['GET'])
+def models():
+    key = G.resolve_key()
+    items = G.list_models(key)
+    return jsonify({'models': items, 'default': G.default_model(items),
+                    'live': G.cached_models(key) is not None})

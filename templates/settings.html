@@ -162,7 +162,7 @@
 
   <article class="settings-card" style="margin-bottom:1.5rem;">
     <h2 data-i18n="settings.chatTitle">Chat / AI Assistant</h2>
-    <p class="settings-description">Add your free Google Gemini API key to enable AI chat and the Daily Insight button. Your key is saved only on this device. For each AI request it is passed through our server straight to Google and is never stored or logged on our side. Use &ldquo;Clear&rdquo; to delete it from this device. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get your free key at Google AI Studio &rarr;</a> (no credit card needed).</p>
+    <p class="settings-description">Add your free Google Gemini API key to enable AI chat and the Daily Insight button. Your key is saved only on this device, encrypted in a secure cookie tied to your account (it stays when you log out or switch accounts, and other accounts on this device cannot use it). For each AI request it is passed straight to Google and is never stored in our database or logged. Use &ldquo;Clear&rdquo; to delete it from this device. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get your free key at Google AI Studio &rarr;</a> (no credit card needed).</p>
 
     <div class="form-group" style="max-width:480px;">
       <label for="gemini-api-key">Google AI (Gemini) API Key</label>
@@ -182,11 +182,9 @@
     <div class="form-group" style="max-width:480px;margin-top:1rem;">
       <label for="ai-model-select">AI Model</label>
       <select id="ai-model-select" class="form-control">
-        <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash &mdash; Recommended (free)</option>
-        <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite &mdash; Fastest (free)</option>
-        <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (free)</option>
+        <option value="" selected>Automatic (latest recommended)</option>
       </select>
-      <p class="form-hint">Free tier: 1,500 req/day &mdash; no credit card needed. Gemini 3.8 Flash is recommended for daily food logging.</p>
+      <p class="form-hint" id="ai-model-hint">The list is loaded live from Google, so new models show up automatically.</p>
     </div>
     <div class="form-group" style="max-width:480px;margin-top:1rem;">
       <label for="monthly-budget">Monthly Budget Limit (USD)</label>
@@ -206,6 +204,26 @@
         <div id="usage-bar" style="height:6px;border-radius:99px;background:var(--color-primary,#3b82f6);width:0%;transition:width .3s;"></div>
       </div>
     </div>
+  </article>
+
+  <article class="settings-card" style="margin-bottom:1.5rem;">
+    <h2>Voice Assistant &amp; API Access</h2>
+    <p class="settings-description">Create a personal access token to log food or ask for today's status from Alexa, Home Assistant or scripts. Send it as <code>Authorization: Bearer &lt;token&gt;</code> to <code>/api/v1/log</code>, <code>/api/v1/status</code>, <code>/api/v1/last</code>, <code>/api/v1/undo</code>. The token is shown only once &mdash; treat it like a password and revoke it if lost.</p>
+    <div class="form-group" style="max-width:480px;">
+      <label for="token-name">Token name</label>
+      <div style="display:flex;gap:0.5rem;">
+        <input type="text" id="token-name" class="form-control" maxlength="80" placeholder="Alexa" autocomplete="off" />
+        <button type="button" class="btn btn-primary" id="create-token-btn">Create</button>
+      </div>
+    </div>
+    <div id="new-token-box" class="alert alert-success" hidden style="max-width:480px;word-break:break-all;">
+      <strong>Copy this token now &mdash; it won't be shown again:</strong>
+      <div style="display:flex;gap:0.5rem;margin-top:.4rem;align-items:center;">
+        <code id="new-token-value" style="flex:1;"></code>
+        <button type="button" class="btn btn-secondary btn-sm" id="copy-token-btn">Copy</button>
+      </div>
+    </div>
+    <ul id="token-list" class="token-list" style="list-style:none;padding:0;max-width:480px;"></ul>
   </article>
 
   <article class="settings-card">

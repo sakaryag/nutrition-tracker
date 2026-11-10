@@ -55,7 +55,7 @@
           </a>
         </li>
         {% endif %}
-        <li><a href="/logout" class="nav-link" data-i18n="nav.logout" onclick="ApiKey.clear()">Logout</a></li>
+        <li><a href="/logout" class="nav-link" data-i18n="nav.logout">Logout</a></li>
         {% endif %}
       </ul>
     </nav>
@@ -89,7 +89,8 @@
 
   <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <script>window.NT_USER_ID = {{ (session.get('user_id') if config.get('AUTH_ENABLED') else 'local') | tojson }};</script>
+  <script>window.NT_USER_ID = {{ (session.get('user_id') if config.get('AUTH_ENABLED') else 'local') | tojson }};
+  window.NT_GEMINI = {{ gemini_key_state | tojson }};</script>
   <script src="/static/js/i18n.js"></script>
   <script src="/static/js/app.js"></script>
   <script>

@@ -148,6 +148,8 @@ def delete_user_data(uid):
     from models.food_exchange_category import FoodExchangeCategory
     from models.weekly_category_quota import WeeklyCategoryQuota
     from models.weight_log import WeightLog, BodyGoal
+    from models.api_token import ApiToken
+    from models.voice_log import VoiceLog, AiFoodCache
 
     or_ = db.or_
     SharedEntry.query.filter(or_(SharedEntry.shared_by_id == uid, SharedEntry.shared_to_id == uid)).delete(synchronize_session=False)
@@ -157,7 +159,8 @@ def delete_user_data(uid):
     DietitianAccess.query.filter(or_(DietitianAccess.dietitian_id == uid, DietitianAccess.client_id == uid)).delete(synchronize_session=False)
     DietitianVisit.query.filter(or_(DietitianVisit.dietitian_id == uid, DietitianVisit.client_id == uid)).delete(synchronize_session=False)
     for model in (FeedVisibility, UserBadge, PlanTaskCompletion, UserPlanAssignment,
-                  WaterLog, DailyNote, DailyTarget, FoodEntry, WeightLog, BodyGoal):
+                  WaterLog, DailyNote, DailyTarget, FoodEntry, WeightLog, BodyGoal,
+                  ApiToken, VoiceLog, AiFoodCache):
         model.query.filter_by(user_id=uid).delete(synchronize_session=False)
 
     # ORM deletes so child rows cascade (template items, recipe ingredients, category members).

@@ -7,7 +7,7 @@
      - pages     → network-first
    ============================================================ */
 
-var CACHE_NAME = 'nutritrack-v6';
+var CACHE_NAME = 'nutritrack-v7';
 
 var STATIC_SHELL = [
   '/',

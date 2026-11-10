@@ -2,23 +2,43 @@
    app.js — Shared utilities for NutriTrack
    ============================================================ */
 
-/* Gemini API key: kept per user on this device; any other user's key (or the legacy
-   shared key) is purged so a second account on the same device can never use it. */
+/* Gemini API key: stored by the server in an encrypted, HttpOnly, per-user cookie on this
+   device (never in the DB, never readable by JS). Survives logout / account switching. */
 var ApiKey = (function () {
-  var PREFIX = 'nt_gemini_key:';
-  var uid = window.NT_USER_ID;
-  var name = uid == null ? null : PREFIX + uid;
+  var st = window.NT_GEMINI || { has: false, hint: '', server: false };
+
+  function send(method, body) {
+    return fetch('/api/chat/key', {
+      method: method,
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (d) {
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        st.has = !!d.has_key; st.hint = d.hint || '';
+        return d;
+      });
+    });
+  }
+
+  // One-time migration from the old localStorage storage.
   try {
+    var legacyName = window.NT_USER_ID == null ? null : 'nt_gemini_key:' + window.NT_USER_ID;
+    var legacy = legacyName ? localStorage.getItem(legacyName) : null;
     localStorage.removeItem('nt_gemini_key');
-    for (var i = localStorage.length - 1; i >= 0; i--) {
-      var k = localStorage.key(i);
-      if (k && k.indexOf(PREFIX) === 0 && k !== name) localStorage.removeItem(k);
+    if (legacy) {
+      if (st.has) localStorage.removeItem(legacyName);
+      else send('PUT', { key: legacy }).then(function () { localStorage.removeItem(legacyName); }, function () {});
     }
   } catch (_) {}
+
   return {
-    get: function () { try { return name ? (localStorage.getItem(name) || '') : ''; } catch (_) { return ''; } },
-    set: function (v) { try { if (name) localStorage.setItem(name, v); } catch (_) {} },
-    clear: function () { try { if (name) localStorage.removeItem(name); } catch (_) {} },
+    has: function () { return !!st.has; },
+    available: function () { return !!(st.has || st.server); },
+    hint: function () { return st.hint || ''; },
+    set: function (v) { return send('PUT', { key: v }); },
+    clear: function () { return send('DELETE'); },
+    get: function () { return ''; },
   };
 })();
 
@@ -109,19 +129,30 @@ function debounce(fn, ms) {
   };
 }
 
-/* ---------- Gemini model selection (localStorage) ---------- */
+/* ---------- Gemini model selection (list comes from /api/chat/models) ---------- */
 var ApiUsage = {
-  MODELS: {
-    'gemini-3.8-flash':      { label: 'Gemini 3.8 Flash (recommended)' },
-    'gemini-3.5-flash-lite': { label: 'Gemini 3.5 Flash Lite (fastest)' },
-    'gemini-3.1-flash-lite': { label: 'Gemini 3.1 Flash Lite' },
-  },
-  _DEFAULT: 'gemini-3.8-flash',
+  _RE: /^gemini-[a-z0-9][a-z0-9.\-]{0,62}$/,
+  _models: null,
+  // '' means "let the server pick its current default".
   getModel: function () {
-    var m = localStorage.getItem('nt_gemini_model') || this._DEFAULT;
-    return this.MODELS[m] ? m : this._DEFAULT;
+    var m = '';
+    try { m = localStorage.getItem('nt_gemini_model') || ''; } catch (_) {}
+    return this._RE.test(m) ? m : '';
   },
-  setModel: function (m) { if (this.MODELS[m]) localStorage.setItem('nt_gemini_model', m); },
+  setModel: function (m) {
+    try {
+      if (m && this._RE.test(m)) localStorage.setItem('nt_gemini_model', m);
+      else localStorage.removeItem('nt_gemini_model');
+    } catch (_) {}
+  },
+  loadModels: function () {
+    if (!this._models) {
+      this._models = fetch('/api/chat/models', { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .catch(function (e) { ApiUsage._models = null; throw e; });
+    }
+    return this._models;
+  },
   getBudget: function () { return 0; },
   setBudget: function () {},
   _monthKey: function () {

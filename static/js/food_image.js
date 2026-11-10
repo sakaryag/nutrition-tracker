@@ -285,6 +285,27 @@
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
   }
 
+  function hasGUM() {
+    return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  }
+
+  function getCameraStream(constraints) {
+    return window.NTCamera ? NTCamera.getStream(constraints) : navigator.mediaDevices.getUserMedia(constraints);
+  }
+
+  function isTouchDevice() {
+    return !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  }
+
+  // 'blocked' | 'native' | 'live'
+  function cameraPrecheck() {
+    if (!window.NTCamera) return Promise.resolve('live');
+    return NTCamera.blocked().then(function (b) {
+      if (b) return 'blocked';
+      return NTCamera.forgetsGrant().then(function (f) { return f && isTouchDevice() ? 'native' : 'live'; });
+    }).catch(function () { return 'live'; });
+  }
+
   function lsGet(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
 
@@ -317,8 +338,7 @@
   }
 
   window.openFoodImageScanner = function (onResult) {
-    var apiKey = ApiKey.get();
-    if (!apiKey) {
+    if (!ApiKey.available()) {
       if (typeof showToast === 'function') {
         showToast('Add your Gemini API key in Settings to use photo recognition.', 'error', 5000);
       }
@@ -350,12 +370,15 @@
     var submitting = false;
     var analyseSeq = 0;
     var introFromInfo = false;
+    var nativeMode = false;
+    var camSeq = 0;
     var mode = 'camera'; // camera | fallback | preview
 
     function close() {
       if (closed) return;
       closed = true;
       analyseSeq++;
+      camSeq++;
       stopTracks(stream);
       stream = null;
       els.video.srcObject = null;
@@ -452,52 +475,94 @@
       els.scrim.classList.remove('is-on', 'is-light');
     }
 
-    function showFallback(msg) {
+    function releaseStream() {
       stopTracks(stream); stream = null;
       els.video.srcObject = null;
+    }
+
+    function streamLive() {
+      return !!stream && stream.getVideoTracks().some(function (t) { return t.readyState === 'live'; });
+    }
+
+    function showFallback(msg, native) {
+      camSeq++;
+      releaseStream();
+      nativeMode = !!native;
       setMode('fallback');
       els.fallbackMsg.textContent = msg;
-      els.cameraBtn.hidden = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+      els.chooseBtn.textContent = nativeMode ? 'Take Photo' : 'Choose Photo';
+      els.cameraBtn.textContent = nativeMode ? 'Use live camera' : 'Try camera again';
+      els.cameraBtn.hidden = !hasGUM();
       setTimeout(function () { if (!closed && !openSheet()) els.chooseBtn.focus(); }, 50);
     }
 
-    function startCamera() {
+    function attachStream() {
+      setMode('camera');
+      if (els.video.srcObject !== stream) els.video.srcObject = stream;
+      var p = els.video.play();
+      if (p && p.catch) p.catch(function () {});
+      els.shutterBtn.disabled = false;
+      setStatus('Center your meal in the frame.');
+      if (!openSheet()) els.shutterBtn.focus();
+    }
+
+    function startCamera(force) {
       clearMessages();
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (!hasGUM()) {
         showFallback('Camera not available on this device/browser. Upload a photo of your meal instead.');
         return;
       }
-      stopTracks(stream); stream = null;
+      if (!force && streamLive()) { attachStream(); return; }
+      releaseStream();
+      var seq = ++camSeq;
       setMode('camera');
       els.shutterBtn.disabled = true;
       setStatus('Starting camera\u2026');
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-        .then(function (s) {
-          if (closed || mode !== 'camera') { stopTracks(s); return; }
-          stopTracks(stream);
-          stream = s;
-          els.video.srcObject = stream;
-          var p = els.video.play();
-          if (p && p.catch) p.catch(function () {});
-          els.shutterBtn.disabled = false;
-          setStatus('Center your meal in the frame.');
-          if (!openSheet()) els.shutterBtn.focus();
+      (force ? Promise.resolve('live') : cameraPrecheck())
+        .then(function (decision) {
+          if (closed || seq !== camSeq || mode !== 'camera') return null;
+          if (decision === 'blocked') {
+            setStatus('');
+            showFallback('Camera is blocked for this site. Upload a photo, or allow the camera in your browser settings.');
+            return null;
+          }
+          if (decision === 'native') {
+            setStatus('');
+            showFallback('Tap to take a photo', true);
+            return null;
+          }
+          return getCameraStream({ video: { facingMode: { ideal: 'environment' } } }).then(function (s) {
+            if (closed || seq !== camSeq || mode !== 'camera') { stopTracks(s); return; }
+            stopTracks(stream);
+            stream = s;
+            attachStream();
+          });
         })
-        .catch(function () {
-          if (closed || mode !== 'camera') return;
+        .catch(function (err) {
+          if (closed || seq !== camSeq || mode !== 'camera') return;
           setStatus('');
-          showFallback('Camera access denied. Upload a photo of your meal instead.');
+          var denied = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+          showFallback(denied
+            ? 'Camera access denied. Upload a photo of your meal instead.'
+            : 'Camera unavailable. Upload a photo of your meal instead.');
         });
     }
 
     function openFilePicker() {
+      els.fileInput.removeAttribute('capture');
+      els.fileInput.value = '';
+      els.fileInput.click();
+    }
+
+    function openNativeCamera() {
+      els.fileInput.setAttribute('capture', 'environment');
       els.fileInput.value = '';
       els.fileInput.click();
     }
 
     function showPreview(blob) {
-      stopTracks(stream); stream = null;
-      els.video.srcObject = null;
+      camSeq++;
+      if (stream) els.video.pause();
       capturedBlob = blob;
       if (thumbUrl) URL.revokeObjectURL(thumbUrl);
       thumbUrl = URL.createObjectURL(blob);
@@ -527,8 +592,10 @@
     els.gotItBtn.addEventListener('click', hideIntro);
     els.scrim.addEventListener('click', function () { if (introFromInfo) hideIntro(); });
     els.uploadBtn.addEventListener('click', openFilePicker);
-    els.chooseBtn.addEventListener('click', openFilePicker);
-    els.cameraBtn.addEventListener('click', startCamera);
+    els.chooseBtn.addEventListener('click', function () {
+      if (nativeMode) openNativeCamera(); else openFilePicker();
+    });
+    els.cameraBtn.addEventListener('click', function () { startCamera(true); });
     els.retakeBtn.addEventListener('click', retake);
     els.analyseBtn.addEventListener('click', function () { if (capturedBlob) analyse(); });
 
@@ -585,13 +652,12 @@
       els.retakeBtn.focus({ preventScroll: true });
 
       var lang = (typeof Lang !== 'undefined' && Lang.get) ? Lang.get() : 'en';
-      var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
+      var model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : '';
 
       resizeBlob(capturedBlob, 1024, 0.8).then(function (resized) {
         if (seq !== analyseSeq) return null;
         var fd = new FormData();
         fd.append('image', resized, 'food.jpg');
-        fd.append('api_key', apiKey);
         fd.append('lang', lang);
         fd.append('model', model);
         return fetch('/api/foods/image', { method: 'POST', body: fd }).then(function (r) { return r.json(); });

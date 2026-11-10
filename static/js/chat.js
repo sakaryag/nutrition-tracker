@@ -16,6 +16,7 @@
   const chipsEl      = document.getElementById('chat-chips');
   const plusBtn      = document.getElementById('chat-plus-btn');
   const plusMenu     = document.getElementById('chat-plus-menu');
+  const micBtn       = document.getElementById('chat-mic-btn');
 
   const USER_INITIAL = (pageEl && pageEl.dataset.userInitial) || 'U';
   const SPARKLE_SVG  = '<svg viewBox="0 0 24 24"><path d="M12 2.5l2.1 6.2 6.4 2.3-6.4 2.3L12 19.5l-2.1-6.2L3.5 11l6.4-2.3z"/></svg>';
@@ -44,6 +45,9 @@
       chipsLabel: 'Suggested prompts',
       scan: 'Scan a meal',
       more: 'More actions',
+      speak: 'Speak', stopSpeak: 'Stop listening', listening: 'Listening…',
+      micDenied: 'Microphone access is blocked. Allow it in your browser settings.',
+      micError: 'Could not recognise speech. Please try again.',
       send: 'Send',
       message: 'Message',
       hintStrong: 'Tip:',
@@ -84,6 +88,9 @@
       chipsLabel: 'Önerilen sorular',
       scan: 'Öğün tara',
       more: 'Diğer işlemler',
+      speak: 'Konuş', stopSpeak: 'Dinlemeyi durdur', listening: 'Dinliyorum…',
+      micDenied: 'Mikrofon erişimi engelli. Tarayıcı ayarlarından izin verin.',
+      micError: 'Konuşma anlaşılamadı. Lütfen tekrar deneyin.',
       send: 'Gönder',
       message: 'Mesaj',
       hintStrong: 'İpucu:',
@@ -121,11 +128,10 @@
   // Status check
   // ----------------------------------------------------------------
   async function checkStatus() {
-    const userKey = ApiKey.get();
     try {
-      const data = await api('/api/chat/status?has_user_key=' + (userKey ? '1' : '0'));
+      const data = await api('/api/chat/status');
       if (data.ready) {
-        const model = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : (data.model || 'gemini-3.8-flash');
+        const model = ((typeof ApiUsage !== 'undefined') && ApiUsage.getModel()) || data.model || '';
         lastStatus = { state: 'ready', model: model };
       } else {
         lastStatus = { state: 'nokey' };
@@ -157,6 +163,7 @@
     ready = enabled;
     inputEl.disabled = !enabled;
     sendBtn.disabled = !enabled || busy;
+    if (micBtn) micBtn.disabled = !enabled;
     let setupEl = document.getElementById('chat-setup-banner');
     if (!enabled) {
       if (!setupEl) {
@@ -485,8 +492,7 @@
     showTyping();
 
     const lng     = lang();
-    const userKey = ApiKey.get();
-    const model   = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : 'gemini-3.8-flash';
+    const model   = (typeof ApiUsage !== 'undefined') ? ApiUsage.getModel() : '';
 
     let botBubble = null;
     let contentEl = null;
@@ -511,7 +517,7 @@
       const resp = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history, lang: lng, api_key: userKey, model }),
+        body: JSON.stringify({ messages: history, lang: lng, model }),
       });
 
       // Non-2xx before streaming (e.g. 401 no-key)
@@ -686,6 +692,72 @@
   window.addEventListener('resize', syncComposerHeight);
 
   // ----------------------------------------------------------------
+  // Voice input (Web Speech API; hidden where unsupported)
+  // ----------------------------------------------------------------
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recog = null;
+  let listening = false;
+
+  function setListening(on) {
+    listening = on;
+    micBtn.classList.toggle('is-listening', on);
+    micBtn.setAttribute('aria-pressed', String(on));
+    micBtn.setAttribute('aria-label', on ? t('stopSpeak') : t('speak'));
+    inputEl.placeholder = on ? t('listening') : t('placeholder');
+  }
+
+  function startListening() {
+    if (busy || !ready) return;
+    closeMenu();
+    const base = inputEl.value.trim();
+    let finalText = '';
+    let failed = false;
+    recog = new Recognition();
+    recog.lang = lang() === 'tr' ? 'tr-TR' : 'en-US';
+    recog.interimResults = true;
+    recog.continuous = false;
+    recog.maxAlternatives = 1;
+
+    recog.onresult = function (e) {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      inputEl.value = [base, finalText, interim].filter(Boolean).join(' ').slice(0, 500);
+      autoResize();
+    };
+    recog.onerror = function (e) {
+      failed = true;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') showToast(t('micDenied'), 'error', 5000);
+      else if (e.error !== 'no-speech' && e.error !== 'aborted') showToast(t('micError'), 'error');
+    };
+    recog.onend = function () {
+      setListening(false);
+      recog = null;
+      updateChips();
+      if (!failed && finalText.trim()) send();
+      else if (!inputEl.disabled) inputEl.focus();
+    };
+
+    try {
+      recog.start();
+      setListening(true);
+    } catch (_) {
+      recog = null;
+      setListening(false);
+    }
+  }
+
+  if (Recognition && micBtn) {
+    micBtn.hidden = false;
+    micBtn.addEventListener('click', function () {
+      if (listening && recog) recog.stop();
+      else startListening();
+    });
+  }
+
+  // ----------------------------------------------------------------
   // i18n for static page text
   // ----------------------------------------------------------------
   function applyLang() {
@@ -698,6 +770,7 @@
     inputEl.setAttribute('aria-label', t('message'));
     sendBtn.setAttribute('aria-label', t('send'));
     plusBtn.setAttribute('aria-label', t('more'));
+    if (micBtn) micBtn.setAttribute('aria-label', listening ? t('stopSpeak') : t('speak'));
     const setupEl = document.getElementById('chat-setup-banner');
     if (setupEl) setupEl.innerHTML = t('setup');
     renderChips();

@@ -36,6 +36,26 @@
 
 ## AI / Claude Integration
 - [x] **Daily summary insights** — "✨ Daily Insight" button on dashboard; reads current macro values, POSTs to /api/chat with user's API key (PR12)
+- [x] **Gemini key in encrypted per-user HttpOnly cookie** — survives logout/account switch, never in DB, not readable by JS (`utils/gemini.py`, `/api/chat/key`)
+- [x] **Dynamic Gemini model list** — `/api/chat/models` fetched live from Google (6h cache, static fallback); retired models fall back to the current default
+- [x] **Voice assistant / personal access token API** — `/api/tokens` (session) + `/api/v1/log|status|entries|last|undo` (Bearer token); DB → AI-estimate cache → Gemini
+- [ ] **Alexa skill** — custom skill (Lambda or self-hosted endpoint) calling `/api/v1/*` with a personal token; intents: LogFood, DayStatus, UndoLast, ChangeLast
+- [ ] **Dashboard Daily Insight uses SSE endpoint via `api()`** — `/api/chat` streams `text/event-stream`, but the insight button parses it as JSON; switch to a non-streaming call
+
+## Security Audit (app-store readiness)
+- [ ] **Full security review of every feature** — walk all blueprints/pages against OWASP Top 10 + OWASP MASVS (mobile/TWA) and record findings
+- [ ] **AuthN/AuthZ** — verify every `/api/*` route enforces login + object ownership (IDOR) incl. dietitian/admin/super-admin scopes; session fixation/rotation on login; logout invalidation; brute-force/lockout on `/login`
+- [ ] **CSRF** — confirm SameSite=Lax session cookie covers all state-changing JSON routes; add CSRF tokens for form posts (login/register) if needed
+- [ ] **Rate limiting** — per-IP/per-user limits on login, register, chat, image scan, `/api/v1/*` tokens (Gemini cost abuse), friend requests
+- [ ] **Security headers** — CSP (no inline scripts long-term), HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy (`camera=(self)`), frame-ancestors
+- [ ] **Input validation & output encoding** — audit all `innerHTML` usages for XSS; length/range limits on all JSON fields; file upload (type sniffing, size, storage path) checks
+- [ ] **Secrets** — SECRET_KEY strength/rotation plan (rotating it invalidates sessions + Gemini key cookies); no secrets in logs/errors; `.env` never in images
+- [ ] **Personal access tokens** — scopes, expiry, rotation reminders, audit log of token use; revoke all on password change
+- [ ] **Privacy / data protection** — GDPR/KVKK data export + deletion completeness (`delete_user_data` covers every table), privacy policy matches actual data flows (Gemini, OpenFoodFacts, Google OAuth)
+- [ ] **App store requirements** — Google Play Data Safety form, account deletion URL, target API level, camera permission rationale; Apple (if PWA wrapper) App Tracking/Privacy nutrition labels
+- [ ] **Dependency & container scanning** — `pip-audit`/Dependabot in CI, pinned versions, non-root Docker user, minimal base image
+- [ ] **Logging & monitoring** — security event logging (failed logins, token misuse), no PII/keys in logs, alerting on Cloud Run
+- [ ] **Pen test / DAST** — run OWASP ZAP baseline against staging before each store release
 
 ## Social / Family Mode
 - [x] **Emoji reactions on social feed** — 👏🔥💪 reactions on friend feed cards; toggle/update/remove; inline count update without reload (PR16)

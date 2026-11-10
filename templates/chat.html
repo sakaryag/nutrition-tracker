@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %} — Chat{% endblock %}
 
-{% block head %}<link rel="stylesheet" href="/static/css/chat.css?v=2">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/css/chat.css?v=3">{% endblock %}
 
 {% block content %}
 <section class="aichat" id="aichat"
@@ -62,6 +62,10 @@
       <textarea id="chat-input" class="aichat-input" rows="1"
                 placeholder="Ask about meals or tell me what you ate…"
                 aria-label="Message" maxlength="500"></textarea>
+      <button type="button" class="aichat-round aichat-round--mic" id="chat-mic-btn"
+              aria-label="Speak" aria-pressed="false" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+      </button>
       <button type="submit" class="aichat-round aichat-round--send" id="chat-send-btn" aria-label="Send">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>
       </button>
@@ -72,5 +76,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/chat.js?v=2"></script>
+<script src="/static/js/chat.js?v=3"></script>
 {% endblock %}

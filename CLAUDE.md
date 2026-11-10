@@ -78,6 +78,8 @@ routes/
   admin.py              → /api/admin/* (admin user management)
   recipes.py            → /api/recipes CRUD + /<id>/log + /<id>/save-as-food
   pages.py              → HTML page routes (/, /history, /foods, /meals, /recipes, /chat, /settings, /social, /plans, /admin)
+  tokens.py             → /api/tokens personal access tokens (session auth; plaintext shown once, sha256 stored)
+  voice_api.py          → /api/v1/log|status|entries|last|undo (Bearer token only) — Alexa/Home Assistant
 seed_data/
   seed.py               → USDA food CSV seeder (flask seed or auto on first run)
   meals.py              → Meal/dish seeder (seed_meals(), runs if no meal rows exist)
@@ -93,6 +95,7 @@ static/
   js/i18n.js            → EN/TR translation dictionary + Lang.get()/t() helpers
   js/social.js          → Social/Family page: friends, feed, race (weekly leaderboard), badges
 utils/
+  gemini.py             → Gemini key cookie (encrypted, per user, HttpOnly), dynamic model list, pick_model, generate_json
   game_engine.py        → Pure game scoring helpers: calculate_daily_score(), calculate_weekly_score(), get_user_streak(), check_and_award_badges()
 templates/
   base.html             → Layout, nav (Dashboard/History/My Foods/Meals/Chat/Friends/Reports/Settings), Chart.js CDN

@@ -271,9 +271,8 @@
     const keyStatus   = document.getElementById('api-key-status');
 
     function updateKeyStatus() {
-      const key = ApiKey.get();
-      if (key) {
-        keyStatus.innerHTML = '✓ Key saved (ends in …' + key.slice(-6) + ')';
+      if (ApiKey.has()) {
+        keyStatus.textContent = '✓ Key saved on this device (ends in ' + ApiKey.hint() + ')';
         keyStatus.style.color = 'var(--color-success)';
         keyInput.value = '';
         keyInput.placeholder = '••••••••••••••••••••';
@@ -296,31 +295,125 @@
         keyStatus.style.color = 'var(--color-danger)';
         return;
       }
-      ApiKey.set(val);
-      updateKeyStatus();
-      updateUsage();
+      ApiKey.set(val).then(function () {
+        updateKeyStatus();
+        updateUsage();
+        loadModels(true);
+      }, function () {
+        keyStatus.textContent = 'Could not save the key. Please check it and try again.';
+        keyStatus.style.color = 'var(--color-danger)';
+      });
     });
 
     clearKeyBtn.addEventListener('click', function () {
-      ApiKey.clear();
-      updateKeyStatus();
-      updateUsage();
+      ApiKey.clear().then(function () {
+        updateKeyStatus();
+        updateUsage();
+      }, function () { showToast('Could not clear the key', 'error'); });
     });
 
     updateKeyStatus();
   })();
 
   // ----------------------------------------------------------------
-  // Model selector
+  // Model selector (list fetched live from Gemini via the server)
   // ----------------------------------------------------------------
+  function loadModels(refresh) {
+    const sel = document.getElementById('ai-model-select');
+    if (!sel) return;
+    if (refresh) ApiUsage._models = null;
+    ApiUsage.loadModels().then(function (data) {
+      const saved = ApiUsage.getModel();
+      while (sel.options.length > 1) sel.remove(1);
+      sel.options[0].textContent = 'Automatic (' + data.default + ')';
+      let found = false;
+      (data.models || []).forEach(function (m) {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.label + (m.label !== m.id ? ' — ' + m.id : '');
+        if (m.id === saved) { opt.selected = true; found = true; }
+        sel.appendChild(opt);
+      });
+      if (!found) { sel.value = ''; if (saved) ApiUsage.setModel(''); }
+    }, function () {});
+  }
+
   (function () {
     const sel = document.getElementById('ai-model-select');
     if (!sel) return;
-    sel.value = ApiUsage.getModel();
+    loadModels(false);
     sel.addEventListener('change', function () {
       ApiUsage.setModel(sel.value);
       showToast('Model updated', 'success');
     });
+  })();
+
+  // ----------------------------------------------------------------
+  // Personal access tokens (voice assistant / API)
+  // ----------------------------------------------------------------
+  (function () {
+    const list = document.getElementById('token-list');
+    const nameInput = document.getElementById('token-name');
+    const createBtn = document.getElementById('create-token-btn');
+    const box = document.getElementById('new-token-box');
+    const valueEl = document.getElementById('new-token-value');
+    const copyBtn = document.getElementById('copy-token-btn');
+    if (!list || !createBtn) return;
+
+    function fmtDate(s) { return s ? new Date(s).toLocaleDateString() : 'never'; }
+
+    function render(tokens) {
+      list.textContent = '';
+      if (!tokens.length) {
+        const li = document.createElement('li');
+        li.className = 'form-hint';
+        li.textContent = 'No tokens yet.';
+        list.appendChild(li);
+        return;
+      }
+      tokens.forEach(function (t) {
+        const li = document.createElement('li');
+        li.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--color-border,#eee);';
+        const info = document.createElement('span');
+        info.textContent = t.name + ' (' + t.prefix + '…) · last used ' + fmtDate(t.last_used_at);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-secondary btn-sm';
+        btn.textContent = 'Revoke';
+        btn.addEventListener('click', function () {
+          if (!confirm('Revoke token "' + t.name + '"? Devices using it will stop working.')) return;
+          api('/api/tokens/' + t.id, { method: 'DELETE' }).then(refresh, function (e) { showToast(e.message, 'error'); });
+        });
+        li.appendChild(info);
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }
+
+    function refresh() {
+      api('/api/tokens').then(render, function () {});
+    }
+
+    createBtn.addEventListener('click', function () {
+      const name = nameInput.value.trim() || 'Voice assistant';
+      createBtn.disabled = true;
+      api('/api/tokens', { method: 'POST', body: JSON.stringify({ name: name }) })
+        .then(function (d) {
+          valueEl.textContent = d.token;
+          box.hidden = false;
+          nameInput.value = '';
+          refresh();
+        }, function (e) { showToast(e.message, 'error'); })
+        .finally(function () { createBtn.disabled = false; });
+    });
+
+    copyBtn.addEventListener('click', function () {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(valueEl.textContent).then(function () { showToast('Copied', 'success'); });
+      }
+    });
+
+    refresh();
   })();
 
   // ----------------------------------------------------------------
@@ -329,7 +422,7 @@
   function updateUsage() {
     const spent  = ApiUsage.getSpent();
     const budget = ApiUsage.getBudget();
-    const hasKey = !!ApiKey.get();
+    const hasKey = ApiKey.has();
 
     document.getElementById('usage-cost').textContent = '$' + spent.toFixed(3);
 

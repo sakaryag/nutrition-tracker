@@ -1350,10 +1350,7 @@
     if (!insightBtn || !insightResult) return;
 
     insightBtn.addEventListener('click', async function() {
-      var apiKey = '';
-      try { apiKey = ApiKey.get(); } catch(_) {}
-
-      if (!apiKey) {
+      if (!ApiKey.available()) {
         insightResult.textContent = t('insight.noKey');
         insightResult.className = 'insight-result no-key';
         insightResult.hidden = false;
@@ -1393,7 +1390,6 @@
           body: JSON.stringify({
             messages: [{ role: 'user', content: content }],
             lang: isTr ? 'tr' : 'en',
-            api_key: apiKey,
           }),
         });
         insightResult.textContent = resp.reply || '';

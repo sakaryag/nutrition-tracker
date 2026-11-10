@@ -94,6 +94,15 @@
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
   }
 
+  function getCameraStream(constraints) {
+    return window.NTCamera ? NTCamera.getStream(constraints) : navigator.mediaDevices.getUserMedia(constraints);
+  }
+
+  function cameraBlocked(force) {
+    if (force || !window.NTCamera) return Promise.resolve(false);
+    return NTCamera.blocked().catch(function () { return false; });
+  }
+
   // @zxing/library UMD — exposes global ZXing with BrowserMultiFormatReader
   var _zxingReady = false;
   var _zxingCbs = [];
@@ -148,6 +157,7 @@
 
     var stream = null;
     var zxingReader = null;
+    var scanSeq = 0;
     var closed = false;
 
     function close() {
@@ -192,16 +202,25 @@
     }
 
     function showRetry() {
+      if (document.getElementById('bc-retry-btn')) return;
       var btn = document.createElement('button');
+      btn.id = 'bc-retry-btn';
       btn.className = 'btn btn-secondary';
       btn.textContent = 'Try again';
       btn.style.marginTop = '.5rem';
       btn.addEventListener('click', function () {
         btn.remove();
         els.errorEl.textContent = '';
-        startScanning();
+        startScanning(true);
       });
       els.errorEl.parentNode.insertBefore(btn, els.errorEl.nextSibling);
+    }
+
+    function showCameraFailed(msg) {
+      els.video.hidden = true;
+      els.errorEl.textContent = msg;
+      showManualInput(els.card, els.statusEl, els.errorEl, lookup);
+      showRetry();
     }
 
     function handleCode(code) {
@@ -218,57 +237,75 @@
       });
     }
 
-    function startScanning() {
+    function startScanning(force) {
+      var seq = ++scanSeq;
+      if (zxingReader) { try { zxingReader.reset(); } catch (_) {} zxingReader = null; }
+      stopTracks(stream);
+      stream = null;
+      var oldRow = document.getElementById('bc-manual-row');
+      if (oldRow) oldRow.parentNode.removeChild(oldRow);
       els.statusEl.textContent = 'Starting camera…';
       els.video.hidden = false;
 
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-        .then(function (s) {
-          if (closed) { stopTracks(s); return; }
-          stream = s;
-          els.video.srcObject = stream;
-          els.video.play();
-          els.statusEl.textContent = 'Point camera at barcode…';
+      function stale() { return closed || seq !== scanSeq; }
 
-          if (typeof BarcodeDetector !== 'undefined') {
-            // Native API — Chrome Android, Safari 17.4+
-            var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
-            (function loop() {
-              if (closed) return;
-              requestAnimationFrame(function () {
-                if (closed) return;
-                if (!els.video.videoWidth) { loop(); return; }
-                detector.detect(els.video)
-                  .then(function (barcodes) {
-                    if (closed) return;
-                    if (!barcodes.length) { loop(); return; }
-                    handleCode(barcodes[0].rawValue);
-                  })
-                  .catch(function () { if (!closed) loop(); });
-              });
-            })();
-          } else {
-            // ZXing.BrowserMultiFormatReader — all other browsers
-            // decodeFromStream fires callback on every frame:
-            //   result is set when a barcode is found; err is NotFoundException otherwise (normal)
-            zxingReader = new ZXing.BrowserMultiFormatReader();
-            var handled = false;
-            zxingReader.decodeFromStream(stream, els.video, function (result, err) {
-              if (closed || handled) return;
-              if (result) {
-                handled = true;
-                handleCode(result.getText());
-              }
-              // err === NotFoundException on empty frames — ignore
-            });
+      cameraBlocked(force)
+        .then(function (blocked) {
+          if (stale()) return null;
+          if (blocked) {
+            showCameraFailed('Camera is blocked for this site. Enter the barcode manually, or allow the camera in your browser settings.');
+            return null;
           }
+          return getCameraStream({ video: { facingMode: { ideal: 'environment' } } }).then(function (s) {
+            if (stale()) { stopTracks(s); return; }
+            onStream(s, stale);
+          });
         })
         .catch(function () {
-          if (closed) return;
-          els.video.hidden = true;
-          els.errorEl.textContent = 'Camera access denied. Enter barcode manually.';
-          showManualInput(els.card, els.statusEl, els.errorEl, lookup);
+          if (stale()) return;
+          showCameraFailed('Camera access denied. Enter barcode manually.');
         });
+    }
+
+    function onStream(s, stale) {
+      stream = s;
+      els.video.srcObject = stream;
+      var p = els.video.play();
+      if (p && p.catch) p.catch(function () {});
+      els.statusEl.textContent = 'Point camera at barcode…';
+
+      if (typeof BarcodeDetector !== 'undefined') {
+        // Native API — Chrome Android, Safari 17.4+
+        var detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+        (function loop() {
+          if (stale()) return;
+          requestAnimationFrame(function () {
+            if (stale()) return;
+            if (!els.video.videoWidth) { loop(); return; }
+            detector.detect(els.video)
+              .then(function (barcodes) {
+                if (stale()) return;
+                if (!barcodes.length) { loop(); return; }
+                handleCode(barcodes[0].rawValue);
+              })
+              .catch(function () { if (!stale()) loop(); });
+          });
+        })();
+      } else {
+        // ZXing.BrowserMultiFormatReader — all other browsers
+        // decodeFromStream fires callback on every frame:
+        //   result is set when a barcode is found; err is NotFoundException otherwise (normal)
+        zxingReader = new ZXing.BrowserMultiFormatReader();
+        var handled = false;
+        zxingReader.decodeFromStream(stream, els.video, function (result, err) {
+          if (stale() || handled) return;
+          if (result) {
+            handled = true;
+            handleCode(result.getText());
+          }
+          // err === NotFoundException on empty frames — ignore
+        });
+      }
     }
 
     if (typeof BarcodeDetector !== 'undefined') {

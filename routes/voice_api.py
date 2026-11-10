@@ -339,6 +339,17 @@ def _ai_parse(text, audio, lang, key):
     try:
         # Siri/Alexa give up after ~10 s, so cap Gemini time (failover across models included).
         data = gemini.generate_json_parts(parts, key, system=system, timeout=11 if audio else 7)
+    except gemini.GeminiError as e:
+        # iPhone voice memos are AAC in an MP4 container; retry under the plain AAC type if rejected.
+        if not (audio and audio[1] == 'audio/mp4' and e.code == 400):
+            log.warning('voice api gemini parse failed: %s', e)
+            return None
+        parts[0]['inlineData']['mimeType'] = 'audio/aac'
+        try:
+            data = gemini.generate_json_parts(parts, key, system=system, timeout=8)
+        except (RuntimeError, ValueError) as e2:
+            log.warning('voice api gemini parse failed (aac retry): %s', e2)
+            return None
     except (RuntimeError, ValueError) as e:
         log.warning('voice api gemini parse failed: %s', e)
         return None

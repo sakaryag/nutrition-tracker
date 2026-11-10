@@ -48,7 +48,7 @@ _UNIT_MAP = {
     # Conversions (applied via _UNIT_MULTIPLIERS)
     'kg': 'g', 'l': 'ml', 'lt': 'ml', 'oz': 'g', 'lb': 'g',
     # Turkish
-    'adet': 'piece', 'dilim': 'slice', 'porsiyon': 'serving',
+    'adet': 'piece', 'tane': 'piece', 'dilim': 'slice', 'porsiyon': 'serving',
     'bardak': 'glass', 'kaşık': 'tbsp', 'avuç': 'g',
 }
 
@@ -75,6 +75,7 @@ _SKIP = {
     'i', 'had', 'ate', 'drank', 'eaten', 'have', 'just', 'also', 'today',
     'some', 'the', 'and', 'with', 'for', 'at', 'plus', 'my', 'bit',
     'yedim', 'içtim', 'bugün', 've', 'ile', 'olan', 'aldım',
+    'yemek', 'yemeği', 'yemeğinde', 'yemekte', 'yemeğe', 'öğün', 'öğünde', 'öğününde', 'olarak',
 }
 
 # Cooking adjectives — keep them as modifiers to improve match quality
@@ -88,10 +89,15 @@ _COOKING_ADJ = {
 _BREAK = {',', 'and', 'with', 'for', 'at', 'plus', 'or', 'to', 'in', 'on', 'from', 'into', 'as'}
 
 
+def _is_meal_word(w: str) -> bool:
+    # Turkish adds case suffixes: "kahvaltıda", "akşamları", "öğlende".
+    return w in _MEAL_MAP or any(len(k) >= 4 and w.startswith(k) for k in _MEAL_MAP)
+
+
 def _trim_food_words(words):
     out = []
     for w in words:
-        if w in _BREAK or w in _MEAL_MAP:
+        if w in _BREAK or _is_meal_word(w):
             break
         if w not in _SKIP:
             out.append(w)
@@ -141,7 +147,7 @@ def _mentions_regex(text: str) -> list[dict]:
     for seg in _SEGMENT_SPLIT_RE.split(text.lower()):
         words = re.findall(r"[\wçğıöşü./]+", seg)
         qty, raw_unit = None, ''
-        while words and (words[0] in _SKIP or words[0] in _MEAL_MAP or words[0] in _BREAK):
+        while words and (words[0] in _SKIP or _is_meal_word(words[0]) or words[0] in _BREAK):
             words.pop(0)
         if words:
             m = _NUM_UNIT_RE.match(words[0])
@@ -267,16 +273,28 @@ def _mentions_spacy(text: str, nlp) -> list[dict]:
     return results
 
 
+def _looks_turkish(text: str) -> bool:
+    lower = text.lower()
+    if any(c in lower for c in 'çğıöşü'):
+        return True
+    return bool(set(re.findall(r'\w+', lower)) & _TR_HINT_WORDS)
+
+
+_TR_HINT_WORDS = {'bir', 'iki', 'tane', 'adet', 've', 'ile', 'yedim', 'içtim', 'kahvaltı',
+                  'yumurta', 'ekmek', 'peynir', 'dilim', 'bardak', 'porsiyon'}
+
+
 def extract_mentions(text: str) -> list[dict]:
     """Extract (food_text, quantity, unit) mentions from natural language."""
-    nlp = _get_nlp()
+    # The spaCy model is English-only; on Turkish text it invents mentions ("bir" -> "Bira").
+    nlp = None if _looks_turkish(text) else _get_nlp()
     if nlp:
         mentions = _mentions_spacy(text, nlp)
         if not mentions:                     # spaCy found nothing → try regex
             mentions = _mentions_regex(text)
     else:
         mentions = _mentions_regex(text)
-    return mentions
+    return [m for m in mentions if m['food_text'] not in _WORD_NUMBERS]
 
 
 # ---------------------------------------------------------------------------

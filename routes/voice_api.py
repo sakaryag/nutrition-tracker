@@ -239,6 +239,9 @@ def _from_db(m, lang, strict=False):
     targets = {query}
     if m['food_text'].lower() in _TR_EN:
         targets.add(_singular_phrase(_TR_EN[m['food_text'].lower()]))
+    for alt in m.get('alt_names') or ():
+        if alt:
+            targets.add(_singular_phrase(alt))
     queries = list(targets)
     for tok in _extract_food_tokens(m['food_text'])[:6]:
         queries.append(tok)
@@ -338,7 +341,7 @@ def _ai_parse(text, audio, lang, key):
         parts.append({'text': f'User said: {json.dumps(text, ensure_ascii=False)}\n' + instructions})
     try:
         # Siri/Alexa give up after ~10 s, so cap Gemini time (failover across models included).
-        data = gemini.generate_json_parts(parts, key, system=system, timeout=11 if audio else 7)
+        data = gemini.generate_json_parts(parts, key, system=system, timeout=12 if audio else 8.5)
     except gemini.GeminiError as e:
         # iPhone voice memos are AAC in an MP4 container; retry under the plain AAC type if rejected.
         if not (audio and audio[1] == 'audio/mp4' and e.code == 400):
@@ -392,7 +395,7 @@ def _resolve_ai_items(parsed, lang, uid):
     resolved, unresolved = [], []
     for it in parsed['items']:
         m = {'food_text': it['db_name'], 'quantity': it['quantity'], 'unit': it['unit'],
-             'variant': it['variant'], 'grams_hint': it['grams'],
+             'variant': it['variant'], 'grams_hint': it['grams'], 'alt_names': [it['food']],
              'norm': _normalize(it['db_name']), 'key': _singular_phrase(it['db_name'])}
         r = _from_db(m, lang, strict=True)
         if r:

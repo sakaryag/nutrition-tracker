@@ -284,12 +284,14 @@ def fast_models(key: str, preferred: str = '') -> list:
 
 def _generate_failover(body: dict, key: str, models: list, deadline: float) -> str:
     last = GeminiError('Gemini error: no model available')
-    for model in models:
+    for i, model in enumerate(models):
         remaining = deadline - time.monotonic()
         if remaining < 1.5:
             break
+        # A hung first model must not eat the whole budget: leave time for the next one.
+        per_try = remaining if i == len(models) - 1 else min(remaining, max(remaining * 0.55, 3.0))
         try:
-            return _post_generate(model, body, key, remaining)
+            return _post_generate(model, body, key, per_try)
         except GeminiError as e:
             last = e
             if e.code not in _RETRYABLE:

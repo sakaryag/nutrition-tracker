@@ -337,7 +337,8 @@ def _ai_parse(text, audio, lang, key):
     else:
         parts.append({'text': f'User said: {json.dumps(text, ensure_ascii=False)}\n' + instructions})
     try:
-        data = gemini.generate_json_parts(parts, key, system=system, timeout=20 if audio else 10)
+        # Siri/Alexa give up after ~10 s, so cap Gemini time (failover across models included).
+        data = gemini.generate_json_parts(parts, key, system=system, timeout=11 if audio else 7)
     except (RuntimeError, ValueError) as e:
         log.warning('voice api gemini parse failed: %s', e)
         return None

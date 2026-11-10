@@ -243,6 +243,16 @@ def pick_model(requested: str, key: str) -> str:
 # ---------------------------------------------------------------------------
 # One-shot JSON generation (used by the voice API)
 # ---------------------------------------------------------------------------
+class GeminiError(RuntimeError):
+    def __init__(self, msg, code=None):
+        super().__init__(msg)
+        self.code = code
+
+
+# Overloaded / rate-limited / timed out: worth trying another model.
+_RETRYABLE = {408, 429, 500, 502, 503, 504, 529, None}
+
+
 def _post_generate(model: str, body: dict, key: str, timeout: float) -> str:
     req = urllib.request.Request(
         f'{API_BASE}/models/{model}:generateContent', data=json.dumps(body).encode(),
@@ -254,9 +264,37 @@ def _post_generate(model: str, body: dict, key: str, timeout: float) -> str:
         parts = data['candidates'][0]['content'].get('parts') or []
         return ''.join(p.get('text', '') for p in parts)
     except urllib.error.HTTPError as e:
-        raise RuntimeError(f'Gemini {e.code}') from None
+        raise GeminiError(f'Gemini {e.code}', e.code) from None
     except Exception as e:
-        raise RuntimeError(f'Gemini error: {type(e).__name__}') from None
+        raise GeminiError(f'Gemini error: {type(e).__name__}') from None
+
+
+def fast_models(key: str, preferred: str = '') -> list:
+    """Up to 3 stable models, fastest (flash-lite) first, for latency-sensitive calls."""
+    models = cached_models(key) or _fallback_list()
+    stable = [m['id'] for m in models if not m['preview']] or [m['id'] for m in models]
+    lite = [m for m in stable if _tier(m) == 1]
+    flash = [m for m in stable if _tier(m) == 0]
+    order = []
+    for m in [preferred] + lite[:1] + flash[:1] + lite[1:2] + flash[1:2]:
+        if m and m not in order and _MODEL_RE.match(m):
+            order.append(m)
+    return order[:3]
+
+
+def _generate_failover(body: dict, key: str, models: list, deadline: float) -> str:
+    last = GeminiError('Gemini error: no model available')
+    for model in models:
+        remaining = deadline - time.monotonic()
+        if remaining < 1.5:
+            break
+        try:
+            return _post_generate(model, body, key, remaining)
+        except GeminiError as e:
+            last = e
+            if e.code not in _RETRYABLE:
+                raise
+    raise last
 
 
 def generate_text(prompt: str, key: str, model: str = '', system: str = '',
@@ -273,7 +311,7 @@ def generate_text(prompt: str, key: str, model: str = '', system: str = '',
 
 
 def transcribe(audio: bytes, mime: str, key: str, lang: str = 'en', model: str = '',
-               timeout: float = 25) -> str:
+               timeout: float = 15) -> str:
     """Speech-to-text for a short voice note (Turkish or English)."""
     likely = 'Turkish' if lang == 'tr' else 'English or Turkish'
     prompt = (f'Transcribe this short voice note verbatim. The speaker most likely speaks {likely}; '
@@ -287,7 +325,8 @@ def transcribe(audio: bytes, mime: str, key: str, lang: str = 'en', model: str =
         ]}],
         'generationConfig': {'maxOutputTokens': 512, 'temperature': 0},
     }
-    return _post_generate(pick_model(model, key), body, key, timeout).strip().strip('"')
+    text = _generate_failover(body, key, fast_models(key), time.monotonic() + timeout)
+    return text.strip().strip('"')
 
 
 def generate_json(prompt: str, key: str, **kw):
@@ -297,8 +336,9 @@ def generate_json(prompt: str, key: str, **kw):
 
 
 def generate_json_parts(parts: list, key: str, model: str = '', system: str = '',
-                        timeout: float = 15, max_tokens: int = 2048):
-    """generateContent with arbitrary parts (e.g. inline audio + text), JSON response."""
+                        timeout: float = 15, max_tokens: int = 1024):
+    """generateContent with arbitrary parts (e.g. inline audio + text), JSON response.
+    Uses the fastest models first and fails over on overload/timeout within `timeout` seconds."""
     body = {
         'contents': [{'role': 'user', 'parts': parts}],
         'generationConfig': {'maxOutputTokens': max_tokens, 'responseMimeType': 'application/json',
@@ -306,6 +346,6 @@ def generate_json_parts(parts: list, key: str, model: str = '', system: str = ''
     }
     if system:
         body['systemInstruction'] = {'parts': [{'text': system}]}
-    text = _post_generate(pick_model(model, key), body, key, timeout).strip()
+    text = _generate_failover(body, key, fast_models(key, model), time.monotonic() + timeout).strip()
     text = re.sub(r'^```(?:json)?\s*|\s*```$', '', text)
     return json.loads(text)

@@ -148,3 +148,27 @@ def test_transcribe_ok_and_validation(client, monkeypatch):
     assert seen == {'mime': 'audio/wav', 'key': KEY_A, 'lang': 'tr'}
     bad = client.post('/api/chat/transcribe', data={'audio': (BytesIO(b'x' * 5000), 'v.wav')})
     assert bad.status_code == 400
+
+
+def test_failover_on_overload(monkeypatch):
+    tried = []
+
+    def fake_post(model, body, key, timeout):
+        tried.append(model)
+        if len(tried) == 1:
+            raise G.GeminiError('Gemini 503', 503)
+        return '{"ok": true}'
+
+    monkeypatch.setattr(G, '_post_generate', fake_post)
+    assert G.generate_json_parts([{'text': 'x'}], 'AIzaKey') == {'ok': True}
+    assert len(tried) == 2 and tried[0] != tried[1]
+    assert 'flash-lite' in tried[0]
+
+
+def test_no_failover_on_auth_error(monkeypatch):
+    def fake_post(model, body, key, timeout):
+        raise G.GeminiError('Gemini 403', 403)
+
+    monkeypatch.setattr(G, '_post_generate', fake_post)
+    with pytest.raises(G.GeminiError):
+        G.generate_json_parts([{'text': 'x'}], 'AIzaKey')

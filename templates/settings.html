@@ -208,7 +208,7 @@
 
   <article class="settings-card" style="margin-bottom:1.5rem;">
     <h2>Voice Assistant &amp; API Access</h2>
-    <p class="settings-description">Create a personal access token to log food or ask for today's status from Alexa, Home Assistant or scripts. Send it as <code>Authorization: Bearer &lt;token&gt;</code> to <code>/api/v1/log</code>, <code>/api/v1/status</code>, <code>/api/v1/last</code>, <code>/api/v1/undo</code>. The token is shown only once &mdash; treat it like a password and revoke it if lost.</p>
+    <p class="settings-description">Create a personal access token to log food or ask for today's status from Alexa, Home Assistant or scripts. Send it as <code>Authorization: Bearer &lt;token&gt;</code> to <code>/api/v1/log</code>, <code>/api/v1/status</code>, <code>/api/v1/last</code>, <code>/api/v1/undo</code>. The token is shown only once &mdash; treat it like a password and revoke it if lost. If a Gemini key is saved on this device, it is attached to the new token in encrypted form (only the token can unlock it), so voice logging understands natural speech.</p>
     <div class="form-group" style="max-width:480px;">
       <label for="token-name">Token name</label>
       <div style="display:flex;gap:0.5rem;">

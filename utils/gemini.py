@@ -93,6 +93,27 @@ def key_hint(key: str) -> str:
     return ('\u2026' + key[-4:]) if key else ''
 
 
+def _token_fernet(token: str):
+    from cryptography.fernet import Fernet
+    secret = str(current_app.config['SECRET_KEY']).encode()
+    raw = hmac.new(secret, b'nt-token-gemini|' + token.encode(), hashlib.sha256).digest()
+    return Fernet(base64.urlsafe_b64encode(raw))
+
+
+def seal_for_token(key: str, token: str) -> str:
+    """Encrypt a Gemini key so only a request presenting `token` can decrypt it (DB holds only the hash)."""
+    return _token_fernet(token).encrypt(key.encode()).decode()
+
+
+def open_for_token(blob: str, token: str) -> str:
+    if not blob:
+        return ''
+    try:
+        return _token_fernet(token).decrypt(blob.encode()).decode()
+    except Exception:
+        return ''
+
+
 def looks_like_key(key: str) -> bool:
     return bool(key) and len(key) <= 200 and bool(re.fullmatch(r'[A-Za-z0-9_.\-]+', key)) \
         and (key.startswith('AIza') or key.startswith('AQ.'))
@@ -271,5 +292,20 @@ def transcribe(audio: bytes, mime: str, key: str, lang: str = 'en', model: str =
 
 def generate_json(prompt: str, key: str, **kw):
     text = generate_text(prompt, key, **kw).strip()
+    text = re.sub(r'^```(?:json)?\s*|\s*```$', '', text)
+    return json.loads(text)
+
+
+def generate_json_parts(parts: list, key: str, model: str = '', system: str = '',
+                        timeout: float = 15, max_tokens: int = 2048):
+    """generateContent with arbitrary parts (e.g. inline audio + text), JSON response."""
+    body = {
+        'contents': [{'role': 'user', 'parts': parts}],
+        'generationConfig': {'maxOutputTokens': max_tokens, 'responseMimeType': 'application/json',
+                             'temperature': 0.1},
+    }
+    if system:
+        body['systemInstruction'] = {'parts': [{'text': system}]}
+    text = _post_generate(pick_model(model, key), body, key, timeout).strip()
     text = re.sub(r'^```(?:json)?\s*|\s*```$', '', text)
     return json.loads(text)

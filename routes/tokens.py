@@ -3,6 +3,7 @@ from flask import Blueprint, current_app, jsonify, request, session
 
 from models import db
 from models.api_token import ApiToken, MAX_ACTIVE_TOKENS
+from utils import gemini as G
 
 tokens_bp = Blueprint('tokens', __name__, url_prefix='/api/tokens')
 
@@ -42,10 +43,15 @@ def create_token():
 
     token, token_hash, prefix = ApiToken.generate()
     row = ApiToken(user_id=uid, name=name, token_hash=token_hash, prefix=prefix)
+    if data.get('use_ai_key', True) is not False:
+        key = G.cookie_key(uid)
+        if key:
+            row.enc_gemini_key = G.seal_for_token(key, token)
     db.session.add(row)
     db.session.commit()
     return jsonify({'id': row.id, 'name': row.name, 'prefix': row.prefix,
-                    'created_at': row.created_at.isoformat(), 'token': token}), 201
+                    'created_at': row.created_at.isoformat(), 'token': token,
+                    'has_ai_key': bool(row.enc_gemini_key)}), 201
 
 
 @tokens_bp.route('/<int:token_id>', methods=['DELETE'])

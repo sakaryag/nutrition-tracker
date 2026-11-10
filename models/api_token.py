@@ -28,6 +28,8 @@ class ApiToken(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=_utcnow)
     last_used_at = db.Column(db.DateTime, nullable=True)
     revoked = db.Column(db.Boolean, nullable=False, default=False)
+    # User's Gemini key encrypted with a key derived from the plaintext token; useless without it.
+    enc_gemini_key = db.Column(db.Text, nullable=True)
 
     @staticmethod
     def generate():
@@ -42,4 +44,5 @@ class ApiToken(db.Model):
             'prefix': self.prefix,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'last_used_at': self.last_used_at.isoformat() if self.last_used_at else None,
+            'has_ai_key': bool(self.enc_gemini_key),
         }

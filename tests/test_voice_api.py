@@ -27,15 +27,20 @@ def no_server_key(monkeypatch):
 
 @pytest.fixture
 def gemini_spy(monkeypatch):
-    calls = []
+    class Calls(list):
+        response = {
+            'heard': '3 flumberries', 'meal': None,
+            'items': [{'food': 'Flumberry', 'db_name': 'flumberry', 'variant': None,
+                       'quantity': 3, 'unit': 'piece', 'grams': 90,
+                       'per100': {'protein': 1, 'fat': 0.5, 'carbs': 10, 'calories': 50}}]}
 
-    def fake(prompt, key, **kw):
-        calls.append({'prompt': prompt, 'key': key})
-        return {'items': [{'phrase': 'flumberries', 'food_name': 'Flumberry', 'grams': 90,
-                           'per100': {'protein': 1, 'fat': 0.5, 'carbs': 10, 'calories': 50},
-                           'default_grams': 30}]}
+    calls = Calls()
 
-    monkeypatch.setattr('utils.gemini.generate_json', fake)
+    def fake(parts, key, **kw):
+        calls.append({'parts': parts, 'key': key})
+        return calls.response
+
+    monkeypatch.setattr('utils.gemini.generate_json_parts', fake)
     return calls
 
 
@@ -229,12 +234,16 @@ class TestLog:
         tok = _new_token(client)['token']
         rv = client.post('/api/v1/log', json={'text': '3 flumberries'}, headers=_bearer(tok))
         assert rv.status_code == 201, rv.get_json()
-        item = rv.get_json()['logged'][0]
+        body = rv.get_json()
+        item = body['logged'][0]
         assert item['source'] == 'ai' and item['food_name'] == 'Flumberry'
         assert item['calories'] == 45
+        assert body['heard'] == '3 flumberries'
         assert len(gemini_spy) == 1 and gemini_spy[0]['key'] == 'AIzaServerKey123'
         assert AiFoodCache.query.count() == 1
 
+        # Without a key the cached estimate is reused by the offline parser.
+        monkeypatch.setattr('utils.gemini.server_key', lambda: '')
         rv = client.post('/api/v1/log', json={'text': '3 flumberries'}, headers=_bearer(tok))
         assert rv.status_code == 201
         item = rv.get_json()['logged'][0]
@@ -243,12 +252,69 @@ class TestLog:
         assert len(gemini_spy) == 1
         assert AiFoodCache.query.count() == 1
 
+    def test_ai_parse_prefers_db_food(self, client, monkeypatch, gemini_spy):
+        monkeypatch.setattr('utils.gemini.server_key', lambda: 'AIzaServerKey123')
+        egg = _food('Egg, whole, boiled', name_tr='Yumurta, tam, haşlanmış', g_per_unit=50.0)
+        egg.protein, egg.fat, egg.carbs, egg.calories = 6.3, 5.0, 0.6, 72
+        egg.default_serving, egg.serving_unit = 1, 'piece'
+        _food('Noodles, egg', name_tr='Yumurtalı erişte')
+        db.session.commit()
+        gemini_spy.response = {'heard': 'iki haşlanmış yumurta', 'meal': 'Breakfast', 'items': [
+            {'food': 'Haşlanmış yumurta', 'db_name': 'egg', 'variant': 'boiled', 'quantity': 2,
+             'unit': 'piece', 'grams': 100,
+             'per100': {'protein': 13, 'fat': 10, 'carbs': 1, 'calories': 150}}]}
+        tok = _new_token(client)['token']
+        rv = client.post('/api/v1/log', json={'text': 'to haşlanmış yumurta', 'lang': 'tr'},
+                         headers=_bearer(tok))
+        body = rv.get_json()
+        assert rv.status_code == 201, body
+        assert [i['saved_food_id'] for i in body['logged']] == [egg.id]
+        assert body['logged'][0]['calories'] == 144 and body['logged'][0]['meal_type'] == 'Breakfast'
+
+    def test_turkish_offline_exact_match(self, client, no_server_key, gemini_spy):
+        egg = _food('Egg, whole, raw', name_tr='Yumurta, tam, çiğ', g_per_unit=50.0)
+        egg.protein, egg.fat, egg.carbs, egg.calories = 6.3, 5.0, 0.6, 72
+        egg.default_serving, egg.serving_unit = 1, 'piece'
+        _food('Noodles, egg', name_tr='Yumurtalı erişte')
+        db.session.commit()
+        tok = _new_token(client)['token']
+        for lang in ('tr', 'en'):
+            rv = client.post('/api/v1/log', json={'text': '2 yumurta', 'lang': lang, 'dry_run': True},
+                             headers=_bearer(tok))
+            assert [i['saved_food_id'] for i in rv.get_json()['logged']] == [egg.id], lang
+
+    def test_audio_upload(self, client, monkeypatch, gemini_spy):
+        from io import BytesIO
+        monkeypatch.setattr('utils.gemini.server_key', lambda: 'AIzaServerKey123')
+        tok = _new_token(client)['token']
+        rv = client.post('/api/v1/log', headers=_bearer(tok), content_type='multipart/form-data',
+                         data={'audio': (BytesIO(b'\0' * 2000), 'note.m4a'), 'lang': 'tr'})
+        assert rv.status_code == 201, rv.get_json()
+        assert gemini_spy[0]['parts'][0]['inlineData']['mimeType'] == 'audio/mp4'
+
+    def test_audio_without_key(self, client, no_server_key, gemini_spy):
+        from io import BytesIO
+        tok = _new_token(client)['token']
+        rv = client.post('/api/v1/log', headers=_bearer(tok), content_type='multipart/form-data',
+                         data={'audio': (BytesIO(b'\0' * 2000), 'note.m4a')})
+        assert rv.status_code == 400 and gemini_spy == []
+
+    def test_token_bound_gemini_key(self, client, no_server_key, gemini_spy):
+        client.put('/api/chat/key', json={'key': 'AIzaSyDeviceKey_000000000000000000000'})
+        created = _new_token(client)
+        assert created['has_ai_key'] is True
+        row = ApiToken.query.get(created['id'])
+        assert 'AIzaSyDeviceKey' not in (row.enc_gemini_key or '')
+        rv = client.post('/api/v1/log', json={'text': '3 flumberries'}, headers=_bearer(created['token']))
+        assert rv.status_code == 201
+        assert gemini_spy[0]['key'] == 'AIzaSyDeviceKey_000000000000000000000'
+
     def test_gemini_failure_is_unresolved(self, client, monkeypatch):
         monkeypatch.setattr('utils.gemini.server_key', lambda: 'AIzaServerKey123')
 
         def boom(*a, **kw):
             raise RuntimeError('Gemini 500')
-        monkeypatch.setattr('utils.gemini.generate_json', boom)
+        monkeypatch.setattr('utils.gemini.generate_json_parts', boom)
         tok = _new_token(client)['token']
         rv = client.post('/api/v1/log', json={'text': '3 flumberries'}, headers=_bearer(tok))
         assert rv.status_code == 200 and rv.get_json()['logged'] == []

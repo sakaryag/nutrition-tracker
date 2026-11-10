@@ -4,6 +4,7 @@ Auth is `Authorization: Bearer nt_...` only; the session cookie is deliberately 
 so cross-site requests can't ride a logged-in browser session. All state lives in the DB
 (VoiceLog, AiFoodCache) so it works on stateless, scale-to-zero hosts.
 """
+import base64
 import hmac
 import json
 import logging
@@ -29,6 +30,19 @@ voice_bp = Blueprint('voice_api', __name__, url_prefix='/api/v1')
 
 MAX_TEXT = 500
 MAX_BODY = 8192
+MAX_AUDIO_BODY = 8 * 1024 * 1024
+# Normalised MIME types Gemini accepts for inline audio.
+_AUDIO_MIME = {
+    'audio/wav': 'audio/wav', 'audio/x-wav': 'audio/wav', 'audio/wave': 'audio/wav',
+    'audio/aiff': 'audio/aiff', 'audio/x-aiff': 'audio/aiff',
+    'audio/mpeg': 'audio/mp3', 'audio/mp3': 'audio/mp3',
+    'audio/aac': 'audio/aac', 'audio/ogg': 'audio/ogg', 'audio/flac': 'audio/flac',
+    'audio/mp4': 'audio/mp4', 'audio/m4a': 'audio/mp4', 'audio/x-m4a': 'audio/mp4',
+    'video/mp4': 'audio/mp4',
+}
+_AUDIO_EXT = {'wav': 'audio/wav', 'aif': 'audio/aiff', 'aiff': 'audio/aiff', 'mp3': 'audio/mp3',
+              'aac': 'audio/aac', 'ogg': 'audio/ogg', 'flac': 'audio/flac', 'm4a': 'audio/mp4',
+              'mp4': 'audio/mp4'}
 MAX_MENTIONS = 10
 DB_MATCH_THRESHOLD = 75
 CACHE_DAYS = 30
@@ -52,7 +66,8 @@ def _err(msg, status=400):
 # ---------------------------------------------------------------------------
 @voice_bp.before_request
 def token_auth():
-    if request.content_length and request.content_length > MAX_BODY:
+    is_audio = (request.mimetype or '').startswith('multipart/')
+    if request.content_length and request.content_length > (MAX_AUDIO_BODY if is_audio else MAX_BODY):
         return _err('payload_too_large', 413)
     header = request.headers.get('Authorization', '')
     scheme, _, token = header.partition(' ')
@@ -67,6 +82,7 @@ def token_auth():
     if current_app.config.get('AUTH_ENABLED') and row.user_id is None:
         return _err('invalid_token', 401)
     g.api_user_id = row.user_id
+    g.token_ai_key = gemini.open_for_token(row.enc_gemini_key, token) if row.enc_gemini_key else ''
     now = _utcnow()
     if row.last_used_at is None or now - row.last_used_at >= timedelta(minutes=1):
         row.last_used_at = now
@@ -77,7 +93,7 @@ def _gemini_key() -> str:
     supplied = (request.headers.get('X-Gemini-Key') or '').strip()
     if supplied and gemini.looks_like_key(supplied):
         return supplied
-    return gemini.server_key()
+    return getattr(g, 'token_ai_key', '') or gemini.server_key()
 
 
 # ---------------------------------------------------------------------------
@@ -176,14 +192,6 @@ def _status_speech(d, totals, target, lang) -> str:
 # ---------------------------------------------------------------------------
 # Food resolution
 # ---------------------------------------------------------------------------
-def _mention_label(m) -> str:
-    q, u = m['quantity'], m['unit']
-    if q is None:
-        return m['food_text']
-    qs = f'{q:g}'
-    return f'{qs} {u} {m["food_text"]}' if u and u != 'serving' else f'{qs} {m["food_text"]}'
-
-
 def _portion(m, grams_per_unit):
     """(grams eaten, serving_size, serving_unit) for a food with `grams_per_unit` per serving."""
     q, u = m['quantity'], m['unit']
@@ -213,7 +221,7 @@ def _item(name, per100, grams, serving_size, serving_unit, source, phrase, saved
 def _from_cache(m, uid):
     cutoff = _utcnow() - timedelta(days=CACHE_DAYS)
     row = (_owned(AiFoodCache.query, AiFoodCache, uid)
-           .filter(AiFoodCache.phrase == m['norm'], AiFoodCache.created_at >= cutoff).first())
+           .filter(AiFoodCache.phrase == m['key'], AiFoodCache.created_at >= cutoff).first())
     if row is None:
         return None
     grams, size, unit = _portion(m, row.default_grams or 100.0)
@@ -221,9 +229,17 @@ def _from_cache(m, uid):
     return _item(row.food_name, per100, grams, size, unit, 'cache', m['food_text'])
 
 
-def _from_db(m, lang):
+def _main_names(f):
+    """Singular first segment of both the English and Turkish names ("Yumurta, tam, çiğ" -> "yumurta")."""
+    return {_singular_phrase(n.split(',')[0]) for n in (f['name'], f.get('name_tr')) if n}
+
+
+def _from_db(m, lang, strict=False):
     query = _singular_phrase(m['food_text'])
-    queries = [query]
+    targets = {query}
+    if m['food_text'].lower() in _TR_EN:
+        targets.add(_singular_phrase(_TR_EN[m['food_text'].lower()]))
+    queries = list(targets)
     for tok in _extract_food_tokens(m['food_text'])[:6]:
         queries.append(tok)
         if tok in _TR_EN:
@@ -235,19 +251,26 @@ def _from_db(m, lang):
     if not candidates:
         return None
     foods = list(candidates.values())
-    names = [((f.get('name_tr') or f['name']) if lang == 'tr' else f['name']).lower() for f in foods]
 
-    # Prefer foods whose main name is exactly the spoken food ("eggs" -> "Egg, whole, raw",
-    # not "Omelet, cheese, 2 eggs"); for counted items prefer foods measured in pieces.
+    # Prefer foods whose main name (EN or TR) is exactly the spoken food: "yumurta"/"eggs" ->
+    # "Egg, whole, raw", never "Yumurtalı erişte" or "Omelet, cheese, 2 eggs".
     counted = m['quantity'] is not None and (m['unit'] or 'serving') not in ('g', 'ml')
-    exact = [i for i, n in enumerate(names) if _singular_phrase(n.split(',')[0]) == query]
+    variant = (m.get('variant') or '').lower()
+    exact = [i for i, f in enumerate(foods) if _main_names(f) & targets]
     if exact:
         idx = min(exact, key=lambda i: (
+            0 if variant and variant in foods[i]['name'].lower() else 1,
             0 if counted and (foods[i].get('serving_unit') or 'g') not in ('g', 'ml') else 1,
-            len(names[i])))
+            len(foods[i]['name'])))
         score = 100.0
     else:
-        idx, score = fuzzy_match(query, names, threshold=DB_MATCH_THRESHOLD)
+        threshold = 90 if strict else DB_MATCH_THRESHOLD
+        en = [f['name'].lower() for f in foods]
+        tr = [(f.get('name_tr') or f['name']).lower() for f in foods]
+        idx, score = fuzzy_match(query, en, threshold=threshold)
+        idx2, score2 = fuzzy_match(query, tr, threshold=threshold)
+        if score2 > score:
+            idx, score = idx2, score2
         if idx < 0:
             return None
     food = foods[idx]
@@ -260,6 +283,7 @@ def _from_db(m, lang):
     if q is None:
         q, u = ds, su
     u = u or 'serving'
+    hint = m.get('grams_hint') or 0
 
     # Weight foods store macros per 100 g; counted foods (piece/slice/serving) per default serving.
     if weight_food:
@@ -268,7 +292,7 @@ def _from_db(m, lang):
         elif u in _UNIT_GRAMS:
             grams = q * _UNIT_GRAMS[u]
         else:
-            grams = q * (gpu or ds)
+            grams = q * gpu if gpu else (hint or q * ds)
         factor = grams / 100.0
     else:
         if u in ('g', 'ml'):
@@ -283,42 +307,57 @@ def _from_db(m, lang):
     return it
 
 
-def _ask_gemini(mentions, text, lang, key):
-    """One Gemini call for all unresolved mentions → {norm: validated dict}."""
-    labels = [_mention_label(m) for m in mentions]
-    name_lang = 'Turkish' if lang == 'tr' else 'English'
-    system = 'You are a nutrition database. Estimate typical values. Reply with strict JSON only.'
-    prompt = (
-        'For each food phrase below return JSON exactly like '
-        '{"items":[{"phrase": <the phrase exactly as given>, "food_name": <short ' + name_lang + ' name>, '
-        '"grams": <grams of the portion described>, '
-        '"per100": {"protein": <g>, "fat": <g>, "carbs": <g>, "calories": <kcal>}, '
-        '"default_grams": <grams in one typical serving>}]}.\n'
-        f'What the user said: {json.dumps(text, ensure_ascii=False)}\n'
-        'Phrases:\n' + '\n'.join(json.dumps(lbl, ensure_ascii=False) for lbl in labels)
-    )
-    try:
-        data = gemini.generate_json(prompt, key, system=system, timeout=8)
-    except (RuntimeError, ValueError) as e:
-        log.warning('voice api gemini call failed: %s', e)
-        return {}
-    items = data.get('items') if isinstance(data, dict) else data
-    if not isinstance(items, list):
-        return {}
-    items = [i for i in items if isinstance(i, dict)][:len(mentions)]
+_AI_UNITS = {'piece', 'slice', 'serving', 'g', 'ml', 'cup', 'glass', 'tbsp', 'tsp'}
 
-    by_phrase = {}
-    for it in items:
-        p = it.get('phrase')
-        if isinstance(p, str):
-            by_phrase.setdefault(_normalize(p), it)
-    out = {}
-    for i, m in enumerate(mentions):
-        it = by_phrase.get(_normalize(labels[i])) or by_phrase.get(m['norm'])
-        if it is None and i < len(items) and len(items) == len(mentions):
-            it = items[i]
-        if it is None:
+
+def _ai_parse(text, audio, lang, key):
+    """One Gemini call: (voice note or dictated text) -> corrected sentence + structured items."""
+    name_lang = 'Turkish' if lang == 'tr' else 'the language the user spoke'
+    system = (
+        'You convert a spoken food log into JSON. The input may contain speech-recognition '
+        'mistakes and may be Turkish, English or mixed; fix obvious errors from context '
+        "(e.g. 'to eggs'/'too eggs' -> 2 eggs, 'for' -> 4 when it is a quantity). Only include foods "
+        'and drinks the user says they consumed; never invent items. Estimate typical nutrition values.'
+    )
+    instructions = (
+        'Return JSON exactly like {"heard": <the sentence as you understood it>, '
+        '"meal": "Breakfast"|"Lunch"|"Dinner"|"Snack"|null, '
+        '"items": [{"food": <short food name in ' + name_lang + '>, '
+        '"db_name": <generic singular English base food, e.g. "egg", "banana", "chicken breast">, '
+        '"variant": <English preparation/variety word or null, e.g. "boiled">, '
+        '"quantity": <number or null>, '
+        '"unit": "piece"|"slice"|"serving"|"g"|"ml"|"cup"|"glass"|"tbsp"|"tsp"|null, '
+        '"grams": <estimated total grams of this portion>, '
+        '"per100": {"protein": <g>, "fat": <g>, "carbs": <g>, "calories": <kcal>}}]}.'
+    )
+    parts = []
+    if audio:
+        parts.append({'inlineData': {'mimeType': audio[1], 'data': base64.b64encode(audio[0]).decode()}})
+        parts.append({'text': "The user's voice note is attached.\n" + instructions})
+    else:
+        parts.append({'text': f'User said: {json.dumps(text, ensure_ascii=False)}\n' + instructions})
+    try:
+        data = gemini.generate_json_parts(parts, key, system=system, timeout=20 if audio else 10)
+    except (RuntimeError, ValueError) as e:
+        log.warning('voice api gemini parse failed: %s', e)
+        return None
+    if not isinstance(data, dict) or not isinstance(data.get('items'), list):
+        return None
+
+    items = []
+    for it in data['items'][:MAX_MENTIONS]:
+        if not isinstance(it, dict):
             continue
+        food = it.get('food') if isinstance(it.get('food'), str) else ''
+        db_name = it.get('db_name') if isinstance(it.get('db_name'), str) else ''
+        food, db_name = food.strip()[:120], db_name.strip()[:120]
+        if not (food or db_name):
+            continue
+        q = it.get('quantity')
+        q = _clamp(q, 0, 1000, default=None) if q is not None else None
+        unit = it.get('unit') if it.get('unit') in _AI_UNITS else None
+        if q is not None and unit is None:
+            unit = 'serving'
         per = it.get('per100') if isinstance(it.get('per100'), dict) else {}
         per100 = {
             'protein': _clamp(per.get('protein'), 0, 100),
@@ -328,17 +367,37 @@ def _ask_gemini(mentions, text, lang, key):
         }
         if per100['calories'] == 0:
             per100['calories'] = min(900.0, per100['protein'] * 4 + per100['fat'] * 9 + per100['carbs'] * 4)
-        if not any(per100.values()):
+        variant = it.get('variant') if isinstance(it.get('variant'), str) else ''
+        items.append({'food': food or db_name, 'db_name': db_name or food, 'variant': variant.strip()[:40],
+                      'quantity': q, 'unit': unit, 'grams': _clamp(it.get('grams'), 0, 5000),
+                      'per100': per100})
+    heard = data.get('heard') if isinstance(data.get('heard'), str) else ''
+    meal = data.get('meal') if data.get('meal') in MEAL_TYPES.values() else None
+    return {'heard': heard.strip()[:MAX_TEXT], 'meal': meal, 'items': items}
+
+
+def _resolve_ai_items(parsed, lang, uid):
+    resolved, unresolved = [], []
+    for it in parsed['items']:
+        m = {'food_text': it['db_name'], 'quantity': it['quantity'], 'unit': it['unit'],
+             'variant': it['variant'], 'grams_hint': it['grams'],
+             'norm': _normalize(it['db_name']), 'key': _singular_phrase(it['db_name'])}
+        r = _from_db(m, lang, strict=True)
+        if r:
+            r['phrase'] = it['food']
+            resolved.append(r)
             continue
-        name = it.get('food_name')
-        name = name.strip()[:200] if isinstance(name, str) and name.strip() else m['food_text']
-        out[m['norm']] = {
-            'food_name': name,
-            'per100': per100,
-            'grams': _clamp(it.get('grams'), 0, 5000),
-            'default_grams': _clamp(it.get('default_grams'), 0, 5000) or 100.0,
-        }
-    return out
+        if not any(it['per100'].values()):
+            unresolved.append(it['food'])
+            continue
+        grams = it['grams'] or 100.0
+        q, u = it['quantity'], it['unit']
+        default_grams = grams / q if q and u not in ('g', 'ml') else grams
+        _cache_upsert(uid, _singular_phrase(it['food']), {
+            'food_name': it['food'], 'per100': it['per100'], 'default_grams': default_grams or 100.0})
+        size, unit = (q, u) if q is not None else (grams, 'g')
+        resolved.append(_item(it['food'], it['per100'], grams, size, unit, 'ai', it['food']))
+    return resolved, unresolved
 
 
 def _cache_upsert(uid, norm, ai):
@@ -407,18 +466,36 @@ def _mentions(text):
 # ---------------------------------------------------------------------------
 @voice_bp.route('/log', methods=['POST'])
 def log_food():
-    data = request.get_json(silent=True)
+    audio = None
+    if (request.mimetype or '').startswith('multipart/'):
+        data = request.form.to_dict()
+        if 'dry_run' in data:
+            data['dry_run'] = data['dry_run'].strip().lower() in ('1', 'true', 'yes')
+        f = request.files.get('audio')
+        if f is not None:
+            raw = f.read(MAX_AUDIO_BODY + 1)
+            if len(raw) > MAX_AUDIO_BODY:
+                return _err('payload_too_large', 413)
+            ext = (f.filename or '').rsplit('.', 1)[-1].lower()
+            mime = _AUDIO_MIME.get((f.mimetype or '').lower()) or _AUDIO_EXT.get(ext)
+            if not mime or len(raw) < 500:
+                return _err('Unsupported or empty audio (use m4a, wav, aiff, mp3, aac, ogg or flac)')
+            audio = (raw, mime)
+    else:
+        data = request.get_json(silent=True)
     if not isinstance(data, dict):
         return _err('JSON body required')
-    text = data.get('text')
-    if not isinstance(text, str) or not text.strip():
-        return _err('text is required')
+    text = data.get('text') or ''
+    if not isinstance(text, str):
+        return _err('text must be a string')
     text = text.strip()
+    if not text and not audio:
+        return _err('text is required')
     if len(text) > MAX_TEXT:
         return _err(f'text must be at most {MAX_TEXT} characters')
     lang = _lang(data.get('lang'))
     try:
-        meal = _parse_meal(data.get('meal_type')) or detect_meal(text)
+        explicit_meal = _parse_meal(data.get('meal_type'))
     except ValueError:
         return _err('meal_type must be Breakfast, Lunch, Dinner or Snack')
     try:
@@ -432,33 +509,26 @@ def log_food():
     uid = g.api_user_id
     _cleanup(uid)
 
-    mentions = _mentions(text)
-    resolved, pending = [], []
-    for m in mentions:
-        it = _from_cache(m, uid) or _from_db(m, lang)
-        if it:
-            resolved.append(it)
-        else:
-            pending.append(m)
+    key = _gemini_key()
+    parsed = _ai_parse(text, audio, lang, key) if key else None
+    if audio and parsed is None:
+        return _err('no_key' if not key else 'Could not understand the audio', 400 if not key else 502)
 
-    unresolved = []
-    key = _gemini_key() if pending else ''
-    if pending and key:
-        ai = _ask_gemini(pending, text, lang, key)
-        for m in pending:
-            r = ai.get(m['norm'])
-            if r is None:
-                unresolved.append(m['food_text'])
-                continue
-            _cache_upsert(uid, m['norm'], r)
-            grams, size, unit = _portion(m, r['default_grams'])
-            if r['grams'] > 0:
-                grams = r['grams']
-                if m['quantity'] is None:
-                    size = grams
-            resolved.append(_item(r['food_name'], r['per100'], grams, size, unit, 'ai', m['food_text']))
+    if parsed is not None:
+        heard = parsed['heard'] or text
+        resolved, unresolved = _resolve_ai_items(parsed, lang, uid)
+        meal = explicit_meal or parsed['meal'] or detect_meal(heard)
     else:
-        unresolved = [m['food_text'] for m in pending]
+        heard = text
+        meal = explicit_meal or detect_meal(text)
+        resolved, unresolved = [], []
+        for m in _mentions(text):
+            it = _from_cache(m, uid) or _from_db(m, lang)
+            if it:
+                resolved.append(it)
+            else:
+                unresolved.append(m['food_text'])
+    text = heard
 
     logged, entries = [], []
     now_t = datetime.now().time().replace(microsecond=0)
@@ -498,7 +568,7 @@ def log_food():
     target = _get_target(d, uid)
     speech = _log_speech(logged, unresolved, totals, target, lang, dry_run)
     body = {'logged': logged, 'unresolved': unresolved, 'totals_today': totals,
-            'log_id': log_id, 'dry_run': dry_run, 'speech': speech}
+            'log_id': log_id, 'dry_run': dry_run, 'heard': text, 'speech': speech}
     return jsonify(body), (201 if logged and not dry_run else 200)
 
 

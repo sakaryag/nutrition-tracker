@@ -375,7 +375,7 @@
         const li = document.createElement('li');
         li.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--color-border,#eee);';
         const info = document.createElement('span');
-        info.textContent = t.name + ' (' + t.prefix + '…) · last used ' + fmtDate(t.last_used_at);
+        info.textContent = t.name + ' (' + t.prefix + '…)' + (t.has_ai_key ? ' · AI' : '') + ' · last used ' + fmtDate(t.last_used_at);
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'btn btn-secondary btn-sm';
@@ -401,6 +401,7 @@
         .then(function (d) {
           valueEl.textContent = d.token;
           box.hidden = false;
+          if (!d.has_ai_key) showToast('No Gemini key on this device — this token will only match foods already in the database. Save your key above, then create a new token.', 'info', 7000);
           nameInput.value = '';
           refresh();
         }, function (e) { showToast(e.message, 'error'); })

@@ -14,7 +14,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from flask import Blueprint, current_app, g, jsonify, request
 
-from local_model import detect_meal, extract_mentions, fuzzy_match
+from local_model import detect_meal, extract_mentions
 from models import db
 from models.api_token import ApiToken, TOKEN_PREFIX, hash_token
 from models.food_entry import FoodEntry
@@ -44,7 +44,6 @@ _AUDIO_EXT = {'wav': 'audio/wav', 'aif': 'audio/aiff', 'aiff': 'audio/aiff', 'mp
               'aac': 'audio/aac', 'ogg': 'audio/ogg', 'flac': 'audio/flac', 'm4a': 'audio/mp4',
               'mp4': 'audio/mp4'}
 MAX_MENTIONS = 10
-DB_MATCH_THRESHOLD = 75
 CACHE_DAYS = 30
 VOICE_LOG_DAYS = 7
 MEAL_TYPES = {'breakfast': 'Breakfast', 'lunch': 'Lunch', 'dinner': 'Dinner', 'snack': 'Snack'}
@@ -234,7 +233,29 @@ def _main_names(f):
     return {_singular_phrase(n.split(',')[0]) for n in (f['name'], f.get('name_tr')) if n}
 
 
-def _from_db(m, lang, strict=False):
+def _covering_match(query, foods):
+    """Best food whose EN or TR name contains (fuzzily) every spoken word, else (-1, 0).
+    Stops "tavuk suyu çorbası" from matching "Havuç suyu" on a shared word."""
+    from rapidfuzz import fuzz
+    words = [w for w in query.split() if len(w) >= 3] or query.split()
+    best, best_key = -1, None
+    for i, f in enumerate(foods):
+        for name in (f['name'], f.get('name_tr')):
+            if not name:
+                continue
+            name_words = [_singular(w) for w in _normalize(name).split()]
+            scores = [max((fuzz.ratio(w, nw) for nw in name_words), default=0) for w in words]
+            if min(scores) < 85:
+                continue
+            key = (len(name_words) - len(words), -sum(scores))
+            if best_key is None or key < best_key:
+                best, best_key = i, key
+    if best < 0:
+        return -1, 0.0
+    return best, round(-best_key[1] / len(words), 1)
+
+
+def _from_db(m, lang):
     query = _singular_phrase(m['food_text'])
     targets = {query}
     if m['food_text'].lower() in _TR_EN:
@@ -267,13 +288,7 @@ def _from_db(m, lang, strict=False):
             len(foods[i]['name'])))
         score = 100.0
     else:
-        threshold = 90 if strict else DB_MATCH_THRESHOLD
-        en = [f['name'].lower() for f in foods]
-        tr = [(f.get('name_tr') or f['name']).lower() for f in foods]
-        idx, score = fuzzy_match(query, en, threshold=threshold)
-        idx2, score2 = fuzzy_match(query, tr, threshold=threshold)
-        if score2 > score:
-            idx, score = idx2, score2
+        idx, score = _covering_match(query, foods)
         if idx < 0:
             return None
     food = foods[idx]
@@ -397,7 +412,7 @@ def _resolve_ai_items(parsed, lang, uid):
         m = {'food_text': it['db_name'], 'quantity': it['quantity'], 'unit': it['unit'],
              'variant': it['variant'], 'grams_hint': it['grams'], 'alt_names': [it['food']],
              'norm': _normalize(it['db_name']), 'key': _singular_phrase(it['db_name'])}
-        r = _from_db(m, lang, strict=True)
+        r = _from_db(m, lang)
         if r:
             r['phrase'] = it['food']
             resolved.append(r)

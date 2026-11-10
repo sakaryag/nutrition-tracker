@@ -76,6 +76,7 @@ _SKIP = {
     'some', 'the', 'and', 'with', 'for', 'at', 'plus', 'my', 'bit',
     'yedim', 'içtim', 'bugün', 've', 'ile', 'olan', 'aldım',
     'yemek', 'yemeği', 'yemeğinde', 'yemekte', 'yemeğe', 'öğün', 'öğünde', 'öğününde', 'olarak',
+    'yanında', 'yanına', 'biraz', 'bir de', 'da', 'de',
 }
 
 # Cooking adjectives — keep them as modifiers to improve match quality
@@ -99,9 +100,14 @@ def _trim_food_words(words):
     for w in words:
         if w in _BREAK or _is_meal_word(w):
             break
-        if w not in _SKIP:
-            out.append(w)
+        if w in _SKIP or _TR_VERB_RE.match(w):
+            continue
+        out.append(w)
     return out
+
+
+# Turkish "ate/drank/had" verb forms incl. dictation typos ("yediml", "içtik").
+_TR_VERB_RE = re.compile(r'^(yedi[mkn]|içti[mkn]|aldı[mkn]|yiyor|içiyor)')
 
 # ---------------------------------------------------------------------------
 # spaCy lazy load

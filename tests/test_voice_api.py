@@ -471,3 +471,15 @@ def test_delete_user_data_removes_voice_rows(app, auth_on):
     delete_user_data(u.id)
     db.session.commit()
     assert ApiToken.query.count() == 0 and VoiceLog.query.count() == 0 and AiFoodCache.query.count() == 0
+
+
+def test_offline_turkish_dish_not_confused(client, no_server_key, gemini_spy):
+    soup = _food('Terbiyeli Tavuk Suyu Çorbası', name_tr='Terbiyeli Tavuk Suyu Çorbası')
+    juice = _food('Carrot juice', name_tr='Havuç suyu')
+    rice = _food('Pilav', name_tr='Pilav')
+    tok = _new_token(client)['token']
+    rv = client.post('/api/v1/log', headers=_bearer(tok), json={
+        'text': 'Akşam yemeğinde tavuk suyu çorbası ve yanında pilav yediml', 'lang': 'tr', 'dry_run': True})
+    ids = [i['saved_food_id'] for i in rv.get_json()['logged']]
+    assert ids == [soup.id, rice.id] and juice.id not in ids
+    assert rv.get_json()['logged'][0]['meal_type'] == 'Dinner'
